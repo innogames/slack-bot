@@ -1,0 +1,69 @@
+
+macros:
+  - name: thanks
+    trigger: (thanks|thank you|danke)
+    commands:
+      - "reply nothing to thank for"
+    examples:
+      - thanks
+      - thank you
+      - danke
+
+  - name: please
+    description: execute the command after the keyword "please"
+    trigger: "please (?P<command>.*)"
+    commands:
+      - "{{.command}}"
+      - "add reaction :pray:"
+    examples:
+      - please deploy master to xx1
+
+  - name: table flip
+    description: Reply the table flip emoji
+    trigger: "(flip|table flip)"
+    commands:
+      - "reply (╯°□°）╯︵ ┻━┻"
+      - "add reaction :shinto_shrine:"
+      - "add reaction :arrows_counterclockwise:"
+    examples:
+      - flip
+      - flip table
+
+  - name: bring me coffee
+    trigger: "(bring|get|make) me( a)? coffee"
+    commands:
+      - "reply Get your ass up and pick it yourself!"
+      - "add reaction :coffee:"
+    examples:
+      - bring me a coffee
+      - make me a coffee
+
+  - name: build clients
+    description: build AS20 and Haxe client
+    trigger: "build clients? (?P<branch>.*)"
+    commands:
+      - "reply I'll build {{ .branch }} for you"
+      - "trigger job BuildFrontendClient {{ .branch }}"
+      - "trigger job BuildBackendClient {{ .branch }}"
+      - "add reaction :white_check_mark:"
+
+  - name: alarm
+    description: Start the alert in the office for a few seconds
+    trigger: "alarm"
+    commands:
+      - "trigger job BuildAlarm on"
+      - "add reaction :fire:"
+      - "delay 10s trigger job BuildAlarm off"
+
+  - name: meeting time
+    trigger: "meeting time"
+    commands:
+      - "send message to #tech-team It's meeting time :)"
+      - "add reaction :loudspeaker:"
+
+  - name: bot feedback
+    description: Send issues/suggestions etc. to the bot maintainer
+    trigger: "bot feedback:? (?P<feedback>.*)"
+    commands:
+      - "reply thanks for your feedback :)"
+      - "send message to <@UADMINID> We got feedback: {{ .feedback }}"

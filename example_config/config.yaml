@@ -1,0 +1,87 @@
+
+slack:
+  token: # use xoxb-1234567-secret
+  team: "Developer"
+  #autojoinchannels:
+  #  - #fancy-channel"
+  #allowedgroups:
+  # - backend
+  #  - frontend
+
+jenkins:
+  host: #https://example.com
+  username: username
+  password: secret
+  jobs:
+    BuildAlarmOn:
+    BuildAlarmOff:
+    DeployBeta:
+    DeployBranch:
+      trigger: "deploy (?P<BRANCH>[\\w\\-_\\.\\/]*)(?: to)? (?P<SERVER>.*)(?P<SOFT> soft)?"
+      parameters:
+      - name: BRANCH
+        default: master
+        type: branch
+      - name: SERVER
+      - name: SOFT
+        default: false
+        type: bool
+    BackendTests:
+      parameters:
+      - name: BRANCH
+        default: master
+        type: branch
+    BuildMobileClient:
+      parameters:
+      - name: BRANCH
+        default: master
+        type: branch
+    BuildFrontendClient:
+      parameters:
+      - name: BRANCH
+        default: master
+        type: branch
+
+jira:
+  host: https://jira.example.de
+  username: readonlyuser
+  password: secret
+  project: FOOBAR
+
+github:
+  accesstoken: # optional when using github features
+
+gitlab:
+#  host: https://gitlab.example.de
+#  accesstoken: # optional when using gitlab features
+
+branch_lookup:
+#  type: stash
+#  host: https://stash.example.de
+#  username: readonlyuser
+#  password: secret
+#  project: FOOBAR
+#  repository: my_repository
+
+#calendars:
+#  - path: https://calendar.google.com/calendar/ical/ic2sdsdsadadart4t0r4k%40group.calendar.google.com/private-fooobar/basic.ics
+#    events:
+#    - name: Create release branch
+#      trigger: "Create release branch (?P<branch>.*)"
+#      commands:
+#      - "trigger job CreateReleaseBranch {.branch}"
+#      - "send message to #foe-mobile I'll created branch {.branch}"
+#    - name: "Deploy Beta"
+#      trigger: Deploy Beta
+#      commands:
+#      - "send message to #dev-backend deploy beta"
+
+storage_path: /data
+
+logger:
+  level: debug
+  file: ./bot.log
+
+allowed_users:
+  - developer1234
+  - dev-tv

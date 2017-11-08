@@ -1,0 +1,6 @@
+/.idea/
+/bot.log
+/build/
+/vendor/
+/config.yaml
+/storage/

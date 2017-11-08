@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  bot:
+    build: .
+    image: slack-bot:latest
+    restart: always
+    volumes:
+      - ./example_config/:/config/:ro
+      - ./bot.log:/bot.log
+      - bot-data:/data
+    command: ./app -config /config/*.yaml
+
+volumes:
+  bot-data:
