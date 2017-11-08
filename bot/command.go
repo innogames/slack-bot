@@ -1,0 +1,102 @@
+package bot
+
+import (
+	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/util"
+	"github.com/nlopes/slack"
+)
+
+type Command interface {
+	GetMatcher() matcher.Matcher
+}
+
+// Conditional checks if the command should be activated. E.g. is dependencies are not present or it's disabled in the config
+type Conditional interface {
+	IsEnabled() bool
+}
+
+// HelpProvider can be provided by a command to add information within "help" command
+type HelpProvider interface {
+	// each command should provide information, like a description or examples
+	GetHelp() []Help
+}
+
+// Commands is a wrapper of a list of commands. Only the first matched command will be executed
+type Commands struct {
+	commands []Command
+	matcher  []matcher.Matcher // precompiled matcher objects
+	compiled bool
+}
+
+// get the help for ALL included commands
+func (c *Commands) GetHelp() []Help {
+	help := make([]Help, 0)
+
+	for _, command := range c.commands {
+		if helpCommand, ok := command.(HelpProvider); ok {
+			help = append(help, helpCommand.GetHelp()...)
+		}
+	}
+
+	return help
+}
+
+// executes the first matched command and return true in case one command matched
+func (c *Commands) Run(event slack.MessageEvent) bool {
+	c.compile()
+
+	for _, command := range c.matcher {
+		run, match := command.Match(event)
+		if match.Matched() {
+			// this is is needed for ConditionMatcher: runner gets already executed in the matcher itself!
+			if run != nil {
+				run(match, event)
+			}
+
+			// only the first command is executed -> abort here
+			return true
+		}
+	}
+
+	return false
+}
+
+func (c *Commands) AddCommand(commands ...Command) {
+	for _, command := range commands {
+		if command == nil {
+			continue
+		}
+
+		// register template function defined in commands
+		if provider, ok := command.(util.TemplateFunctionProvider); ok {
+			util.RegisterFunctions(provider)
+		}
+
+		if condition, ok := command.(Conditional); ok {
+			if !condition.IsEnabled() {
+				// command is disabled!
+				continue
+			}
+		}
+		c.commands = append(c.commands, command)
+	}
+	c.compiled = false
+}
+
+func (c *Commands) Merge(commands Commands) {
+	c.AddCommand(commands.commands...)
+}
+
+func (c *Commands) Count() int {
+	return len(c.commands)
+}
+
+func (c *Commands) compile() {
+	if !c.compiled {
+		c.matcher = make([]matcher.Matcher, len(c.commands))
+		for i, command := range c.commands {
+			c.matcher[i] = command.GetMatcher()
+		}
+		c.compiled = true
+	}
+}

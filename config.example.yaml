@@ -1,0 +1,137 @@
+
+slack:
+  token: # use xoxb-1234567-secret
+  team: "Developer"
+  #autojoinchannels:
+  #  - #fancy-channel"
+  #allowedgroups:
+  # - backend
+  #  - frontend
+
+jenkins:
+  host: #https://example.com
+  username: username
+  password: secret
+  jobs:
+    DeployBranch:
+      trigger: "deploy (?P<BRANCH>[\\w\\-_\\.\\/]*)(?: to)? (?P<SERVER>.*)(?P<SOFT> soft)?"
+      parameters:
+        - name: BRANCH
+          default: master
+          type: branch
+        - name: SERVER
+        - name: SOFT
+          default: false
+          type: bool
+    BackendTests:
+      parameters:
+        - name: BRANCH
+          default: master
+          type: branch
+    BuildMobileClient:
+      parameters:
+        - name: BRANCH
+          default: master
+          type: branch
+    BuildFrontendClient:
+      parameters:
+        - name: BRANCH
+          default: master
+          type: branch
+
+jira:
+  host: https://jira.example.de
+  username: readonlyuser
+  password: secret
+  project: FOOBAR
+
+github:
+  accesstoken: # optional when using github features
+
+gitlab:
+#  host: https://gitlab.example.de
+#  accesstoken: # optional when using gitlab features
+
+#calendars:
+#  - path: https://calendar.google.com/calendar/ical/ic2sdsdsadadart4t0r4k%40group.calendar.google.com/private-fooobar/basic.ics
+#    events:
+#    - name: Create release branch
+#      trigger: "Create release branch (?P<branch>.*)"
+#      commands:
+#      - "trigger job CreateReleaseBranch {.branch}"
+#      - "send message to #foe-mobile I'll created branch {.branch}"
+#    - name: "Deploy Beta"
+#      trigger: Deploy Beta
+#      commands:
+#      - "send message to #dev-backend deploy beta"
+
+storage_path: /data
+
+logger:
+  level: debug
+  file: ./bot.log
+
+allowed_users:
+  - developer1234
+  - dev-tv
+
+macros:
+  - name: thanks
+    trigger: (thanks|thank you|danke)
+    commands:
+      - "reply nothing to thank for"
+    examples:
+      - thanks
+      - thank you
+      - danke
+
+  - name: please
+    description: execute the command after the keyword "please"
+    trigger: "please (?P<command>.*)"
+    commands:
+      - "{{.command}}"
+      - "add reaction :pray:"
+    examples:
+      - please deploy master to xx1
+
+  - name: table flip
+    description: Reply the table flip emoji
+    trigger: "(flip|table flip)"
+    commands:
+      - "reply (╯°□°）╯︵ ┻━┻"
+      - "add reaction :shinto_shrine:"
+      - "add reaction :arrows_counterclockwise:"
+    examples:
+      - flip
+      - flip table
+
+  - name: bring me coffee
+    trigger: "(bring|get|make) me( a)? coffee"
+    commands:
+      - "reply Get your ass up and pick it yourself!"
+      - "add reaction :coffee:"
+    examples:
+      - bring me a coffee
+      - make me a coffee
+
+  - name: build clients
+    description: build all development clients
+    trigger: "build clients? (?P<branch>.*)"
+    commands:
+      - "reply I'll build {{ .branch }} for you"
+      - "trigger job BuildFrontendClient {{ .branch }}"
+      - "trigger job BuildMobileClient {{ .branch }}"
+      - "add reaction :white_check_mark:"
+
+  - name: meeting time
+    trigger: "meeting time"
+    commands:
+      - "send message to #tech-team It's meeting time :)"
+      - "add reaction :loudspeaker:"
+
+  - name: bot feedback
+    description: Send issues/suggestions etc. to the bot maintainer
+    trigger: "bot feedback:? (?P<feedback>.*)"
+    commands:
+      - "reply thanks for your feedback :)"
+      - "send message to <@UADMINID> We got feedback: {{ .feedback }}"
