@@ -25,4 +25,10 @@ func TestRegexp(t *testing.T) {
 		actual := RegexpResultToParams(re, match)
 		assert.Equal(t, map[string]string{}, actual)
 	})
+
+	t.Run("CompileEmpty", func(t *testing.T) {
+		actual := CompileRegexp("")
+
+		assert.Nil(t, actual)
+	})
 }

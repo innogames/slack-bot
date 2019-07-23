@@ -25,7 +25,7 @@ func TestHelp(t *testing.T) {
 	after := storage.MockStorage()
 	defer after()
 
-	commands := GetCommand(slackClient, jenkins, jiraClient, cfg, logger)
+	commands := GetCommands(slackClient, jenkins, jiraClient, cfg, logger)
 
 	help := bot.Commands{}
 	help.AddCommand(NewHelpCommand(slackClient, commands))

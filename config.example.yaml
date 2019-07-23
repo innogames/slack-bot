@@ -40,10 +40,10 @@ jenkins:
           type: branch
 
 jira:
-  host: https://jira.example.de
+  #host: https://jira.example.de
   username: readonlyuser
   password: secret
-  project: FOOBAR
+  project: FOO
 
 github:
   accesstoken: # optional when using github features

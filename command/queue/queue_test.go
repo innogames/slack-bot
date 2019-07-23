@@ -9,6 +9,9 @@ import (
 	"github.com/nlopes/slack"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 )
@@ -27,6 +30,7 @@ func TestQueue(t *testing.T) {
 
 	command := bot.Commands{}
 	command.AddCommand(NewQueueCommand(slackClient, logger))
+	command.AddCommand(NewListCommand(slackClient))
 
 	t.Run("Invalid command", func(t *testing.T) {
 		event.Text = "I have a queuedCommand"
@@ -63,7 +67,9 @@ func TestQueue(t *testing.T) {
 	})
 
 	t.Run("Test queue command", func(t *testing.T) {
-		done := AddRunningCommand(event, "")
+		now := time.Now()
+		event.Timestamp = strconv.Itoa(int(now.Unix()))
+		done := AddRunningCommand(event, "test")
 
 		msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
 
@@ -74,10 +80,15 @@ func TestQueue(t *testing.T) {
 		event.Text = "queue reply test"
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
-
 		assert.Empty(t, client.InternalMessages)
 
-		// list check list command
+		// list queue
+		event.Text = "list queue"
+		slackClient.On("Reply", event, mock.MatchedBy(func(input string) bool {
+			return strings.HasPrefix(input, "1 queued commands")
+		}))
+		actual = command.Run(event)
+		assert.Equal(t, true, actual)
 
 		done <- true
 		time.Sleep(time.Millisecond * 300)
@@ -87,8 +98,9 @@ func TestQueue(t *testing.T) {
 		handledEvent := <-client.InternalMessages
 		assert.Equal(t, handledEvent, slack.MessageEvent{
 			Msg: slack.Msg{
-				User: "testUser1",
-				Text: "reply test",
+				Timestamp: event.Timestamp,
+				User:      "testUser1",
+				Text:      "reply test",
 			},
 		})
 	})

@@ -47,6 +47,12 @@ type Slack struct {
 
 // Reply fast reply via RTM websocket
 func (s Slack) Reply(event slack.MessageEvent, text string) {
+	// slow http POST fallback in case of huge message which is not sendable via websocket
+	if len(text) >= slack.MaxMessageTextLength {
+		s.SendMessage(event, text)
+		return
+	}
+
 	s.RTM.SendMessage(s.RTM.NewOutgoingMessage(
 		text,
 		event.Channel,

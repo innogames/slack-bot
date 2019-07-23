@@ -34,5 +34,11 @@ func TestStorage(t *testing.T) {
 		assert.Nil(t, err)
 		err = Read("collection1", "test", &value)
 		assert.Error(t, err)
+
+		// delete all
+		err := DeleteAll()
+		assert.Nil(t, err)
+		err = Read("collection", "test2", &value)
+		assert.Error(t, err)
 	})
 }

@@ -14,6 +14,7 @@ import (
 	"os"
 )
 
+// TestChannel is just a test channel name which is used for testing
 const TestChannel = "#dev"
 const botId = "W12345"
 
@@ -21,7 +22,7 @@ const botId = "W12345"
 func StartBot(cfg config.Config, logger *logrus.Logger) bot.Bot {
 	slackClient := client.GetSlackClient(cfg.Slack, logger)
 
-	commands := command.GetCommand(
+	commands := command.GetCommands(
 		slackClient,
 		nil,
 		nil,

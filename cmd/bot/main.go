@@ -42,7 +42,7 @@ func main() {
 
 	vcs.InitBranchWatcher(cfg, logger)
 
-	commands := command.GetCommand(slackClient, jenkinsClient, jiraClient, cfg, logger)
+	commands := command.GetCommands(slackClient, jenkinsClient, jiraClient, cfg, logger)
 
 	b := bot.NewBot(cfg, slackClient, logger, commands)
 	err = b.Init()

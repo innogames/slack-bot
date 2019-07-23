@@ -53,11 +53,37 @@ func TestGame(t *testing.T) {
 		actual = commands.Run(event)
 		assert.Equal(t, true, actual)
 		assert.Equal(t, 0, len(gameCommand.games))
+	})
 
-		// try again -> error message
-		event.Text = fmt.Sprintf("guess number %d", game.randomNumber-1)
+	t.Run("Invalid states", func(t *testing.T) {
+		assert.Equal(t, 0, len(gameCommand.games))
+
+		// guess without running game -> error message
+		event := slack.MessageEvent{}
+		event.Text = fmt.Sprintf("guess number 100")
+		slackClient.On("Reply", event, "There is no game running. Use `start number guesser`")
+		actual := commands.Run(event)
+		assert.Equal(t, true, actual)
+
+		// start the game
+		event = slack.MessageEvent{}
+		event.Text = "start number guesser"
+		slackClient.On("Reply", event, fmt.Sprintf("I chose a number between 0 an %d. Good luck! Use `guess number XX`", maxNumber))
+		actual = commands.Run(event)
+		assert.Equal(t, true, actual)
+		assert.Equal(t, 1, len(gameCommand.games))
+
+		game := gameCommand.games[event.User]
+		assert.True(t, game.randomNumber >= 0)
+		assert.True(t, game.randomNumber <= maxNumber)
+		assert.Equal(t, 0, game.tries)
+
+		// start the game again -> error
+		event = slack.MessageEvent{}
+		event.Text = "start number guesser"
 		slackClient.On("Reply", event, "There is already a game :smile: use `guess number XX` instead")
 		actual = commands.Run(event)
 		assert.Equal(t, true, actual)
+		assert.Equal(t, 1, len(gameCommand.games))
 	})
 }

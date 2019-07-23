@@ -5,6 +5,7 @@ This slack bot improves the workflow of development teams. Especially with focus
 [![GoDoc](https://godoc.org/github.com/innogames/slack-bot?status.svg)](https://godoc.org/github.com/innogames/slack-bot)
 [![Go Report Card](https://goreportcard.com/badge/github.com/innogames/slack-bot)](https://goreportcard.com/report/github.com/innogames/slack-bot)
 [![Release](https://img.shields.io/github/release/innogames/slack-bot.svg)](https://github.com/innogames/slack-bot/releases)
+[![codecov](https://codecov.io/gh/innogames/slack-bot/branch/master/graph/badge.svg)](https://codecov.io/gh/innogames/slack-bot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # Usage

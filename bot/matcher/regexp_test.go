@@ -40,6 +40,19 @@ func TestRegexp(t *testing.T) {
 			assert.Equal(t, testCase.expected, match.Matched())
 		}
 	})
+
+	t.Run("Get number", func(t *testing.T) {
+		subject := NewRegexpMatcher("test (?P<number>\\d+)", testRunner)
+
+		event := slack.MessageEvent{}
+		event.Text = "test 12"
+		run, match := subject.Match(event)
+		assert.NotNil(t, run)
+		assert.Equal(t, "test 12", match.MatchedString())
+		assert.Equal(t, "12", match.GetString("number"))
+		assert.Equal(t, 12, match.GetInt("number"))
+		assert.Equal(t, true, match.Matched())
+	})
 }
 
 func BenchmarkRegexpMatcher(b *testing.B) {

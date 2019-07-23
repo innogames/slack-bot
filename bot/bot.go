@@ -36,7 +36,7 @@ type Bot struct {
 	allowedUsers map[string]string
 }
 
-// Init establish slack connection and load allowed users
+// Init establishes the slack connection and load allowed users
 func (b *Bot) Init() (err error) {
 	if b.config.Slack.Token == "" {
 		return errors.Errorf("No slack.token provided in config!")
@@ -82,6 +82,11 @@ func (b *Bot) Init() (err error) {
 	return nil
 }
 
+// Disconnect will do a clean shutdown and kills all connections
+func (b *Bot) Disconnect() error {
+	return b.slackClient.Disconnect()
+}
+
 // load the public channels and list of all users from current space
 func (b *Bot) loadSlackData() error {
 	// whitelist users by group
@@ -118,10 +123,6 @@ func (b *Bot) loadSlackData() error {
 	return nil
 }
 
-func (b *Bot) Disconnect() error {
-	return b.slackClient.Disconnect()
-}
-
 // HandleMessages is blocking method to handle new incoming events
 func (b *Bot) HandleMessages(kill chan os.Signal) {
 	for {
@@ -133,6 +134,8 @@ func (b *Bot) HandleMessages(kill chan os.Signal) {
 				if b.shouldHandleMessage(message) {
 					go b.HandleMessage(*message)
 				}
+			case slack.RTMEvent:
+				b.logger.Error(msg)
 			case *slack.LatencyReport:
 				b.logger.Debugf("Current latency: %v\n", message.Value)
 			}

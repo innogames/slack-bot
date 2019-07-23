@@ -2,29 +2,59 @@ package jira
 
 import (
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/config"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/nlopes/slack"
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/andygrunwald/go-jira.v1"
+	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
 func TestJira(t *testing.T) {
 	slackClient := mocks.SlackClient{}
-	jiraClient := &jira.Client{}
-	cfg := &config.Jira{}
+
+	// todo fake http client
+	cfg := config.Jira{
+		Host:    "https://issues.apache.org/jira/",
+		Project: "ZOOKEEPER",
+	}
+	jiraClient, err := client.GetJiraClient(cfg)
+	assert.Nil(t, err)
 
 	command := bot.Commands{}
-	command.AddCommand(NewJiraCommand(jiraClient, &slackClient, *cfg))
+	command.AddCommand(NewJiraCommand(jiraClient, &slackClient, cfg))
 
-	event := slack.MessageEvent{}
-	event.Text = "quatsch"
+	t.Run("No match", func(t *testing.T) {
+		event := slack.MessageEvent{}
+		event.Text = "quatsch"
 
-	actual := command.Run(event)
-	assert.Equal(t, false, actual)
+		actual := command.Run(event)
+		assert.Equal(t, false, actual)
+	})
 
-	// todo add real test
+	// todo: it just check for valid 200 but for test the result/attachment yet!
+	t.Run("search existing ticket", func(t *testing.T) {
+		event := slack.MessageEvent{}
+		event.Text = "jira ZOOKEEPER-3456"
+
+		slackClient.On("SendMessage", event, "", mock.MatchedBy(func(input slack.MsgOption) bool {
+			return true
+		})).Return("")
+
+		actual := command.Run(event)
+		assert.Equal(t, true, actual)
+	})
+
+	t.Run("search invalid ticket", func(t *testing.T) {
+		event := slack.MessageEvent{}
+		event.Text = "jira ZOOKEEPER-10000000000"
+
+		slackClient.On("Reply", event, "Issue Does Not Exist: Request failed. Please analyze the request body for more details. Status code: 404")
+
+		actual := command.Run(event)
+		assert.Equal(t, true, actual)
+	})
 }
 
 func TestConvertMarkdown(t *testing.T) {

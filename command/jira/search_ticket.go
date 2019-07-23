@@ -23,6 +23,7 @@ type jiraCommand struct {
 
 var ticketRe = regexp.MustCompile(`^(\w+)-(\d+)$`)
 
+// NewJiraCommand search for a Jira ticket id or a JQL
 func NewJiraCommand(jira *jira.Client, slackClient client.SlackClient, config config.Jira) bot.Command {
 	return &jiraCommand{jira, slackClient, config}
 }
@@ -172,13 +173,15 @@ func (c *jiraCommand) jqlList(event slack.MessageEvent, jql string) {
 		) + "\n"
 	}
 
-	text += fmt.Sprintf(
-		"<%sissues/?jql=%s|Search in Jira>",
-		c.config.Host,
-		search.String(),
+	// add button which leads to search
+	searchLink := fmt.Sprintf("%sissues/?jql=%s", c.config.Host, search.String())
+	attachment := slack.Attachment{}
+	attachment.Actions = append(
+		attachment.Actions,
+		client.GetSlackLink("Search in Jira", searchLink),
 	)
 
-	c.slackClient.Reply(event, text)
+	c.slackClient.SendMessage(event, text, slack.MsgOptionAttachments(attachment))
 }
 
 func (c *jiraCommand) GetHelp() []bot.Help {

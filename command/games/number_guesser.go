@@ -60,7 +60,7 @@ func (c *numberGuesserCommand) Start(match matcher.Result, event slack.MessageEv
 func (c *numberGuesserCommand) Guess(match matcher.Result, event slack.MessageEvent) {
 	currentGame, ok := c.games[event.User]
 	if !ok {
-		c.slackClient.Reply(event, "There is already a game :smile: use `guess number XX` instead")
+		c.slackClient.Reply(event, "There is no game running. Use `start number guesser`")
 		return
 	}
 

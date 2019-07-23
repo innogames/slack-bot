@@ -28,7 +28,7 @@ type Commands struct {
 	compiled bool
 }
 
-// get the help for ALL included commands
+// GetHelp returns the help for ALL included commands
 func (c *Commands) GetHelp() []Help {
 	help := make([]Help, 0)
 
@@ -41,7 +41,7 @@ func (c *Commands) GetHelp() []Help {
 	return help
 }
 
-// executes the first matched command and return true in case one command matched
+// Run executes the first matched command and return true in case one command matched
 func (c *Commands) Run(event slack.MessageEvent) bool {
 	c.compile()
 
@@ -61,6 +61,7 @@ func (c *Commands) Run(event slack.MessageEvent) bool {
 	return false
 }
 
+// AddCommand registers a command to the command list
 func (c *Commands) AddCommand(commands ...Command) {
 	for _, command := range commands {
 		if command == nil {
@@ -83,10 +84,12 @@ func (c *Commands) AddCommand(commands ...Command) {
 	c.compiled = false
 }
 
+// Merge two list of commands
 func (c *Commands) Merge(commands Commands) {
 	c.AddCommand(commands.commands...)
 }
 
+// Count the registered/valid commands
 func (c *Commands) Count() int {
 	return len(c.commands)
 }

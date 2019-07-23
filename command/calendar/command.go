@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// NewCalendarCommand listen for ical events and executed defined command when a event started
 func NewCalendarCommand(cfg []config.Calendar, logger *logrus.Logger) bot.Command {
 	if len(cfg) == 0 {
 		return nil

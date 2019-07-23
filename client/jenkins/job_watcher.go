@@ -7,6 +7,7 @@ import (
 
 const watchInterval = time.Second * 15
 
+// WatchJob returns a chan which gets notified about any (finished) build of the job
 func WatchJob(jenkins Client, jobName string, stop chan bool) (chan gojenkins.Build, error) {
 	job, err := jenkins.GetJob(jobName)
 

@@ -10,12 +10,22 @@ import (
 )
 
 const (
-	iconInReview  = "eyes"
-	iconApproved  = "white_check_mark"
-	iconMerged    = "twisted_rightwards_arrows"
-	iconDeclined  = "red_circle"
-	iconError     = "x"
-	checkInterval = time.Second * 20
+	iconInReview    = "eyes"
+	iconApproved    = "white_check_mark"
+	iconMerged      = "twisted_rightwards_arrows"
+	iconDeclined    = "x"
+	iconBuildFailed = "red_circle"
+	iconError       = "x"
+	checkInterval   = time.Second * 20
+)
+
+type buildStatus int
+
+const (
+	buildStatusUnknown buildStatus = iota
+	buildStatusSucccess
+	buildStatusFailed
+	buildStatusRunning
 )
 
 type fetcher interface {
@@ -30,12 +40,12 @@ type command struct {
 }
 
 type pullRequest struct {
-	name     string
-	declined bool
-	merged   bool
-	approved bool
-	inReview bool
-	// todo add comments/commits to inform about commits after approval!
+	name        string
+	declined    bool
+	merged      bool
+	approved    bool
+	inReview    bool
+	buildStatus buildStatus
 }
 
 func (c *command) GetMatcher() matcher.Matcher {
@@ -58,7 +68,7 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 
 	inReview := false
 	hasApproval := false
-
+	failedBuild := false
 	done := queue.AddRunningCommand(event, event.Text)
 	defer func() {
 		done <- true
@@ -102,6 +112,15 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 				c.slackClient.AddReaction(iconInReview, msgRef)
 				inReview = true
 			}
+		}
+
+		// monitor build status
+		if pr.buildStatus == buildStatusFailed && !failedBuild {
+			c.slackClient.AddReaction(iconBuildFailed, msgRef)
+			failedBuild = true
+		} else if pr.buildStatus != buildStatusFailed && failedBuild {
+			c.slackClient.RemoveReaction(iconBuildFailed, msgRef)
+			failedBuild = false
 		}
 
 		time.Sleep(checkInterval)

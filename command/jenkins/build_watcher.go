@@ -97,9 +97,8 @@ func getBuild(job jenkins.Job, buildNumber int) (*gojenkins.Build, error) {
 	if buildNumber == 0 {
 		job.Poll()
 		return job.GetLastBuild()
-	} else {
-		return job.GetBuild(int64(buildNumber))
 	}
+	return job.GetBuild(int64(buildNumber))
 }
 
 func (c *buildWatcherCommand) GetHelp() []bot.Help {

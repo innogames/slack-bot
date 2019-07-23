@@ -7,6 +7,7 @@ import (
 	"github.com/innogames/slack-bot/command/calendar"
 	"github.com/innogames/slack-bot/command/cron"
 	"github.com/innogames/slack-bot/command/custom"
+	"github.com/innogames/slack-bot/command/games"
 	jenkinsCommands "github.com/innogames/slack-bot/command/jenkins"
 	jiraCommands "github.com/innogames/slack-bot/command/jira"
 	"github.com/innogames/slack-bot/command/mqtt"
@@ -17,8 +18,8 @@ import (
 	"gopkg.in/andygrunwald/go-jira.v1"
 )
 
-// GetCommand returns the list of default command which are available
-func GetCommand(slackClient client.SlackClient, jenkins jenkins.Client, jira *jira.Client, cfg config.Config, logger *logrus.Logger) *bot.Commands {
+// GetCommands returns the list of default command which are available
+func GetCommands(slackClient client.SlackClient, jenkins jenkins.Client, jira *jira.Client, cfg config.Config, logger *logrus.Logger) *bot.Commands {
 	commands := &bot.Commands{}
 	commands.AddCommand(
 		// needs to be the first commands to store all executed commands
@@ -33,6 +34,8 @@ func GetCommand(slackClient client.SlackClient, jenkins jenkins.Client, jira *ji
 		NewBotLogCommand(slackClient, cfg),
 		NewRandomCommand(slackClient),
 		NewHelpCommand(slackClient, commands),
+
+		games.NewNumberGuesserCommand(slackClient),
 
 		calendar.NewCalendarCommand(cfg.Calendars, logger),
 
