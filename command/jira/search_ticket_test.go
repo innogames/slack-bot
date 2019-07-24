@@ -55,6 +55,15 @@ func TestJira(t *testing.T) {
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
 	})
+
+	t.Run("search existing ticket", func(t *testing.T) {
+		event := slack.MessageEvent{}
+		event.Text = "jql FOO=BAR"
+
+		slackClient.On("Reply", event, "Field 'FOO' does not exist or this field cannot be viewed by anonymous users.: Request failed. Please analyze the request body for more details. Status code: 400")
+		actual := command.Run(event)
+		assert.Equal(t, true, actual)
+	})
 }
 
 func TestConvertMarkdown(t *testing.T) {

@@ -45,9 +45,9 @@ func (c *jiraCommand) Run(match matcher.Result, event slack.MessageEvent) {
 
 		if response == nil || response.StatusCode > 400 {
 			c.slackClient.Reply(event, err.Error())
-		} else {
-			c.sendTicket(event, issue)
+			return
 		}
+		c.sendTicket(event, issue)
 		return
 	}
 
@@ -149,7 +149,7 @@ func (c *jiraCommand) jqlList(event slack.MessageEvent, jql string) {
 
 	tickets, _, err := c.jira.Issue.Search(jql, nil)
 	if err != nil {
-		c.slackClient.ReplyError(event, err)
+		c.slackClient.Reply(event, err.Error())
 		return
 	}
 

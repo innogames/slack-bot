@@ -12,14 +12,15 @@ import (
 	"time"
 )
 
+// NewWatchCommand will inform the user abut the first ticket state change
+func NewWatchCommand(jira *jira.Client, slackClient client.SlackClient, config config.Jira) bot.Command {
+	return &watchCommand{jira, slackClient, config}
+}
+
 type watchCommand struct {
 	jira        *jira.Client
 	slackClient client.SlackClient
 	config      config.Jira
-}
-
-func NewWatchCommand(jira *jira.Client, slackClient client.SlackClient, config config.Jira) bot.Command {
-	return &watchCommand{jira, slackClient, config}
 }
 
 func (c *watchCommand) IsEnabled() bool {
@@ -35,7 +36,7 @@ func (c *watchCommand) Run(match matcher.Result, event slack.MessageEvent) {
 	issue, _, err := c.jira.Issue.Get(ticketId, nil)
 
 	if err != nil {
-		c.slackClient.ReplyError(event, err)
+		c.slackClient.Reply(event, err.Error())
 		return
 	}
 

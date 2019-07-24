@@ -6,15 +6,7 @@ import (
 	"github.com/nlopes/slack"
 )
 
-type listCommand struct {
-	baseCommand
-}
-
-func (c *listCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewTextMatcher("list commands", c.Run)
-}
-
-func (c *listCommand) Run(match matcher.Result, event slack.MessageEvent) {
+func (c *command) List(match matcher.Result, event slack.MessageEvent) {
 	list := loadList(event)
 	if len(list) == 0 {
 		c.slackClient.Reply(event, "No commands define yet. Use `add command 'your alias' 'command to execute'`")

@@ -14,7 +14,7 @@ func TestStorage(t *testing.T) {
 	t.Run("read/write", func(t *testing.T) {
 		err = Write("collection", "test", "1")
 		assert.Nil(t, err)
-		err = Write("collection", "test2", "1")
+		err = Write("collection", "test2", "2")
 		assert.Nil(t, err)
 
 		// read invalid data
@@ -23,6 +23,11 @@ func TestStorage(t *testing.T) {
 		err = Read("collection", "test1", &value)
 		assert.Error(t, err)
 		assert.Equal(t, "", value)
+
+		// read all
+		values, err := ReadAll("collection")
+		assert.Nil(t, err)
+		assert.Equal(t, []string([]string{"\"1\"", "\"2\""}), values)
 
 		// read valid data
 		err = Read("collection", "test", &value)
@@ -36,7 +41,7 @@ func TestStorage(t *testing.T) {
 		assert.Error(t, err)
 
 		// delete all
-		err := DeleteAll()
+		err = DeleteAll()
 		assert.Nil(t, err)
 		err = Read("collection", "test2", &value)
 		assert.Error(t, err)

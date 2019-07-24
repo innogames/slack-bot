@@ -6,15 +6,7 @@ import (
 	"github.com/nlopes/slack"
 )
 
-type addCommand struct {
-	baseCommand
-}
-
-func (c *addCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher("add command '(?P<alias>.*)'( as)? '(?P<command>.*)'", c.Run)
-}
-
-func (c *addCommand) Run(match matcher.Result, event slack.MessageEvent) {
+func (c *command) Add(match matcher.Result, event slack.MessageEvent) {
 	alias := match.GetString("alias")
 	command := match.GetString("command")
 

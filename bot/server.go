@@ -1,14 +1,8 @@
 package bot
 
-import (
-	"bytes"
-	"encoding/json"
-	"github.com/nlopes/slack/slackevents"
-	"net/http"
-)
-
 // listen for incoming (button) interaction from slack server
 // todo: WIP
+/*
 func (b *Bot) startServer(addr string) {
 	http.HandleFunc("/slack/actions", func(w http.ResponseWriter, r *http.Request) {
 		buf := new(bytes.Buffer)
@@ -43,3 +37,4 @@ func (b *Bot) startServer(addr string) {
 
 	go http.ListenAndServe(addr, nil)
 }
+*/

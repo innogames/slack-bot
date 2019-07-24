@@ -70,7 +70,7 @@ func (c *Commands) AddCommand(commands ...Command) {
 
 		// register template function defined in commands
 		if provider, ok := command.(util.TemplateFunctionProvider); ok {
-			util.RegisterFunctions(provider)
+			util.RegisterFunctions(provider.GetTemplateFunction())
 		}
 
 		if condition, ok := command.(Conditional); ok {

@@ -62,6 +62,13 @@ func AddRunningCommand(event slack.MessageEvent, fallbackCommand string) chan bo
 	return finished
 }
 
+// IsBlock checks if there is a blocking command registered for this user/channel
+func IsBlocked(event slack.MessageEvent) bool {
+	_, ok := runningCommands[getKey(event)]
+
+	return ok
+}
+
 func executeFallbackCommand(logger *logrus.Logger) {
 	// todo check null
 	res, _ := storage.ReadAll(storageKey)

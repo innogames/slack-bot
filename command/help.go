@@ -11,6 +11,7 @@ import (
 	"sync"
 )
 
+// NewHelpCommand provides information about all registered commands with description and examples
 func NewHelpCommand(slackClient client.SlackClient, commands *bot.Commands) bot.Command {
 	return &helpCommand{slackClient: slackClient, commands: commands}
 }

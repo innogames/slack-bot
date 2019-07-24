@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	iconPending = "coffee"
 	IconRunning = "arrows_counterclockwise"
 	IconSuccess = "white_check_mark"
 	IconFailed  = "x"
+	iconPending = "coffee"
 	iconAborted = "black_circle_for_record"
 )
 
@@ -53,10 +53,12 @@ type Job interface {
 	GetBuild(id int64) (*gojenkins.Build, error)
 }
 
+// BlockUntilDone will wait until the given build finished (independent from result)
 func BlockUntilDone(build *gojenkins.Build) {
 	<-WatchBuild(build)
 }
 
+// WatchBuild will return a chan which is filled/closed when the build finished
 func WatchBuild(build *gojenkins.Build) <-chan JobResult {
 	resultChan := make(chan JobResult, 1)
 

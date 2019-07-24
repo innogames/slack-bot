@@ -21,6 +21,25 @@ func TestGetSlackUser(t *testing.T) {
 	assertIdNameLookup(t, "U121", "U121", "Jon Doe")
 }
 
+func TestGetSlackChannel(t *testing.T) {
+	Channels = map[string]string{
+		"C123": "dev",
+		"C234": "general",
+	}
+
+	id, name := GetChannel("#C123")
+	assert.Equal(t, "C123", id)
+	assert.Equal(t, "dev", name)
+
+	id, name = GetChannel("general")
+	assert.Equal(t, "C234", id)
+	assert.Equal(t, "general", name)
+
+	id, name = GetChannel("foobar")
+	assert.Equal(t, "", id)
+	assert.Equal(t, "", name)
+}
+
 func assertIdNameLookup(t *testing.T, identifier string, expectedId string, expectedName string) {
 	id, name := GetUser(identifier)
 	assert.Equal(t, expectedName, name)

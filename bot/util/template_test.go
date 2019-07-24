@@ -3,6 +3,7 @@ package util
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"text/template"
 )
 
 func TestFunctions(t *testing.T) {
@@ -18,10 +19,17 @@ func TestFunctions(t *testing.T) {
 }
 
 func TestTemplate(t *testing.T) {
-	text := "{{ $users := makeSlice \"2222\"}}{{ $users }} {{ .foo }}"
+	RegisterFunctions(template.FuncMap{
+		"test": func() string {
+			return "foo"
+		},
+	})
 
-	temp, _ := CompileTemplate(text)
+	text := "{{ test }} {{ $users := makeSlice \"2222\"}}{{ $users }} {{ .foo }}"
+
+	temp, err := CompileTemplate(text)
+	assert.Nil(t, err)
 	finalText, _ := EvalTemplate(temp, map[string]string{"foo": "bar"})
 
-	assert.Equal(t, finalText, "[2222] bar")
+	assert.Equal(t, finalText, "foo [2222] bar")
 }

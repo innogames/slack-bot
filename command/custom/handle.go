@@ -2,21 +2,12 @@ package custom
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/nlopes/slack"
 	"strings"
 )
 
-type handleCommand struct {
-	baseCommand
-}
-
-func (c *handleCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewConditionalMatcher(c.Execute)
-}
-
-func (c *handleCommand) Execute(event slack.MessageEvent) bool {
+func (c *command) Handle(event slack.MessageEvent) bool {
 	var commands string
 
 	list := loadList(event)

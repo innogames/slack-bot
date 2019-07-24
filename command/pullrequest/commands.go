@@ -6,7 +6,7 @@ import (
 	"github.com/innogames/slack-bot/config"
 )
 
-// GetCommands returns a list of all available PR watcher (gitlab, github etc) based on teh current config
+// GetCommands returns a list of all available PR watcher (gitlab, github etc) based on the current config
 func GetCommands(slackClient client.SlackClient, cfg config.Config) bot.Commands {
 	commands := bot.Commands{}
 

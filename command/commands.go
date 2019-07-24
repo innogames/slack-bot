@@ -18,7 +18,7 @@ import (
 	"gopkg.in/andygrunwald/go-jira.v1"
 )
 
-// GetCommands returns the list of default command which are available
+// GetCommand returns the list of default command which are available
 func GetCommands(slackClient client.SlackClient, jenkins jenkins.Client, jira *jira.Client, cfg config.Config, logger *logrus.Logger) *bot.Commands {
 	commands := &bot.Commands{}
 	commands.AddCommand(
@@ -55,13 +55,12 @@ func GetCommands(slackClient client.SlackClient, jenkins jenkins.Client, jira *j
 		jenkinsCommands.NewStatusCommand(jenkins, slackClient, cfg.Jenkins.Jobs),
 		jenkinsCommands.NewNodesCommand(jenkins, slackClient),
 		jenkinsCommands.NewRetryCommand(jenkins, slackClient, cfg.Jenkins.Jobs, logger),
+
+		custom.GetCommand(slackClient),
 	)
 
 	// pull-request
 	commands.Merge(pullrequest.GetCommands(slackClient, cfg))
-
-	// manage custom commands
-	commands.Merge(custom.GetCommands(slackClient))
 
 	return commands
 }

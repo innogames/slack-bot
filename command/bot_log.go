@@ -39,9 +39,9 @@ func (c *botLogCommand) Run(match matcher.Result, event slack.MessageEvent) {
 	parts := strings.SplitN(string(log), "\n", 2)
 	if len(parts) <= 1 {
 		c.slackClient.Reply(event, "No logs so far")
-	} else {
-		c.slackClient.Reply(event, fmt.Sprintf("The most recent messages:\n```%s```", parts[1]))
+		return
 	}
+	c.slackClient.Reply(event, fmt.Sprintf("The most recent messages:\n```%s```", parts[1]))
 }
 
 func (c *botLogCommand) GetHelp() []bot.Help {

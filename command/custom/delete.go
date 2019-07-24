@@ -6,15 +6,7 @@ import (
 	"github.com/nlopes/slack"
 )
 
-type deleteCommand struct {
-	baseCommand
-}
-
-func (c *deleteCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher("(delete|remove) command '?(?P<alias>.*?)'?", c.Run)
-}
-
-func (c *deleteCommand) Run(match matcher.Result, event slack.MessageEvent) {
+func (c *command) Delete(match matcher.Result, event slack.MessageEvent) {
 	alias := match.GetString("alias")
 
 	list := loadList(event)

@@ -23,7 +23,7 @@ type buildStatus int
 
 const (
 	buildStatusUnknown buildStatus = iota
-	buildStatusSucccess
+	buildStatusSuccess
 	buildStatusFailed
 	buildStatusRunning
 )

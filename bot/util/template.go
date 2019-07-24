@@ -22,8 +22,8 @@ var functions = template.FuncMap{
 }
 
 // RegisterFunctions will add a function to any template renderer
-func RegisterFunctions(provider TemplateFunctionProvider) {
-	for name, function := range provider.GetTemplateFunction() {
+func RegisterFunctions(funcMap template.FuncMap) {
+	for name, function := range funcMap {
 		functions[name] = function
 	}
 }

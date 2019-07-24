@@ -24,7 +24,7 @@ test-bench:
 	go test -bench . ./... -benchmem
 
 test-coverage:
-	mkdir -p build && go test ./... -cover -coverprofile=./build/cover.out && go tool cover -html=./build/cover.out -o ./build/cover.html
+	mkdir -p build && go test ./... -cover -coverprofile=./build/cover.out -covermode=atomic && go tool cover -html=./build/cover.out -o ./build/cover.html
 
 mocks: mocks/SlackClient.go mocks/Stash.go mocks/JenkinsJob.go mocks/JenkinsClient.go
 
