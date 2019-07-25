@@ -127,4 +127,22 @@ func TestPullRequest(t *testing.T) {
 		assert.Equal(t, true, actual)
 		time.Sleep(time.Millisecond * 10) // todo channel
 	})
+
+	t.Run("PR in reiew", func(t *testing.T) {
+		event := slack.MessageEvent{}
+		fetcher.err = nil
+		fetcher.pr = pullRequest{
+			declined: false,
+			merged:   false,
+			approved: false,
+			inReview: true,
+		}
+		event.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
+
+		slackClient.On("AddReaction", iconInReview, slack.NewRefToMessage(event.Channel, event.Timestamp))
+
+		actual := commands.Run(event)
+		assert.Equal(t, true, actual)
+		time.Sleep(time.Millisecond * 10) // todo channel
+	})
 }

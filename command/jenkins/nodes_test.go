@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/client/jenkins"
+	"github.com/innogames/slack-bot/config"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/nlopes/slack"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
@@ -61,6 +64,29 @@ func TestNodes(t *testing.T) {
 
 		jenkins.On("GetAllNodes").Return(nodes, nil)
 		slackClient.On("Reply", event, "*Nodes*\n- *Node 1* - online: *true* - executors: 0\n- *Node 2* - online: *false* - executors: 0\n")
+		actual := command.Run(event)
+		assert.Equal(t, true, actual)
+	})
+
+}
+
+func TestRealNodes(t *testing.T) {
+	slackClient := &mocks.SlackClient{}
+
+	t.Run("Fetch real nodes", func(t *testing.T) {
+		cfg := config.Jenkins{
+			Host: "http://ci.jenkins-ci.org",
+		}
+		client, err := jenkins.GetClient(cfg)
+		assert.Nil(t, err)
+
+		command := bot.Commands{}
+		command.AddCommand(NewNodesCommand(client, slackClient))
+
+		event := slack.MessageEvent{}
+		event.Text = "jenkins nodes"
+
+		slackClient.On("Reply", event, mock.Anything)
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
 	})

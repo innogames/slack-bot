@@ -37,6 +37,7 @@ func (c *nodesCommand) Run(match matcher.Result, event slack.MessageEvent) {
 	text := "*Nodes*\n"
 	for _, node := range nodes {
 		offline := node.Raw.Offline
+		// todo(easypick) reaction for online offline
 		text += fmt.Sprintf("- *%s* - online: *%t* - executors: %d\n", node.GetName(), !offline, len(node.Raw.Executors))
 	}
 

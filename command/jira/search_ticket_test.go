@@ -56,7 +56,7 @@ func TestJira(t *testing.T) {
 		assert.Equal(t, true, actual)
 	})
 
-	t.Run("search existing ticket", func(t *testing.T) {
+	t.Run("search invalid JQL", func(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = "jql FOO=BAR"
 

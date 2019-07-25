@@ -96,6 +96,14 @@ Query information from Jira, either from a single ticket, or a whole list of tic
 - `jql type=bug and status=open` (use default project by default)
 - `jira "Second city"` (text search of tickets in default project)
 
+![Jira ticket](./docs/jira-single.png)
+![Jira list](./docs/jira-list.png)
+
+It's also possible to get a notification when there is a state change in a certain Jira ticket.
+
+**Example**
+- `watch ticket PROJ-12234`
+
 ## Custom command
 Every user is able to define own command aliases. This is a handy feature to avoid tying the same command every day.
 
@@ -108,7 +116,8 @@ Every user is able to define own command aliases. This is a handy feature to avo
 ![Screenshot](./docs/custom-commands.png)
 
 ## Macro
-Macros are very magical and can be defined in the "config.yaml". 
+Macros are very magical and can be defined in the yaml configuration files.
+
 They have a trigger (a regular expression) and have a list of sub commands which will be executed. They take parameter groups from regexp into account - so they can be very flexible!
 
 One simple example to start two Jenkins jobs with a given branch name at the same time:
@@ -120,8 +129,9 @@ macros:
     - "reply I'll build {{ .branch }} for you"
     - "trigger job BuildFrontendClient {{ .branch }}"
     - "trigger job BuildMobileClient {{ .branch }}"
+    - "then reply done! :checkmark:"
 ```
-![Screenshot](./docs/macro-multiple-jobs.jpg)
+![Screenshot](./docs/macro-multiple-jobs.png)
 
 **Note**: In the commands you can use the full set of [template features of go](https://golang.org/pkg/text/template/) -> loops/conditions are possible!
 
@@ -150,8 +160,9 @@ Simple command if you are not able to decide between different options
 - `random Peter Paul Tom Jan` -> who has to take about organizing food today?
 
 # Installation
-1. clone the project
-2. create config file called `config.yaml` (you can take a look at `config.example.yaml`)
+1. Make sure Go version 1.12+ is installed
+2. clone the project
+3. create config file called `config.yaml` (you can take a look at `config.example.yaml`)
  
 ## Run without docker
 This command will start the bot, using the `config.yaml` file by default. Use the `-config` argument to use the config file(s) from another location.

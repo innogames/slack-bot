@@ -39,4 +39,9 @@ func TestCron(t *testing.T) {
 		actual := commands.Run(event)
 		assert.Equal(t, true, actual)
 	})
+
+	t.Run("Test help", func(t *testing.T) {
+		help := commands.GetHelp()
+		assert.NotNil(t, help)
+	})
 }

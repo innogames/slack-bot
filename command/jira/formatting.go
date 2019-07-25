@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// todo map all icons in config (Priority.Name.Blocker = :jira_blocker: ...)
 func idToIcon(priority *jira.Priority) string {
 	if priority == nil {
 		return ":question:"
