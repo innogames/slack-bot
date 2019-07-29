@@ -132,9 +132,9 @@ func (b *Bot) HandleMessages(kill chan os.Signal) {
 			switch message := msg.Data.(type) {
 			case *slack.MessageEvent:
 				if b.shouldHandleMessage(message) {
-					go b.HandleMessage(*message)
+					go b.handleMessage(*message)
 				}
-			case slack.RTMEvent:
+			case slack.RTMError:
 				b.logger.Error(msg)
 			case *slack.LatencyReport:
 				b.logger.Debugf("Current latency: %v\n", message.Value)
@@ -143,7 +143,7 @@ func (b *Bot) HandleMessages(kill chan os.Signal) {
 			// e.g. triggered by "delay" or "macro" command. They are still executed in original event context
 			// -> will post in same channel as the user posted the original command
 			msg.SubType = TypeInternal
-			b.HandleMessage(msg)
+			b.handleMessage(msg)
 		case <-kill:
 			b.Disconnect()
 			b.logger.Warnf("Shutdown!")
@@ -180,8 +180,8 @@ func (b Bot) trimMessage(msg string) string {
 	return strings.TrimSpace(msg)
 }
 
-// HandleMessage process the incoming message and respond appropriately
-func (b Bot) HandleMessage(event slack.MessageEvent) {
+// handleMessage process the incoming message and respond appropriately
+func (b Bot) handleMessage(event slack.MessageEvent) {
 	event.Text = b.trimMessage(event.Text)
 	if event.Text == "" {
 		return
@@ -205,5 +205,7 @@ func (b Bot) HandleMessage(event slack.MessageEvent) {
 		b.sendFallbackMessage(event)
 	}
 
-	logger.Infof("handled message: %s in %s", event.Text, util.FormatDuration(time.Now().Sub(start)))
+	logger.
+		WithField("duration", util.FormatDuration(time.Now().Sub(start))).
+		Infof("handled message: %s", event.Text)
 }

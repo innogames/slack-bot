@@ -16,17 +16,17 @@ func NewCronCommand(slackClient client.SlackClient, logger *logrus.Logger, crons
 		return nil
 	}
 
-	c := cronLib.New()
-	cmd := &command{slackClient, crons, c, logger}
+	cron := cronLib.New()
+	cmd := &command{slackClient, crons, cron, logger}
 
 	for _, cronCommand := range crons {
-		_, err := c.AddFunc(cronCommand.Schedule, cmd.getCallback(cronCommand))
+		_, err := cron.AddFunc(cronCommand.Schedule, cmd.getCallback(cronCommand))
 		if err != nil {
 			logger.Error(err)
 		}
 	}
 
-	c.Start()
+	cron.Start()
 	logger.Infof("Initialized %d crons", len(crons))
 
 	return cmd

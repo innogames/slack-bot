@@ -13,6 +13,7 @@ import (
 	"github.com/nlopes/slack"
 	"github.com/sirupsen/logrus"
 	"os"
+	"strings"
 )
 
 // starts a interactive shell to communicate with a fake slack server and execute real commands
@@ -63,7 +64,7 @@ func main() {
 	// loop to send stdin input to slack bot
 	for {
 		text, _ := reader.ReadString('\n')
-		color.Blue(">>>> %s", text)
+		color.Blue(">>>> %s", strings.TrimSuffix(text, "\n"))
 
 		fakeSlack.SendMessageToBot(tester.TestChannel, text)
 	}

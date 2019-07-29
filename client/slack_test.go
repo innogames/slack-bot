@@ -40,6 +40,12 @@ func TestGetSlackChannel(t *testing.T) {
 	assert.Equal(t, "", name)
 }
 
+func TestGetSlackLink(t *testing.T) {
+	link := GetSlackLink("name", "url", "color")
+	assert.Equal(t, "url", link.URL)
+	assert.Equal(t, "name", link.Text)
+}
+
 func assertIdNameLookup(t *testing.T, identifier string, expectedId string, expectedName string) {
 	id, name := GetUser(identifier)
 	assert.Equal(t, expectedName, name)

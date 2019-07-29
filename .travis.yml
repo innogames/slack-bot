@@ -8,4 +8,4 @@ env:
   - GO111MODULE=on
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - make test-coverage && bash <(curl -s https://codecov.io/bash)

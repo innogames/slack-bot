@@ -30,6 +30,17 @@ type Config struct {
 	AdminUsers   []string `yaml:"admin_users,flow"`
 }
 
+// Slack contains the credentials and configuration of the Slack client
+type Slack struct {
+	Token             string
+	Team              string
+	Debug             bool
+	AllowedGroups     []string `yaml:"allowed_groups,flow"`
+	AutoJoinChannels  []string `yaml:"auto_join_channels,flow"`
+	TestEndpointUrl   string
+	VerificationToken string
+}
+
 type Logger struct {
 	Level string
 	File  string
@@ -44,17 +55,7 @@ type Macro struct {
 	Examples    []string
 }
 
-type Jira struct {
-	Host     string
-	Username string
-	Password string
-	Project  string
-}
-
-func (c Jira) IsEnabled() bool {
-	return c.Host != ""
-}
-
+// Mqtt is a optional MQTT client to publish and subscribe values from the defined broker
 type Mqtt struct {
 	Host     string
 	Username string
@@ -75,14 +76,4 @@ type Bitbucket struct {
 
 func (c Bitbucket) IsEnabled() bool {
 	return c.Host != ""
-}
-
-type Slack struct {
-	Token             string
-	Team              string
-	Debug             bool
-	AllowedGroups     []string `yaml:"allowed_groups,flow"`
-	AutoJoinChannels  []string `yaml:"auto_join_channels,flow"`
-	TestEndpointUrl   string
-	VerificationToken string
 }

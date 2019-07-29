@@ -1,6 +1,7 @@
 package jenkins
 
 import (
+	"errors"
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/config"
@@ -8,6 +9,7 @@ import (
 	"github.com/nlopes/slack"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
@@ -22,10 +24,12 @@ func TestJenkinsTrigger(t *testing.T) {
 			},
 			Trigger: "start test job",
 		},
+		"TestJobWithTrigger": {
+			Parameters: []config.JobParameter{},
+			Trigger:    "just do it",
+		},
 		"TestJobWithoutTrigger": {
-			Parameters: []config.JobParameter{
-				{Name: "PARAM1"},
-			},
+			Parameters: []config.JobParameter{},
 		},
 	}
 
@@ -36,14 +40,14 @@ func TestJenkinsTrigger(t *testing.T) {
 
 	t.Run("Test help", func(t *testing.T) {
 		help := command.GetHelp()
-		assert.Equal(t, len(cfg), len(help))
+		assert.Equal(t, 3, len(help))
 	})
 
 	t.Run("Trigger not existing job", func(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = "trigger job NotExisting"
 
-		slackClient.On("Reply", event, "Sorry, job *NotExisting* is not startable. Possible jobs: \n - *TestJob* \n - *TestJobWithoutTrigger*")
+		slackClient.On("Reply", event, "Sorry, job *NotExisting* is not startable. Possible jobs: \n - *TestJob* \n - *TestJobWithTrigger* \n - *TestJobWithoutTrigger*")
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
 	})
@@ -57,12 +61,56 @@ func TestJenkinsTrigger(t *testing.T) {
 		assert.Equal(t, true, actual)
 	})
 
-	t.Run("GetRandom trigger, but not all parameters provided", func(t *testing.T) {
+	t.Run("matched trigger, but not all parameters provided", func(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = "start test job"
 
 		slackClient.On("ReplyError", event, fmt.Errorf("sorry, you have to pass 1 parameters (PARAM1)"))
 		actual := command.Run(event)
+		assert.Equal(t, true, actual)
+	})
+
+	t.Run("generic trigger", func(t *testing.T) {
+		event := slack.MessageEvent{}
+		event.Text = "trigger job TestJob foo"
+
+		slackClient.On(
+			"AddReaction",
+			"coffee",
+			slack.NewRefToMessage(event.Channel, event.Timestamp),
+		)
+
+		slackClient.On(
+			"ReplyError",
+			event,
+			mock.Anything,
+		)
+
+		jenkinsClient.On("GetJob", "TestJob").Return(nil, errors.New("404"))
+		actual := command.Run(event)
+
+		assert.Equal(t, true, actual)
+	})
+
+	t.Run("custom trigger", func(t *testing.T) {
+		event := slack.MessageEvent{}
+		event.Text = "just do it"
+
+		slackClient.On(
+			"AddReaction",
+			"coffee",
+			slack.NewRefToMessage(event.Channel, event.Timestamp),
+		)
+
+		slackClient.On(
+			"ReplyError",
+			event,
+			mock.Anything,
+		)
+
+		jenkinsClient.On("GetJob", "TestJobWithTrigger").Return(nil, errors.New("404"))
+		actual := command.Run(event)
+
 		assert.Equal(t, true, actual)
 	})
 

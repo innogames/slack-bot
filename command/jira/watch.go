@@ -42,6 +42,7 @@ func (c *watchCommand) Run(match matcher.Result, event slack.MessageEvent) {
 
 	go c.watchTicket(event, issue)
 
+	// add button to link
 	c.slackClient.SendMessage(
 		event,
 		fmt.Sprintf("I'll inform you about changes of ticket %s", ticketId),
@@ -66,7 +67,7 @@ func (c *watchCommand) watchTicket(event slack.MessageEvent, issue *jira.Issue) 
 		if newStatus != lastStatus {
 			c.slackClient.Reply(event, fmt.Sprintf(
 				"%s %s: status changed from *%s* to *%s*",
-				getTicketUrl(c.config, issue),
+				getFormattedUrl(c.config, issue),
 				issue.Fields.Summary,
 				lastStatus,
 				newStatus,

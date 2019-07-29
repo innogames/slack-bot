@@ -56,7 +56,7 @@ func (c *buildWatcherCommand) Run(match matcher.Result, event slack.MessageEvent
 		build.Info().ID,
 	)
 	attachment := jenkins.GetAttachment(build, msg)
-	msgTimestamp := c.slackClient.SendMessage(event, "", slack.MsgOptionAttachments(attachment))
+	msgTimestamp := c.slackClient.SendMessage(event, "", attachment)
 	newMsgRef := slack.NewRefToMessage(event.Channel, msgTimestamp)
 
 	done := queue.AddRunningCommand(
@@ -67,12 +67,11 @@ func (c *buildWatcherCommand) Run(match matcher.Result, event slack.MessageEvent
 		<-jenkins.WatchBuild(build)
 		done <- true
 
-		attachment = jenkins.GetAttachment(build, msg)
 		c.slackClient.SendMessage(
 			event,
 			"",
 			slack.MsgOptionUpdate(msgTimestamp),
-			slack.MsgOptionAttachments(attachment),
+			jenkins.GetAttachment(build, msg),
 		)
 
 		c.slackClient.RemoveReaction(jenkins.IconRunning, newMsgRef)

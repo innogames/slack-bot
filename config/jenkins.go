@@ -11,20 +11,23 @@ type Jenkins struct {
 	Jobs     JenkinsJobs
 }
 
+// IsEnabled checks if a host was defined...by default it's not set
 func (c Jenkins) IsEnabled() bool {
 	return c.Host != ""
 }
 
-type JobParameter struct {
-	Name    string
-	Default string
-	Type    string
-}
-
+// JobConfig concrete job configuration -> only defined jobs are (re)startable
 type JobConfig struct {
 	Parameters []JobParameter
 	Trigger    string
 	OnStart    []string
 	OnSuccess  []string
 	OnFailure  []string
+}
+
+// JobParameter are defined build parameters per job
+type JobParameter struct {
+	Name    string
+	Default string
+	Type    string
 }

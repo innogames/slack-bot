@@ -86,9 +86,4 @@ func TestGame(t *testing.T) {
 		assert.Equal(t, true, actual)
 		assert.Equal(t, 1, len(gameCommand.games))
 	})
-
-	t.Run("Test help", func(t *testing.T) {
-		help := gameCommand.GetHelp()
-		assert.NotNil(t, help)
-	})
 }

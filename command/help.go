@@ -41,7 +41,6 @@ func (t *helpCommand) GetHelp() []bot.Help {
 	}
 }
 
-// todo use strings.Builder
 func (t *helpCommand) Run(match matcher.Result, event slack.MessageEvent) {
 	// compile help only once
 	t.once.Do(t.buildHelpTree)

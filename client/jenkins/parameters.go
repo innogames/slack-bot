@@ -7,10 +7,11 @@ import (
 	"strings"
 )
 
-// if a job was triggered via bot we send this additional build param to jenkins with the slack user name
-const slackUserParameter = "SLACK_USER"
-
+// Parameters is a simple string map of all build parameters
 type Parameters map[string]string
+
+// ParameterModifier are functions to mutate given Jenkins parameters
+// e.g. ensure the parameter is a real "boolean" value
 type ParameterModifier func(string) (string, error)
 
 var parameterModifier = map[string]ParameterModifier{
@@ -24,6 +25,9 @@ var parameterModifier = map[string]ParameterModifier{
 		}
 	},
 }
+
+// if a job was triggered via bot we send this additional build param to jenkins with the slack user name
+const slackUserParameter = "SLACK_USER"
 
 // ParseParameters parse jenkins parameters, based on a input string
 func ParseParameters(jobConfig config.JobConfig, parameterString string, params Parameters) error {

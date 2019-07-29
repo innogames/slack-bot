@@ -28,11 +28,11 @@ func TestInvalidFiles(t *testing.T) {
 	assert.EqualError(t, err, "no config file found: ../neneneee*yaml")
 	assert.Equal(t, defaultConfig, cfg)
 
-	cfg, err = LoadConfig("../fooo.yaml")
+	cfg, err = loadConfig("../fooo.yaml")
 	assert.EqualError(t, err, "failed to load config file from ../fooo.yaml: open ../fooo.yaml: no such file or directory")
-	assert.Equal(t, defaultConfig, cfg)
+	assert.Equal(t, Config{}, cfg)
 
-	cfg, err = LoadConfig("../Makefile")
+	cfg, err = loadConfig("../Makefile")
 	assert.EqualError(t, err, "failed to parse configuration file: yaml: line 7: found character that cannot start any token")
-	assert.Equal(t, defaultConfig, cfg)
+	assert.Equal(t, Config{}, cfg)
 }

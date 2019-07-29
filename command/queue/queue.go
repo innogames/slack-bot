@@ -62,7 +62,7 @@ func AddRunningCommand(event slack.MessageEvent, fallbackCommand string) chan bo
 	return finished
 }
 
-// IsBlock checks if there is a blocking command registered for this user/channel
+// IsBlocked checks if there is a blocking command registered for this user/channel
 func IsBlocked(event slack.MessageEvent) bool {
 	_, ok := runningCommands[getKey(event)]
 

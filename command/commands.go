@@ -18,7 +18,7 @@ import (
 	"gopkg.in/andygrunwald/go-jira.v1"
 )
 
-// GetCommand returns the list of default command which are available
+// GetCommands returns the list of default command which are available
 func GetCommands(slackClient client.SlackClient, jenkins jenkins.Client, jira *jira.Client, cfg config.Config, logger *logrus.Logger) *bot.Commands {
 	commands := &bot.Commands{}
 	commands.AddCommand(
@@ -48,6 +48,7 @@ func GetCommands(slackClient client.SlackClient, jenkins jenkins.Client, jira *j
 
 		jiraCommands.NewJiraCommand(jira, slackClient, cfg.Jira),
 		jiraCommands.NewWatchCommand(jira, slackClient, cfg.Jira),
+		jiraCommands.NewCommentCommand(jira, slackClient, cfg.Jira),
 
 		jenkinsCommands.NewTriggerCommand(jenkins, slackClient, cfg.Jenkins.Jobs, logger),
 		jenkinsCommands.NewJobWatcherCommand(jenkins, slackClient, logger),

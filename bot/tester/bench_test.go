@@ -4,7 +4,6 @@ package tester
 // todo clean up local bot.log afterwards
 /*
 
-
 func BenchmarkFullMessageHandling(b *testing.B) {
 	cfg := config.Config{}
 	logger := GetNullLogger()
@@ -55,7 +54,7 @@ func BenchmarkHandle(b *testing.B) {
 	event.Text = "<@" + botId + "> reply test"
 
 	for i := 0; i < b.N; i++ {
-		bot.HandleMessage(event)
+		bot.handleMessage(event)
 	}
 }
 */

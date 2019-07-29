@@ -36,7 +36,9 @@ The bot is also able to parse parameters and lookup branch names using a fuzzy b
 - `trigger job DeployBeta`
 - `start job BackendTests TEST-123` (search for a full branch name, containing TEST-123. e.g. feature/TEST-123-added-feature-456)
 
-![Screenshot](./docs/jenkins-trigger.png)
+![Screenshot](./docs/jenkins-trigger-1.png)
+
+![Screenshot](./docs/jenkins-trigger-2.png)
 
 ### Jenkins build notifications
 The bot has also the possibility to create one time notifications for jenkins builds. This might be useful for long running jobs where the devs is waiting for the result.
@@ -48,18 +50,21 @@ The bot has also the possibility to create one time notifications for jenkins bu
 
 ### Jenkins job notifications
 Receive slack messages for all process builds for the given job:
+
 **Example:**
 - `watch JenkinsMonitoring`
 - `unwatch Jenkins Monitoring`
 
 ### Jenkins status
 Small command to disable/enable job execution on Jenkins side.
+
 **Example:**
 - `disable job NightlyTests` (disable job on jenkins)
 - `enable job NightlyTests`
 
 ### Jenkins retry
 When a build failed you are able to retry any build by:
+
 **Example:**
 - `retry build NightlyTests` (retries the last build of a job)
 - `retry build NightlyTests #100` (retries given build)
@@ -97,6 +102,7 @@ Query information from Jira, either from a single ticket, or a whole list of tic
 - `jira "Second city"` (text search of tickets in default project)
 
 ![Jira ticket](./docs/jira-single.png)
+
 ![Jira list](./docs/jira-list.png)
 
 It's also possible to get a notification when there is a state change in a certain Jira ticket.
@@ -180,6 +186,7 @@ docker-compose up --build
 # Configuration
 The configuration is managed via simple yaml files which are storing the credentials for the external services and the custom commands etc.
 It's supported to split up the configuration into multiple files.
+
 **Possible structure:**
 - `secret.yaml` containing the credentials for the external services (slack, jenkins) - can be managed by puppet/ansible etc.
 - `jenkins.yaml` configuration of jenkins job and their parameters etc
@@ -245,7 +252,7 @@ Now a more complex example with more magic:
 jenkins:
      jobs:
        DeployBranch:
-         trigger: "deploy (?P<BRANCH>[\\w\\-_\\.\\/]*) to (?P<ENVIRONMENT>prod|test|env)"
+         trigger: "deploy (?P<BRANCH>[\\w\\-_\\.\\/]*) to (?P<ENVIRONMENT>prod|test|dev)"
          parameters:
          - name: BRANCH
            default: master
@@ -266,6 +273,7 @@ In addition `onsuccess` and `onerror` is also available...e.g. to send custom er
 
 ### MQTT
 MQTT is a simple publish-subscribe messaging protocol, based on TCP/IP.
+
 **Example config**
 ```
 mqtt:
@@ -292,6 +300,7 @@ crons:
 
 ### Calendar
 Trigger commands by calendar entries of an ical/icl calenar.
+
 **Example:**
 ```
 calendars:
@@ -342,14 +351,7 @@ If you need a new command, which is not implementable with a "macro" command, yo
 
 ## CLI tool
 There is a handy CLI application which emulates the Slack application...just chat with your local console without any Slack connection!
-```
-go run cmd/cli/main.go
-Type in your command:
-delay 1s reply IT WORKS!
->>>> delay 1s reply IT WORKS!
-<<<< I queued the command `reply IT WORKS!` for 1s. Use `stop timer 0` to stop the timer
-<<<< IT WORKS!
-```
+![CLI tool](./docs/cli.png)
 
 ## Testing
 There are a bunch of tests which can be executed via:

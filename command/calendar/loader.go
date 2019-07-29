@@ -17,23 +17,23 @@ const (
 	checkInterval = time.Minute * 5
 )
 
-type Event struct {
+type event struct {
 	CalendarEvent ics.Event
 	Calendar      config.Calendar
 	Event         config.CalendarEvent
 	Params        map[string]string
 }
 
-func WaitForEvents(calendars []config.Calendar) chan Event {
-	eventChan := make(chan Event)
+func waitForEvents(calendars []config.Calendar) chan event {
+	eventChan := make(chan event)
 
 	lastCheck := time.Now().Add(-checkInPast)
 	go func() {
 		for {
 			for _, calConfig := range loadEvents(calendars) {
-				event := calConfig.Ical
+				calendarEvent := calConfig.Ical
 				// todo fix timezone handling
-				startDate := event.GetStart().Add(-time.Hour * 2)
+				startDate := calendarEvent.GetStart().Add(-time.Hour * 2)
 
 				// ignore passed events
 				if startDate.Before(lastCheck) {
@@ -45,22 +45,23 @@ func WaitForEvents(calendars []config.Calendar) chan Event {
 					continue
 				}
 
-				// todo set and get
-				storage.Write(storeKey, event.GetID(), time.Now().String())
-				if true {
-					// was already evaluated
+				var existingEntry string
+				storage.Read(storeKey, calendarEvent.GetID(), existingEntry)
+				if existingEntry != "" {
+					// event was already handled
 					continue
 				}
+				storage.Write(storeKey, calendarEvent.GetID(), time.Now().String())
 
 				for _, eventDefinition := range calConfig.Events {
 					re := util.CompileRegexp(eventDefinition.Pattern)
-					match := re.FindStringSubmatch(event.GetSummary())
+					match := re.FindStringSubmatch(calendarEvent.GetSummary())
 					if len(match) == 0 {
 						continue
 					}
 
-					eventChan <- Event{
-						CalendarEvent: event,
+					eventChan <- event{
+						CalendarEvent: calendarEvent,
 						Calendar:      calConfig,
 						Event:         eventDefinition,
 						Params:        util.RegexpResultToParams(re, match),

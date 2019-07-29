@@ -17,6 +17,7 @@ type listCommand struct {
 	slackClient client.SlackClient
 }
 
+// NewListCommand prints the list of all queued commands (blocking commands like running Jenkins jobs)
 func NewListCommand(slackClient client.SlackClient) bot.Command {
 	return &listCommand{
 		slackClient,

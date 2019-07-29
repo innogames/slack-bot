@@ -63,11 +63,10 @@ func TestNodes(t *testing.T) {
 		event.Text = "jenkins nodes"
 
 		jenkins.On("GetAllNodes").Return(nodes, nil)
-		slackClient.On("Reply", event, "*Nodes*\n- *Node 1* - online: *true* - executors: 0\n- *Node 2* - online: *false* - executors: 0\n")
+		slackClient.On("Reply", event, "*2 Nodes*\n- *Node 1* - status: :check_mark: - executors: 0\n- *Node 2* - status: :red_circle: - executors: 0\n")
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
 	})
-
 }
 
 func TestRealNodes(t *testing.T) {

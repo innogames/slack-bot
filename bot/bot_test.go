@@ -1,10 +1,61 @@
 package bot
 
 import (
+	"fmt"
+	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/client"
+	"github.com/innogames/slack-bot/config"
 	"github.com/nlopes/slack"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
+
+func TestBot(t *testing.T) {
+	cfg := config.Config{}
+
+	slackClient := &client.Slack{}
+	slackClient.RTM = *slackClient.NewRTM()
+
+	logger, _ := test.NewNullLogger()
+
+	commands := &Commands{}
+	commands.AddCommand(testCommand2{})
+
+	bot := NewBot(cfg, slackClient, logger, commands)
+	bot.auth = &slack.AuthTestResponse{
+		UserID: "BOT",
+	}
+	bot.allowedUsers = map[string]string{
+		"U123": "User123",
+	}
+
+	t.Run("handle empty message", func(t *testing.T) {
+		event := slack.MessageEvent{}
+		event.Text = ""
+		event.Channel = "C123"
+		bot.handleMessage(event)
+	})
+
+	t.Run("handle unauthenticated message", func(t *testing.T) {
+		event := slack.MessageEvent{}
+
+		event.Text = "test"
+		event.User = "U888"
+		event.Channel = "C123"
+		bot.handleMessage(event)
+	})
+
+	t.Run("handle valid message", func(t *testing.T) {
+		event := slack.MessageEvent{}
+
+		event.Text = "test"
+		event.User = "U123"
+		event.Channel = "C123"
+		bot.handleMessage(event)
+		fmt.Println(bot.slackClient.RTM.IncomingEvents)
+	})
+}
 
 func TestIsBotMessage(t *testing.T) {
 	bot := Bot{}
@@ -106,5 +157,13 @@ func BenchmarkShouldHandle(b *testing.B) {
 			result = bot.shouldHandleMessage(event)
 		}
 		assert.True(b, result)
+	})
+}
+
+type testCommand2 struct {
+}
+
+func (c testCommand2) GetMatcher() matcher.Matcher {
+	return matcher.NewTextMatcher("test", func(match matcher.Result, event slack.MessageEvent) {
 	})
 }

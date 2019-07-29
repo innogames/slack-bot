@@ -1,7 +1,7 @@
 
 .PHONY: clean docker-build test test-coverage test-bench mocks
 
-all: clean dep test-coverage build/slack-bot
+all: clean dep test build/slack-bot
 
 build/slack-bot:
 	mkdir -p build/
@@ -18,13 +18,13 @@ docker-build:
 	docker build . --force-rm -t slack-bot:latest
 
 test:
-	go test ./... -race
+	go test ./...
 
 test-bench:
 	go test -bench . ./... -benchmem
 
 test-coverage:
-	mkdir -p build && go test ./... -cover -coverprofile=./build/cover.out -covermode=atomic && go tool cover -html=./build/cover.out -o ./build/cover.html
+	mkdir -p build && go test ./... -coverpkg=./... -cover -coverprofile=./build/cover.out -covermode=atomic && go tool cover -html=./build/cover.out -o ./build/cover.html
 
 mocks: mocks/SlackClient.go mocks/Stash.go mocks/JenkinsJob.go mocks/JenkinsClient.go
 

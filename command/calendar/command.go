@@ -16,7 +16,7 @@ func NewCalendarCommand(cfg []config.Calendar, logger *logrus.Logger) bot.Comman
 	}
 
 	go func() {
-		events := WaitForEvents(cfg)
+		events := waitForEvents(cfg)
 		for event := range events {
 			for _, command := range event.Event.Commands {
 				macro, _ := util.CompileTemplate(command)

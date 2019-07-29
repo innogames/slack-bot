@@ -9,6 +9,11 @@ import (
 	"github.com/nlopes/slack"
 )
 
+const (
+	iconStatusOnline  = ":check_mark:"
+	iconStatusOffline = ":red_circle:"
+)
+
 type nodesCommand struct {
 	jenkins     jenkins.Client
 	slackClient client.SlackClient
@@ -34,11 +39,23 @@ func (c *nodesCommand) Run(match matcher.Result, event slack.MessageEvent) {
 		return
 	}
 
-	text := "*Nodes*\n"
+	text := fmt.Sprintf("*%d Nodes*\n", len(nodes))
+	var statusIcon string
 	for _, node := range nodes {
 		offline := node.Raw.Offline
-		// todo(easypick) reaction for online offline
-		text += fmt.Sprintf("- *%s* - online: *%t* - executors: %d\n", node.GetName(), !offline, len(node.Raw.Executors))
+
+		if offline {
+			statusIcon = iconStatusOffline
+		} else {
+			statusIcon = iconStatusOnline
+		}
+
+		text += fmt.Sprintf(
+			"- *%s* - status: %s - executors: %d\n",
+			node.GetName(),
+			statusIcon,
+			len(node.Raw.Executors),
+		)
 	}
 
 	c.slackClient.Reply(event, text)

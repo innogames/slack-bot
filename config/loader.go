@@ -23,12 +23,12 @@ func LoadPattern(pattern string) (Config, error) {
 	}
 
 	for _, fileName := range fileNames {
-		newCfg, err := LoadConfig(fileName)
+		newCfg, err := loadConfig(fileName)
 		if err != nil {
 			return cfg, err
 		}
 
-		if err := mergo.Merge(&cfg, newCfg, mergo.WithAppendSlice); err != nil {
+		if err := mergo.Merge(&cfg, newCfg, mergo.WithAppendSlice, mergo.WithOverride); err != nil {
 			return cfg, err
 		}
 	}
@@ -36,9 +36,9 @@ func LoadPattern(pattern string) (Config, error) {
 	return cfg, nil
 }
 
-// LoadConfig loads a single yaml config file
-func LoadConfig(filename string) (Config, error) {
-	cfg := defaultConfig
+// loadConfig loads a single yaml config file
+func loadConfig(filename string) (Config, error) {
+	cfg := Config{}
 
 	content, err := ioutil.ReadFile(filename)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"github.com/nlopes/slack"
 )
 
+// Command is the main command struct which needs to provide the matcher and the actual executed action
 type Command interface {
 	GetMatcher() matcher.Matcher
 }

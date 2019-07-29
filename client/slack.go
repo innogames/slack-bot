@@ -12,6 +12,8 @@ var InternalMessages = make(chan slack.MessageEvent, 100)
 
 // Users is a lookup from user-id to user-name
 var Users map[string]string
+
+// Channels is a map of each channelsId and the name
 var Channels map[string]string
 
 func GetSlackClient(cfg config.Slack, logger *logrus.Logger) *Slack {
@@ -71,7 +73,6 @@ func (s Slack) RemoveReaction(name string, item slack.ItemRef) {
 // SendMessage is the "slow" reply via POST request, needed for Attachment or MsgRef
 func (s Slack) SendMessage(event slack.MessageEvent, text string, options ...slack.MsgOption) string {
 	if event.Channel == "" {
-		// todo log error
 		return ""
 	}
 

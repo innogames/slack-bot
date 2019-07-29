@@ -17,12 +17,16 @@ const (
 	IconFailed  = "x"
 	iconPending = "coffee"
 	iconAborted = "black_circle_for_record"
+
+	// we are polling the job every 3-60seconds with a increasing delay
+	minDelay      = time.Second * 3
+	maxDelay      = time.Minute
+	delayIncrease = time.Second * 1
 )
 
-type JobResult struct {
+type jobResult struct {
 	build  *gojenkins.Build
 	status string
-	output string
 }
 
 func GetClient(cfg config.Jenkins) (*gojenkins.Jenkins, error) {
@@ -40,6 +44,7 @@ func GetClient(cfg config.Jenkins) (*gojenkins.Jenkins, error) {
 	return client.Init()
 }
 
+// Client is a interface of gojenkins.Jenkins
 type Client interface {
 	GetJob(id string, parentIDs ...string) (*gojenkins.Job, error)
 	BuildJob(name string, options ...interface{}) (int64, error)
@@ -47,6 +52,7 @@ type Client interface {
 	GetAllNodes() ([]*gojenkins.Node, error)
 }
 
+// Job is a interface of gojenkins.Job
 type Job interface {
 	Poll() (int, error)
 	GetLastBuild() (*gojenkins.Build, error)
@@ -59,23 +65,24 @@ func BlockUntilDone(build *gojenkins.Build) {
 }
 
 // WatchBuild will return a chan which is filled/closed when the build finished
-func WatchBuild(build *gojenkins.Build) <-chan JobResult {
-	resultChan := make(chan JobResult, 1)
+func WatchBuild(build *gojenkins.Build) <-chan jobResult {
+	resultChan := make(chan jobResult, 1)
 
 	go func() {
 		defer close(resultChan)
 
-		delay := time.Second * 2
+		delay := minDelay
 		for {
 			time.Sleep(delay)
-			delay = delay + time.Second*1
+			if delay <= maxDelay {
+				delay += delayIncrease
+			}
 
 			build.Poll()
 			if !build.IsRunning() {
-				resultChan <- JobResult{
+				resultChan <- jobResult{
 					status: build.GetResult(),
 					build:  build,
-					output: build.GetConsoleOutput(),
 				}
 
 				return

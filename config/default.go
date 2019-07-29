@@ -5,4 +5,16 @@ var defaultConfig = Config{
 	Logger: Logger{
 		File: "./bot.log",
 	},
+
+	// some default jira fields
+	Jira: Jira{
+		Fields: []JiraField{
+			{
+				Name: "type",
+				Icons: map[string]string{
+					"Bug": ":bug:",
+				},
+			},
+		},
+	},
 }

@@ -31,7 +31,7 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 	msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
 	slackClient.AddReaction(iconPending, msgRef)
 
-	build, err := StartJob(jenkins, jobName, jobParams, logger)
+	build, err := startJob(jenkins, jobName, jobParams, logger)
 	if err != nil {
 		return errors.Wrapf(err, "Job *%s* could not start job", jobName)
 	}
@@ -47,8 +47,11 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 	)
 
 	// send main response (with parameters)
-	attachment := GetAttachment(build, msg)
-	msgTimestamp := slackClient.SendMessage(event, "", slack.MsgOptionAttachments(attachment))
+	msgTimestamp := slackClient.SendMessage(
+		event,
+		"",
+		GetAttachment(build, msg),
+	)
 
 	done := queue.AddRunningCommand(
 		event,
@@ -60,7 +63,7 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 		done <- true
 
 		// update main message
-		attachment = GetAttachment(build, fmt.Sprintf(
+		attachment := GetAttachment(build, fmt.Sprintf(
 			"Job %s #%d finished!",
 			build.Job.GetName(),
 			build.GetBuildNumber(),
@@ -70,7 +73,7 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 			event,
 			"",
 			slack.MsgOptionUpdate(msgTimestamp),
-			slack.MsgOptionAttachments(attachment),
+			attachment,
 		)
 
 		duration := time.Duration(build.GetDuration()) * time.Millisecond
@@ -103,8 +106,8 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 	return nil
 }
 
-// StartJob starts a job and waits until job is not queued anymore
-func StartJob(jenkins Client, jobName string, jobParams map[string]string, logger *logrus.Logger) (*gojenkins.Build, error) {
+// startJob starts a job and waits until job is not queued anymore
+func startJob(jenkins Client, jobName string, jobParams map[string]string, logger *logrus.Logger) (*gojenkins.Build, error) {
 	job, err := jenkins.GetJob(jobName)
 	if err != nil {
 		return nil, err
@@ -140,7 +143,7 @@ func StartJob(jenkins Client, jobName string, jobParams map[string]string, logge
 }
 
 // GetAttachment creates a attachment object for a given build
-func GetAttachment(build *gojenkins.Build, message string) slack.Attachment {
+func GetAttachment(build *gojenkins.Build, message string) slack.MsgOption {
 	var icon string
 	var color string
 	if build.IsRunning() {
@@ -167,6 +170,7 @@ func GetAttachment(build *gojenkins.Build, message string) slack.Attachment {
 		if param.Value == "" || param.Name == slackUserParameter {
 			continue
 		}
+
 		attachment.Fields = append(attachment.Fields, slack.AttachmentField{
 			Title: param.Name,
 			Value: param.Value,
@@ -191,5 +195,5 @@ func GetAttachment(build *gojenkins.Build, message string) slack.Attachment {
 		)
 	}
 
-	return attachment
+	return slack.MsgOptionAttachments(attachment)
 }

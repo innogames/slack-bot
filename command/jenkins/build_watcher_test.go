@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestJenkinsNotifier(t *testing.T) {
+func TestBuildWatcher(t *testing.T) {
 	slackClient := mocks.SlackClient{}
 	jenkins := &mocks.Client{}
 
@@ -24,7 +24,7 @@ func TestJenkinsNotifier(t *testing.T) {
 		assert.Equal(t, false, actual)
 	})
 
-	t.Run("GetRandom trigger with invalid job", func(t *testing.T) {
+	t.Run("build notifier with invalid job", func(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = "notify build TestJob"
 

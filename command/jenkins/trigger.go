@@ -63,6 +63,10 @@ func (c *triggerCommand) GetMatcher() matcher.Matcher {
 func (c *triggerCommand) GenericCall(match matcher.Result, event slack.MessageEvent) {
 	jobName := match.GetString("job")
 	if _, ok := c.jobs[jobName]; !ok {
+		if len(c.jobs) == 0 {
+			c.slackClient.Reply(event, "no job defined in config->jira->jobs")
+			return
+		}
 		message := fmt.Sprintf(
 			"Sorry, job *%s* is not startable. Possible jobs: \n - *%s*",
 			jobName,

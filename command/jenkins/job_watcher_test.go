@@ -18,7 +18,7 @@ func TestJenkinsWatcher(t *testing.T) {
 	command := bot.Commands{}
 	command.AddCommand(NewJobWatcherCommand(jenkins, &slackClient, logger))
 
-	t.Run("Test watch", func(t *testing.T) {
+	t.Run("Test watch invalid job", func(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = "watch TestJob"
 

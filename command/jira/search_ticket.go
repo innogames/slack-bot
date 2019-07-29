@@ -69,6 +69,8 @@ func (c *jiraCommand) Run(match matcher.Result, event slack.MessageEvent) {
 }
 
 // "1234" -> PROJ-1234
+// "FOO-1234" -> "FOO-1234"
+// dsadsad -> ""
 func (c *jiraCommand) getTicketNumber(eventText string) string {
 	var ticketNumber string
 	if _, err := strconv.Atoi(eventText); err == nil {
@@ -80,15 +82,15 @@ func (c *jiraCommand) getTicketNumber(eventText string) string {
 }
 
 func (c *jiraCommand) sendTicket(event slack.MessageEvent, issue *jira.Issue) {
-	information := idToIcon(issue.Fields.Priority)
-	information += " " + issue.Fields.Type.Name + typeIcon(issue.Fields.Type.Name)
+	information := c.getField("Priority", issue.Fields.Priority.Name)
+	information += " " + issue.Fields.Type.Name + c.getField("Type", issue.Fields.Type.Name)
 
 	var fields []slack.AttachmentField
 	fields = append(
 		fields,
 		slack.AttachmentField{
 			Title: "Name",
-			Value: fmt.Sprintf("%s: %s", getTicketUrl(c.config, issue), issue.Fields.Summary),
+			Value: fmt.Sprintf("%s: %s", getFormattedUrl(c.config, issue), issue.Fields.Summary),
 		},
 		slack.AttachmentField{
 			Title: "Information",
@@ -107,6 +109,11 @@ func (c *jiraCommand) sendTicket(event slack.MessageEvent, issue *jira.Issue) {
 			),
 			Short: true,
 		})
+	}
+
+	// todo matze implement
+	for _, field := range c.config.Fields {
+		_ = field
 	}
 
 	fields = append(fields, slack.AttachmentField{
@@ -133,15 +140,40 @@ func (c *jiraCommand) sendTicket(event slack.MessageEvent, issue *jira.Issue) {
 		Short: false,
 	})
 
+	if len(issue.Fields.Labels) > 0 {
+		fields = append(fields, slack.AttachmentField{
+			Title: "Labels",
+			Value: strings.Join(issue.Fields.Labels, ", "),
+			Short: false,
+		})
+	}
+
 	attachment := slack.Attachment{
 		Color:  "#D3D3D3",
 		Fields: fields,
 		MarkdownIn: []string{
 			"text", "fields",
 		},
+		Actions: []slack.AttachmentAction{
+			client.GetSlackLink("Open in Jira", getTicketUrl(c.config, issue)),
+		},
 	}
 
 	c.slackClient.SendMessage(event, "", slack.MsgOptionAttachments(attachment))
+}
+
+// get the name of the field and the mapped icon (if configured)
+func (c *jiraCommand) getField(fieldType string, name string) string {
+	for _, field := range c.config.Fields {
+		if field.Name == fieldType {
+			if icon, ok := field.Icons[name]; ok {
+				return fmt.Sprintf("%s %s", name, icon)
+			}
+			return name + " :question:" // todo const
+		}
+	}
+
+	return name
 }
 
 func (c *jiraCommand) jqlList(event slack.MessageEvent, jql string) {
@@ -165,9 +197,9 @@ func (c *jiraCommand) jqlList(event slack.MessageEvent, jql string) {
 		}
 		text += fmt.Sprintf(
 			"%s %s%s - %s (%s)",
-			getTicketUrl(c.config, &ticket),
+			getFormattedUrl(c.config, &ticket),
 			idToIcon(ticket.Fields.Priority),
-			typeIcon(ticket.Fields.Type.Name),
+			c.getField("Type", ticket.Fields.Type.Name),
 			ticket.Fields.Summary,
 			ticket.Fields.Status.Name,
 		) + "\n"

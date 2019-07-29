@@ -7,7 +7,8 @@ import (
 	"strings"
 )
 
-// todo map all icons in config (Priority.Name.Blocker = :jira_blocker: ...)
+// todo map all icons in config (Priority.Name.Blocker = :jira_blocker: ...
+// todo move to default map
 func idToIcon(priority *jira.Priority) string {
 	if priority == nil {
 		return ":question:"
@@ -29,6 +30,7 @@ func idToIcon(priority *jira.Priority) string {
 	}
 }
 
+// todo move to default map
 func typeIcon(ticketType string) string {
 	switch ticketType {
 	case "Bug":
@@ -47,6 +49,10 @@ func convertMarkdown(content string) string {
 	return content
 }
 
+func getFormattedUrl(cfg config.Jira, issue *jira.Issue) string {
+	return fmt.Sprintf("<%s|%s>", getTicketUrl(cfg, issue), issue.Key)
+}
+
 func getTicketUrl(cfg config.Jira, issue *jira.Issue) string {
-	return fmt.Sprintf("<%sbrowse/%s|%s>", cfg.Host, issue.Key, issue.Key)
+	return fmt.Sprintf("%sbrowse/%s", cfg.Host, issue.Key)
 }
