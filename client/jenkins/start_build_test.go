@@ -2,12 +2,13 @@ package jenkins
 
 import (
 	"errors"
+	"testing"
+
 	"github.com/innogames/slack-bot/config"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/nlopes/slack"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestStartBuild(t *testing.T) {

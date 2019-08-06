@@ -5,6 +5,9 @@ var defaultConfig = Config{
 	Logger: Logger{
 		File: "./bot.log",
 	},
+	Server: Server{
+		Listen: ":8765",
+	},
 
 	// some default jira fields
 	Jira: Jira{

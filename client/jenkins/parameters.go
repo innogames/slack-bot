@@ -2,9 +2,10 @@ package jenkins
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/innogames/slack-bot/client/vcs"
 	"github.com/innogames/slack-bot/config"
-	"strings"
 )
 
 // Parameters is a simple string map of all build parameters
@@ -73,7 +74,8 @@ func parseWords(parameterString string) []string {
 
 	var c byte
 	var param = make([]byte, 0)
-	isQuoted := false
+	var isQuoted = false
+
 	for len(cur) > 0 {
 		c, cur = cur[0], cur[1:]
 		if c == '"' {

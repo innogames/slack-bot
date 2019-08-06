@@ -1,9 +1,26 @@
 package client
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/innogames/slack-bot/config"
+	"github.com/sirupsen/logrus/hooks/test"
+	"github.com/stretchr/testify/assert"
 )
+
+func TestGetSlackClient(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+
+	cfg := config.Slack{
+		TestEndpointUrl: "http://slack.example.com",
+		Debug:           true,
+	}
+
+	client := GetSlackClient(cfg, logger)
+
+	_, _, err := client.ConnectRTM()
+	assert.Contains(t, err.Error(), "Post http://slack.example.com")
+}
 
 func TestGetSlackUser(t *testing.T) {
 	Users = map[string]string{

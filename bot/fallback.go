@@ -2,17 +2,18 @@ package bot
 
 import (
 	"fmt"
+	"math"
+	"strings"
+
 	"github.com/innogames/slack-bot/client"
 	"github.com/nlopes/slack"
 	"github.com/texttheater/golang-levenshtein/levenshtein"
-	"math"
-	"strings"
 )
 
 const minDistance = 4
 
 // try to find the best matching commands based on command name and examples
-func (b Bot) sendFallbackMessage(event slack.MessageEvent) {
+func (b bot) sendFallbackMessage(event slack.MessageEvent) {
 	bestMatching := getBestMatchingHelp(b, event.Text)
 
 	if bestMatching.Command == "" {
@@ -26,7 +27,7 @@ func (b Bot) sendFallbackMessage(event slack.MessageEvent) {
 	client.InternalMessages <- event
 }
 
-func getBestMatchingHelp(b Bot, eventText string) Help {
+func getBestMatchingHelp(b bot, eventText string) Help {
 	var distance = math.MaxInt32
 	var bestMatching Help
 

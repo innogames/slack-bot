@@ -1,11 +1,12 @@
 package bot
 
 import (
+	"testing"
+
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/nlopes/slack"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 type testCommand struct{}
@@ -36,7 +37,7 @@ func (c testCommand) GetMatcher() matcher.Matcher {
 
 func TestFallback(t *testing.T) {
 	slackClient := &client.Slack{}
-	bot := Bot{
+	bot := bot{
 		auth: &slack.AuthTestResponse{
 			User: "test",
 		},

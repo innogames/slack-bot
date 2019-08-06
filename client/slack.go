@@ -1,10 +1,11 @@
 package client
 
 import (
+	"strings"
+
 	"github.com/innogames/slack-bot/config"
 	"github.com/nlopes/slack"
 	"github.com/sirupsen/logrus"
-	"strings"
 )
 
 // InternalMessages is internal queue of internal messages
@@ -16,6 +17,7 @@ var Users map[string]string
 // Channels is a map of each channelsId and the name
 var Channels map[string]string
 
+// GetSlackClient establishes a RTM connection to the slack server
 func GetSlackClient(cfg config.Slack, logger *logrus.Logger) *Slack {
 	options := make([]slack.Option, 0)
 	if cfg.TestEndpointUrl != "" {
@@ -33,10 +35,17 @@ func GetSlackClient(cfg config.Slack, logger *logrus.Logger) *Slack {
 }
 
 type SlackClient interface {
+	// Reply a message to the current channel/user/thread
 	Reply(event slack.MessageEvent, text string)
+
+	// ReplyError Replies a error to the current channel/user/thread + log it!
 	ReplyError(event slack.MessageEvent, err error)
+
+	// SendMessage is the extended version of Reply and accepts any slack.MsgOption
 	SendMessage(event slack.MessageEvent, text string, options ...slack.MsgOption) string
+
 	SendToUser(user string, text string) string
+
 	RemoveReaction(name string, item slack.ItemRef)
 	AddReaction(name string, item slack.ItemRef)
 }

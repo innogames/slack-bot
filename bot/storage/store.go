@@ -1,8 +1,9 @@
 package storage
 
 import (
-	scribble "github.com/nanobox-io/golang-scribble"
 	"sync"
+
+	scribble "github.com/nanobox-io/golang-scribble"
 )
 
 // TODO cleanup/rewrite!
@@ -27,8 +28,9 @@ func InitStorage(path string) (*scribble.Driver, error) {
 
 // DeleteAll will delete all stored data from the current storage
 func DeleteAll() error {
-	mutex.Lock()
-	defer mutex.Unlock()
+	lock := getOrCreateMutex("")
+	lock.Lock()
+	defer lock.Unlock()
 
 	cache = make(map[string]map[string]interface{})
 

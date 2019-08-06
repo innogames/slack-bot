@@ -2,12 +2,13 @@ package config
 
 // Config contains the full config structure of this bot
 type Config struct {
-	Slack       Slack
-	Jenkins     Jenkins
-	Jira        Jira
-	Mqtt        Mqtt
-	StoragePath string `yaml:"storage_path"`
-	Bitbucket   Bitbucket
+	Slack       Slack     `yaml:"slack"`
+	Server      Server    `yaml:"server"`
+	Jenkins     Jenkins   `yaml:"jenkins"`
+	Jira        Jira      `yaml:"jira"`
+	Mqtt        Mqtt      `yaml:"mqtt"`
+	StoragePath string    `yaml:"storage_path"`
+	Bitbucket   Bitbucket `yaml:"bitbucket"`
 	Github      struct {
 		AccessToken string
 	}
@@ -41,9 +42,13 @@ type Slack struct {
 	VerificationToken string
 }
 
+type Server struct {
+	Listen string `yaml:"listen"`
+}
+
 type Logger struct {
-	Level string
-	File  string
+	Level string `yaml:"level"`
+	File  string `yaml:"file"`
 }
 
 // Macro represents a single macro which is defined by a trigger regexp and a list of executed commands

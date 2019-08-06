@@ -23,7 +23,6 @@ require (
 	github.com/stretchr/testify v1.3.0
 	github.com/texttheater/golang-levenshtein v0.0.0-20180516184445-d188e65d659e
 	github.com/trivago/tgo v1.0.7 // indirect
-	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5 // indirect
 	github.com/xanzy/go-gitlab v0.18.0
 	github.com/xoom/stash v1.3.1
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45

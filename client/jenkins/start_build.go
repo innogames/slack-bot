@@ -2,6 +2,9 @@ package jenkins
 
 import (
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
@@ -10,8 +13,6 @@ import (
 	"github.com/nlopes/slack"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"sync"
-	"time"
 )
 
 var mu sync.Mutex
@@ -20,10 +21,6 @@ var mu sync.Mutex
 // it will return when the job was started successfully
 // in the background it will watch the current build state and will update the state in the original slack message
 func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[string]string, slackClient client.SlackClient, jenkins Client, event slack.MessageEvent, logger *logrus.Logger) error {
-	// avoid nasty racing conditions when two people are starting the same job
-	mu.Lock()
-	defer mu.Unlock()
-
 	logger.Infof("%s started started job %s: %s", event.User, jobName, jobParams)
 	_, jobParams[slackUserParameter] = client.GetUser(event.User)
 
@@ -108,6 +105,10 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 
 // startJob starts a job and waits until job is not queued anymore
 func startJob(jenkins Client, jobName string, jobParams map[string]string, logger *logrus.Logger) (*gojenkins.Build, error) {
+	// avoid nasty racing conditions when two people are starting the same job
+	mu.Lock()
+	defer mu.Unlock()
+
 	job, err := jenkins.GetJob(jobName)
 	if err != nil {
 		return nil, err

@@ -1,24 +1,30 @@
 package bot
 
 import (
+	"os"
+	"strings"
+	"time"
+
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/config"
 	"github.com/nlopes/slack"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"os"
-	"strings"
-	"time"
 )
 
 // TypeInternal is only used internally to identify internal slack messages.
 // @deprecated do not use it anymore
 const TypeInternal = "internal"
 
+// Handler is the main bot interface
+type Handler interface {
+	HandleMessages(kill chan os.Signal)
+}
+
 // NewBot created main bot struct which holds the slack connection and dispatch messages to commands
-func NewBot(cfg config.Config, slackClient *client.Slack, logger *log.Logger, commands *Commands) Bot {
-	return Bot{
+func NewBot(cfg config.Config, slackClient *client.Slack, logger *log.Logger, commands *Commands) bot {
+	return bot{
 		config:       cfg,
 		slackClient:  slackClient,
 		logger:       logger,
@@ -27,7 +33,7 @@ func NewBot(cfg config.Config, slackClient *client.Slack, logger *log.Logger, co
 	}
 }
 
-type Bot struct {
+type bot struct {
 	config       config.Config
 	slackClient  *client.Slack
 	logger       *log.Logger
@@ -37,7 +43,7 @@ type Bot struct {
 }
 
 // Init establishes the slack connection and load allowed users
-func (b *Bot) Init() (err error) {
+func (b *bot) Init() (err error) {
 	if b.config.Slack.Token == "" {
 		return errors.Errorf("No slack.token provided in config!")
 	}
@@ -76,19 +82,19 @@ func (b *Bot) Init() (err error) {
 	}
 
 	b.logger.Infof("Loaded %d allowed users and %d channels", len(b.allowedUsers), len(client.Channels))
-	b.logger.Infof("Bot user: %s with ID: %s", b.auth.User, b.auth.UserID)
+	b.logger.Infof("bot user: %s with ID: %s", b.auth.User, b.auth.UserID)
 	b.logger.Infof("Initialized %d commands", b.commands.Count())
 
 	return nil
 }
 
 // Disconnect will do a clean shutdown and kills all connections
-func (b *Bot) Disconnect() error {
+func (b *bot) Disconnect() error {
 	return b.slackClient.Disconnect()
 }
 
 // load the public channels and list of all users from current space
-func (b *Bot) loadSlackData() error {
+func (b *bot) loadSlackData() error {
 	// whitelist users by group
 	for _, groupName := range b.config.Slack.AllowedGroups {
 		group, err := b.slackClient.GetUserGroupMembers(groupName)
@@ -124,7 +130,7 @@ func (b *Bot) loadSlackData() error {
 }
 
 // HandleMessages is blocking method to handle new incoming events
-func (b *Bot) HandleMessages(kill chan os.Signal) {
+func (b bot) HandleMessages(kill chan os.Signal) {
 	for {
 		select {
 		case msg := <-b.slackClient.IncomingEvents:
@@ -152,13 +158,13 @@ func (b *Bot) HandleMessages(kill chan os.Signal) {
 	}
 }
 
-func (b Bot) shouldHandleMessage(event *slack.MessageEvent) bool {
+func (b bot) shouldHandleMessage(event *slack.MessageEvent) bool {
 	// exclude all bot traffic
 	if event.BotID != "" || event.User == "" || event.User == b.auth.UserID || event.SubType == "bot_message" {
 		return false
 	}
 
-	// <@Bot> was mentioned in a public channel
+	// <@bot> was mentioned in a public channel
 	if strings.Contains(event.Text, "<@"+b.auth.UserID+">") {
 		return true
 	}
@@ -172,7 +178,7 @@ func (b Bot) shouldHandleMessage(event *slack.MessageEvent) bool {
 }
 
 // remove @bot prefix of message and cleanup
-func (b Bot) trimMessage(msg string) string {
+func (b bot) trimMessage(msg string) string {
 	msg = strings.Replace(msg, "<@"+b.auth.UserID+">", "", 1)
 	msg = strings.Replace(msg, "‘", "'", -1)
 	msg = strings.Replace(msg, "’", "'", -1)
@@ -181,7 +187,7 @@ func (b Bot) trimMessage(msg string) string {
 }
 
 // handleMessage process the incoming message and respond appropriately
-func (b Bot) handleMessage(event slack.MessageEvent) {
+func (b bot) handleMessage(event slack.MessageEvent) {
 	event.Text = b.trimMessage(event.Text)
 	if event.Text == "" {
 		return

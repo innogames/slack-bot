@@ -1,7 +1,8 @@
 package matcher
 
 import (
-	"fmt"
+	"errors"
+
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/config"
@@ -35,9 +36,10 @@ func (m adminMatcher) Match(event slack.MessageEvent) (Runner, Result) {
 		util.FullMatch: event.Text,
 	}
 
-	// todo use logger
-	fmt.Printf("Command was executed without admin access: %s - %s\n", event.Text, event.User)
 	return func(match Result, event slack.MessageEvent) {
-		m.slackClient.Reply(event, "Sorry, you are no admin and not allowed to execute this command!")
+		m.slackClient.ReplyError(
+			event,
+			errors.New("Sorry, you are no admin and not allowed to execute this command!"),
+		)
 	}, match
 }

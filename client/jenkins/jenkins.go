@@ -2,13 +2,14 @@ package jenkins
 
 import (
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/config"
 	"github.com/nlopes/slack"
-	"net/http"
-	"time"
 )
 
 const (
@@ -34,14 +35,14 @@ func GetClient(cfg config.Jenkins) (*gojenkins.Jenkins, error) {
 		return nil, nil
 	}
 
-	client := gojenkins.CreateJenkins(
+	jenkinsClient := gojenkins.CreateJenkins(
 		&http.Client{},
 		cfg.Host,
 		cfg.Username,
 		cfg.Password,
 	)
 
-	return client.Init()
+	return jenkinsClient.Init()
 }
 
 // Client is a interface of gojenkins.Jenkins

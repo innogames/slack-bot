@@ -2,13 +2,14 @@ package bot
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/config"
 	"github.com/nlopes/slack"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestBot(t *testing.T) {
@@ -58,7 +59,7 @@ func TestBot(t *testing.T) {
 }
 
 func TestIsBotMessage(t *testing.T) {
-	bot := Bot{}
+	bot := bot{}
 	bot.auth = &slack.AuthTestResponse{
 		UserID: "BOT",
 	}
@@ -129,7 +130,7 @@ func TestIsBotMessage(t *testing.T) {
 }
 
 func BenchmarkTrimMessage(b *testing.B) {
-	bot := Bot{}
+	bot := bot{}
 	bot.auth = &slack.AuthTestResponse{}
 	bot.auth.User = "botId"
 
@@ -143,7 +144,7 @@ func BenchmarkTrimMessage(b *testing.B) {
 }
 
 func BenchmarkShouldHandle(b *testing.B) {
-	bot := Bot{}
+	bot := bot{}
 	bot.auth = &slack.AuthTestResponse{}
 	bot.auth.User = "botId"
 

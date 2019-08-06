@@ -3,6 +3,9 @@ package tester
 
 import (
 	"fmt"
+	"net/http"
+	"os"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command"
@@ -10,8 +13,6 @@ import (
 	"github.com/nlopes/slack/slacktest"
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
-	"net/http"
-	"os"
 )
 
 // TestChannel is just a test channel name which is used for testing
@@ -19,7 +20,7 @@ const TestChannel = "#dev"
 const botId = "W12345"
 
 // StartBot will start this bot against the fake slack instance
-func StartBot(cfg config.Config, logger *logrus.Logger) bot.Bot {
+func StartBot(cfg config.Config, logger *logrus.Logger) bot.Handler {
 	slackClient := client.GetSlackClient(cfg.Slack, logger)
 
 	commands := command.GetCommands(

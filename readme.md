@@ -52,8 +52,8 @@ The bot has also the possibility to create one time notifications for jenkins bu
 Receive slack messages for all process builds for the given job:
 
 **Example:**
-- `watch JenkinsMonitoring`
-- `unwatch Jenkins Monitoring`
+- `watch JenkinsSelfCheck` notifies about any build of Job `JenkinsSelfCheck`
+- `unwatch JenkinsSelfCheck`
 
 ### Jenkins status
 Small command to disable/enable job execution on Jenkins side.

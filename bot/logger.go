@@ -1,12 +1,13 @@
 package bot
 
 import (
+	"os"
+
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/config"
 	"github.com/nlopes/slack"
 	"github.com/rifflock/lfshook"
 	log "github.com/sirupsen/logrus"
-	"os"
 )
 
 // GetLogger provides logger instance for the given config
@@ -27,7 +28,7 @@ func GetLogger(cfg config.Config) *log.Logger {
 	return logger
 }
 
-func (b Bot) getLogger(event slack.MessageEvent) *log.Entry {
+func (b bot) getLogger(event slack.MessageEvent) *log.Entry {
 	_, username := client.GetUser(event.User)
 
 	channel := ""
