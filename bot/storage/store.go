@@ -15,6 +15,7 @@ var cache map[string]map[string]interface{}
 var mutexes map[string]*sync.Mutex
 var mutex sync.Mutex
 
+// InitStorage registers a local directory as JSON file storage
 func InitStorage(path string) (*scribble.Driver, error) {
 	var err error
 

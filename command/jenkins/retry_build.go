@@ -18,8 +18,8 @@ type retryCommand struct {
 	logger      *logrus.Logger
 }
 
-// NewRetryCommand initialize a new command to trigger for whitelisted jenkins job
-func NewRetryCommand(
+// newRetryCommand initialize a new command to trigger for whitelisted jenkins job
+func newRetryCommand(
 	jenkins jenkins.Client,
 	slackClient client.SlackClient,
 	jobs config.JenkinsJobs,

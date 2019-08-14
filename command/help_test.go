@@ -1,7 +1,8 @@
 package command
 
 import (
-	"github.com/bndr/gojenkins"
+	"testing"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/config"
@@ -10,13 +11,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"gopkg.in/andygrunwald/go-jira.v1"
-	"testing"
 )
 
 func TestHelp(t *testing.T) {
-	jenkins := &gojenkins.Jenkins{}
-	jiraClient := &jira.Client{}
 	cfg := config.Config{}
 	cfg.Jenkins.Host = "bitbucket.example.com"
 	logger := logrus.New()
@@ -25,7 +22,7 @@ func TestHelp(t *testing.T) {
 	after := storage.MockStorage()
 	defer after()
 
-	commands := GetCommands(slackClient, jenkins, jiraClient, cfg, logger)
+	commands := GetCommands(slackClient, cfg, logger)
 
 	help := bot.Commands{}
 	help.AddCommand(NewHelpCommand(slackClient, commands))

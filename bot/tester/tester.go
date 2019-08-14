@@ -25,8 +25,6 @@ func StartBot(cfg config.Config, logger *logrus.Logger) bot.Handler {
 
 	commands := command.GetCommands(
 		slackClient,
-		nil,
-		nil,
 		cfg,
 		logger,
 	)

@@ -23,7 +23,7 @@ func TestCommentJira(t *testing.T) {
 	assert.Nil(t, err)
 
 	command := bot.Commands{}
-	command.AddCommand(NewCommentCommand(jiraClient, slackClient, cfg))
+	command.AddCommand(newCommentCommand(jiraClient, slackClient, cfg))
 
 	t.Run("No match", func(t *testing.T) {
 		event := slack.MessageEvent{}

@@ -3,21 +3,21 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/client"
-	"github.com/innogames/slack-bot/client/jenkins"
 	"github.com/innogames/slack-bot/client/vcs"
 	"github.com/innogames/slack-bot/command"
 	"github.com/innogames/slack-bot/config"
 	"github.com/sirupsen/logrus"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func main() {
-	configFile := flag.String("config", "config.yaml", "Path to config.yaml. Can be a glob like 'config/*.yaml'")
+	configFile := flag.String("config", "config.yaml", "Path to config.yaml. Can be a glob pattern like 'config/*.yaml'")
 	flag.Parse()
 
 	cfg, err := config.LoadPattern(*configFile)
@@ -29,20 +29,14 @@ func main() {
 	logger := bot.GetLogger(cfg)
 	logger.Infof("Loaded config from %s", *configFile)
 
-	jiraClient, err := client.GetJiraClient(cfg.Jira)
-	checkError(err, logger)
-
 	_, err = storage.InitStorage(cfg.StoragePath)
 	checkError(err, logger)
 
 	slackClient := client.GetSlackClient(cfg.Slack, logger)
 
-	jenkinsClient, err := jenkins.GetClient(cfg.Jenkins)
-	checkError(err, logger)
-
 	vcs.InitBranchWatcher(cfg, logger)
 
-	commands := command.GetCommands(slackClient, jenkinsClient, jiraClient, cfg, logger)
+	commands := command.GetCommands(slackClient, cfg, logger)
 
 	b := bot.NewBot(cfg, slackClient, logger, commands)
 	err = b.Init()

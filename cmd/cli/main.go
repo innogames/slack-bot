@@ -12,14 +12,23 @@ import (
 	"github.com/innogames/slack-bot/config"
 	"github.com/nlopes/slack"
 	"github.com/sirupsen/logrus"
+	"io"
 	"os"
 	"strings"
 )
 
 // starts a interactive shell to communicate with a fake slack server and execute real commands
 func main() {
+	kill := make(chan os.Signal, 1)
+
+	startCli(os.Stdin, os.Stdout, kill)
+}
+
+func startCli(input io.Reader, output io.Writer, kill chan os.Signal) {
 	var logger *logrus.Logger
 	var verbose bool
+
+	color.Output = output
 
 	flag.BoolVar(&verbose, "v", false, "-v to use verbose logging")
 	flag.Parse()
@@ -39,11 +48,10 @@ func main() {
 	defer fakeSlack.Stop()
 
 	realBot := tester.StartBot(cfg, logger)
-	kill := make(chan os.Signal, 1)
 	go realBot.HandleMessages(kill)
 
 	fmt.Println("Type in your command:")
-	reader := bufio.NewReader(os.Stdin)
+	reader := bufio.NewReader(input)
 
 	// loop to print received messages from websocket connection
 	go func() {
@@ -63,7 +71,11 @@ func main() {
 
 	// loop to send stdin input to slack bot
 	for {
-		text, _ := reader.ReadString('\n')
+		text, err := reader.ReadString('\n')
+		if err != nil {
+			continue
+		}
+
 		color.Blue(">>>> %s", strings.TrimSuffix(text, "\n"))
 
 		fakeSlack.SendMessageToBot(tester.TestChannel, text)

@@ -30,7 +30,7 @@ func TestJenkinsRetry(t *testing.T) {
 	}
 
 	command := bot.Commands{}
-	command.AddCommand(NewRetryCommand(jenkins, &slackClient, cfg, logger))
+	command.AddCommand(newRetryCommand(jenkins, &slackClient, cfg, logger))
 
 	t.Run("Test invalid command", func(t *testing.T) {
 		event := slack.MessageEvent{}

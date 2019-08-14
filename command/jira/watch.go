@@ -12,8 +12,8 @@ import (
 	"time"
 )
 
-// NewWatchCommand will inform the user abut the first ticket state change
-func NewWatchCommand(jira *jira.Client, slackClient client.SlackClient, config config.Jira) bot.Command {
+// newWatchCommand will inform the user abut the first ticket state change
+func newWatchCommand(jira *jira.Client, slackClient client.SlackClient, config config.Jira) bot.Command {
 	return &watchCommand{jira, slackClient, config}
 }
 

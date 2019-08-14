@@ -23,8 +23,8 @@ type jiraCommand struct {
 
 var ticketRe = regexp.MustCompile(`^(\w+)-(\d+)$`)
 
-// NewJiraCommand search for a Jira ticket id or a JQL
-func NewJiraCommand(jira *jira.Client, slackClient client.SlackClient, config config.Jira) bot.Command {
+// newJiraCommand search for a Jira ticket id or a JQL
+func newJiraCommand(jira *jira.Client, slackClient client.SlackClient, config config.Jira) bot.Command {
 	return &jiraCommand{jira, slackClient, config}
 }
 

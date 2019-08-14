@@ -19,8 +19,8 @@ type nodesCommand struct {
 	slackClient client.SlackClient
 }
 
-// NewNodesCommand lists all Jenkins nodes/slaves and the current number of running executors
-func NewNodesCommand(jenkins jenkins.Client, slackClient client.SlackClient) bot.Command {
+// newNodesCommand lists all Jenkins nodes/slaves and the current number of running executors
+func newNodesCommand(jenkins jenkins.Client, slackClient client.SlackClient) bot.Command {
 	return &nodesCommand{jenkins, slackClient}
 }
 

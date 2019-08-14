@@ -33,7 +33,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		},
 	}
 
-	trigger := NewTriggerCommand(jenkinsClient, &slackClient, cfg, logger)
+	trigger := newTriggerCommand(jenkinsClient, &slackClient, cfg, logger)
 
 	command := bot.Commands{}
 	command.AddCommand(trigger)

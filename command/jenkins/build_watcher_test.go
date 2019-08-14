@@ -14,7 +14,7 @@ func TestBuildWatcher(t *testing.T) {
 	jenkins := &mocks.Client{}
 
 	command := bot.Commands{}
-	command.AddCommand(NewBuildWatcherCommand(jenkins, &slackClient))
+	command.AddCommand(newBuildWatcherCommand(jenkins, &slackClient))
 
 	t.Run("Test invalid command", func(t *testing.T) {
 		event := slack.MessageEvent{}

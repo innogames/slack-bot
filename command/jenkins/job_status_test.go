@@ -23,7 +23,7 @@ func TestJobStatus(t *testing.T) {
 		},
 	}
 
-	trigger := NewStatusCommand(jenkins, &slackClient, cfg)
+	trigger := newStatusCommand(jenkins, &slackClient, cfg)
 
 	command := bot.Commands{}
 	command.AddCommand(trigger)

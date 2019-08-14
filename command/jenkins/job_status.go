@@ -22,8 +22,8 @@ type statusCommand struct {
 	jobs        config.JenkinsJobs
 }
 
-// NewStatusCommand is able to enable/disable (whitelisted) Jenkins jobs
-func NewStatusCommand(jenkins jenkins.Client, slackClient client.SlackClient, jobs config.JenkinsJobs) bot.Command {
+// newStatusCommand is able to enable/disable (whitelisted) Jenkins jobs
+func newStatusCommand(jenkins jenkins.Client, slackClient client.SlackClient, jobs config.JenkinsJobs) bot.Command {
 	return &statusCommand{jenkins, slackClient, jobs}
 }
 

@@ -18,7 +18,7 @@ func TestNodes(t *testing.T) {
 	jenkins := &mocks.Client{}
 
 	command := bot.Commands{}
-	command.AddCommand(NewNodesCommand(jenkins, slackClient))
+	command.AddCommand(newNodesCommand(jenkins, slackClient))
 
 	t.Run("Test invalid command", func(t *testing.T) {
 		event := slack.MessageEvent{}
@@ -42,7 +42,7 @@ func TestNodes(t *testing.T) {
 		jenkins := &mocks.Client{}
 
 		command := bot.Commands{}
-		command.AddCommand(NewNodesCommand(jenkins, slackClient))
+		command.AddCommand(newNodesCommand(jenkins, slackClient))
 
 		nodes := []*gojenkins.Node{
 			{
@@ -80,7 +80,7 @@ func TestRealNodes(t *testing.T) {
 		assert.Nil(t, err)
 
 		command := bot.Commands{}
-		command.AddCommand(NewNodesCommand(client, slackClient))
+		command.AddCommand(newNodesCommand(client, slackClient))
 
 		event := slack.MessageEvent{}
 		event.Text = "jenkins nodes"

@@ -21,7 +21,7 @@ func TestWatchJira(t *testing.T) {
 	assert.Nil(t, err)
 
 	command := bot.Commands{}
-	command.AddCommand(NewWatchCommand(jiraClient, slackClient, cfg))
+	command.AddCommand(newWatchCommand(jiraClient, slackClient, cfg))
 
 	t.Run("No match", func(t *testing.T) {
 		event := slack.MessageEvent{}

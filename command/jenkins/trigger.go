@@ -28,8 +28,8 @@ type triggerCommandData struct {
 	trigger *regexp.Regexp
 }
 
-// NewTriggerCommand initialize a new command to trigger for whitelisted jenkins job
-func NewTriggerCommand(
+// newTriggerCommand initialize a new command to trigger for whitelisted jenkins job
+func newTriggerCommand(
 	jenkins jenkins.Client,
 	slackClient client.SlackClient,
 	jobs config.JenkinsJobs,

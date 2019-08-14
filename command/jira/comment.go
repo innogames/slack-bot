@@ -2,6 +2,7 @@ package jira
 
 import (
 	"fmt"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
@@ -10,8 +11,8 @@ import (
 	"gopkg.in/andygrunwald/go-jira.v1"
 )
 
-// NewCommentCommand adds a comment to the given ticket
-func NewCommentCommand(jira *jira.Client, slackClient client.SlackClient, config config.Jira) bot.Command {
+// newCommentCommand adds a comment to the given ticket
+func newCommentCommand(jira *jira.Client, slackClient client.SlackClient, config config.Jira) bot.Command {
 	return &commentCommand{jira, slackClient, config}
 }
 

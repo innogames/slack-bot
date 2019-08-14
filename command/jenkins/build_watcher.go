@@ -16,8 +16,8 @@ type buildWatcherCommand struct {
 	slackClient client.SlackClient
 }
 
-// NewBuildWatcherCommand watches the status of an already running jenkins build
-func NewBuildWatcherCommand(jenkins jenkins.Client, slackClient client.SlackClient) bot.Command {
+// newBuildWatcherCommand watches the status of an already running jenkins build
+func newBuildWatcherCommand(jenkins jenkins.Client, slackClient client.SlackClient) bot.Command {
 	return &buildWatcherCommand{jenkins, slackClient}
 }
 

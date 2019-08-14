@@ -16,7 +16,7 @@ func TestJenkinsWatcher(t *testing.T) {
 	logger := logrus.New()
 
 	command := bot.Commands{}
-	command.AddCommand(NewJobWatcherCommand(jenkins, &slackClient, logger))
+	command.AddCommand(newJobWatcherCommand(jenkins, &slackClient, logger))
 
 	t.Run("Test watch invalid job", func(t *testing.T) {
 		event := slack.MessageEvent{}

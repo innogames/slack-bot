@@ -15,8 +15,8 @@ const (
 	actionUnwatch = "unwatch"
 )
 
-// NewJobWatcherCommand initialize a new command to watch for any jenkins job
-func NewJobWatcherCommand(jenkinsClient jenkins.Client, slackClient client.SlackClient, logger *logrus.Logger) bot.Command {
+// newJobWatcherCommand initialize a new command to watch for any jenkins job
+func newJobWatcherCommand(jenkinsClient jenkins.Client, slackClient client.SlackClient, logger *logrus.Logger) bot.Command {
 	return &watcherCommand{
 		jenkinsClient,
 		slackClient,
