@@ -7,6 +7,21 @@ This slack bot improves the workflow of development teams. Especially with focus
 [![Release](https://img.shields.io/github/release/innogames/slack-bot.svg)](https://github.com/innogames/slack-bot/releases)
 [![codecov](https://codecov.io/gh/innogames/slack-bot/branch/master/graph/badge.svg)](https://codecov.io/gh/innogames/slack-bot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[Docker](https://hub.docker.com/r/brainexe/slack-bot)
+
+# Installation
+**Quick steps:** (just use the bot via Docker)
+- install Docker incl. docker-compose
+- clone this repo or at least fetch the docker-compose.yaml
+- create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
+- `docker-compose up`
+
+**Advanced** (when planning working on the bot core)
+- install go (at least 1.12)
+- clone/fork this repo
+- create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
+- run `go run cmd/bot/main.go` to run the go application
+
 
 # Usage
 As slack user, you just have to send a private message to the bot user/app containing the command to execute.

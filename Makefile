@@ -15,7 +15,7 @@ dep:
 	go get github.com/vektra/mockery/
 
 docker-build:
-	docker build . --force-rm -t slack-bot:latest
+	docker build . --force-rm -t brainexe/slack-bot:latest
 
 test:
 	go test ./...
