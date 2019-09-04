@@ -29,7 +29,7 @@ func TestBuildWatcher(t *testing.T) {
 		event.Text = "notify build TestJob"
 
 		jenkins.On("GetJob", "TestJob").Return(nil, fmt.Errorf(""))
-		slackClient.On("Reply", event, "Job TestJob does not exist")
+		slackClient.On("Reply", event, "Job *TestJob* does not exist")
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
 	})

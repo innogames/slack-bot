@@ -3,7 +3,6 @@ language: go
 go:
   - "1.12"
   - "1.13"
-  - master
 
 env:
   - GO111MODULE=on

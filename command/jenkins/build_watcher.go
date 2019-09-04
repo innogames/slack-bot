@@ -5,10 +5,12 @@ import (
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
 	"github.com/innogames/slack-bot/command/queue"
 	"github.com/nlopes/slack"
+	"time"
 )
 
 type buildWatcherCommand struct {
@@ -35,7 +37,7 @@ func (c *buildWatcherCommand) Run(match matcher.Result, event slack.MessageEvent
 
 	job, err := c.jenkins.GetJob(jobName)
 	if err != nil {
-		c.slackClient.Reply(event, fmt.Sprintf("Job %s does not exist", jobName))
+		c.slackClient.Reply(event, fmt.Sprintf("Job *%s* does not exist", jobName))
 		return
 	}
 
@@ -81,14 +83,16 @@ func (c *buildWatcherCommand) Run(match matcher.Result, event slack.MessageEvent
 			c.slackClient.AddReaction(jenkins.IconFailed, newMsgRef)
 		}
 
+		duration := time.Duration(build.GetDuration()) * time.Millisecond
 		c.slackClient.Reply(event, fmt.Sprintf(
-			"<@%s> *%s*: %s #%s: %s",
+			"<@%s> *%s*: %s #%s: %s in %s",
 			event.User,
 			build.GetResult(),
 			jobName,
 			build.Info().ID,
-			build.GetUrl()),
-		)
+			build.GetUrl(),
+			util.FormatDuration(duration),
+		))
 	}()
 }
 
