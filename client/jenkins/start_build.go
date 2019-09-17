@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/bndr/gojenkins"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
-	"github.com/innogames/slack-bot/config"
 	"github.com/nlopes/slack"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"

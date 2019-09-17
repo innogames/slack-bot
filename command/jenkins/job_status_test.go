@@ -3,7 +3,7 @@ package jenkins
 import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/config"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/nlopes/slack"
 	"github.com/stretchr/testify/assert"

@@ -2,12 +2,13 @@ package vcs
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot/config"
-	"github.com/sirupsen/logrus"
-	"github.com/xoom/stash"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/innogames/slack-bot/bot/config"
+	"github.com/sirupsen/logrus"
+	"github.com/xoom/stash"
 )
 
 const branchFetchInterval = time.Minute * 2

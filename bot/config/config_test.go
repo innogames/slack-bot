@@ -6,9 +6,9 @@ import (
 )
 
 func TestLoadExampleConfig(t *testing.T) {
-	cfg, err := LoadPattern("../config.example.yaml")
+	cfg, err := LoadPattern("../../config.example.yaml")
 	assert.Nil(t, err)
-	assert.NotEmpty(t, cfg.Slack)
+	assert.NotNil(t, cfg.Slack)
 	assert.NotEmpty(t, cfg.Macros)
 
 	assert.Equal(t, false, cfg.Jenkins.IsEnabled())
@@ -32,7 +32,7 @@ func TestInvalidFiles(t *testing.T) {
 	assert.EqualError(t, err, "failed to load config file from ../fooo.yaml: open ../fooo.yaml: no such file or directory")
 	assert.Equal(t, Config{}, cfg)
 
-	cfg, err = loadConfig("../Makefile")
+	cfg, err = loadConfig("../../Makefile")
 	assert.EqualError(t, err, "failed to parse configuration file: yaml: line 7: found character that cannot start any token")
 	assert.Equal(t, Config{}, cfg)
 }

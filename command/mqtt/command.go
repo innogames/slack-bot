@@ -4,9 +4,9 @@ import (
 	"fmt"
 	mqtt_poho "github.com/eclipse/paho.mqtt.golang"
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
-	"github.com/innogames/slack-bot/config"
 	"github.com/nlopes/slack"
 )
 

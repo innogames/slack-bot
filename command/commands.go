@@ -2,6 +2,7 @@ package command
 
 import (
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/calendar"
 	"github.com/innogames/slack-bot/command/cron"
@@ -12,7 +13,6 @@ import (
 	"github.com/innogames/slack-bot/command/mqtt"
 	"github.com/innogames/slack-bot/command/pullrequest"
 	"github.com/innogames/slack-bot/command/queue"
-	"github.com/innogames/slack-bot/config"
 	"github.com/sirupsen/logrus"
 )
 

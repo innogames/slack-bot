@@ -2,8 +2,8 @@ package pullrequest
 
 import (
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
-	"github.com/innogames/slack-bot/config"
 )
 
 // GetCommands returns a list of all available PR watcher (gitlab, github etc) based on the current config
