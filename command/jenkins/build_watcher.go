@@ -2,7 +2,7 @@ package jenkins
 
 import (
 	"fmt"
-	"github.com/bndr/gojenkins"
+	"github.com/brainexe/gojenkins"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/util"

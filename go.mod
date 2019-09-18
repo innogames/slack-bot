@@ -5,7 +5,7 @@ go 1.12
 require (
 	github.com/PuloV/ics-golang v0.0.0-20190424194752-58baabe4e0a3
 	github.com/ae6rt/retry v2.0.0+incompatible // indirect
-	github.com/bndr/gojenkins v0.0.0-20181125150310-de43c03cf849
+	github.com/brainexe/gojenkins v0.2.1-0.20190918104845-ed439461a695
 	github.com/channelmeter/iso8601duration v0.0.0-20150204201828-8da3af7a2a61 // indirect
 	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/fatih/color v1.7.0

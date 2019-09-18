@@ -2,11 +2,9 @@ package jenkins
 
 import (
 	"fmt"
-	"net/http"
 	"time"
 
-	"github.com/bndr/gojenkins"
-	"github.com/innogames/slack-bot/bot/config"
+	"github.com/brainexe/gojenkins"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/nlopes/slack"
@@ -28,29 +26,6 @@ const (
 type jobResult struct {
 	build  *gojenkins.Build
 	status string
-}
-
-func GetClient(cfg config.Jenkins) (*gojenkins.Jenkins, error) {
-	if !cfg.IsEnabled() {
-		return nil, nil
-	}
-
-	jenkinsClient := gojenkins.CreateJenkins(
-		&http.Client{},
-		cfg.Host,
-		cfg.Username,
-		cfg.Password,
-	)
-
-	return jenkinsClient.Init()
-}
-
-// Client is a interface of gojenkins.Jenkins
-type Client interface {
-	GetJob(id string, parentIDs ...string) (*gojenkins.Job, error)
-	BuildJob(name string, options ...interface{}) (int64, error)
-	GetQueue() (*gojenkins.Queue, error)
-	GetAllNodes() ([]*gojenkins.Node, error)
 }
 
 // Job is a interface of gojenkins.Job
