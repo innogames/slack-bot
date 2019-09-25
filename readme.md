@@ -211,14 +211,8 @@ It's supported to split up the configuration into multiple files.
 To load the config files, use `go run cmd/bot/main.go -config /path/to/config/*.yaml` which merged all configs together.
 
 ## Slack
-To run this bot, you need a "bot token" for your slack application. [Take a look here](https://api.slack.com/docs/token-types#bot) how to get one.
-
-You can define a "team" field: This will grant access to all users which are allocated to this team name. As alternative, the "allowedusers" option can be used to grant access. (will change in future)
-```
-slack:
-  token: xoxb-1234567-secret
-  team: "Development"
-```
+To run this bot, you need a "bot token" for your slack application. 
+[Take a look here](https://api.slack.com/docs/token-types#bot) how to get one.
 
 ## Jenkins
 To be able to start or monitor jenkins jobs, you have to setup the host and the credentials first. The user needs read access to the jobs and the right to trigger jobs for your whitelisted jobs.

@@ -1,18 +1,12 @@
 
 slack:
   token: # use xoxb-1234567-secret
-  # team: "Developer"
+  team: "Developer"
   # auto_join_channels:
   # - #fancy-channel"
-
-allowed_users:
-  - developer1234
-  - dev-tv
-
-# allowed_groups:
-# - backend
-# - frontend
-
+  allowed_groups:
+    - backend
+    - frontend
 jenkins:
   host: #https://example.com
   username: username
