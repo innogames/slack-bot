@@ -148,7 +148,7 @@ func (c *quizCommand) getCurrentQuestion() question {
 }
 
 func (c *quizCommand) getCurrentAnswers() []string {
-	return append(c.getCurrentQuestion().Answers)
+	return c.getCurrentQuestion().Answers
 }
 
 func (c *quizCommand) GetHelp() []bot.Help {
