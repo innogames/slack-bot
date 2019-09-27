@@ -1,5 +1,7 @@
 package client
 
+//go:generate $GOPATH/bin/mockery -output ../mocks -name SlackClient
+
 import (
 	"strings"
 
