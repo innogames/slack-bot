@@ -3,17 +3,22 @@ package games
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/nlopes/slack"
-	"gitlab.innogames.de/foe-tools/slack-bot/bot"
-	"gitlab.innogames.de/foe-tools/slack-bot/bot/matcher"
-	"gitlab.innogames.de/foe-tools/slack-bot/client"
+	"html"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/client"
+	"github.com/nlopes/slack"
 )
+
+const maxQuestions int = 50 // api limit is 50
+const apiUrl string = "https://opentdb.com/api.php"
 
 func NewQuizCommand(slackClient client.SlackClient) bot.Command {
 	return quizCommand{slackClient: slackClient}
@@ -21,7 +26,7 @@ func NewQuizCommand(slackClient client.SlackClient) bot.Command {
 
 type quizCommand struct {
 	slackClient client.SlackClient
-	quiz Quiz
+	quiz        Quiz
 }
 
 type question struct {
@@ -35,23 +40,31 @@ type question struct {
 }
 
 type Quiz struct {
-	ResponseCode int `json:"response_code"`
-	Questions    []question `json:"results"`
+	ResponseCode    int        `json:"response_code"`
+	Questions       []question `json:"results"`
 	currentQuestion int
-	tries        int
+	tries           int
 }
-
 
 func (c quizCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewRegexpMatcher(`quiz`, c.StartQuiz),
+		matcher.NewRegexpMatcher(`quiz (?P<questions>\d+)`, c.StartQuiz),
 		matcher.NewRegexpMatcher(`answer (?P<answer>[\w\s]+)`, c.Answer),
 	)
 }
 
 func (c *quizCommand) StartQuiz(match matcher.Result, event slack.MessageEvent) {
+	questions := match.GetInt("questions")
+	if questions == 0 {
+		questions = 2
+	}
+	if questions > maxQuestions {
+		c.slackClient.Reply(event, fmt.Sprintf("No more than %d questions allowed", maxQuestions))
+		return
+	}
 
-	resp, _ := http.Get("https://opentdb.com/api.php?amount=2")
+	resp, _ := http.Get(fmt.Sprintf("%s?amount=%d", apiUrl, questions))
 
 	defer resp.Body.Close()
 
@@ -86,7 +99,7 @@ func (c *quizCommand) Answer(match matcher.Result, event slack.MessageEvent) {
 		c.slackClient.Reply(event, "correct")
 		c.quiz.currentQuestion++
 		if c.quiz.currentQuestion == len(c.quiz.Questions) {
-			c.slackClient.Reply(event, fmt.Sprintf("You finished our quiz with %d Questions. You needed %d tries.", len(c.quiz.Questions), c.quiz.tries))
+			c.slackClient.Reply(event, fmt.Sprintf("You finished this quiz with %d Questions. You needed %d answers.", len(c.quiz.Questions), c.quiz.tries))
 		} else {
 			c.printCurrentQuestion(event)
 		}
@@ -108,11 +121,19 @@ func (c *quizCommand) parseAnswers() {
 
 func (c *quizCommand) printCurrentQuestion(event slack.MessageEvent) {
 	question := c.getCurrentQuestion()
-	c.slackClient.Reply(event, fmt.Sprintf("Next question is %s from the category: %s", question.Difficulty, question.Category))
-	c.slackClient.Reply(event, question.Question)
+	message := fmt.Sprintf(
+		"Next question (#%d) is of *\"%s\" difficulty* from the category: \"*%s*\"\n",
+		c.quiz.currentQuestion+1,
+		html.UnescapeString(question.Difficulty),
+		html.UnescapeString(question.Category),
+	)
+	message += html.UnescapeString(question.Question) + "\n"
 	for index, answer := range question.Answers {
-		c.slackClient.Reply(event, strconv.Itoa(index + 1) + ".) " + answer)
+		message += strconv.Itoa(index+1) + ".) " + html.UnescapeString(answer) + "\n"
 	}
+	message += ":interrobang: Hint type `answer {number}` to send your answer :interrobang:"
+
+	c.slackClient.Reply(event, message)
 }
 
 func (c *quizCommand) getCurrentQuestion() question {
