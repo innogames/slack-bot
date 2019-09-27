@@ -1,7 +1,7 @@
 
 slack:
   token: # use xoxb-1234567-secret
-  team: "Developer"
+  #team: "Developer"
   # auto_join_channels:
   # - #fancy-channel"
   allowed_groups:
