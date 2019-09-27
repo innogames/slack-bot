@@ -125,6 +125,17 @@ It's also possible to get a notification when there is a state change in a certa
 **Example**
 - `watch ticket PROJ-12234`
 
+## Quiz command
+If you need a small break and want to play a little quiz game you can do so by calling this command.
+No more than 50 questions are allowed. 
+The questions are from different categories and difficult levels and are either multiple choice or true/false questions.
+
+**Commands**
+- `quiz 10` to start a quiz with 10 questions 
+- `answer 1` to answer a question with the first answer
+
+![Quiz game](./docs/quiz.png)
+
 ## Custom command
 Every user is able to define own command aliases. This is a handy feature to avoid tying the same command every day.
 

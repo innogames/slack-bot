@@ -21,7 +21,7 @@ const maxQuestions int = 50 // api limit is 50
 const apiUrl string = "https://opentdb.com/api.php"
 
 func NewQuizCommand(slackClient client.SlackClient) bot.Command {
-	return quizCommand{slackClient: slackClient}
+	return &quizCommand{slackClient: slackClient}
 }
 
 type quizCommand struct {
@@ -129,7 +129,7 @@ func (c *quizCommand) printCurrentQuestion(event slack.MessageEvent) {
 	)
 	message += html.UnescapeString(question.Question) + "\n"
 	for index, answer := range question.Answers {
-		message += strconv.Itoa(index+1) + ".) " + html.UnescapeString(answer) + "\n"
+		message += fmt.Sprintf("%d.) %s\n", index+1, html.UnescapeString(answer))
 	}
 	message += ":interrobang: Hint type `answer {number}` to send your answer :interrobang:"
 
@@ -142,4 +142,18 @@ func (c *quizCommand) getCurrentQuestion() question {
 
 func (c *quizCommand) getCurrentAnswers() []string {
 	return append(c.getCurrentQuestion().Answers)
+}
+
+func (c *quizCommand) GetHelp() []bot.Help {
+	return []bot.Help{
+		{
+			Command:     "quiz",
+			Description: "small quiz for a nice break",
+			Examples: []string{
+				"quiz",
+				"quiz 10",
+				"answer 2",
+			},
+		},
+	}
 }
