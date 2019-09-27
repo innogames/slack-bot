@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/innogames/slack-bot/config"
+	"github.com/innogames/slack-bot/bot/config"
 	"gopkg.in/andygrunwald/go-jira.v1"
 	"net/http"
 )

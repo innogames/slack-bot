@@ -8,11 +8,11 @@ import (
 	"syscall"
 
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/vcs"
 	"github.com/innogames/slack-bot/command"
-	"github.com/innogames/slack-bot/config"
 	"github.com/sirupsen/logrus"
 )
 

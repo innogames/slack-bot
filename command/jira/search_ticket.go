@@ -3,9 +3,9 @@ package jira
 import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
-	"github.com/innogames/slack-bot/config"
 	"github.com/nlopes/slack"
 	"gopkg.in/andygrunwald/go-jira.v1"
 	"net/url"
@@ -82,9 +82,6 @@ func (c *jiraCommand) getTicketNumber(eventText string) string {
 }
 
 func (c *jiraCommand) sendTicket(event slack.MessageEvent, issue *jira.Issue) {
-	information := c.getField("Priority", issue.Fields.Priority.Name)
-	information += " " + issue.Fields.Type.Name + c.getField("Type", issue.Fields.Type.Name)
-
 	var fields []slack.AttachmentField
 	fields = append(
 		fields,
@@ -93,8 +90,14 @@ func (c *jiraCommand) sendTicket(event slack.MessageEvent, issue *jira.Issue) {
 			Value: fmt.Sprintf("%s: %s", getFormattedUrl(c.config, issue), issue.Fields.Summary),
 		},
 		slack.AttachmentField{
-			Title: "Information",
-			Value: information,
+			Title: "Priority",
+			Value: c.getField("Priority", issue.Fields.Priority.Name),
+			Short: true,
+		},
+		slack.AttachmentField{
+			Title: "Type",
+			Value: c.getField("Type", issue.Fields.Type.Name),
+			Short: true,
 		},
 	)
 
@@ -109,11 +112,6 @@ func (c *jiraCommand) sendTicket(event slack.MessageEvent, issue *jira.Issue) {
 			),
 			Short: true,
 		})
-	}
-
-	// todo matze implement
-	for _, field := range c.config.Fields {
-		_ = field
 	}
 
 	fields = append(fields, slack.AttachmentField{
@@ -222,7 +220,6 @@ func (c *jiraCommand) GetHelp() []bot.Help {
 			"jira",
 			"list jira ticket information or performs jira searches. It uses the configured jira project by default to display/search tickets",
 			[]string{
-				"jql",
 				"jql status=\"In Progress\"",
 				"issue 43234",
 				"issue PROJ-23123",

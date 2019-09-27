@@ -3,7 +3,7 @@ package client
 import (
 	"testing"
 
-	"github.com/innogames/slack-bot/config"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 )

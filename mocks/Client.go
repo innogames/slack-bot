@@ -2,7 +2,7 @@
 
 package mocks
 
-import gojenkins "github.com/bndr/gojenkins"
+import gojenkins "github.com/brainexe/gojenkins"
 
 import mock "github.com/stretchr/testify/mock"
 

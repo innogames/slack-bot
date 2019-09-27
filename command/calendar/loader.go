@@ -1,14 +1,15 @@
 package calendar
 
 import (
-	"github.com/PuloV/ics-golang"
-	"github.com/innogames/slack-bot/bot/storage"
-	"github.com/innogames/slack-bot/bot/util"
-	"github.com/innogames/slack-bot/config"
 	"io/ioutil"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/PuloV/ics-golang"
+	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/storage"
+	"github.com/innogames/slack-bot/bot/util"
 )
 
 const (

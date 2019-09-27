@@ -5,16 +5,17 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/storage"
-	"github.com/innogames/slack-bot/bot/tester"
-	"github.com/innogames/slack-bot/config"
-	"github.com/nlopes/slack"
-	"github.com/sirupsen/logrus"
 	"io"
 	"os"
 	"strings"
+
+	"github.com/fatih/color"
+	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/storage"
+	"github.com/innogames/slack-bot/bot/tester"
+	"github.com/nlopes/slack"
+	"github.com/sirupsen/logrus"
 )
 
 // starts a interactive shell to communicate with a fake slack server and execute real commands

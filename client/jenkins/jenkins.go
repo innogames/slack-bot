@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/bndr/gojenkins"
+	"github.com/brainexe/gojenkins"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/nlopes/slack"

@@ -1,6 +1,6 @@
 package mqtt
 
-import "github.com/innogames/slack-bot/config"
+import "github.com/innogames/slack-bot/bot/config"
 import mqtt_poho "github.com/eclipse/paho.mqtt.golang"
 
 // GetMqttClient creates a new mqtt client

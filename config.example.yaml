@@ -1,28 +1,23 @@
 
 slack:
   token: # use xoxb-1234567-secret
-  team: "Developer"
-  #autojoinchannels:
-  #  - #fancy-channel"
-  #allowedgroups:
-  # - backend
-  #  - frontend
+  # team: "Developer"
+  # auto_join_channels:
+  # - #fancy-channel"
+
+allowed_users:
+  - developer1234
+  - dev-tv
+
+# allowed_groups:
+# - backend
+# - frontend
 
 jenkins:
   host: #https://example.com
   username: username
   password: secret
   jobs:
-    DeployBranch:
-      trigger: "deploy (?P<BRANCH>[\\w\\-_\\.\\/]*)(?: to)? (?P<SERVER>.*)(?P<SOFT> soft)?"
-      parameters:
-        - name: BRANCH
-          default: master
-          type: branch
-        - name: SERVER
-        - name: SOFT
-          default: false
-          type: bool
     BackendTests:
       parameters:
         - name: BRANCH
@@ -52,32 +47,15 @@ gitlab:
 #  host: https://gitlab.example.de
 #  accesstoken: # optional when using gitlab features
 
-#calendars:
-#  - path: https://calendar.google.com/calendar/ical/ic2sdsdsadadart4t0r4k%40group.calendar.google.com/private-fooobar/basic.ics
-#    events:
-#    - name: Create release branch
-#      trigger: "Create release branch (?P<branch>.*)"
-#      commands:
-#      - "trigger job CreateReleaseBranch {.branch}"
-#      - "send message to #foe-mobile I'll created branch {.branch}"
-#    - name: "Deploy Beta"
-#      trigger: Deploy Beta
-#      commands:
-#      - "send message to #dev-backend deploy beta"
-
-storage_path: /data
+storage_path: ./storage
 
 logger:
-  level: debug
+  level: info
   file: ./bot.log
-
-allowed_users:
-  - developer1234
-  - dev-tv
 
 macros:
   - name: thanks
-    trigger: (thanks|thank you|danke)
+    trigger: (thanks|thank you|danke|sudo)
     commands:
       - "reply nothing to thank for"
     examples:

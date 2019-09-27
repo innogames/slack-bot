@@ -1,7 +1,7 @@
 package jenkins
 
 import (
-	"github.com/bndr/gojenkins"
+	"github.com/brainexe/gojenkins"
 	"time"
 )
 

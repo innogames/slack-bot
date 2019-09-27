@@ -2,12 +2,12 @@ package jenkins
 
 import (
 	"fmt"
-	"github.com/bndr/gojenkins"
+	"github.com/brainexe/gojenkins"
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
-	"github.com/innogames/slack-bot/config"
 	"github.com/nlopes/slack"
 	"text/template"
 )

@@ -5,7 +5,7 @@ package client
 import (
 	"strings"
 
-	"github.com/innogames/slack-bot/config"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/nlopes/slack"
 	"github.com/sirupsen/logrus"
 )
