@@ -3,18 +3,17 @@ package games
 import (
 	"encoding/json"
 	"fmt"
-	"html"
-	"io/ioutil"
-	"log"
-	"math/rand"
-	"net/http"
-	"strconv"
-	"time"
-
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/nlopes/slack"
+	"github.com/pkg/errors"
+	"html"
+	"io/ioutil"
+	"math/rand"
+	"net/http"
+	"strconv"
+	"time"
 )
 
 const maxQuestions int = 50 // api limit is 50
@@ -64,20 +63,28 @@ func (c *quizCommand) StartQuiz(match matcher.Result, event slack.MessageEvent) 
 		return
 	}
 
-	resp, _ := http.Get(fmt.Sprintf("%s?amount=%d", apiUrl, questions))
+	resp, err := http.Get(fmt.Sprintf("%s?amount=%d", apiUrl, questions))
+	if err != nil {
+		c.slackClient.ReplyError(event, errors.Wrap(err, "Error while loading Quiz: %w"))
+		return
+	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			log.Fatal(err)
+			c.slackClient.ReplyError(event, errors.Wrap(err, "Error while loading Quiz: %w"))
+			return
 		}
 
 		if err := json.Unmarshal(bodyBytes, &c.quiz); err != nil {
-			panic(err)
+			c.slackClient.ReplyError(event, errors.Wrap(err, "Error while loading Quiz: %w"))
+			return
 		}
 	}
+	c.quiz.currentQuestion = 0
+	c.quiz.tries = 0
 
 	c.parseAnswers()
 
@@ -109,10 +116,10 @@ func (c *quizCommand) Answer(match matcher.Result, event slack.MessageEvent) {
 }
 
 func (c *quizCommand) parseAnswers() {
+	rand.Seed(time.Now().UnixNano())
 	for questionNr, question := range c.quiz.Questions {
 		answers := append(question.IncorrectAnswers, question.CorrectAnswer)
 
-		rand.Seed(time.Now().UnixNano())
 		rand.Shuffle(len(answers), func(i, j int) { answers[i], answers[j] = answers[j], answers[i] })
 
 		c.quiz.Questions[questionNr].Answers = answers
