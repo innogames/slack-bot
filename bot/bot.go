@@ -110,12 +110,6 @@ func (b *bot) loadSlackData() error {
 		return errors.Wrap(err, "error fetching users")
 	}
 	for _, user := range allUsers {
-		// deprecated: whitelist by title
-		if b.config.Slack.Team != "" && strings.Contains(user.Profile.Title, b.config.Slack.Team) {
-			b.allowedUsers[user.ID] = user.Name
-			continue
-		}
-
 		for _, allowedUserName := range b.config.AllowedUsers {
 			if allowedUserName == user.Name || allowedUserName == user.ID {
 				b.allowedUsers[user.ID] = user.Name

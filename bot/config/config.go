@@ -33,13 +33,13 @@ type Config struct {
 
 // Slack contains the credentials and configuration of the Slack client
 type Slack struct {
-	Token             string
-	Team              string
-	Debug             bool
-	AllowedGroups     []string `yaml:"allowed_groups,flow"`
-	AutoJoinChannels  []string `yaml:"auto_join_channels,flow"`
-	TestEndpointUrl   string
-	VerificationToken string
+	Token            string
+	Debug            bool
+	AllowedGroups    []string `yaml:"allowed_groups,flow"`
+	AutoJoinChannels []string `yaml:"auto_join_channels,flow"`
+
+	TestEndpointUrl   string // only used for integration tests
+	VerificationToken string // only used for integration tests
 }
 
 type Server struct {
