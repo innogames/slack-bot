@@ -34,6 +34,7 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logr
 		NewHelpCommand(slackClient, commands),
 
 		games.NewNumberGuesserCommand(slackClient),
+		games.NewQuizCommand(slackClient),
 
 		calendar.NewCalendarCommand(cfg.Calendars, logger),
 
