@@ -136,6 +136,19 @@ The questions are from different categories and difficult levels and are either 
 
 ![Quiz game](./docs/quiz.png)
 
+## Weather command
+It's possible to setup [OpenWeatherMap](https://openweathermap.org/) to get information about the current weather at your location.
+
+![Screenshot](./docs/weather.png)
+
+**Example config:**
+```
+open_weather:
+  apikey: "612325WD623562376678"
+  location: "Hamburg, DE"
+  units: "metric"
+```
+
 ## Custom command
 Every user is able to define own command aliases. This is a handy feature to avoid tying the same command every day.
 

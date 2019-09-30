@@ -20,15 +20,16 @@ var parserTestCases = []struct {
 func TestParseDuration(t *testing.T) {
 	t.Run("ParseDuration", func(t *testing.T) {
 		for _, testCase := range parserTestCases {
-			native, _ := time.ParseDuration(testCase.normal)
-
-			actualFull, err := ParseDuration(testCase.normal)
-			assert.Nil(t, err)
-			actualShort, _ := ParseDuration(testCase.normal)
+			native, err := time.ParseDuration(testCase.normal)
 			assert.Nil(t, err)
 
-			assert.Equal(t, native, actualFull)
-			assert.Equal(t, native, actualShort)
+			actualFull, err := ParseDuration(testCase.long)
+			assert.Nil(t, err)
+			actualShort, err := ParseDuration(testCase.normal)
+			assert.Nil(t, err)
+
+			assert.Equal(t, native.String(), actualFull.String())
+			assert.Equal(t, native.String(), actualShort.String())
 		}
 	})
 }

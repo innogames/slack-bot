@@ -6,6 +6,8 @@ import (
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
 	"github.com/nlopes/slack"
+	"github.com/pkg/errors"
+	"net"
 	"time"
 )
 
@@ -16,7 +18,7 @@ const (
 	iconDeclined    = "x"
 	iconBuildFailed = "red_circle"
 	iconError       = "x"
-	checkInterval   = time.Second * 20
+	checkInterval   = time.Second * 30
 )
 
 type buildStatus int
@@ -77,8 +79,13 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 	for {
 		pr, err := c.fetcher.getPullRequest(match)
 		if err != nil {
+			if nerr, ok := err.(net.Error); ok && nerr.Temporary() {
+				time.Sleep(checkInterval)
+				continue
+			}
+
 			// reply error in new thread
-			c.slackClient.SendMessage(event, err.Error(), slack.MsgOptionTS(event.Timestamp))
+			c.slackClient.ReplyError(event, errors.Wrap(err, "Error while fetching PR data: %w"))
 			c.slackClient.AddReaction(iconError, msgRef)
 			return
 		}

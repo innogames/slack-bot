@@ -12,7 +12,14 @@ import (
 	"time"
 )
 
+const defaultApiUrl = "https://api.openweathermap.org/data/2.5/weather"
+
+// NewWeatherCommand is using OpenWeatherMap to display current weather and the forecast
 func NewWeatherCommand(slackClient client.SlackClient, config config.OpenWeather) bot.Command {
+	if config.Url == "" {
+		config.Url = defaultApiUrl
+	}
+
 	return WeatherCommand{slackClient, config}
 }
 
@@ -96,11 +103,6 @@ func (c WeatherCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c WeatherCommand) GetWeather(match matcher.Result, event slack.MessageEvent) {
-	if !c.IsEnabled() {
-		c.slackClient.Reply(event, "Weather command is not configured")
-		return
-	}
-
 	url := fmt.Sprintf("%s?q=%s&units=%s&appid=%s", c.config.Url, c.config.Location, c.config.Units, c.config.Apikey)
 	response, err := http.Get(url)
 	if err != nil {
@@ -112,6 +114,7 @@ func (c WeatherCommand) GetWeather(match matcher.Result, event slack.MessageEven
 	err = json.NewDecoder(response.Body).Decode(&record)
 	if err != nil {
 		c.slackClient.ReplyError(event, err)
+		return
 	}
 
 	var fields = [][]string{

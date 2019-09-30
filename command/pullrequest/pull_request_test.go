@@ -63,7 +63,7 @@ func TestPullRequest(t *testing.T) {
 		fetcher.err = errors.New("PR not found")
 		event.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
-		slackClient.On("ReplyError", event, fetcher.err).Return("")
+		slackClient.On("ReplyError", event, fetcher.err)
 
 		actual := commands.Run(event)
 		assert.Equal(t, true, actual)
