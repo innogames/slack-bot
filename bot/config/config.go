@@ -27,8 +27,16 @@ type Config struct {
 		Repository string
 	} `yaml:"branch_lookup"`
 
-	AllowedUsers []string `yaml:"allowed_users,flow"`
-	AdminUsers   []string `yaml:"admin_users,flow"`
+	AllowedUsers []string    `yaml:"allowed_users,flow"`
+	AdminUsers   []string    `yaml:"admin_users,flow"`
+	OpenWeather  OpenWeather `yaml:"open_weather"`
+}
+
+type OpenWeather struct {
+	Apikey   string
+	Location string
+	Url      string
+	Units    string
 }
 
 // Slack contains the credentials and configuration of the Slack client
