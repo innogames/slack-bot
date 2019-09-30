@@ -8,7 +8,6 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/nlopes/slack"
-	"log"
 	"net/http"
 	"time"
 )
@@ -97,16 +96,22 @@ func (c WeatherCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c WeatherCommand) GetWeather(match matcher.Result, event slack.MessageEvent) {
+	if !c.IsEnabled() {
+		c.slackClient.Reply(event, "Weather command is not configured")
+		return
+	}
+
 	url := fmt.Sprintf("%s?q=%s&units=%s&appid=%s", c.config.Url, c.config.Location, c.config.Units, c.config.Apikey)
 	response, err := http.Get(url)
 	if err != nil {
 		c.slackClient.Reply(event, "Api call returned an err: "+err.Error())
+		return
 	}
 
 	var record CurrentWeatherResponse
 	err = json.NewDecoder(response.Body).Decode(&record)
 	if err != nil {
-		log.Println(err)
+		c.slackClient.ReplyError(event, err)
 	}
 
 	var fields = [][]string{
@@ -152,6 +157,10 @@ func (c WeatherCommand) GetWeather(match matcher.Result, event slack.MessageEven
 	}
 
 	c.slackClient.SendMessage(event, "", slack.MsgOptionBlocks(sections...))
+}
+
+func (c WeatherCommand) IsEnabled() bool {
+	return c.config.Apikey != ""
 }
 
 func (c WeatherCommand) GetHelp() []bot.Help {
