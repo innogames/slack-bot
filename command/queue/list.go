@@ -17,6 +17,8 @@ type listCommand struct {
 	slackClient client.SlackClient
 }
 
+type filterFunc func(slack.MessageEvent) bool
+
 // NewListCommand prints the list of all queued commands (blocking commands like running Jenkins jobs)
 func NewListCommand(slackClient client.SlackClient) bot.Command {
 	return &listCommand{
@@ -25,13 +27,30 @@ func NewListCommand(slackClient client.SlackClient) bot.Command {
 }
 
 func (c *listCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewTextMatcher("list queue", c.Run)
+	return matcher.NewGroupMatcher(
+		matcher.NewTextMatcher("list queue", c.ListAll),
+		matcher.NewTextMatcher("list queue in channel", c.ListChannel),
+	)
 }
 
-func (c *listCommand) Run(match matcher.Result, event slack.MessageEvent) {
+func (c *listCommand) ListAll(match matcher.Result, event slack.MessageEvent) {
+	c.listQueue(match, event, func(event slack.MessageEvent) bool {
+		return true
+	})
+}
+
+func (c *listCommand) ListChannel(match matcher.Result, event slack.MessageEvent) {
+	c.listQueue(match, event, func(queuedEvent slack.MessageEvent) bool {
+		return event.Channel == queuedEvent.Channel
+	})
+}
+
+func (c *listCommand) listQueue(match matcher.Result, event slack.MessageEvent, filter filterFunc) {
 	res, _ := storage.ReadAll(storageKey)
-	response := fmt.Sprintf("%d queued commands\n", len(res))
 	now := time.Now()
+
+	count := 0
+	response := ""
 
 	var queuedEvent slack.MessageEvent
 	for _, eventString := range res {
@@ -39,6 +58,11 @@ func (c *listCommand) Run(match matcher.Result, event slack.MessageEvent) {
 			continue
 		}
 
+		if !filter(queuedEvent) {
+			continue
+		}
+
+		count++
 		userId, _ := client.GetUser(queuedEvent.User)
 		i, _ := strconv.ParseInt(queuedEvent.Timestamp[0:10], 10, 64)
 		t := time.Unix(i, 0)
@@ -51,6 +75,8 @@ func (c *listCommand) Run(match matcher.Result, event slack.MessageEvent) {
 		)
 	}
 
+	response = fmt.Sprintf("%d queued commands\n", count) + response
+
 	c.slackClient.Reply(event, response)
 }
 
@@ -59,6 +85,10 @@ func (c *listCommand) GetHelp() []bot.Help {
 		{
 			Command:     "list queue",
 			Description: "list all queued commands",
+			Examples: []string{
+				"list queue",
+				"list queue in channel",
+			},
 		},
 	}
 }

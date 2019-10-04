@@ -90,6 +90,23 @@ func TestQueue(t *testing.T) {
 		actual = command.Run(event)
 		assert.Equal(t, true, actual)
 
+		// list queue for current channel
+		event.Text = "list queue in channel"
+		slackClient.On("Reply", event, mock.MatchedBy(func(input string) bool {
+			return strings.HasPrefix(input, "1 queued commands")
+		}))
+		actual = command.Run(event)
+		assert.Equal(t, true, actual)
+
+		// list queue for other channel
+		event.Text = "list queue in channel"
+		event.Channel = "C1212121"
+		slackClient.On("Reply", event, mock.MatchedBy(func(input string) bool {
+			return strings.HasPrefix(input, "0 queued commands")
+		}))
+		actual = command.Run(event)
+		assert.Equal(t, true, actual)
+
 		done <- true
 		time.Sleep(time.Millisecond * 300)
 
