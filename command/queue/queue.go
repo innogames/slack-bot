@@ -3,6 +3,7 @@ package queue
 import (
 	"encoding/json"
 	"github.com/innogames/slack-bot/bot/storage"
+	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/nlopes/slack"
 	"github.com/sirupsen/logrus"
@@ -31,7 +32,7 @@ func AddRunningCommand(event slack.MessageEvent, fallbackCommand string) chan bo
 	if fallbackCommand != "" {
 		event.Text = fallbackCommand
 
-		queueKey = getKey(event)
+		queueKey = util.GetFullEventKey(event)
 		storage.Write(storageKey, queueKey, event)
 	}
 
