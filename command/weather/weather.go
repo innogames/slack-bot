@@ -22,13 +22,12 @@ func NewWeatherCommand(slackClient client.SlackClient, config config.OpenWeather
 		config.Url = defaultApiUrl
 	}
 
-	return command{slackClient, config, http.Client{}}
+	return command{slackClient, config}
 }
 
 type command struct {
 	slackClient client.SlackClient
 	config      config.OpenWeather
-	client      http.Client
 }
 
 func (c command) GetMatcher() matcher.Matcher {
@@ -44,7 +43,7 @@ func (c command) GetWeather(match matcher.Result, event slack.MessageEvent) {
 		location = c.config.Location
 	}
 
-	url := fmt.Sprintf(
+	apiUrl := fmt.Sprintf(
 		"%s?q=%s&units=%s&appid=%s",
 		c.config.Url,
 		url.QueryEscape(location),
@@ -52,7 +51,7 @@ func (c command) GetWeather(match matcher.Result, event slack.MessageEvent) {
 		c.config.Apikey,
 	)
 
-	response, err := c.client.Get(url)
+	response, err := http.Get(apiUrl)
 	if err != nil {
 		c.slackClient.ReplyError(event, errors.Wrap(err, "Api call returned an err"))
 		return
@@ -84,8 +83,8 @@ func (c command) GetWeather(match matcher.Result, event slack.MessageEvent) {
 			fmt.Sprintf("*:cloud: Clouds:* %d%%", record.Clouds.All),
 		},
 		{
-			fmt.Sprintf("*:city_sunrise: Sunrise:* %s :clock7:", time.Unix(int64(record.Sys.Sunrise), 0).Format("15:15")),
-			fmt.Sprintf("*:night_with_stars: Sunset:* %s :clock11: ", time.Unix(int64(record.Sys.Sunset), 0).Format("15:15")),
+			fmt.Sprintf("*:city_sunrise: Sunrise:* %s :clock7:", timestampToTime(record.Sys.Sunrise)),
+			fmt.Sprintf("*:night_with_stars: Sunset:* %s :clock11: ", timestampToTime(record.Sys.Sunset)),
 		},
 	}
 
@@ -113,6 +112,10 @@ func (c command) GetWeather(match matcher.Result, event slack.MessageEvent) {
 	}
 
 	c.slackClient.SendMessage(event, "", slack.MsgOptionBlocks(sections...))
+}
+
+func timestampToTime(timestamp int) string {
+	return time.Unix(int64(timestamp), 0).Format("15:04")
 }
 
 func (c command) IsEnabled() bool {

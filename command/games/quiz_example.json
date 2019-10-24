@@ -1,0 +1,27 @@
+{
+  "response_code": 0,
+  "results": [
+    {
+      "category": "Entertainment: Video Games",
+      "type": "multiple",
+      "difficulty": "hard",
+      "question": "According to Toby Fox, what was the method to creating the initial tune for Megalovania?",
+      "correct_answer": "Singing into a Microphone",
+      "incorrect_answers": [
+        "Playing a Piano",
+        "Using a Composer Software",
+        "Listened to birds at the park"
+      ]
+    },
+    {
+      "category": "Math",
+      "type": "multiple",
+      "difficulty": "easy",
+      "question": "Whats 1+4?",
+      "correct_answer": "5",
+      "incorrect_answers": [
+        "6"
+      ]
+    }
+  ]
+}

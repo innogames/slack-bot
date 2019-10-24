@@ -13,19 +13,19 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 const maxQuestions int = 50 // api limit is 50
 const apiUrl string = "https://opentdb.com/api.php"
 
-func NewQuizCommand(slackClient client.SlackClient) bot.Command {
-	return &quizCommand{slackClient: slackClient}
+func NewQuizCommand(slackClient client.SlackClient) *quizCommand {
+	return &quizCommand{slackClient: slackClient, apiUrl: apiUrl}
 }
 
 type quizCommand struct {
 	slackClient client.SlackClient
 	quiz        Quiz
+	apiUrl      string
 }
 
 type question struct {
@@ -63,12 +63,11 @@ func (c *quizCommand) StartQuiz(match matcher.Result, event slack.MessageEvent) 
 		return
 	}
 
-	resp, err := http.Get(fmt.Sprintf("%s?amount=%d", apiUrl, questions))
+	resp, err := http.Get(fmt.Sprintf("%s?amount=%d", c.apiUrl, questions))
 	if err != nil {
 		c.slackClient.ReplyError(event, errors.Wrap(err, "Error while loading Quiz"))
 		return
 	}
-
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
@@ -116,7 +115,6 @@ func (c *quizCommand) Answer(match matcher.Result, event slack.MessageEvent) {
 }
 
 func (c *quizCommand) parseAnswers() {
-	rand.Seed(time.Now().UnixNano())
 	for questionNr, question := range c.quiz.Questions {
 		answers := append(question.IncorrectAnswers, question.CorrectAnswer)
 

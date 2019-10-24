@@ -30,6 +30,7 @@ type Config struct {
 	AllowedUsers []string    `yaml:"allowed_users,flow"`
 	AdminUsers   []string    `yaml:"admin_users,flow"`
 	OpenWeather  OpenWeather `yaml:"open_weather"`
+	Timezone     string      `yaml:"timezone"`
 }
 
 type OpenWeather struct {

@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestGame(t *testing.T) {
+func TestNumberGuesser(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 
 	command := NewNumberGuesserCommand(slackClient)

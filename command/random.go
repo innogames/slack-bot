@@ -8,14 +8,10 @@ import (
 	"math/rand"
 	"strings"
 	"text/template"
-	"time"
 )
 
 // NewRandomCommand will reply a random entry
 func NewRandomCommand(slackClient client.SlackClient) bot.Command {
-	// make sure we'trigger random enough
-	rand.Seed(time.Now().UnixNano())
-
 	return &randomCommand{slackClient}
 }
 

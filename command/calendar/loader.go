@@ -113,8 +113,5 @@ func loadCalender(calendar config.Calendar) *ics.Calendar {
 	calendars, _ := parser.GetCalendars()
 	cal := calendars[0]
 
-	timezone, _ := time.LoadLocation("Europe/Berlin") // todo config
-	cal.SetTimezone(*timezone)
-
 	return cal
 }
