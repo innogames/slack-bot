@@ -1,4 +1,4 @@
-package command
+package weather
 
 import (
 	"encoding/json"
@@ -8,7 +8,9 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/nlopes/slack"
+	"github.com/pkg/errors"
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -20,93 +22,44 @@ func NewWeatherCommand(slackClient client.SlackClient, config config.OpenWeather
 		config.Url = defaultApiUrl
 	}
 
-	return WeatherCommand{slackClient, config}
+	return command{slackClient, config, http.Client{}}
 }
 
-type City struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
-}
-
-type Coord struct {
-	Lon float64 `json:"lon"`
-	Lat float64 `json:"lat"`
-}
-
-type Weather struct {
-	Id          int    `json:"id"`
-	Main        string `json:"main"`
-	Description string `json:"description"`
-	Icon        string `json:"icon"`
-}
-
-type Wind struct {
-	Speed float64 `json:"speed"`
-	Deg   float64 `json:"deg"`
-}
-
-type Clouds struct {
-	All int `json:"all"`
-}
-
-type Rain struct {
-	Threehr int `json:"3h"`
-}
-
-type Main struct {
-	Temp     float64 `json:"temp"`
-	Pressure int     `json:"pressure"`
-	Humidity int     `json:"humidity"`
-	Temp_min float64 `json:"temp_min"`
-	Temp_max float64 `json:"temp_max"`
-}
-
-type Sys struct {
-	Country string `json:"country"`
-	Sunrise int    `json:"sunrise"`
-	Sunset  int    `json:"sunset"`
-}
-
-type CurrentWeatherResponse struct {
-	Coord   Coord     `json:"coord"`
-	Weather []Weather `json:"weather"`
-	Main    Main      `json:"main"`
-	Wind    Wind      `json:"wind"`
-	Rain    Rain      `json:"rain"`
-	Clouds  Clouds    `json:"clouds"`
-	Sys     Sys       `json:"sys"`
-	Dt      int       `json:"dt"`
-	Id      int       `json:"id"`
-	Name    string    `json:"name"`
-}
-
-type ForecastResponse struct {
-	City    `json:"city"`
-	Coord   `json:"coord"`
-	Country string `json:"country"`
-	List    []struct {
-		Dt      int `json:"dt"`
-		Main    `json:"main"`
-		Weather `json:"weather"`
-		Clouds  `json:"clouds"`
-		Wind    `json:"wind"`
-	} `json:"list"`
-}
-
-type WeatherCommand struct {
+type command struct {
 	slackClient client.SlackClient
 	config      config.OpenWeather
+	client      http.Client
 }
 
-func (c WeatherCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher("weather", c.GetWeather)
+func (c command) GetMatcher() matcher.Matcher {
+	return matcher.NewGroupMatcher(
+		matcher.NewTextMatcher("weather", c.GetWeather),
+		matcher.NewRegexpMatcher("weather in (?P<location>\\w\\s+)", c.GetWeather),
+	)
 }
 
-func (c WeatherCommand) GetWeather(match matcher.Result, event slack.MessageEvent) {
-	url := fmt.Sprintf("%s?q=%s&units=%s&appid=%s", c.config.Url, c.config.Location, c.config.Units, c.config.Apikey)
-	response, err := http.Get(url)
+func (c command) GetWeather(match matcher.Result, event slack.MessageEvent) {
+	location := match.GetString("location")
+	if location == "" {
+		location = c.config.Location
+	}
+
+	url := fmt.Sprintf(
+		"%s?q=%s&units=%s&appid=%s",
+		c.config.Url,
+		url.QueryEscape(location),
+		c.config.Units,
+		c.config.Apikey,
+	)
+
+	response, err := c.client.Get(url)
 	if err != nil {
-		c.slackClient.Reply(event, "Api call returned an err: "+err.Error())
+		c.slackClient.ReplyError(event, errors.Wrap(err, "Api call returned an err"))
+		return
+	}
+
+	if response.StatusCode >= 300 {
+		c.slackClient.Reply(event, fmt.Sprintf("Api call returned an err: %d", response.StatusCode))
 		return
 	}
 
@@ -162,11 +115,11 @@ func (c WeatherCommand) GetWeather(match matcher.Result, event slack.MessageEven
 	c.slackClient.SendMessage(event, "", slack.MsgOptionBlocks(sections...))
 }
 
-func (c WeatherCommand) IsEnabled() bool {
+func (c command) IsEnabled() bool {
 	return c.config.Apikey != ""
 }
 
-func (c WeatherCommand) GetHelp() []bot.Help {
+func (c command) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "weather",

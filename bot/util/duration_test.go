@@ -42,6 +42,7 @@ var formatterTestCases = []struct {
 	{time.Hour * 10, "10h0m0s"},
 	{time.Hour*10 + time.Second*12, "10h0m12s"},
 	{time.Hour*10 + time.Second*12 + 11*time.Millisecond, "10h0m12s"},
+	{time.Hour*2 + time.Minute*5 + 25*time.Second, "2h5m25s"},
 }
 
 func TestFormatDuration(t *testing.T) {

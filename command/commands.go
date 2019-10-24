@@ -13,6 +13,7 @@ import (
 	"github.com/innogames/slack-bot/command/mqtt"
 	"github.com/innogames/slack-bot/command/pullrequest"
 	"github.com/innogames/slack-bot/command/queue"
+	"github.com/innogames/slack-bot/command/weather"
 	"github.com/sirupsen/logrus"
 )
 
@@ -31,8 +32,9 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logr
 		NewDelayCommand(slackClient),
 		NewBotLogCommand(slackClient, cfg),
 		NewRandomCommand(slackClient),
-		NewWeatherCommand(slackClient, cfg.OpenWeather),
 		NewHelpCommand(slackClient, commands),
+
+		weather.NewWeatherCommand(slackClient, cfg.OpenWeather),
 
 		games.NewNumberGuesserCommand(slackClient),
 		games.NewQuizCommand(slackClient),

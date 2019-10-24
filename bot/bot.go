@@ -99,7 +99,7 @@ func (b *bot) loadSlackData() error {
 	for _, groupName := range b.config.Slack.AllowedGroups {
 		group, err := b.slackClient.GetUserGroupMembers(groupName)
 		if err != nil {
-			return errors.Wrap(err, "error fetching user of group")
+			return errors.Wrap(err, "error fetching user of group. You need a user token with 'usergroups:read' scope permission")
 		}
 		b.config.AllowedUsers = append(b.config.AllowedUsers, group...)
 	}

@@ -65,7 +65,7 @@ func (c *quizCommand) StartQuiz(match matcher.Result, event slack.MessageEvent) 
 
 	resp, err := http.Get(fmt.Sprintf("%s?amount=%d", apiUrl, questions))
 	if err != nil {
-		c.slackClient.ReplyError(event, errors.Wrap(err, "Error while loading Quiz: %w"))
+		c.slackClient.ReplyError(event, errors.Wrap(err, "Error while loading Quiz"))
 		return
 	}
 
@@ -74,12 +74,12 @@ func (c *quizCommand) StartQuiz(match matcher.Result, event slack.MessageEvent) 
 	if resp.StatusCode == http.StatusOK {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			c.slackClient.ReplyError(event, errors.Wrap(err, "Error while loading Quiz: %w"))
+			c.slackClient.ReplyError(event, errors.Wrap(err, "Error while loading Quiz"))
 			return
 		}
 
 		if err := json.Unmarshal(bodyBytes, &c.quiz); err != nil {
-			c.slackClient.ReplyError(event, errors.Wrap(err, "Error while loading Quiz: %w"))
+			c.slackClient.ReplyError(event, errors.Wrap(err, "Error while loading Quiz"))
 			return
 		}
 	}

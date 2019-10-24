@@ -85,7 +85,7 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 			}
 
 			// reply error in new thread
-			c.slackClient.ReplyError(event, errors.Wrap(err, "Error while fetching PR data: %w"))
+			c.slackClient.ReplyError(event, errors.Wrap(err, "Error while fetching PR data"))
 			c.slackClient.AddReaction(iconError, msgRef)
 			return
 		}

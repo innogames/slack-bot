@@ -22,7 +22,7 @@ var mu sync.Mutex
 // in the background it will watch the current build state and will update the state in the original slack message
 func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[string]string, slackClient client.SlackClient, jenkins Client, event slack.MessageEvent, logger *logrus.Logger) error {
 	logger.Infof("%s started started job %s: %s", event.User, jobName, jobParams)
-	//_, jobParams[slackUserParameter] = client.GetUser(event.User)
+	_, jobParams[slackUserParameter] = client.GetUser(event.User)
 
 	processHooks(cfg.OnStart, event, jobParams)
 	msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)

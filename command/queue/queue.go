@@ -32,7 +32,7 @@ func AddRunningCommand(event slack.MessageEvent, fallbackCommand string) chan bo
 	if fallbackCommand != "" {
 		event.Text = fallbackCommand
 
-		queueKey = util.GetFullEventKey(event)
+		queueKey = event.Timestamp + "-" + util.GetFullEventKey(event)
 		storage.Write(storageKey, queueKey, event)
 	}
 

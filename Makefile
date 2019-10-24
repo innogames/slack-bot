@@ -1,11 +1,14 @@
 
-.PHONY: clean docker-build test test-coverage test-bench mocks
+.PHONY: clean docker-build test test-coverage test-bench mocks run
 
 all: clean dep test build/slack-bot
 
 build/slack-bot:
 	mkdir -p build/
 	go build -o build/slack-bot cmd/bot/main.go
+
+run:
+	go run cmd/bot/main.go
 
 clean:
 	rm -rf build/
