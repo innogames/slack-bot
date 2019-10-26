@@ -15,6 +15,29 @@ func (_m *SlackClient) AddReaction(name string, item slack.ItemRef) {
 	_m.Called(name, item)
 }
 
+// GetReactions provides a mock function with given fields: item, params
+func (_m *SlackClient) GetReactions(item slack.ItemRef, params slack.GetReactionsParameters) ([]slack.ItemReaction, error) {
+	ret := _m.Called(item, params)
+
+	var r0 []slack.ItemReaction
+	if rf, ok := ret.Get(0).(func(slack.ItemRef, slack.GetReactionsParameters) []slack.ItemReaction); ok {
+		r0 = rf(item, params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]slack.ItemReaction)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(slack.ItemRef, slack.GetReactionsParameters) error); ok {
+		r1 = rf(item, params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // RemoveReaction provides a mock function with given fields: name, item
 func (_m *SlackClient) RemoveReaction(name string, item slack.ItemRef) {
 	_m.Called(name, item)

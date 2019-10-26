@@ -50,6 +50,7 @@ type SlackClient interface {
 
 	RemoveReaction(name string, item slack.ItemRef)
 	AddReaction(name string, item slack.ItemRef)
+	GetReactions(item slack.ItemRef, params slack.GetReactionsParameters) ([]slack.ItemReaction, error)
 }
 
 type Slack struct {

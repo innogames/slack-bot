@@ -67,17 +67,29 @@ func (c *listCommand) listQueue(match matcher.Result, event slack.MessageEvent, 
 		i, _ := strconv.ParseInt(queuedEvent.Timestamp[0:10], 10, 64)
 		t := time.Unix(i, 0)
 		response += fmt.Sprintf(
-			" - <@%s> (%s, %s ago): ```%s```  \n",
+			" - <@%s> (%s, %s ago): ```%s``` %s \n",
 			userId,
 			t.Format(time.Stamp),
 			util.FormatDuration(now.Sub(t)),
 			queuedEvent.Text,
+			c.getReactions(queuedEvent),
 		)
 	}
 
 	response = fmt.Sprintf("%d queued commands\n", count) + response
 
 	c.slackClient.Reply(event, response)
+}
+
+func (c *listCommand) getReactions(event slack.MessageEvent) string {
+	formattedReactions := ""
+	msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
+	reactions, _ := c.slackClient.GetReactions(msgRef, slack.NewGetReactionsParameters())
+
+	for _, reaction := range reactions {
+		formattedReactions += ":" + reaction.Name + ":"
+	}
+	return formattedReactions
 }
 
 func (c *listCommand) GetHelp() []bot.Help {
