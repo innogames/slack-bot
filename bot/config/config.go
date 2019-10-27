@@ -33,6 +33,7 @@ type Config struct {
 	Timezone     string      `yaml:"timezone"`
 }
 
+// OpenWeather is an optional feature to get current weather
 type OpenWeather struct {
 	Apikey   string
 	Location string
@@ -80,6 +81,7 @@ func (c Mqtt) IsEnabled() bool {
 	return c.Host != ""
 }
 
+// Bitbucket credentials/options
 type Bitbucket struct {
 	Host       string
 	Username   string

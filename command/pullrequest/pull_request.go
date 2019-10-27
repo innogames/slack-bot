@@ -114,11 +114,9 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 			hasApproval = true
 		}
 
-		if pr.inReview {
-			if !hasApproval && !inReview {
-				c.slackClient.AddReaction(iconInReview, msgRef)
-				inReview = true
-			}
+		if pr.inReview && (!hasApproval && !inReview) {
+			c.slackClient.AddReaction(iconInReview, msgRef)
+			inReview = true
 		}
 
 		// monitor build status

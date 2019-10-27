@@ -16,6 +16,7 @@ type Client interface {
 	GetAllNodes() ([]*gojenkins.Node, error)
 }
 
+// GetClient created Jenkins client with given options/credentials
 func GetClient(cfg config.Jenkins) (*gojenkins.Jenkins, error) {
 	if !cfg.IsEnabled() {
 		return nil, nil
