@@ -41,9 +41,11 @@ func main() {
 	// make sure we're random enough
 	rand.Seed(time.Now().UnixNano())
 
-	// set default timezone
-	time.Local, err = time.LoadLocation(cfg.Timezone)
-	checkError(err, logger)
+	// set global default timezone
+	if cfg.Timezone != "" {
+		time.Local, err = time.LoadLocation(cfg.Timezone)
+		checkError(err, logger)
+	}
 
 	commands := command.GetCommands(slackClient, cfg, logger)
 

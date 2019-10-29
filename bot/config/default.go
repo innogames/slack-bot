@@ -9,8 +9,6 @@ var defaultConfig = Config{
 		Listen: ":8765",
 	},
 
-	Timezone: "Europe/Berlin",
-
 	// some default jira fields
 	Jira: Jira{
 		Fields: []JiraField{
