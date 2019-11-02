@@ -134,7 +134,7 @@ func (b bot) HandleMessages(kill chan os.Signal) {
 				if b.shouldHandleMessage(message) {
 					go b.handleMessage(*message)
 				}
-			case slack.RTMError:
+			case *slack.RTMError, *slack.UnmarshallingErrorEvent, *slack.RateLimitEvent:
 				b.logger.Error(msg)
 			case *slack.LatencyReport:
 				b.logger.Debugf("Current latency: %v\n", message.Value)
