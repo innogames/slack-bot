@@ -30,7 +30,7 @@ func TestAddLink(t *testing.T) {
 		event.Text = "add link google <https://google.com>"
 
 		expected := url.Values{}
-		expected.Add("attachments", "[{\"fallback\":\"\",\"text\":\"\",\"actions\":[{\"name\":\"\",\"text\":\"google\",\"style\":\"default\",\"type\":\"button\",\"url\":\"https://google.com\"}]}]")
+		expected.Add("attachments", "[{\"actions\":[{\"name\":\"\",\"text\":\"google\",\"style\":\"default\",\"type\":\"button\",\"url\":\"https://google.com\"}]}]")
 		mocks.AssertSlackJson(t, slackClient, event, expected)
 
 		actual := command.Run(event)
