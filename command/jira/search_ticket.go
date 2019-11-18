@@ -21,6 +21,12 @@ type jiraCommand struct {
 	config      config.Jira
 }
 
+const (
+	FormatDefault = "default"
+	FormatFull    = "full"
+	FormatLink    = "link"
+)
+
 var ticketRe = regexp.MustCompile(`^(\w+)-(\d+)$`)
 
 // newJiraCommand search for a Jira ticket id or a JQL
@@ -33,12 +39,16 @@ func (c *jiraCommand) IsEnabled() bool {
 }
 
 func (c *jiraCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher("(?P<action>jira|issue|jql) (?P<text>.*)", c.Run)
+	return matcher.NewGroupMatcher(
+		matcher.NewRegexpMatcher("jira (?P<action>link) (?P<text>.*)", c.Run),
+		matcher.NewRegexpMatcher("(?P<action>jira|issue|jql) (?P<text>.*)", c.Run),
+	)
 }
 
 func (c *jiraCommand) Run(match matcher.Result, event slack.MessageEvent) {
 	eventText := match.GetString("text")
 	ticketNumber := c.getTicketNumber(eventText)
+	action := match.GetString("action")
 
 	if ticketNumber != "" {
 		issue, response, err := c.jira.Issue.Get(ticketNumber, nil)
@@ -47,14 +57,15 @@ func (c *jiraCommand) Run(match matcher.Result, event slack.MessageEvent) {
 			c.slackClient.Reply(event, err.Error())
 			return
 		}
-		c.sendTicket(event, issue)
+
+		c.sendTicket(event, issue, action)
 		return
 	}
 
 	// search by JQL
 	defaultProject := c.config.Project
 	var jql string
-	if match.GetString("action") == "jql" {
+	if action == "jql" {
 		jql = match.GetString("text")
 		if !strings.Contains(jql, "project") {
 			// search in default project
@@ -81,7 +92,16 @@ func (c *jiraCommand) getTicketNumber(eventText string) string {
 	return ticketNumber
 }
 
-func (c *jiraCommand) sendTicket(event slack.MessageEvent, issue *jira.Issue) {
+func (c *jiraCommand) sendTicket(event slack.MessageEvent, issue *jira.Issue, format string) {
+	if format == FormatLink {
+		text := fmt.Sprintf("<%s|%s: %s>", getTicketUrl(c.config, issue), issue.Key, issue.Fields.Summary)
+		c.slackClient.Reply(event, text)
+		return
+	}
+
+	information := c.getField("Priority", issue.Fields.Priority.Name)
+	information += " " + issue.Fields.Type.Name + c.getField("Type", issue.Fields.Type.Name)
+
 	var fields []slack.AttachmentField
 	fields = append(
 		fields,
@@ -184,7 +204,7 @@ func (c *jiraCommand) jqlList(event slack.MessageEvent, jql string) {
 	}
 
 	if len(tickets) == 1 {
-		c.sendTicket(event, &tickets[0])
+		c.sendTicket(event, &tickets[0], FormatDefault)
 		return
 	}
 
