@@ -48,6 +48,16 @@ func TestJira(t *testing.T) {
 		assert.Equal(t, true, actual)
 	})
 
+	t.Run("print ticket link", func(t *testing.T) {
+		event := slack.MessageEvent{}
+		event.Text = "jira link ZOOKEEPER-3455"
+
+		slackClient.On("Reply", event, "<https://issues.apache.org/jira/browse/ZOOKEEPER-3455|ZOOKEEPER-3455: Java 13 build failure on trunk: UnifiedServerSocketTest.testConnectWithoutSSLToStrictServer>")
+
+		actual := command.Run(event)
+		assert.Equal(t, true, actual)
+	})
+
 	t.Run("search invalid ticket", func(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = "jira ZOOKEEPER-10000000000"
