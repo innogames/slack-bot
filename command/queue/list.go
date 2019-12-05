@@ -3,14 +3,14 @@ package queue
 import (
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/nlopes/slack"
-	"strconv"
-	"time"
 )
 
 type listCommand struct {
@@ -50,7 +50,7 @@ func (c *listCommand) listQueue(match matcher.Result, event slack.MessageEvent, 
 	now := time.Now()
 
 	count := 0
-	response := ""
+	attachments := make([]slack.Attachment, 0, len(res))
 
 	var queuedEvent slack.MessageEvent
 	for _, eventString := range res {
@@ -64,21 +64,40 @@ func (c *listCommand) listQueue(match matcher.Result, event slack.MessageEvent, 
 
 		count++
 		userId, _ := client.GetUser(queuedEvent.User)
-		i, _ := strconv.ParseInt(queuedEvent.Timestamp[0:10], 10, 64)
-		t := time.Unix(i, 0)
-		response += fmt.Sprintf(
-			" - <@%s> (%s, %s ago): ```%s``` %s \n",
+
+		messageTime := util.GetMessageTime(queuedEvent)
+		timeAgo := now.Sub(messageTime)
+		color := getColor(timeAgo)
+		text := fmt.Sprintf(
+			"<@%s> (%s, %s ago): ```%s``` %s \n",
 			userId,
-			t.Format(time.Stamp),
-			util.FormatDuration(now.Sub(t)),
+			messageTime.Format(time.Stamp),
+			util.FormatDuration(timeAgo),
 			queuedEvent.Text,
 			c.getReactions(queuedEvent),
 		)
+		attachments = append(attachments, slack.Attachment{
+			Text:  text,
+			Color: color,
+		})
 	}
 
-	response = fmt.Sprintf("%d queued commands\n", count) + response
+	response := fmt.Sprintf("%d queued commands", count)
 
-	c.slackClient.Reply(event, response)
+	c.slackClient.SendMessage(event, response, slack.MsgOptionAttachments(attachments...))
+}
+
+// get attachment color for a given message time
+// older messages will be marked as red to ma them as more important
+func getColor(timeAgo time.Duration) string {
+	var color string
+	if timeAgo.Hours() >= 24 {
+		color = "#CC0000"
+	} else {
+		color = "#E0E000"
+	}
+
+	return color
 }
 
 func (c *listCommand) getReactions(event slack.MessageEvent) string {
