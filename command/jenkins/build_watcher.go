@@ -2,7 +2,9 @@ package jenkins
 
 import (
 	"fmt"
-	"github.com/brainexe/gojenkins"
+	"time"
+
+	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/util"
@@ -10,7 +12,6 @@ import (
 	"github.com/innogames/slack-bot/client/jenkins"
 	"github.com/innogames/slack-bot/command/queue"
 	"github.com/nlopes/slack"
-	"time"
 )
 
 type buildWatcherCommand struct {

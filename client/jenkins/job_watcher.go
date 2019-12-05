@@ -1,8 +1,9 @@
 package jenkins
 
 import (
-	"github.com/brainexe/gojenkins"
 	"time"
+
+	"github.com/bndr/gojenkins"
 )
 
 const watchInterval = time.Second * 15
