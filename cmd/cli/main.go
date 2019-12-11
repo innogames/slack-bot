@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/fatih/color"
+	"github.com/gookit/color"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/storage"
@@ -29,7 +29,7 @@ func startCli(input io.Reader, output io.Writer, kill chan os.Signal) {
 	var logger *logrus.Logger
 	var verbose bool
 
-	color.Output = output
+	color.SetOutput(output)
 
 	flag.BoolVar(&verbose, "v", false, "-v to use verbose logging")
 	flag.Parse()
@@ -66,7 +66,7 @@ func startCli(input io.Reader, output io.Writer, kill chan os.Signal) {
 			if message.Type == "typing" {
 				continue
 			}
-			color.Yellow("<<<< %s\n", message.Text)
+			color.Yellow.Println("<<<< %s", message.Text)
 		}
 	}()
 
@@ -77,7 +77,7 @@ func startCli(input io.Reader, output io.Writer, kill chan os.Signal) {
 			continue
 		}
 
-		color.Blue(">>>> %s", strings.TrimSuffix(text, "\n"))
+		color.Blue.Printf(">>>> %s", strings.TrimSuffix(text, "\n"))
 
 		fakeSlack.SendMessageToBot(tester.TestChannel, text)
 	}

@@ -4,7 +4,7 @@ package jenkins
 //go:generate $GOPATH/bin/mockery --output ../../mocks -name Job
 
 import (
-	"github.com/brainexe/gojenkins"
+	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot/config"
 )
 

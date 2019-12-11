@@ -2,7 +2,9 @@ package jenkins
 
 import (
 	"fmt"
-	"github.com/brainexe/gojenkins"
+	"testing"
+
+	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client/jenkins"
@@ -10,7 +12,6 @@ import (
 	"github.com/nlopes/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func TestNodes(t *testing.T) {
