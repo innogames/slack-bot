@@ -2,9 +2,7 @@ package queue
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
-	"strings"
 	"testing"
 	"time"
 
@@ -86,9 +84,7 @@ func TestQueue(t *testing.T) {
 
 		// list queue
 		event.Text = "list queue"
-		slackClient.On("Reply", event, mock.MatchedBy(func(input string) bool {
-			return strings.HasPrefix(input, "1 queued commands")
-		}))
+		slackClient.On("SendMessage", event, "1 queued commands", mock.Anything).Return("")
 
 		slackClient.On("GetReactions", msgRef, slack.NewGetReactionsParameters()).Return(
 			[]slack.ItemReaction{
@@ -102,19 +98,16 @@ func TestQueue(t *testing.T) {
 
 		// list queue for current channel
 		event.Text = "list queue in channel"
-		slackClient.On("Reply", event, mock.MatchedBy(func(reply string) bool {
-			expected := regexp.MustCompile("1 queued commands\\n - <@> \\(.* ago\\): ```test``` :test::foo:")
-			return expected.MatchString(reply)
-		}))
+		slackClient.On("SendMessage", event, "1 queued commands", mock.Anything).Return("")
+
 		actual = command.Run(event)
 		assert.Equal(t, true, actual)
 
 		// list queue for other channel
 		event.Text = "list queue in channel"
 		event.Channel = "C1212121"
-		slackClient.On("Reply", event, mock.MatchedBy(func(input string) bool {
-			return input == "0 queued commands\n"
-		}))
+		slackClient.On("SendMessage", event, "0 queued commands", mock.Anything).Return("")
+
 		actual = command.Run(event)
 		assert.Equal(t, true, actual)
 

@@ -1,11 +1,12 @@
 package mocks
 
 import (
+	"net/url"
+	"testing"
+
 	"github.com/nlopes/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"net/url"
-	"testing"
 )
 
 func AssertSlackJson(t *testing.T, slackClient *SlackClient, event slack.MessageEvent, expected url.Values) {
