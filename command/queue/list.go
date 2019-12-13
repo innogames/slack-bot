@@ -79,6 +79,9 @@ func (c *listCommand) listQueue(match matcher.Result, event slack.MessageEvent, 
 		attachments = append(attachments, slack.Attachment{
 			Text:  text,
 			Color: color,
+			MarkdownIn: []string{
+				"text",
+			},
 		})
 	}
 
