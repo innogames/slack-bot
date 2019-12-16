@@ -20,8 +20,7 @@ func TestQueue(t *testing.T) {
 	client.InternalMessages = make(chan slack.MessageEvent, 2)
 	slackClient := &mocks.SlackClient{}
 
-	after := storage.MockStorage()
-	defer after()
+	storage.MockStorage()
 
 	event := slack.MessageEvent{}
 	event.User = "testUser1"

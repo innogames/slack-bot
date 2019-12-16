@@ -19,8 +19,7 @@ func TestHelp(t *testing.T) {
 	logger := logrus.New()
 	slackClient := &mocks.SlackClient{}
 
-	after := storage.MockStorage()
-	defer after()
+	storage.MockStorage()
 
 	commands := GetCommands(slackClient, cfg, logger)
 

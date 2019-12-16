@@ -17,8 +17,7 @@ func TestRetry(t *testing.T) {
 	retry := bot.Commands{}
 	retry.AddCommand(NewRetryCommand(&slackClient))
 
-	after := storage.MockStorage()
-	defer after()
+	storage.MockStorage()
 
 	t.Run("Ignore internal messages", func(t *testing.T) {
 		event := slack.MessageEvent{}

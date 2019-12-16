@@ -1,7 +1,6 @@
 package queue
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -46,15 +45,15 @@ func (c *listCommand) ListChannel(match matcher.Result, event slack.MessageEvent
 }
 
 func (c *listCommand) listQueue(match matcher.Result, event slack.MessageEvent, filter filterFunc) {
-	res, _ := storage.ReadAll(storageKey)
+	keys, _ := storage.GetKeys(storageKey)
 	now := time.Now()
 
 	count := 0
 	attachments := make([]slack.Attachment, 0, len(res))
 
 	var queuedEvent slack.MessageEvent
-	for _, eventString := range res {
-		if err := json.Unmarshal([]byte(eventString), &queuedEvent); err != nil {
+	for _, key := range keys {
+		if err := storage.Read(storageKey, key, &queuedEvent); err != nil {
 			continue
 		}
 

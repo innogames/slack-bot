@@ -42,8 +42,7 @@ func startCli(input io.Reader, output io.Writer, kill chan os.Signal) {
 		logger = tester.GetNullLogger()
 	}
 
-	storage.InitStorage("./storage_cli")
-	defer storage.DeleteAll()
+	storage.InitStorage("")
 
 	fakeSlack := tester.StartFakeSlack(&cfg)
 	defer fakeSlack.Stop()

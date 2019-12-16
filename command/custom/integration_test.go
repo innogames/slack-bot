@@ -15,8 +15,7 @@ func TestCustomCommands(t *testing.T) {
 	commands := bot.Commands{}
 	commands.AddCommand(GetCommand(slackClient))
 
-	after := storage.MockStorage()
-	defer after()
+	storage.MockStorage()
 
 	t.Run("Invalid commands", func(t *testing.T) {
 		event := slack.MessageEvent{}

@@ -38,8 +38,7 @@ func TestGetCommands(t *testing.T) {
 func TestPullRequest(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 
-	after := storage.MockStorage()
-	defer after()
+	storage.MockStorage()
 
 	fetcher := &testFetcher{}
 	commands := bot.Commands{}

@@ -1,7 +1,6 @@
 package queue
 
 import (
-	"encoding/json"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
@@ -71,20 +70,19 @@ func IsBlocked(event slack.MessageEvent) bool {
 }
 
 func executeFallbackCommand(logger *logrus.Logger) {
-	// todo check null
-	res, _ := storage.ReadAll(storageKey)
-	storage.Delete(storageKey, "")
+	keys, _ := storage.GetKeys(storageKey)
 
 	var event slack.MessageEvent
-	for _, eventString := range res {
-		if err := json.Unmarshal([]byte(eventString), &event); err != nil {
-			logger.Errorf("[Queue] Not unmarshalable: %s", err)
+	for _, key := range keys {
+		if err := storage.Read(storageKey, key, &event); err != nil {
+			logger.Errorf("[Queue] Not unmarshalable: %w", err)
 			continue
 		}
 
 		logger.Infof("[Queue] Booted! I'll trigger this command now: `%s`", event.Text)
 		client.InternalMessages <- event
 	}
+	storage.Delete(storageKey, "")
 }
 
 func getKey(event slack.MessageEvent) string {
