@@ -4,7 +4,6 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/nlopes/slack"
 	"github.com/pkg/errors"
@@ -37,8 +36,6 @@ func TestGetCommands(t *testing.T) {
 
 func TestPullRequest(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
-
-	storage.MockStorage()
 
 	fetcher := &testFetcher{}
 	commands := bot.Commands{}

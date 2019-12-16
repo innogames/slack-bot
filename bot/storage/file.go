@@ -20,10 +20,8 @@ type fileStorage struct {
 }
 
 func (s fileStorage) GetKeys(collection string) ([]string, error) {
+	// todo check security by passing malformatted keys/collections into scribble
 	dir := filepath.Join(s.dir, collection)
-
-	// read all the files in the transaction.Collection; an error here just means
-	// the collection is either empty or doesn't exist
 	files, _ := ioutil.ReadDir(dir)
 
 	keys := make([]string, 0, len(files))

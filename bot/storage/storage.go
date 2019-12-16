@@ -10,7 +10,7 @@ type storage interface {
 }
 
 // InitStorage registers a local directory as JSON file storage
-func InitStorage(path string) (storage, error) {
+func InitStorage(path string) error {
 	var err error
 	if path == "" {
 		currentStorage = newMemoryStorage()
@@ -18,7 +18,11 @@ func InitStorage(path string) (storage, error) {
 		currentStorage, err = newFileStorage(path)
 	}
 
-	return currentStorage, err
+	return err
+}
+
+func SetStorage(storage storage) {
+	currentStorage = storage
 }
 
 // Write stores one value in the persistent storage

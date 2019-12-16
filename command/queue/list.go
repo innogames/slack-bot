@@ -49,7 +49,7 @@ func (c *listCommand) listQueue(match matcher.Result, event slack.MessageEvent, 
 	now := time.Now()
 
 	count := 0
-	attachments := make([]slack.Attachment, 0, len(res))
+	attachments := make([]slack.Attachment, 0, len(keys))
 
 	var queuedEvent slack.MessageEvent
 	for _, key := range keys {

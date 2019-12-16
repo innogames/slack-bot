@@ -75,7 +75,7 @@ func executeFallbackCommand(logger *logrus.Logger) {
 	var event slack.MessageEvent
 	for _, key := range keys {
 		if err := storage.Read(storageKey, key, &event); err != nil {
-			logger.Errorf("[Queue] Not unmarshalable: %w", err)
+			logger.Errorf("[Queue] Not unmarshalable: %s", err)
 			continue
 		}
 

@@ -5,7 +5,6 @@ import (
 
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/nlopes/slack"
 	"github.com/sirupsen/logrus"
@@ -18,8 +17,6 @@ func TestHelp(t *testing.T) {
 	cfg.Jenkins.Host = "bitbucket.example.com"
 	logger := logrus.New()
 	slackClient := &mocks.SlackClient{}
-
-	storage.MockStorage()
 
 	commands := GetCommands(slackClient, cfg, logger)
 

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/nlopes/slack"
@@ -19,8 +18,6 @@ import (
 func TestQueue(t *testing.T) {
 	client.InternalMessages = make(chan slack.MessageEvent, 2)
 	slackClient := &mocks.SlackClient{}
-
-	storage.MockStorage()
 
 	event := slack.MessageEvent{}
 	event.User = "testUser1"
