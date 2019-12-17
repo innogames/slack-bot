@@ -3,6 +3,7 @@ package client
 //go:generate $GOPATH/bin/mockery -output ../mocks -name SlackClient
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/innogames/slack-bot/bot/config"
@@ -117,6 +118,17 @@ func (s Slack) SendMessage(event slack.MessageEvent, text string, options ...sla
 func (s Slack) ReplyError(event slack.MessageEvent, err error) {
 	s.logger.WithError(err).Warnf("Error while sending reply")
 	s.Reply(event, err.Error())
+
+	if s.config.ErrorChannel != "" {
+		text := fmt.Sprintf(
+			"<@%s> Error in command `%s`: %s",
+			event.User,
+			event.Msg.Text,
+			err.Error(),
+		)
+		event.Channel, _ = GetChannel(s.config.ErrorChannel)
+		s.SendMessage(event, text)
+	}
 }
 
 // SendToUser sends a message to any user via IM channel

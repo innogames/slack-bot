@@ -43,13 +43,15 @@ type OpenWeather struct {
 
 // Slack contains the credentials and configuration of the Slack client
 type Slack struct {
-	Token            string
-	Debug            bool
+	Token            string   `yaml:"token"`
+	Debug            bool     `yaml:"debug"`
 	AllowedGroups    []string `yaml:"allowed_groups,flow"`
 	AutoJoinChannels []string `yaml:"auto_join_channels,flow"`
+	ErrorChannel     string   `yaml:"error_channel"`
 
-	TestEndpointUrl   string // only used for integration tests
-	VerificationToken string // only used for integration tests
+	// only used for integration tests
+	TestEndpointUrl   string `yaml:"-"`
+	VerificationToken string `yaml:"-"`
 }
 
 type Server struct {
