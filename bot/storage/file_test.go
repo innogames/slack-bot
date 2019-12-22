@@ -1,9 +1,10 @@
 package storage
 
 import (
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFileStorage(t *testing.T) {
@@ -13,7 +14,7 @@ func TestFileStorage(t *testing.T) {
 	storage, err := newFileStorage(dir)
 	assert.Nil(t, err)
 
-	t.Run("test all", func(t *testing.T) {
+	t.Run("test file", func(t *testing.T) {
 		testStorage(t, storage)
 	})
 }

@@ -57,6 +57,10 @@ func (s memoryStorage) GetKeys(collection string) ([]string, error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
+	if len(s.storage[collection]) == 0 {
+		return nil, fmt.Errorf("collection is empty")
+	}
+
 	var keys = make([]string, 0, len(s.storage[collection]))
 
 	for key := range s.storage[collection] {
@@ -66,11 +70,11 @@ func (s memoryStorage) GetKeys(collection string) ([]string, error) {
 	return keys, nil
 }
 
-func (s memoryStorage) Delete(collection, resource string) error {
+func (s memoryStorage) Delete(collection, key string) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
-	delete(s.storage[collection], resource)
+	delete(s.storage[collection], key)
 
 	return nil
 }

@@ -31,8 +31,11 @@ func testStorage(t *testing.T, storage storage) {
 	keys, err := storage.GetKeys(collection)
 	assert.Nil(t, err)
 	assert.Len(t, keys, 3)
-	// todo check keys
 	//assert.Equal(t, []string{"test-string", "test-int", "test-map"}, keys)
+
+	keys, err = storage.GetKeys("invalid-collection")
+	assert.Error(t, err)
+	assert.Len(t, keys, 0)
 
 	// read valid data
 	err = storage.Read(collection, "test-string", &stringValue)
@@ -56,6 +59,29 @@ func testStorage(t *testing.T, storage storage) {
 	assert.Error(t, err)
 
 	keys, err = storage.GetKeys(collection)
-	assert.Nil(t, err)
+	assert.Error(t, err)
 	assert.Len(t, keys, 0)
+}
+
+func TestStorage(t *testing.T) {
+	t.Run("test init storage", func(t *testing.T) {
+		storage := getStorage()
+
+		assert.IsType(t, &memoryStorage{}, storage)
+
+		err := InitStorage(".")
+		storage = getStorage()
+		assert.NoError(t, err)
+		assert.IsType(t, &fileStorage{}, storage)
+
+		err = InitStorage("")
+		storage = getStorage()
+		assert.NoError(t, err)
+		assert.IsType(t, &memoryStorage{}, storage)
+
+		fileStorage, _ := newFileStorage(".")
+		SetStorage(fileStorage)
+		assert.NoError(t, err)
+		assert.Equal(t, fileStorage, getStorage())
+	})
 }

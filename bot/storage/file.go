@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -23,6 +24,10 @@ func (s fileStorage) GetKeys(collection string) ([]string, error) {
 	// todo check security by passing malformatted keys/collections into scribble
 	dir := filepath.Join(s.dir, collection)
 	files, _ := ioutil.ReadDir(dir)
+
+	if len(files) == 0 {
+		return nil, fmt.Errorf("collection is empty")
+	}
 
 	keys := make([]string, 0, len(files))
 	for _, file := range files {

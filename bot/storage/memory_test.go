@@ -7,7 +7,7 @@ import (
 func TestMemoryStorage(t *testing.T) {
 	storage := newMemoryStorage()
 
-	t.Run("test all", func(t *testing.T) {
+	t.Run("test memory", func(t *testing.T) {
 		testStorage(t, storage)
 	})
 }
