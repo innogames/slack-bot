@@ -15,6 +15,7 @@ func TestLoadExampleConfig(t *testing.T) {
 	assert.Equal(t, false, cfg.Jira.IsEnabled())
 	assert.Equal(t, false, cfg.Mqtt.IsEnabled())
 	assert.Equal(t, false, cfg.Bitbucket.IsEnabled())
+	assert.Equal(t, false, cfg.Server.IsEnabled())
 }
 
 func TestLoadNotMatchingPattern(t *testing.T) {

@@ -43,9 +43,16 @@ func (_m *SlackClient) RemoveReaction(name string, item slack.ItemRef) {
 	_m.Called(name, item)
 }
 
-// Reply provides a mock function with given fields: event, text
-func (_m *SlackClient) Reply(event slack.MessageEvent, text string) {
-	_m.Called(event, text)
+// Reply provides a mock function with given fields: event, text, options
+func (_m *SlackClient) Reply(event slack.MessageEvent, text string, options ...slack.MsgOption) {
+	_va := make([]interface{}, len(options))
+	for _i := range options {
+		_va[_i] = options[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, event, text)
+	_ca = append(_ca, _va...)
+	_m.Called(_ca...)
 }
 
 // ReplyError provides a mock function with given fields: event, err

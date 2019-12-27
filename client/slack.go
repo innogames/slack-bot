@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/storage"
+	"github.com/innogames/slack-bot/bot/util"
 	"github.com/nlopes/slack"
 	"github.com/sirupsen/logrus"
 )
@@ -39,7 +41,7 @@ func GetSlackClient(cfg config.Slack, logger *logrus.Logger) *Slack {
 
 type SlackClient interface {
 	// Reply a message to the current channel/user/thread
-	Reply(event slack.MessageEvent, text string)
+	Reply(event slack.MessageEvent, text string, options ...slack.MsgOption)
 
 	// ReplyError Replies a error to the current channel/user/thread + log it!
 	ReplyError(event slack.MessageEvent, err error)
@@ -61,10 +63,10 @@ type Slack struct {
 }
 
 // Reply fast reply via RTM websocket
-func (s Slack) Reply(event slack.MessageEvent, text string) {
+func (s Slack) Reply(event slack.MessageEvent, text string, options ...slack.MsgOption) {
 	// slow http POST fallback in case of huge message which is not sendable via websocket
-	if len(text) >= slack.MaxMessageTextLength {
-		s.SendMessage(event, text)
+	if len(text) >= slack.MaxMessageTextLength || len(options) > 0 {
+		s.SendMessage(event, text, options...)
 		return
 	}
 
@@ -193,4 +195,22 @@ func GetSlackLink(name string, url string, args ...string) slack.AttachmentActio
 	action.URL = url
 
 	return action
+}
+
+func GetInteraction(event slack.MessageEvent, text string, command string, args ...string) *slack.ActionBlock {
+	style := slack.StyleDefault
+	if len(args) > 0 {
+		style = slack.Style(args[0])
+	}
+
+	id := util.RandString(32)
+
+	event.Text = command
+	storage.Write("interactions", id, event)
+
+	buttonText := slack.NewTextBlockObject("plain_text", text, true, false)
+	button := slack.NewButtonBlockElement("id", id, buttonText)
+	//	button.Style = style
+	_ = style // todo matze
+	return slack.NewActionBlock("", button)
 }
