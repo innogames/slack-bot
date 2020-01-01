@@ -198,7 +198,7 @@ func GetSlackLink(name string, url string, args ...string) slack.AttachmentActio
 }
 
 func GetInteraction(event slack.MessageEvent, text string, command string, args ...string) *slack.ActionBlock {
-	style := slack.StyleDefault
+	var style slack.Style
 	if len(args) > 0 {
 		style = slack.Style(args[0])
 	}
@@ -210,7 +210,7 @@ func GetInteraction(event slack.MessageEvent, text string, command string, args 
 
 	buttonText := slack.NewTextBlockObject("plain_text", text, true, false)
 	button := slack.NewButtonBlockElement("id", id, buttonText)
-	//	button.Style = style
-	_ = style // todo matze
+	button.Style = style
+
 	return slack.NewActionBlock("", button)
 }

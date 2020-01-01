@@ -52,7 +52,7 @@ func getChangedMessage(newMessage slack.Message, actionId string) slack.Message 
 				if buttonBlock, ok := block.(*slack.ButtonBlockElement); ok {
 					if buttonBlock.Value == actionId {
 						buttonBlock.Value = ""
-						buttonBlock.Text.Text = "-" + buttonBlock.Text.Text + "-"
+						buttonBlock.Text.Text = buttonBlock.Text.Text + " (already clicked)"
 					}
 				}
 			}
