@@ -125,7 +125,32 @@ It's also possible to get a notification when there is a state change in a certa
 **Example**
 - `watch ticket PROJ-12234`
 
+## Interactions
+It's possible to create buttons which are performing any bot action when pressing the button.
+[Slack interactions](https://api.slack.com/interactivity/actions)
 
+![Jira list](./docs/interaction.png)
+
+**Examples:**
+ - `add button "Start Deployment" "trigger job LiveDeployment"`
+
+**Note** 
+ - only whitelisted users can click the button
+ - each button is only active once (but it will stay with the)
+ - slack needs to reach the server via public domain/IP! [See this slack documentation](https://api.slack.com/tutorials/tunneling-with-ngrok) about some tricks.
+ 
+**Config without a public reachable IP/Domain**
+1) start local [ngrok.io](https://ngrok.io) server (using local port 4390 by default)
+2) In [App settings](https://api.slack.com/apps) open the "Interactive Components" for your app.
+3) Add the request URL. E.g. https://foobar.eu.ngrok.io/commands (Note: `/commands` is the slack-bot handle)
+4) In "Basic Information" of the Slack app, use the "Signing Secret" as verification_secret below:
+5) Add this to the config and start the bot:
+```
+server:
+  listen: 127.0.0.1:4390 # using local ngrok.io tunnel
+  verification_secret: 12345678qwertzuiopasdfghj
+```
+  
 ## Custom variables
 Configure user specific variables to customize bot behaviour. E.g. each developer has his own server environment.
 

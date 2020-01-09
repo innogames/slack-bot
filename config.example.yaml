@@ -111,3 +111,8 @@ macros:
     commands:
       - "reply thanks for your feedback :)"
       - "send message to <@UADMINID> We got feedback: {{ .feedback }}"
+
+# slack interaction server:
+#server:
+#  listen: 127.0.0.1:4390 # using local ngrok.io tunnel
+#  verification_secret: 12345678qwertzuiopasdfghj
