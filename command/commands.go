@@ -13,6 +13,7 @@ import (
 	"github.com/innogames/slack-bot/command/mqtt"
 	"github.com/innogames/slack-bot/command/pullrequest"
 	"github.com/innogames/slack-bot/command/queue"
+	"github.com/innogames/slack-bot/command/variables"
 	"github.com/innogames/slack-bot/command/weather"
 	"github.com/sirupsen/logrus"
 )
@@ -49,6 +50,7 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logr
 		queue.NewListCommand(slackClient),
 
 		custom.GetCommand(slackClient),
+		variables.GetCommand(slackClient),
 	)
 
 	// jenkins

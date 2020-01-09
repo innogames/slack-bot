@@ -56,7 +56,7 @@ func (c *macroCommand) Execute(event slack.MessageEvent) bool {
 
 		// extract the parameters from regexp
 		params := util.RegexpResultToParams(macro.re, match)
-		params["sender"] = event.User
+		params["userId"] = event.User
 
 		for _, commandText := range macro.config.Commands {
 			command, err := util.CompileTemplate(commandText)
