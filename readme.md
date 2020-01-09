@@ -125,6 +125,25 @@ It's also possible to get a notification when there is a state change in a certa
 **Example**
 - `watch ticket PROJ-12234`
 
+
+## Custom variables
+Configure user specific variables to customize bot behaviour. E.g. each developer has his own server environment.
+
+**Example:** Having this global config:
+```
+macros:
+  - name: deploy
+    trigger: "deploy (?P<branch>.*)"
+    commands:
+      - deploy {{.branch}} to {{ customVariable "defaultServer" }}
+``` 
+
+User can define his default environment once by using `set variable serverEnvironment aws-02`.
+
+Then the `deploy feature-123` will deploy the branch to the defined `aws-02` environment.
+Each user can define his own variables.
+
+
 ## Quiz command
 If you need a small break and want to play a little quiz game you can do so by calling this command.
 No more than 50 questions are allowed. 
