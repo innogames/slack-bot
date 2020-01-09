@@ -31,7 +31,7 @@ func main() {
 	logger := bot.GetLogger(cfg)
 	logger.Infof("Loaded config from %s", *configFile)
 
-	_, err = storage.InitStorage(cfg.StoragePath)
+	err = storage.InitStorage(cfg.StoragePath)
 	checkError(err, logger)
 
 	slackClient := client.GetSlackClient(cfg.Slack, logger)

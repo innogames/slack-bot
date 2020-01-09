@@ -5,10 +5,12 @@ go 1.12
 require (
 	github.com/PuloV/ics-golang v0.0.0-20190808201353-a3394d3bcade
 	github.com/ae6rt/retry v2.0.0+incompatible // indirect
+	github.com/alicebob/miniredis/v2 v2.11.1
 	github.com/bndr/gojenkins v1.0.1
 	github.com/channelmeter/iso8601duration v0.0.0-20150204201828-8da3af7a2a61 // indirect
 	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/fatih/structs v1.1.0 // indirect
+	github.com/go-redis/redis/v7 v7.0.0-beta.4
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/gookit/color v1.2.0

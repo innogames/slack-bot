@@ -2,7 +2,6 @@ package custom
 
 import (
 	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/nlopes/slack"
@@ -14,9 +13,6 @@ func TestCustomCommands(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	commands := bot.Commands{}
 	commands.AddCommand(GetCommand(slackClient))
-
-	after := storage.MockStorage()
-	defer after()
 
 	t.Run("Invalid commands", func(t *testing.T) {
 		event := slack.MessageEvent{}
