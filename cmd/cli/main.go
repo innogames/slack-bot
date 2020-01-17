@@ -65,7 +65,7 @@ func startCli(input io.Reader, output io.Writer, kill chan os.Signal) {
 			if message.Type == "typing" {
 				continue
 			}
-			color.Yellow.Println("<<<< %s", message.Text)
+			color.Yellow.Printf("\n<<<< %s\n", message.Text)
 		}
 	}()
 
