@@ -3,6 +3,7 @@ package bot
 import (
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/innogames/slack-bot/bot/config"
@@ -30,6 +31,7 @@ func NewBot(cfg config.Config, slackClient *client.Slack, logger *log.Logger, co
 		logger:       logger,
 		commands:     commands,
 		allowedUsers: map[string]string{},
+		userLocks:    map[string]*sync.Mutex{},
 	}
 }
 
@@ -40,6 +42,7 @@ type bot struct {
 	auth         *slack.AuthTestResponse
 	commands     *Commands
 	allowedUsers map[string]string
+	userLocks    map[string]*sync.Mutex
 }
 
 // Init establishes the slack connection and load allowed users
@@ -143,7 +146,7 @@ func (b bot) HandleMessages(kill chan os.Signal) {
 			// e.g. triggered by "delay" or "macro" command. They are still executed in original event context
 			// -> will post in same channel as the user posted the original command
 			msg.SubType = TypeInternal
-			b.handleMessage(msg)
+			go b.handleMessage(msg)
 		case <-kill:
 			b.Disconnect()
 			b.logger.Warnf("Shutdown!")
@@ -192,6 +195,9 @@ func (b bot) handleMessage(event slack.MessageEvent) {
 
 	// send "bot is typing" command
 	b.slackClient.RTM.SendMessage(b.slackClient.NewTypingMessage(event.Channel))
+
+	lock := b.getUserLock(event.User)
+	defer lock.Unlock()
 
 	_, existing := b.allowedUsers[event.User]
 	if !existing && event.SubType != TypeInternal && b.config.Slack.TestEndpointUrl == "" {
