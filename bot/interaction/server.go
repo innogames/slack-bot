@@ -10,6 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// NewServer is used to receive slack interactions
 func NewServer(cfg config.Server, logger *log.Logger, slackClient *client.Slack, allowedUsers map[string]string) *Server {
 	return &Server{cfg: cfg, logger: logger, slackClient: slackClient, allowedUsers: allowedUsers}
 }
@@ -22,6 +23,7 @@ type Server struct {
 	allowedUsers map[string]string
 }
 
+// StartServer to receive slack interactions
 // https://api.slack.com/messaging/interactivity
 func (s *Server) StartServer() {
 	http.HandleFunc("/health", s.healthCheckHandler)
@@ -39,6 +41,7 @@ func (s *Server) StartServer() {
 	}
 }
 
+// Stop the http server to receive slack interactions
 func (s *Server) Stop() error {
 	s.logger.Infof("Shutting down server")
 

@@ -2,18 +2,20 @@ package command
 
 import (
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/nlopes/slack"
 )
 
 // NewAddButtonCommand is more or less internal command to add a link button to the posted message
-func NewAddButtonCommand(slackClient client.SlackClient) bot.Command {
-	return &addButtonCommand{slackClient}
+func NewAddButtonCommand(slackClient client.SlackClient, cfg config.Server) bot.Command {
+	return &addButtonCommand{slackClient, cfg}
 }
 
 type addButtonCommand struct {
 	slackClient client.SlackClient
+	cfg         config.Server
 }
 
 func (c *addButtonCommand) GetMatcher() matcher.Matcher {
@@ -29,6 +31,11 @@ func (c *addButtonCommand) AddLink(match matcher.Result, event slack.MessageEven
 	}
 
 	c.slackClient.SendMessage(event, "", slack.MsgOptionBlocks(blocks...))
+}
+
+// IsEnabled checks if the http server is enabled to receive slack interactions
+func (c *addButtonCommand) IsEnabled() bool {
+	return c.cfg.IsEnabled()
 }
 
 func (c *addButtonCommand) GetHelp() []bot.Help {

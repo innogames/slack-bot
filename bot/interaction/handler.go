@@ -19,12 +19,6 @@ func (s *Server) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (s *Server) error(w http.ResponseWriter, err error, status int) {
-	s.logger.Errorf(err.Error())
-	w.WriteHeader(status)
-	w.Write([]byte(err.Error()))
-}
-
 func (s *Server) interactionHandler(w http.ResponseWriter, r *http.Request) {
 	verifier, err := slack.NewSecretsVerifier(r.Header, s.cfg.VerificationSecret)
 	if err != nil {
@@ -90,4 +84,10 @@ func (s *Server) interactionHandler(w http.ResponseWriter, r *http.Request) {
 		slack.MsgOptionAttachments(newMessage.Attachments...),
 		slack.MsgOptionBlocks(newMessage.Blocks.BlockSet...),
 	)
+}
+
+func (s *Server) error(w http.ResponseWriter, err error, status int) {
+	s.logger.Errorf(err.Error())
+	w.WriteHeader(status)
+	w.Write([]byte(err.Error()))
 }
