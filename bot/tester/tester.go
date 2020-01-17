@@ -2,6 +2,7 @@
 package tester
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command"
+	"github.com/nlopes/slack"
 	"github.com/nlopes/slack/slacktest"
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
@@ -41,6 +43,10 @@ func StartBot(cfg config.Config, logger *logrus.Logger) bot.Handler {
 	return realBot
 }
 
+type usersResponse struct {
+	Members []slack.User
+}
+
 // StartFakeSlack will start a http server which implements the basic Slack API
 func StartFakeSlack(cfg *config.Config) *slacktest.Server {
 	authResponse := fmt.Sprintf(`
@@ -57,6 +63,13 @@ func StartFakeSlack(cfg *config.Config) *slacktest.Server {
 	auth := func(c slacktest.Customize) {
 		c.Handle("/auth.test", func(w http.ResponseWriter, _ *http.Request) {
 			_, _ = w.Write([]byte(authResponse))
+		})
+		c.Handle("/users.list", func(w http.ResponseWriter, _ *http.Request) {
+			users := usersResponse{
+				Members: []slack.User{},
+			}
+			bytes, _ := json.Marshal(users)
+			_, _ = w.Write(bytes)
 		})
 	}
 
