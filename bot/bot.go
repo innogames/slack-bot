@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/interaction"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/nlopes/slack"
@@ -42,6 +43,7 @@ type bot struct {
 	auth         *slack.AuthTestResponse
 	commands     *Commands
 	allowedUsers map[string]string
+	server       *interaction.Server
 	userLocks    map[string]*sync.Mutex
 }
 
@@ -84,6 +86,11 @@ func (b *bot) Init() (err error) {
 		b.logger.Infof("Auto joined channels: %s", strings.Join(b.config.Slack.AutoJoinChannels, ", "))
 	}
 
+	if b.config.Server.IsEnabled() {
+		b.server = interaction.NewServer(b.config.Server, b.logger, b.slackClient, b.allowedUsers)
+		go b.server.StartServer()
+	}
+
 	b.logger.Infof("Loaded %d allowed users and %d channels", len(b.allowedUsers), len(client.Channels))
 	b.logger.Infof("bot user: %s with ID: %s", b.auth.User, b.auth.UserID)
 	b.logger.Infof("Initialized %d commands", b.commands.Count())
@@ -93,6 +100,10 @@ func (b *bot) Init() (err error) {
 
 // Disconnect will do a clean shutdown and kills all connections
 func (b *bot) Disconnect() error {
+	if b.server != nil {
+		b.server.Stop()
+	}
+
 	return b.slackClient.Disconnect()
 }
 

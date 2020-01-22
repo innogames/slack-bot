@@ -55,7 +55,12 @@ type Slack struct {
 }
 
 type Server struct {
-	Listen string `yaml:"listen"`
+	Listen             string `yaml:"listen"`
+	VerificationSecret string `yaml:"verification_secret"`
+}
+
+func (c Server) IsEnabled() bool {
+	return c.Listen != "" && c.VerificationSecret != ""
 }
 
 type Logger struct {

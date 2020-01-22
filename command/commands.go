@@ -28,6 +28,7 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logr
 		NewMacroCommand(slackClient, cfg.Macros, logger),
 		NewReplyCommand(slackClient),
 		NewAddLinkCommand(slackClient),
+		NewAddButtonCommand(slackClient, cfg.Server),
 		NewReactionCommand(slackClient),
 		NewSendMessageCommand(slackClient),
 		NewDelayCommand(slackClient),

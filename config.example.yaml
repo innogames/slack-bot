@@ -28,6 +28,10 @@ jenkins:
           default: master
           type: branch
 
+#server:
+#  listen: 127.0.0.1:4390
+#  verification_secret: d12345sd943434sdfdsfsif9sif9
+
 jira:
   #host: https://jira.example.de
   username: readonlyuser
@@ -107,3 +111,8 @@ macros:
     commands:
       - "reply thanks for your feedback :)"
       - "send message to <@UADMINID> We got feedback: {{ .feedback }}"
+
+# slack interaction server:
+#server:
+#  listen: 127.0.0.1:4390 # using local ngrok.io tunnel
+#  verification_secret: 12345678qwertzuiopasdfghj
