@@ -2,6 +2,7 @@ package bot
 
 import (
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -18,6 +19,8 @@ import (
 // TypeInternal is only used internally to identify internal slack messages.
 // @deprecated do not use it anymore
 const TypeInternal = "internal"
+
+var linkRegexp = regexp.MustCompile("<[^\\s]+?\\|(.*?)>")
 
 // Handler is the main bot interface
 type Handler interface {
@@ -190,6 +193,7 @@ func (b bot) trimMessage(msg string) string {
 	msg = strings.Replace(msg, "<@"+b.auth.UserID+">", "", 1)
 	msg = strings.Replace(msg, "‘", "'", -1)
 	msg = strings.Replace(msg, "’", "'", -1)
+	msg = linkRegexp.ReplaceAllString(msg, "$1")
 
 	return strings.TrimSpace(msg)
 }
