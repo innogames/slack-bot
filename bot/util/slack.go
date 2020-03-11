@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 // GetFullEventKey builds a key over user-channel-threadtimestamp

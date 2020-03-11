@@ -7,7 +7,7 @@ import (
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 const (

@@ -11,7 +11,7 @@ import (
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
 	"github.com/innogames/slack-bot/command/queue"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 type buildWatcherCommand struct {

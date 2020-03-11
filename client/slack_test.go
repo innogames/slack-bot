@@ -12,14 +12,14 @@ func TestGetSlackClient(t *testing.T) {
 	logger, _ := test.NewNullLogger()
 
 	cfg := config.Slack{
-		TestEndpointUrl: "http://slack.example.com",
+		TestEndpointUrl: "http://slack.example.com/",
 		Debug:           true,
 	}
 
 	client := GetSlackClient(cfg, logger)
 
 	_, _, err := client.ConnectRTM()
-	assert.Contains(t, err.Error(), "Post http://slack.example.com")
+	assert.Contains(t, err.Error(), "slack.example.com")
 }
 
 func TestGetSlackUser(t *testing.T) {

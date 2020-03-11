@@ -3,7 +3,7 @@ package command
 import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"testing"

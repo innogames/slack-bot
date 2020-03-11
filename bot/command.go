@@ -3,7 +3,7 @@ package bot
 import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/util"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 // Command is the main command struct which needs to provide the matcher and the actual executed action

@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/innogames/slack-bot/client"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"github.com/texttheater/golang-levenshtein/levenshtein"
 )
 

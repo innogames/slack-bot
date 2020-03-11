@@ -8,7 +8,7 @@ import (
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"sync"
 	"time"
 )
