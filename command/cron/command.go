@@ -7,7 +7,8 @@ import (
 	"github.com/innogames/slack-bot/client"
 	"github.com/nlopes/slack"
 	"github.com/sirupsen/logrus"
-	cronLib "gopkg.in/robfig/cron.v2"
+
+	cronLib "github.com/robfig/cron/v3"
 )
 
 // NewCronCommand registers cron which are configurable in the yaml config
