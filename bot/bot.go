@@ -193,7 +193,6 @@ func (b bot) trimMessage(msg string) string {
 	msg = strings.Replace(msg, "<@"+b.auth.UserID+">", "", 1)
 	msg = strings.Replace(msg, "‘", "'", -1)
 	msg = strings.Replace(msg, "’", "'", -1)
-	msg = linkRegexp.ReplaceAllString(msg, "$1")
 
 	return strings.TrimSpace(msg)
 }
@@ -201,6 +200,12 @@ func (b bot) trimMessage(msg string) string {
 // handleMessage process the incoming message and respond appropriately
 func (b bot) handleMessage(event slack.MessageEvent) {
 	event.Text = b.trimMessage(event.Text)
+
+	// remove links from incoming messages. for internal ones they might be wanted, as they contain valid links with texts
+	if event.SubType != TypeInternal {
+		event.Text = linkRegexp.ReplaceAllString(event.Text, "$1")
+	}
+
 	if event.Text == "" {
 		return
 	}
