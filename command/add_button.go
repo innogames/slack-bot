@@ -5,7 +5,7 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 // NewAddButtonCommand is more or less internal command to add a link button to the posted message

@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

@@ -3,7 +3,7 @@ package custom
 import (
 	"fmt"
 	"github.com/innogames/slack-bot/client"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"strings"
 )
 

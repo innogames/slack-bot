@@ -2,7 +2,7 @@ package custom
 
 import (
 	"github.com/innogames/slack-bot/bot/storage"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 const storeKey = "user_commands"

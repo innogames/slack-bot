@@ -1,7 +1,7 @@
 package matcher
 
 import (
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

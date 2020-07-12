@@ -5,7 +5,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/util"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"strings"
 	"time"
 )

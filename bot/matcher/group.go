@@ -1,6 +1,6 @@
 package matcher
 
-import "github.com/nlopes/slack"
+import "github.com/slack-go/slack"
 
 // NewGroupMatcher is a matcher which go through the list of given sub-matcher...just define multiple matcher in a chain/group
 func NewGroupMatcher(matcher ...Matcher) Matcher {
