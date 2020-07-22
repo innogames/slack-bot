@@ -10,9 +10,9 @@ import (
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
-	"github.com/slack-go/slack"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
 )
 
 var mu sync.Mutex

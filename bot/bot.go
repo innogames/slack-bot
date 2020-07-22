@@ -11,9 +11,9 @@ import (
 	"github.com/innogames/slack-bot/bot/interaction"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
 )
 
 // TypeInternal is only used internally to identify internal slack messages.
@@ -64,13 +64,9 @@ func (b *bot) Init() (err error) {
 
 	go b.slackClient.ManageConnection()
 
-	channels, err := b.slackClient.GetChannels(true)
+	err = b.loadChannels()
 	if err != nil {
 		return errors.Wrap(err, "error while fetching public channels")
-	}
-	client.Channels = make(map[string]string, len(channels))
-	for _, channel := range channels {
-		client.Channels[channel.ID] = channel.Name
 	}
 
 	err = b.loadSlackData()
@@ -97,6 +93,34 @@ func (b *bot) Init() (err error) {
 	b.logger.Infof("Loaded %d allowed users and %d channels", len(b.allowedUsers), len(client.Channels))
 	b.logger.Infof("bot user: %s with ID: %s", b.auth.User, b.auth.UserID)
 	b.logger.Infof("Initialized %d commands", b.commands.Count())
+
+	return nil
+}
+
+func (b *bot) loadChannels() error {
+	var err error
+	var cursor string
+	var chunkedChannels []slack.Channel
+
+	client.Channels = make(map[string]string)
+
+	for err == nil {
+		options := &slack.GetConversationsParameters{
+			Limit:  1,
+			Cursor: cursor,
+		}
+
+		chunkedChannels, cursor, err = b.slackClient.GetConversations(options)
+		if err != nil {
+			return errors.Wrap(err, "error while fetching public channels")
+		}
+		for _, channel := range chunkedChannels {
+			client.Channels[channel.ID] = channel.Name
+		}
+		if cursor == "" {
+			break
+		}
+	}
 
 	return nil
 }
@@ -151,7 +175,7 @@ func (b bot) HandleMessages(kill chan os.Signal) {
 				if b.shouldHandleMessage(message) {
 					go b.handleMessage(*message)
 				}
-			case *slack.RTMError, *slack.UnmarshallingErrorEvent, *slack.RateLimitEvent:
+			case *slack.RTMError, *slack.UnmarshallingErrorEvent, *slack.RateLimitEvent, *slack.ConnectionErrorEvent:
 				b.logger.Error(msg)
 			case *slack.LatencyReport:
 				b.logger.Debugf("Current latency: %v\n", message.Value)

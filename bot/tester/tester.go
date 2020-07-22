@@ -11,10 +11,10 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command"
-	"github.com/slack-go/slack"
-	"github.com/slack-go/slack/slacktest"
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
+	"github.com/slack-go/slack"
+	"github.com/slack-go/slack/slacktest"
 )
 
 // TestChannel is just a test channel name which is used for testing

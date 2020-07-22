@@ -6,8 +6,8 @@ import (
 
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/slack-go/slack"
 	"github.com/sirupsen/logrus/hooks/test"
+	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 )
 

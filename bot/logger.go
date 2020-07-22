@@ -5,9 +5,9 @@ import (
 
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 	"github.com/rifflock/lfshook"
 	log "github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
 )
 
 // GetLogger provides logger instance for the given config
