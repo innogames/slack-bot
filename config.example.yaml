@@ -28,6 +28,12 @@ jenkins:
           default: master
           type: branch
 
+# list of trusted slack users: allowes the user-id and the name
+allowed_users:
+  - your.name
+  - U122323
+
+# wip: allows receiving events directly from Slack server instead via RTM
 #server:
 #  listen: 127.0.0.1:4390
 #  verification_secret: d12345sd943434sdfdsfsif9sif9

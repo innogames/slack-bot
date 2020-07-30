@@ -245,7 +245,7 @@ func (b bot) handleMessage(event slack.MessageEvent) {
 
 	_, existing := b.allowedUsers[event.User]
 	if !existing && event.SubType != TypeInternal && b.config.Slack.TestEndpointUrl == "" {
-		logger.Errorf("user %s is not allowed to execute message: %s", event.User, event.Text)
+		logger.Errorf("user %s is not allowed to execute message (missing in 'allowed_users' section): %s", event.User, event.Text)
 		b.slackClient.Reply(event, "Sorry, you are not whitelisted yet. Please ask the slack-bot admin to get access.")
 		return
 	}

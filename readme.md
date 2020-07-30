@@ -14,6 +14,7 @@ This slack bot improves the workflow of development teams. Especially with focus
 - install Docker incl. docker-compose
 - clone this repo or at least fetch the docker-compose.yaml
 - create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
+- allow your user id or name in the "allowed_users:" section of the config.yaml
 - `docker-compose up`
 
 **Advanced** (when planning working on the bot core)
