@@ -11,9 +11,9 @@ import (
 	"github.com/innogames/slack-bot/bot/interaction"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
 )
 
 // TypeInternal is only used internally to identify internal slack messages.
@@ -221,7 +221,7 @@ func (b bot) handleMessage(event slack.MessageEvent) {
 
 	_, existing := b.allowedUsers[event.User]
 	if !existing && event.SubType != TypeInternal && b.config.Slack.TestEndpointUrl == "" {
-		logger.Errorf("user %s is not allowed to execute message: %s", event.User, event.Text)
+		logger.Errorf("user %s is not allowed to execute message (missing in 'allowed_users' section): %s", event.User, event.Text)
 		b.slackClient.Reply(event, "Sorry, you are not whitelisted yet. Please ask the slack-bot admin to get access.")
 		return
 	}
