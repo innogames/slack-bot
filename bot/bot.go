@@ -112,7 +112,7 @@ func (b *bot) loadChannels() error {
 
 		chunkedChannels, cursor, err = b.slackClient.GetConversations(options)
 		if err != nil {
-			return errors.Wrap(err, "error while fetching public channels")
+			return err
 		}
 		for _, channel := range chunkedChannels {
 			client.Channels[channel.ID] = channel.Name

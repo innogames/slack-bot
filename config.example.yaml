@@ -28,7 +28,7 @@ jenkins:
           default: master
           type: branch
 
-# list of trusted slack users: allowes the user-id and the name
+# list of trusted slack users: allows the user-id and the name
 allowed_users:
   - your.name
   - U122323
