@@ -10,9 +10,9 @@ import (
 
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/client"
+	"github.com/pkg/errors"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
-	"github.com/pkg/errors"
 )
 
 func (s *Server) healthCheckHandler(w http.ResponseWriter, r *http.Request) {

@@ -9,8 +9,8 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/bot/util"
-	"github.com/slack-go/slack"
 	"github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
 )
 
 // InternalMessages is internal queue of internal messages
@@ -138,13 +138,17 @@ func (s Slack) SendToUser(user string, text string) string {
 	// check if a real username was passed -> we need the user-id here
 	user, _ = GetUser(user)
 
-	_, _, channel, err := s.Client.OpenIMChannel(user)
+	options := &slack.OpenConversationParameters{
+		Users: []string{user},
+	}
+
+	channel, _, _, err := s.Client.OpenConversation(options)
 	if err != nil {
 		s.logger.WithError(err).Errorf("Cannot open channel")
 	}
 
 	event := slack.MessageEvent{}
-	event.Channel = channel
+	event.Channel = channel.ID
 
 	return s.SendMessage(event, text)
 }

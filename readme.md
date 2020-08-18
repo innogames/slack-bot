@@ -10,6 +10,12 @@ This slack bot improves the workflow of development teams. Especially with focus
 [Docker](https://hub.docker.com/r/brainexe/slack-bot)
 
 # Installation
+**Create Classic Slack App:**
+- Create a [Classic Slack App](https://api.slack.com/apps?new_classic_app=1)
+- Goto "Bot" section and create a "Legacy Bot user" 
+- Goto "OAuth & Permissions" and install the app in your workspace
+- A "Bot User OAuth Access Token" is visible (starts with "xoxb-"). You need this one in the config.yaml in slack->token.
+
 **Quick steps:** (just use the bot via Docker)
 - install Docker incl. docker-compose
 - clone this repo or at least fetch the docker-compose.yaml
@@ -142,7 +148,7 @@ It's possible to create buttons which are performing any bot action when pressin
  
 **Config without a public reachable IP/Domain**
 1) start local [ngrok.io](https://ngrok.io) server (using local port 4390 by default)
-2) In [App settings](https://api.slack.com/apps) open the "Interactive Components" for your app.
+2) In [App settings](https://api.slack.com/apps) open the "Interactivity & Shortcuts" for your app and make sure it's enabled.
 3) Add the request URL. E.g. https://foobar.eu.ngrok.io/commands (Note: `/commands` is the slack-bot handle)
 4) In "Basic Information" of the Slack app, use the "Signing Secret" as verification_secret below:
 5) Add this to the config and start the bot:
@@ -377,7 +383,7 @@ crons:
 ```
 
 ### Calendar
-Trigger commands by calendar entries of an ical/icl calenar.
+Trigger commands by calendar entries of an ical/icl calendar.
 
 **Example:**
 ```
