@@ -106,8 +106,9 @@ func (b *bot) loadChannels() error {
 
 	for err == nil {
 		options := &slack.GetConversationsParameters{
-			Limit:  1,
-			Cursor: cursor,
+			Limit:           500,
+			Cursor:          cursor,
+			ExcludeArchived: "true",
 		}
 
 		chunkedChannels, cursor, err = b.slackClient.GetConversations(options)
