@@ -43,6 +43,7 @@ type pullRequest struct {
 	name        string
 	declined    bool
 	merged      bool
+	closed      bool
 	approved    bool
 	inReview    bool
 	buildStatus buildStatus
@@ -83,8 +84,8 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 			return
 		}
 
-		if pr.merged {
-			// PR got merged
+		if pr.merged || pr.closed {
+			// PR got merged/closed
 			c.slackClient.RemoveReaction(iconInReview, msgRef)
 			c.slackClient.AddReaction(iconMerged, msgRef)
 

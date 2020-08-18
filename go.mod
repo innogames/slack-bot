@@ -1,6 +1,6 @@
 module github.com/innogames/slack-bot
 
-go 1.12
+go 1.14
 
 require (
 	github.com/PuloV/ics-golang v0.0.0-20190424194752-58baabe4e0a3
