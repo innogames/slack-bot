@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
-	"github.com/innogames/slack-bot/config"
-	"github.com/nlopes/slack"
 	"github.com/sirupsen/logrus/hooks/test"
+	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -125,6 +125,7 @@ func TestIsBotMessage(t *testing.T) {
 	t.Run("Trim", func(t *testing.T) {
 		assert.Equal(t, bot.trimMessage(" "), "")
 		assert.Equal(t, bot.trimMessage("<@BOT> random ’test’"), "random 'test'")
+		assert.Equal(t, bot.trimMessage("<https://test.com|TEST> <https://example.com|example>"), "<https://test.com|TEST> <https://example.com|example>")
 	})
 
 }

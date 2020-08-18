@@ -1,9 +1,11 @@
 package util
 
 import (
-	"github.com/nlopes/slack"
-	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
+
+	"github.com/slack-go/slack"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSlack(t *testing.T) {
@@ -25,4 +27,15 @@ func TestSlack(t *testing.T) {
 		assert.Equal(t, "U1234-C1234", actual)
 	})
 
+	t.Run("GetEventKey", func(t *testing.T) {
+		event := slack.MessageEvent{}
+		event.Timestamp = "1355517523.000005"
+
+		time.Local, _ = time.LoadLocation("Europe/Berlin")
+
+		actual := GetMessageTime(event)
+
+		expected := "2012-12-14T21:38:43+01:00"
+		assert.Equal(t, expected, actual.Format(time.RFC3339))
+	})
 }

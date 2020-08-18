@@ -5,45 +5,83 @@ import (
 	"testing"
 )
 
-func TestStorage(t *testing.T) {
-	after := MockStorage()
-	defer after()
-
+func testStorage(t *testing.T, storage storage) {
 	var err error
-	var value string
-	t.Run("read/write", func(t *testing.T) {
-		err = Write("collection", "test", "1")
-		assert.Nil(t, err)
-		err = Write("collection", "test2", "2")
-		assert.Nil(t, err)
+	var stringValue string
+	var intValue int
+	var mapValue map[int]float32
 
-		// read invalid data
-		err = Read("collection1", "test", &value)
-		assert.Error(t, err)
-		err = Read("collection", "test1", &value)
-		assert.Error(t, err)
-		assert.Equal(t, "", value)
+	const collection = "collection"
 
-		// read all
-		values, err := ReadAll("collection")
-		assert.Nil(t, err)
-		assert.Equal(t, []string([]string{"\"1\"", "\"2\""}), values)
+	err = storage.Write(collection, "test-string", "1")
+	assert.Nil(t, err)
+	err = storage.Write(collection, "test-int", 2)
+	assert.Nil(t, err)
+	err = storage.Write(collection, "test-map", map[int]float32{12: 5.5})
+	assert.Nil(t, err)
 
-		// read valid data
-		err = Read("collection", "test", &value)
-		assert.Nil(t, err)
-		assert.Equal(t, "1", value)
+	// read invalid data
+	err = storage.Read("collection1", "test", &stringValue)
+	assert.Error(t, err)
+	err = storage.Read(collection, "test1", &stringValue)
+	assert.Error(t, err)
+	assert.Equal(t, "", stringValue)
 
-		// delete
-		err = Delete("collection", "test")
-		assert.Nil(t, err)
-		err = Read("collection1", "test", &value)
-		assert.Error(t, err)
+	// ket keys all
+	keys, err := storage.GetKeys(collection)
+	assert.Nil(t, err)
+	assert.Len(t, keys, 3)
+	//assert.Equal(t, []string{"test-string", "test-int", "test-map"}, keys)
 
-		// delete all
-		err = DeleteAll()
-		assert.Nil(t, err)
-		err = Read("collection", "test2", &value)
-		assert.Error(t, err)
+	keys, err = storage.GetKeys("invalid-collection")
+	assert.Error(t, err)
+	assert.Len(t, keys, 0)
+
+	// read valid data
+	err = storage.Read(collection, "test-string", &stringValue)
+	assert.Nil(t, err)
+	assert.Equal(t, "1", stringValue)
+	err = storage.Read(collection, "test-int", &intValue)
+	assert.Nil(t, err)
+	assert.Equal(t, 2, intValue)
+	err = storage.Read(collection, "test-map", &mapValue)
+	assert.Nil(t, err)
+	assert.Equal(t, map[int]float32{12: 5.5}, mapValue)
+
+	// delete
+	err = storage.Delete(collection, "test-string")
+	assert.Nil(t, err)
+	err = storage.Delete(collection, "test-int")
+	assert.Nil(t, err)
+	err = storage.Delete(collection, "test-map")
+	assert.Nil(t, err)
+	err = storage.Read("collection1", "test-map", &stringValue)
+	assert.Error(t, err)
+
+	keys, err = storage.GetKeys(collection)
+	assert.Error(t, err)
+	assert.Len(t, keys, 0)
+}
+
+func TestStorage(t *testing.T) {
+	t.Run("test init storage", func(t *testing.T) {
+		storage := getStorage()
+
+		assert.IsType(t, &memoryStorage{}, storage)
+
+		err := InitStorage(".")
+		storage = getStorage()
+		assert.NoError(t, err)
+		assert.IsType(t, &fileStorage{}, storage)
+
+		err = InitStorage("")
+		storage = getStorage()
+		assert.NoError(t, err)
+		assert.IsType(t, &memoryStorage{}, storage)
+
+		fileStorage, _ := newFileStorage(".")
+		SetStorage(fileStorage)
+		assert.NoError(t, err)
+		assert.Equal(t, fileStorage, getStorage())
 	})
 }

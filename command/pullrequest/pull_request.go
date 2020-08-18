@@ -5,18 +5,21 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
+	"github.com/pkg/errors"
+	"net"
 	"time"
 )
 
 const (
-	iconInReview    = "eyes"
-	iconApproved    = "white_check_mark"
-	iconMerged      = "twisted_rightwards_arrows"
-	iconDeclined    = "x"
-	iconBuildFailed = "red_circle"
-	iconError       = "x"
-	checkInterval   = time.Second * 20
+	iconInReview        = "eyes"
+	iconApproved        = "white_check_mark"
+	iconMerged          = "twisted_rightwards_arrows"
+	iconDeclined        = "x"
+	iconBuildFailed     = "red_circle"
+	iconError           = "x"
+	checkInterval       = time.Second * 30
+	maxConnectionErrors = 5
 )
 
 type buildStatus int
@@ -70,6 +73,8 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 	inReview := false
 	hasApproval := false
 	failedBuild := false
+	connectionErrors := 0
+
 	done := queue.AddRunningCommand(event, event.Text)
 	defer func() {
 		done <- true
@@ -78,11 +83,23 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 	for {
 		pr, err := c.fetcher.getPullRequest(match)
 		if err != nil {
-			// reply error in new thread
-			c.slackClient.SendMessage(event, err.Error(), slack.MsgOptionTS(event.Timestamp))
-			c.slackClient.AddReaction(iconError, msgRef)
-			return
+			if nerr, ok := err.(net.Error); ok && nerr.Temporary() {
+				time.Sleep(checkInterval)
+				continue
+			}
+
+			connectionErrors++
+			if connectionErrors > maxConnectionErrors {
+				// reply error in new thread
+				c.slackClient.ReplyError(
+					event,
+					errors.Wrapf(err, "Error while fetching PR data %d times in a row", connectionErrors),
+				)
+				c.slackClient.AddReaction(iconError, msgRef)
+				return
+			}
 		}
+		connectionErrors = 0
 
 		if pr.merged || pr.closed {
 			// PR got merged/closed
@@ -108,11 +125,9 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 			hasApproval = true
 		}
 
-		if pr.inReview {
-			if !hasApproval && !inReview {
-				c.slackClient.AddReaction(iconInReview, msgRef)
-				inReview = true
-			}
+		if pr.inReview && (!hasApproval && !inReview) {
+			c.slackClient.AddReaction(iconInReview, msgRef)
+			inReview = true
 		}
 
 		// monitor build status

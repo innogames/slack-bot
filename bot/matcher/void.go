@@ -1,7 +1,7 @@
 package matcher
 
 import (
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 // NewVoidMatcher  just do nothing (might be useful when a command is not loadable because dependencies are not configures)

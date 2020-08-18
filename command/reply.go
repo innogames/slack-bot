@@ -4,7 +4,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 // NewReplyCommand is a command to reply a message in current thread/channel

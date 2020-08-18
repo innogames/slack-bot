@@ -7,6 +7,28 @@ This slack bot improves the workflow of development teams. Especially with focus
 [![Release](https://img.shields.io/github/release/innogames/slack-bot.svg)](https://github.com/innogames/slack-bot/releases)
 [![codecov](https://codecov.io/gh/innogames/slack-bot/branch/master/graph/badge.svg)](https://codecov.io/gh/innogames/slack-bot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[Docker](https://hub.docker.com/r/brainexe/slack-bot)
+
+# Installation
+**Create Classic Slack App:**
+- Create a [Classic Slack App](https://api.slack.com/apps?new_classic_app=1)
+- Goto "Bot" section and create a "Legacy Bot user" 
+- Goto "OAuth & Permissions" and install the app in your workspace
+- A "Bot User OAuth Access Token" is visible (starts with "xoxb-"). You need this one in the config.yaml in slack->token.
+
+**Quick steps:** (just use the bot via Docker)
+- install Docker incl. docker-compose
+- clone this repo or at least fetch the docker-compose.yaml
+- create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
+- allow your user id or name in the "allowed_users:" section of the config.yaml
+- `docker-compose up`
+
+**Advanced** (when planning working on the bot core)
+- install go (at least 1.12)
+- clone/fork this repo
+- create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
+- run `go run cmd/bot/main.go` to run the go application
+
 
 # Usage
 As slack user, you just have to send a private message to the bot user/app containing the command to execute.
@@ -110,6 +132,74 @@ It's also possible to get a notification when there is a state change in a certa
 **Example**
 - `watch ticket PROJ-12234`
 
+## Interactions
+It's possible to create buttons which are performing any bot action when pressing the button.
+[Slack interactions](https://api.slack.com/interactivity/actions)
+
+![Jira list](./docs/interaction.png)
+
+**Examples:**
+ - `add button "Start Deployment" "trigger job LiveDeployment"`
+
+**Note** 
+ - only whitelisted users can click the button
+ - each button is only active once (but it will stay with the)
+ - slack needs to reach the server via public domain/IP! [See this slack documentation](https://api.slack.com/tutorials/tunneling-with-ngrok) about some tricks.
+ 
+**Config without a public reachable IP/Domain**
+1) start local [ngrok.io](https://ngrok.io) server (using local port 4390 by default)
+2) In [App settings](https://api.slack.com/apps) open the "Interactivity & Shortcuts" for your app and make sure it's enabled.
+3) Add the request URL. E.g. https://foobar.eu.ngrok.io/commands (Note: `/commands` is the slack-bot handle)
+4) In "Basic Information" of the Slack app, use the "Signing Secret" as verification_secret below:
+5) Add this to the config and start the bot:
+```
+server:
+  listen: 127.0.0.1:4390 # using local ngrok.io tunnel
+  verification_secret: 12345678qwertzuiopasdfghj
+```
+  
+## Custom variables
+Configure user specific variables to customize bot behaviour. E.g. each developer has his own server environment.
+
+**Example:** Having this global config:
+```
+macros:
+  - name: deploy
+    trigger: "deploy (?P<branch>.*)"
+    commands:
+      - deploy {{.branch}} to {{ customVariable "defaultServer" }}
+``` 
+
+User can define his default environment once by using `set variable serverEnvironment aws-02`.
+
+Then the `deploy feature-123` will deploy the branch to the defined `aws-02` environment.
+Each user can define his own variables.
+
+
+## Quiz command
+If you need a small break and want to play a little quiz game you can do so by calling this command.
+No more than 50 questions are allowed. 
+The questions are from different categories and difficult levels and are either multiple choice or true/false questions.
+
+**Commands**
+- `quiz 10` to start a quiz with 10 questions 
+- `answer 1` to answer a question with the first answer
+
+![Quiz game](./docs/quiz.png)
+
+## Weather command
+It's possible to setup [OpenWeatherMap](https://openweathermap.org/) to get information about the current weather at your location.
+
+![Screenshot](./docs/weather.png)
+
+**Example config:**
+```
+open_weather:
+  apikey: "612325WD623562376678"
+  location: "Hamburg, DE"
+  units: "metric"
+```
+
 ## Custom command
 Every user is able to define own command aliases. This is a handy feature to avoid tying the same command every day.
 
@@ -196,14 +286,8 @@ It's supported to split up the configuration into multiple files.
 To load the config files, use `go run cmd/bot/main.go -config /path/to/config/*.yaml` which merged all configs together.
 
 ## Slack
-To run this bot, you need a "bot token" for your slack application. [Take a look here](https://api.slack.com/docs/token-types#bot) how to get one.
-
-You can define a "team" field: This will grant access to all users which are allocated to this team name. As alternative, the "allowedusers" option can be used to grant access. (will change in future)
-```
-slack:
-  token: xoxb-1234567-secret
-  team: "Development"
-```
+To run this bot, you need a "bot token" for your slack application. 
+[Take a look here](https://api.slack.com/docs/token-types#bot) how to get one.
 
 ## Jenkins
 To be able to start or monitor jenkins jobs, you have to setup the host and the credentials first. The user needs read access to the jobs and the right to trigger jobs for your whitelisted jobs.
@@ -299,7 +383,7 @@ crons:
 ```
 
 ### Calendar
-Trigger commands by calendar entries of an ical/icl calenar.
+Trigger commands by calendar entries of an ical/icl calendar.
 
 **Example:**
 ```

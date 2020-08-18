@@ -1,7 +1,9 @@
 package vcs
 
+//go:generate $GOPATH/bin/mockery -output ../../mocks -dir ../../vendor/github.com/xoom/stash -name Stash
+
 import (
-	"github.com/innogames/slack-bot/config"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/xoom/stash"
 )
 

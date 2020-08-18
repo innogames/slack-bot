@@ -4,9 +4,9 @@ import (
 	"context"
 	"github.com/google/go-github/github"
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
-	"github.com/innogames/slack-bot/config"
 	"golang.org/x/oauth2"
 	"text/template"
 )

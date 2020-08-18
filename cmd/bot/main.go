@@ -3,16 +3,18 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/vcs"
 	"github.com/innogames/slack-bot/command"
-	"github.com/innogames/slack-bot/config"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,12 +31,21 @@ func main() {
 	logger := bot.GetLogger(cfg)
 	logger.Infof("Loaded config from %s", *configFile)
 
-	_, err = storage.InitStorage(cfg.StoragePath)
+	err = storage.InitStorage(cfg.StoragePath)
 	checkError(err, logger)
 
 	slackClient := client.GetSlackClient(cfg.Slack, logger)
 
 	vcs.InitBranchWatcher(cfg, logger)
+
+	// make sure we're random enough
+	rand.Seed(time.Now().UnixNano())
+
+	// set global default timezone
+	if cfg.Timezone != "" {
+		time.Local, err = time.LoadLocation(cfg.Timezone)
+		checkError(err, logger)
+	}
 
 	commands := command.GetCommands(slackClient, cfg, logger)
 

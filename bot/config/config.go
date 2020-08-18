@@ -27,23 +27,40 @@ type Config struct {
 		Repository string
 	} `yaml:"branch_lookup"`
 
-	AllowedUsers []string `yaml:"allowed_users,flow"`
-	AdminUsers   []string `yaml:"admin_users,flow"`
+	AllowedUsers []string    `yaml:"allowed_users,flow"`
+	AdminUsers   []string    `yaml:"admin_users,flow"`
+	OpenWeather  OpenWeather `yaml:"open_weather"`
+	Timezone     string      `yaml:"timezone"`
+}
+
+// OpenWeather is an optional feature to get current weather
+type OpenWeather struct {
+	Apikey   string
+	Location string
+	Url      string
+	Units    string
 }
 
 // Slack contains the credentials and configuration of the Slack client
 type Slack struct {
-	Token             string
-	Team              string
-	Debug             bool
-	AllowedGroups     []string `yaml:"allowed_groups,flow"`
-	AutoJoinChannels  []string `yaml:"auto_join_channels,flow"`
-	TestEndpointUrl   string
-	VerificationToken string
+	Token            string   `yaml:"token"`
+	Debug            bool     `yaml:"debug"`
+	AllowedGroups    []string `yaml:"allowed_groups,flow"`
+	AutoJoinChannels []string `yaml:"auto_join_channels,flow"`
+	ErrorChannel     string   `yaml:"error_channel"`
+
+	// only used for integration tests
+	TestEndpointUrl   string `yaml:"-"`
+	VerificationToken string `yaml:"-"`
 }
 
 type Server struct {
-	Listen string `yaml:"listen"`
+	Listen             string `yaml:"listen"`
+	VerificationSecret string `yaml:"verification_secret"`
+}
+
+func (c Server) IsEnabled() bool {
+	return c.Listen != "" && c.VerificationSecret != ""
 }
 
 type Logger struct {
@@ -71,6 +88,7 @@ func (c Mqtt) IsEnabled() bool {
 	return c.Host != ""
 }
 
+// Bitbucket credentials/options
 type Bitbucket struct {
 	Host       string
 	Username   string

@@ -2,6 +2,7 @@ package command
 
 import (
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/calendar"
 	"github.com/innogames/slack-bot/command/cron"
@@ -12,7 +13,8 @@ import (
 	"github.com/innogames/slack-bot/command/mqtt"
 	"github.com/innogames/slack-bot/command/pullrequest"
 	"github.com/innogames/slack-bot/command/queue"
-	"github.com/innogames/slack-bot/config"
+	"github.com/innogames/slack-bot/command/variables"
+	"github.com/innogames/slack-bot/command/weather"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,6 +28,7 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logr
 		NewMacroCommand(slackClient, cfg.Macros, logger),
 		NewReplyCommand(slackClient),
 		NewAddLinkCommand(slackClient),
+		NewAddButtonCommand(slackClient, cfg.Server),
 		NewReactionCommand(slackClient),
 		NewSendMessageCommand(slackClient),
 		NewDelayCommand(slackClient),
@@ -33,7 +36,10 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logr
 		NewRandomCommand(slackClient),
 		NewHelpCommand(slackClient, commands),
 
+		weather.NewWeatherCommand(slackClient, cfg.OpenWeather),
+
 		games.NewNumberGuesserCommand(slackClient),
+		games.NewQuizCommand(slackClient),
 
 		calendar.NewCalendarCommand(cfg.Calendars, logger),
 
@@ -45,6 +51,7 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logr
 		queue.NewListCommand(slackClient),
 
 		custom.GetCommand(slackClient),
+		variables.GetCommand(slackClient),
 	)
 
 	// jenkins

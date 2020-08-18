@@ -1,8 +1,11 @@
 package util
 
 import (
-	"github.com/nlopes/slack"
+	"strconv"
 	"strings"
+	"time"
+
+	"github.com/slack-go/slack"
 )
 
 // GetFullEventKey builds a key over user-channel-threadtimestamp
@@ -19,4 +22,11 @@ func GetShortEventKey(event slack.MessageEvent) string {
 		strings.Join([]string{event.User, event.Channel}, "-"),
 		"-",
 	)
+}
+
+// GetMessageTime will return a time.Time of the sent date from the MessageEvent
+func GetMessageTime(event slack.MessageEvent) time.Time {
+	timestamp, _ := strconv.ParseInt(event.Timestamp[0:10], 10, 64)
+
+	return time.Unix(timestamp, 0)
 }

@@ -2,11 +2,10 @@ package pullrequest
 
 import (
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/storage"
-	"github.com/innogames/slack-bot/config"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -38,9 +37,6 @@ func TestGetCommands(t *testing.T) {
 func TestPullRequest(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 
-	after := storage.MockStorage()
-	defer after()
-
 	fetcher := &testFetcher{}
 	commands := bot.Commands{}
 	cmd := &command{
@@ -63,7 +59,7 @@ func TestPullRequest(t *testing.T) {
 		fetcher.err = errors.New("PR not found")
 		event.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
-		slackClient.On("ReplyError", event, fetcher.err).Return("")
+		slackClient.On("ReplyError", event, fetcher.err)
 
 		actual := commands.Run(event)
 		assert.Equal(t, true, actual)

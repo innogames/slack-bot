@@ -2,10 +2,9 @@ package command
 
 import (
 	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -16,9 +15,6 @@ func TestRetry(t *testing.T) {
 
 	retry := bot.Commands{}
 	retry.AddCommand(NewRetryCommand(&slackClient))
-
-	after := storage.MockStorage()
-	defer after()
 
 	t.Run("Ignore internal messages", func(t *testing.T) {
 		event := slack.MessageEvent{}

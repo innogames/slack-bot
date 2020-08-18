@@ -1,13 +1,13 @@
 package command
 
 import (
+	"net/url"
 	"testing"
 
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestAddLink(t *testing.T) {
@@ -29,9 +29,10 @@ func TestAddLink(t *testing.T) {
 
 		event.Text = "add link google <https://google.com>"
 
-		slackClient.
-			On("SendMessage", event, "", mock.AnythingOfType("slack.MsgOption")).
-			Return("")
+		expected := url.Values{}
+		expected.Add("attachments", "[{\"actions\":[{\"name\":\"\",\"text\":\"google\",\"style\":\"default\",\"type\":\"button\",\"url\":\"https://google.com\"}],\"blocks\":null}]")
+		mocks.AssertSlackJson(t, slackClient, event, expected)
+
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
 	})

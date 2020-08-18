@@ -3,7 +3,7 @@ package custom
 import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 func (c *command) Add(match matcher.Result, event slack.MessageEvent) {

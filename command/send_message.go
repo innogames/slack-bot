@@ -5,7 +5,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 // NewSendMessageCommand is able to send a message to any user/channel

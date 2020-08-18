@@ -2,15 +2,16 @@ package jenkins
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client/jenkins"
-	"github.com/innogames/slack-bot/config"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func TestNodes(t *testing.T) {

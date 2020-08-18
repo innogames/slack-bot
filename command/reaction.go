@@ -4,7 +4,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 // NewReactionCommand simply adds a reaction to the current message...used in "macros" and other internal commands

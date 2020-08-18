@@ -5,16 +5,17 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/storage"
-	"github.com/innogames/slack-bot/bot/tester"
-	"github.com/innogames/slack-bot/config"
-	"github.com/nlopes/slack"
-	"github.com/sirupsen/logrus"
 	"io"
 	"os"
 	"strings"
+
+	"github.com/gookit/color"
+	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/storage"
+	"github.com/innogames/slack-bot/bot/tester"
+	"github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
 )
 
 // starts a interactive shell to communicate with a fake slack server and execute real commands
@@ -28,7 +29,7 @@ func startCli(input io.Reader, output io.Writer, kill chan os.Signal) {
 	var logger *logrus.Logger
 	var verbose bool
 
-	color.Output = output
+	color.SetOutput(output)
 
 	flag.BoolVar(&verbose, "v", false, "-v to use verbose logging")
 	flag.Parse()
@@ -41,8 +42,7 @@ func startCli(input io.Reader, output io.Writer, kill chan os.Signal) {
 		logger = tester.GetNullLogger()
 	}
 
-	storage.InitStorage("./storage_cli")
-	defer storage.DeleteAll()
+	storage.InitStorage("")
 
 	fakeSlack := tester.StartFakeSlack(&cfg)
 	defer fakeSlack.Stop()
@@ -65,7 +65,7 @@ func startCli(input io.Reader, output io.Writer, kill chan os.Signal) {
 			if message.Type == "typing" {
 				continue
 			}
-			color.Yellow("<<<< %s\n", message.Text)
+			color.Yellow.Printf("\n<<<< %s\n", message.Text)
 		}
 	}()
 
@@ -76,7 +76,7 @@ func startCli(input io.Reader, output io.Writer, kill chan os.Signal) {
 			continue
 		}
 
-		color.Blue(">>>> %s", strings.TrimSuffix(text, "\n"))
+		color.Blue.Printf(">>>> %s", strings.TrimSuffix(text, "\n"))
 
 		fakeSlack.SendMessageToBot(tester.TestChannel, text)
 	}

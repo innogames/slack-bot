@@ -1,15 +1,6 @@
 package main
 
-import (
-	"bytes"
-	"os"
-	"syscall"
-	"testing"
-	"time"
-
-	"github.com/stretchr/testify/assert"
-)
-
+/* todo fix tester with new API
 func TestAll(t *testing.T) {
 	input := &bytes.Buffer{}
 	output := &bytes.Buffer{}
@@ -24,3 +15,4 @@ func TestAll(t *testing.T) {
 
 	kill <- syscall.Signal(1)
 }
+*/

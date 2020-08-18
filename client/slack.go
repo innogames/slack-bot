@@ -1,11 +1,16 @@
 package client
 
+//go:generate $GOPATH/bin/mockery -output ../mocks -name SlackClient
+
 import (
+	"fmt"
 	"strings"
 
-	"github.com/innogames/slack-bot/config"
-	"github.com/nlopes/slack"
+	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/storage"
+	"github.com/innogames/slack-bot/bot/util"
 	"github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
 )
 
 // InternalMessages is internal queue of internal messages
@@ -36,7 +41,7 @@ func GetSlackClient(cfg config.Slack, logger *logrus.Logger) *Slack {
 
 type SlackClient interface {
 	// Reply a message to the current channel/user/thread
-	Reply(event slack.MessageEvent, text string)
+	Reply(event slack.MessageEvent, text string, options ...slack.MsgOption)
 
 	// ReplyError Replies a error to the current channel/user/thread + log it!
 	ReplyError(event slack.MessageEvent, err error)
@@ -48,6 +53,7 @@ type SlackClient interface {
 
 	RemoveReaction(name string, item slack.ItemRef)
 	AddReaction(name string, item slack.ItemRef)
+	GetReactions(item slack.ItemRef, params slack.GetReactionsParameters) ([]slack.ItemReaction, error)
 }
 
 type Slack struct {
@@ -57,10 +63,10 @@ type Slack struct {
 }
 
 // Reply fast reply via RTM websocket
-func (s Slack) Reply(event slack.MessageEvent, text string) {
+func (s Slack) Reply(event slack.MessageEvent, text string, options ...slack.MsgOption) {
 	// slow http POST fallback in case of huge message which is not sendable via websocket
-	if len(text) >= slack.MaxMessageTextLength {
-		s.SendMessage(event, text)
+	if len(text) >= slack.MaxMessageTextLength || len(options) > 0 {
+		s.SendMessage(event, text, options...)
 		return
 	}
 
@@ -114,6 +120,17 @@ func (s Slack) SendMessage(event slack.MessageEvent, text string, options ...sla
 func (s Slack) ReplyError(event slack.MessageEvent, err error) {
 	s.logger.WithError(err).Warnf("Error while sending reply")
 	s.Reply(event, err.Error())
+
+	if s.config.ErrorChannel != "" {
+		text := fmt.Sprintf(
+			"<@%s> Error in command `%s`: %s",
+			event.User,
+			event.Msg.Text,
+			err.Error(),
+		)
+		event.Channel, _ = GetChannel(s.config.ErrorChannel)
+		s.SendMessage(event, text)
+	}
 }
 
 // SendToUser sends a message to any user via IM channel
@@ -121,13 +138,17 @@ func (s Slack) SendToUser(user string, text string) string {
 	// check if a real username was passed -> we need the user-id here
 	user, _ = GetUser(user)
 
-	_, _, channel, err := s.Client.OpenIMChannel(user)
+	options := &slack.OpenConversationParameters{
+		Users: []string{user},
+	}
+
+	channel, _, _, err := s.Client.OpenConversation(options)
 	if err != nil {
 		s.logger.WithError(err).Errorf("Cannot open channel")
 	}
 
 	event := slack.MessageEvent{}
-	event.Channel = channel
+	event.Channel = channel.ID
 
 	return s.SendMessage(event, text)
 }
@@ -178,4 +199,22 @@ func GetSlackLink(name string, url string, args ...string) slack.AttachmentActio
 	action.URL = url
 
 	return action
+}
+
+func GetInteraction(event slack.MessageEvent, text string, command string, args ...string) *slack.ActionBlock {
+	var style slack.Style
+	if len(args) > 0 {
+		style = slack.Style(args[0])
+	}
+
+	id := util.RandString(32)
+
+	event.Text = command
+	storage.Write("interactions", id, event)
+
+	buttonText := slack.NewTextBlockObject("plain_text", text, true, false)
+	button := slack.NewButtonBlockElement("id", id, buttonText)
+	button.Style = style
+
+	return slack.NewActionBlock("", button)
 }

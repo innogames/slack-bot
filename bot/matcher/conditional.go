@@ -2,7 +2,7 @@ package matcher
 
 import (
 	"github.com/innogames/slack-bot/bot/util"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 )
 
 func NewConditionalMatcher(run conditionalRunner) Matcher {

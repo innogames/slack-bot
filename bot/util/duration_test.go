@@ -20,15 +20,16 @@ var parserTestCases = []struct {
 func TestParseDuration(t *testing.T) {
 	t.Run("ParseDuration", func(t *testing.T) {
 		for _, testCase := range parserTestCases {
-			native, _ := time.ParseDuration(testCase.normal)
-
-			actualFull, err := ParseDuration(testCase.normal)
-			assert.Nil(t, err)
-			actualShort, _ := ParseDuration(testCase.normal)
+			native, err := time.ParseDuration(testCase.normal)
 			assert.Nil(t, err)
 
-			assert.Equal(t, native, actualFull)
-			assert.Equal(t, native, actualShort)
+			actualFull, err := ParseDuration(testCase.long)
+			assert.Nil(t, err)
+			actualShort, err := ParseDuration(testCase.normal)
+			assert.Nil(t, err)
+
+			assert.Equal(t, native.String(), actualFull.String())
+			assert.Equal(t, native.String(), actualShort.String())
 		}
 	})
 }
@@ -41,6 +42,7 @@ var formatterTestCases = []struct {
 	{time.Hour * 10, "10h0m0s"},
 	{time.Hour*10 + time.Second*12, "10h0m12s"},
 	{time.Hour*10 + time.Second*12 + 11*time.Millisecond, "10h0m12s"},
+	{time.Hour*2 + time.Minute*5 + 25*time.Second, "2h5m25s"},
 }
 
 func TestFormatDuration(t *testing.T) {

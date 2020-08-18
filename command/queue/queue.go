@@ -1,10 +1,10 @@
 package queue
 
 import (
-	"encoding/json"
 	"github.com/innogames/slack-bot/bot/storage"
+	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"github.com/sirupsen/logrus"
 	"sync"
 )
@@ -31,7 +31,7 @@ func AddRunningCommand(event slack.MessageEvent, fallbackCommand string) chan bo
 	if fallbackCommand != "" {
 		event.Text = fallbackCommand
 
-		queueKey = getKey(event)
+		queueKey = event.Timestamp + "-" + util.GetFullEventKey(event)
 		storage.Write(storageKey, queueKey, event)
 	}
 
@@ -70,13 +70,11 @@ func IsBlocked(event slack.MessageEvent) bool {
 }
 
 func executeFallbackCommand(logger *logrus.Logger) {
-	// todo check null
-	res, _ := storage.ReadAll(storageKey)
-	storage.Delete(storageKey, "")
+	keys, _ := storage.GetKeys(storageKey)
 
 	var event slack.MessageEvent
-	for _, eventString := range res {
-		if err := json.Unmarshal([]byte(eventString), &event); err != nil {
+	for _, key := range keys {
+		if err := storage.Read(storageKey, key, &event); err != nil {
 			logger.Errorf("[Queue] Not unmarshalable: %s", err)
 			continue
 		}
@@ -84,6 +82,7 @@ func executeFallbackCommand(logger *logrus.Logger) {
 		logger.Infof("[Queue] Booted! I'll trigger this command now: `%s`", event.Text)
 		client.InternalMessages <- event
 	}
+	storage.Delete(storageKey, "")
 }
 
 func getKey(event slack.MessageEvent) string {

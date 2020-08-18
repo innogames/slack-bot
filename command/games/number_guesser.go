@@ -5,9 +5,8 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"math/rand"
-	"time"
 )
 
 const (
@@ -28,9 +27,6 @@ type numberGuesserCommand struct {
 
 // NewNumberGuesserCommand is a very small game to guess a random number
 func NewNumberGuesserCommand(slackClient client.SlackClient) bot.Command {
-	// make sure we'trigger random enough
-	rand.Seed(time.Now().UnixNano())
-
 	return &numberGuesserCommand{slackClient, runningGames{}}
 }
 

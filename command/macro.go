@@ -3,11 +3,11 @@ package command
 import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
-	"github.com/innogames/slack-bot/config"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"github.com/sirupsen/logrus"
 	"regexp"
 	"strings"
@@ -56,7 +56,7 @@ func (c *macroCommand) Execute(event slack.MessageEvent) bool {
 
 		// extract the parameters from regexp
 		params := util.RegexpResultToParams(macro.re, match)
-		params["sender"] = event.User
+		params["userId"] = event.User
 
 		for _, commandText := range macro.config.Commands {
 			command, err := util.CompileTemplate(commandText)

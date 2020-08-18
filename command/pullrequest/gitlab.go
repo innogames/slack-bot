@@ -2,11 +2,10 @@ package pullrequest
 
 import (
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
-	"github.com/innogames/slack-bot/config"
 	"github.com/xanzy/go-gitlab"
-	"net/http"
 	"regexp"
 	"text/template"
 )
@@ -20,8 +19,8 @@ func newGitlabCommand(slackClient client.SlackClient, cfg config.Config) bot.Com
 		return nil
 	}
 
-	client := gitlab.NewClient(&http.Client{}, cfg.Gitlab.AccessToken)
-	err := client.SetBaseURL(cfg.Gitlab.Host + "/api/v4")
+	options := gitlab.WithBaseURL(cfg.Gitlab.Host)
+	client, err := gitlab.NewClient(cfg.Gitlab.AccessToken, options)
 	if err != nil {
 		return nil
 	}

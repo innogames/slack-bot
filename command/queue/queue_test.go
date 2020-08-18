@@ -2,26 +2,22 @@ package queue
 
 import (
 	"fmt"
+	"strconv"
+	"testing"
+	"time"
+
 	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"strconv"
-	"strings"
-	"testing"
-	"time"
 )
 
 func TestQueue(t *testing.T) {
 	client.InternalMessages = make(chan slack.MessageEvent, 2)
 	slackClient := &mocks.SlackClient{}
-
-	after := storage.MockStorage()
-	defer after()
 
 	event := slack.MessageEvent{}
 	event.User = "testUser1"
@@ -84,9 +80,30 @@ func TestQueue(t *testing.T) {
 
 		// list queue
 		event.Text = "list queue"
-		slackClient.On("Reply", event, mock.MatchedBy(func(input string) bool {
-			return strings.HasPrefix(input, "1 queued commands")
-		}))
+		slackClient.On("SendMessage", event, "1 queued commands", mock.Anything).Return("")
+
+		slackClient.On("GetReactions", msgRef, slack.NewGetReactionsParameters()).Return(
+			[]slack.ItemReaction{
+				{Name: "test"},
+				{Name: "foo"},
+			},
+			nil,
+		)
+		actual = command.Run(event)
+		assert.Equal(t, true, actual)
+
+		// list queue for current channel
+		event.Text = "list queue in channel"
+		slackClient.On("SendMessage", event, "1 queued commands", mock.Anything).Return("")
+
+		actual = command.Run(event)
+		assert.Equal(t, true, actual)
+
+		// list queue for other channel
+		event.Text = "list queue in channel"
+		event.Channel = "C1212121"
+		slackClient.On("SendMessage", event, "0 queued commands", mock.Anything).Return("")
+
 		actual = command.Run(event)
 		assert.Equal(t, true, actual)
 

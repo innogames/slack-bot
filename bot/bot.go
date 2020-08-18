@@ -2,20 +2,25 @@ package bot
 
 import (
 	"os"
+	"regexp"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/interaction"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
-	"github.com/innogames/slack-bot/config"
-	"github.com/nlopes/slack"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
 )
 
 // TypeInternal is only used internally to identify internal slack messages.
 // @deprecated do not use it anymore
 const TypeInternal = "internal"
+
+var linkRegexp = regexp.MustCompile("<[^\\s]+?\\|(.*?)>")
 
 // Handler is the main bot interface
 type Handler interface {
@@ -30,6 +35,7 @@ func NewBot(cfg config.Config, slackClient *client.Slack, logger *log.Logger, co
 		logger:       logger,
 		commands:     commands,
 		allowedUsers: map[string]string{},
+		userLocks:    map[string]*sync.Mutex{},
 	}
 }
 
@@ -40,6 +46,8 @@ type bot struct {
 	auth         *slack.AuthTestResponse
 	commands     *Commands
 	allowedUsers map[string]string
+	server       *interaction.Server
+	userLocks    map[string]*sync.Mutex
 }
 
 // Init establishes the slack connection and load allowed users
@@ -56,13 +64,9 @@ func (b *bot) Init() (err error) {
 
 	go b.slackClient.ManageConnection()
 
-	channels, err := b.slackClient.GetChannels(true)
+	err = b.loadChannels()
 	if err != nil {
 		return errors.Wrap(err, "error while fetching public channels")
-	}
-	client.Channels = make(map[string]string, len(channels))
-	for _, channel := range channels {
-		client.Channels[channel.ID] = channel.Name
 	}
 
 	err = b.loadSlackData()
@@ -81,6 +85,11 @@ func (b *bot) Init() (err error) {
 		b.logger.Infof("Auto joined channels: %s", strings.Join(b.config.Slack.AutoJoinChannels, ", "))
 	}
 
+	if b.config.Server.IsEnabled() {
+		b.server = interaction.NewServer(b.config.Server, b.logger, b.slackClient, b.allowedUsers)
+		go b.server.StartServer()
+	}
+
 	b.logger.Infof("Loaded %d allowed users and %d channels", len(b.allowedUsers), len(client.Channels))
 	b.logger.Infof("bot user: %s with ID: %s", b.auth.User, b.auth.UserID)
 	b.logger.Infof("Initialized %d commands", b.commands.Count())
@@ -88,8 +97,40 @@ func (b *bot) Init() (err error) {
 	return nil
 }
 
+func (b *bot) loadChannels() error {
+	var err error
+	var cursor string
+	var chunkedChannels []slack.Channel
+
+	client.Channels = make(map[string]string)
+
+	for err == nil {
+		options := &slack.GetConversationsParameters{
+			Limit:  1,
+			Cursor: cursor,
+		}
+
+		chunkedChannels, cursor, err = b.slackClient.GetConversations(options)
+		if err != nil {
+			return err
+		}
+		for _, channel := range chunkedChannels {
+			client.Channels[channel.ID] = channel.Name
+		}
+		if cursor == "" {
+			break
+		}
+	}
+
+	return nil
+}
+
 // Disconnect will do a clean shutdown and kills all connections
 func (b *bot) Disconnect() error {
+	if b.server != nil {
+		b.server.Stop()
+	}
+
 	return b.slackClient.Disconnect()
 }
 
@@ -99,7 +140,7 @@ func (b *bot) loadSlackData() error {
 	for _, groupName := range b.config.Slack.AllowedGroups {
 		group, err := b.slackClient.GetUserGroupMembers(groupName)
 		if err != nil {
-			return errors.Wrap(err, "error fetching user of group")
+			return errors.Wrap(err, "error fetching user of group. You need a user token with 'usergroups:read' scope permission")
 		}
 		b.config.AllowedUsers = append(b.config.AllowedUsers, group...)
 	}
@@ -110,12 +151,6 @@ func (b *bot) loadSlackData() error {
 		return errors.Wrap(err, "error fetching users")
 	}
 	for _, user := range allUsers {
-		// deprecated: whitelist by title
-		if b.config.Slack.Team != "" && strings.Contains(user.Profile.Title, b.config.Slack.Team) {
-			b.allowedUsers[user.ID] = user.Name
-			continue
-		}
-
 		for _, allowedUserName := range b.config.AllowedUsers {
 			if allowedUserName == user.Name || allowedUserName == user.ID {
 				b.allowedUsers[user.ID] = user.Name
@@ -140,7 +175,7 @@ func (b bot) HandleMessages(kill chan os.Signal) {
 				if b.shouldHandleMessage(message) {
 					go b.handleMessage(*message)
 				}
-			case slack.RTMError:
+			case *slack.RTMError, *slack.UnmarshallingErrorEvent, *slack.RateLimitEvent, *slack.ConnectionErrorEvent:
 				b.logger.Error(msg)
 			case *slack.LatencyReport:
 				b.logger.Debugf("Current latency: %v\n", message.Value)
@@ -149,7 +184,7 @@ func (b bot) HandleMessages(kill chan os.Signal) {
 			// e.g. triggered by "delay" or "macro" command. They are still executed in original event context
 			// -> will post in same channel as the user posted the original command
 			msg.SubType = TypeInternal
-			b.handleMessage(msg)
+			go b.handleMessage(msg)
 		case <-kill:
 			b.Disconnect()
 			b.logger.Warnf("Shutdown!")
@@ -189,6 +224,12 @@ func (b bot) trimMessage(msg string) string {
 // handleMessage process the incoming message and respond appropriately
 func (b bot) handleMessage(event slack.MessageEvent) {
 	event.Text = b.trimMessage(event.Text)
+
+	// remove links from incoming messages. for internal ones they might be wanted, as they contain valid links with texts
+	if event.SubType != TypeInternal {
+		event.Text = linkRegexp.ReplaceAllString(event.Text, "$1")
+	}
+
 	if event.Text == "" {
 		return
 	}
@@ -199,9 +240,12 @@ func (b bot) handleMessage(event slack.MessageEvent) {
 	// send "bot is typing" command
 	b.slackClient.RTM.SendMessage(b.slackClient.NewTypingMessage(event.Channel))
 
+	lock := b.getUserLock(event.User)
+	defer lock.Unlock()
+
 	_, existing := b.allowedUsers[event.User]
 	if !existing && event.SubType != TypeInternal && b.config.Slack.TestEndpointUrl == "" {
-		logger.Errorf("user %s is not allowed to execute message: %s", event.User, event.Text)
+		logger.Errorf("user %s is not allowed to execute message (missing in 'allowed_users' section): %s", event.User, event.Text)
 		b.slackClient.Reply(event, "Sorry, you are not whitelisted yet. Please ask the slack-bot admin to get access.")
 		return
 	}

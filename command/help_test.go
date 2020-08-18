@@ -4,10 +4,9 @@ import (
 	"testing"
 
 	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/storage"
-	"github.com/innogames/slack-bot/config"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/nlopes/slack"
+	"github.com/slack-go/slack"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,9 +17,6 @@ func TestHelp(t *testing.T) {
 	cfg.Jenkins.Host = "bitbucket.example.com"
 	logger := logrus.New()
 	slackClient := &mocks.SlackClient{}
-
-	after := storage.MockStorage()
-	defer after()
 
 	commands := GetCommands(slackClient, cfg, logger)
 
