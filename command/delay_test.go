@@ -31,7 +31,7 @@ func TestDelay(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = "delay h1 my command"
 
-		slackClient.On("Reply", event, "Invalid duration: time: invalid duration h1")
+		slackClient.On("Reply", event, "Invalid duration: time: invalid duration \"h1\"")
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
 		assert.Empty(t, client.InternalMessages)

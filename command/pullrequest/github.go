@@ -71,6 +71,7 @@ func (c *githubFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 	pr = pullRequest{
 		name:     rawPullRequest.GetTitle(),
 		merged:   rawPullRequest.GetMerged(),
+		closed:   *rawPullRequest.State == "closed",
 		declined: false,
 		approved: approved,
 		inReview: inReview,
