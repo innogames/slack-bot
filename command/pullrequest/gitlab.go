@@ -7,6 +7,7 @@ import (
 	"github.com/innogames/slack-bot/client"
 	"github.com/xanzy/go-gitlab"
 	"regexp"
+	"strings"
 	"text/template"
 )
 
@@ -35,9 +36,12 @@ func newGitlabCommand(slackClient client.SlackClient, cfg config.Config) bot.Com
 func (c *gitlabFetcher) getPullRequest(match matcher.Result) (pullRequest, error) {
 	var pr pullRequest
 
+	repo := match.GetString("repo")
+	repo = strings.TrimSuffix(repo, "/-")
+
 	prNumber := match.GetInt("number")
 	rawPullRequest, _, err := c.client.MergeRequests.GetMergeRequest(
-		match.GetString("repo"),
+		repo,
 		prNumber,
 		&gitlab.GetMergeRequestsOptions{},
 	)
