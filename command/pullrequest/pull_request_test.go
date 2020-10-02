@@ -5,8 +5,8 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/slack-go/slack"
 	"github.com/pkg/errors"
+	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -37,16 +37,9 @@ func TestGetCommands(t *testing.T) {
 func TestPullRequest(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 
-	fetcher := &testFetcher{}
-	commands := bot.Commands{}
-	cmd := &command{
-		slackClient,
-		fetcher,
-		".*/projects/(?P<project>.+)/repos/(?P<repo>.+)/pull-requests/(?P<number>\\d+).*",
-	}
-	commands.AddCommand(cmd)
-
 	t.Run("invalid command", func(t *testing.T) {
+		commands, _ := initTest(slackClient)
+
 		event := slack.MessageEvent{}
 		event.Text = "quatsch"
 
@@ -55,6 +48,8 @@ func TestPullRequest(t *testing.T) {
 	})
 
 	t.Run("PR not found", func(t *testing.T) {
+		commands, fetcher := initTest(slackClient)
+
 		event := slack.MessageEvent{}
 		fetcher.err = errors.New("PR not found")
 		event.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
@@ -66,6 +61,8 @@ func TestPullRequest(t *testing.T) {
 	})
 
 	t.Run("PR got merged", func(t *testing.T) {
+		commands, fetcher := initTest(slackClient)
+
 		event := slack.MessageEvent{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
@@ -85,6 +82,8 @@ func TestPullRequest(t *testing.T) {
 	})
 
 	t.Run("PR got declined", func(t *testing.T) {
+		commands, fetcher := initTest(slackClient)
+
 		event := slack.MessageEvent{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
@@ -105,6 +104,8 @@ func TestPullRequest(t *testing.T) {
 	})
 
 	t.Run("PR got approved", func(t *testing.T) {
+		commands, fetcher := initTest(slackClient)
+
 		event := slack.MessageEvent{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
@@ -125,6 +126,8 @@ func TestPullRequest(t *testing.T) {
 	})
 
 	t.Run("PR in reiew", func(t *testing.T) {
+		commands, fetcher := initTest(slackClient)
+
 		event := slack.MessageEvent{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
@@ -141,4 +144,18 @@ func TestPullRequest(t *testing.T) {
 		assert.Equal(t, true, actual)
 		time.Sleep(time.Millisecond * 10) // todo channel
 	})
+}
+
+// creates a fresh instance of Commands a clean Fetcher to avoid racing conditions
+func initTest(slackClient *mocks.SlackClient) (bot.Commands, *testFetcher) {
+	fetcher := &testFetcher{}
+	commands := bot.Commands{}
+	cmd := &command{
+		slackClient,
+		fetcher,
+		".*/projects/(?P<project>.+)/repos/(?P<repo>.+)/pull-requests/(?P<number>\\d+).*",
+	}
+	commands.AddCommand(cmd)
+
+	return commands, fetcher
 }

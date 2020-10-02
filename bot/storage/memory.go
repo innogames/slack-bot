@@ -11,16 +11,16 @@ type memoryCollection map[string][]byte
 func newMemoryStorage() storage {
 	return &memoryStorage{
 		storage: make(map[string]memoryCollection),
-		mutex:   sync.Mutex{},
+		mutex:   sync.RWMutex{},
 	}
 }
 
 type memoryStorage struct {
 	storage map[string]memoryCollection
-	mutex   sync.Mutex
+	mutex   sync.RWMutex
 }
 
-func (s memoryStorage) Write(collection, key string, v interface{}) error {
+func (s *memoryStorage) Write(collection, key string, v interface{}) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -38,9 +38,9 @@ func (s memoryStorage) Write(collection, key string, v interface{}) error {
 	return nil
 }
 
-func (s memoryStorage) Read(collection, key string, v interface{}) error {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
+func (s *memoryStorage) Read(collection, key string, v interface{}) error {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
 	if _, ok := s.storage[collection]; !ok {
 		return fmt.Errorf("collection is empty")
@@ -53,9 +53,9 @@ func (s memoryStorage) Read(collection, key string, v interface{}) error {
 	return json.Unmarshal(s.storage[collection][key], v)
 }
 
-func (s memoryStorage) GetKeys(collection string) ([]string, error) {
-	s.mutex.Lock()
-	defer s.mutex.Unlock()
+func (s *memoryStorage) GetKeys(collection string) ([]string, error) {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
 
 	if len(s.storage[collection]) == 0 {
 		return nil, fmt.Errorf("collection is empty")
@@ -70,7 +70,7 @@ func (s memoryStorage) GetKeys(collection string) ([]string, error) {
 	return keys, nil
 }
 
-func (s memoryStorage) Delete(collection, key string) error {
+func (s *memoryStorage) Delete(collection, key string) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 

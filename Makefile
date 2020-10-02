@@ -20,7 +20,7 @@ docker-build:
 	docker build . --force-rm -t brainexe/slack-bot:latest
 
 test:
-	go test ./...
+	go test ./... -race
 
 test-bench:
 	go test -bench . ./... -benchmem
