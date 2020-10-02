@@ -5,8 +5,8 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
-	"github.com/slack-go/slack"
 	"github.com/pkg/errors"
+	"github.com/slack-go/slack"
 	"net"
 	"time"
 )

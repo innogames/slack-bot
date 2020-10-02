@@ -4,7 +4,10 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/slack-go/slack"
+	"sync"
 )
+
+var lock sync.Mutex
 
 // Command is the main command struct which needs to provide the matcher and the actual executed action
 type Command interface {
@@ -96,6 +99,10 @@ func (c *Commands) Count() int {
 }
 
 func (c *Commands) compile() {
+	// make sure only one process is creating the compiled list
+	lock.Lock()
+	defer lock.Unlock()
+
 	if !c.compiled {
 		c.matcher = make([]matcher.Matcher, len(c.commands))
 		for i, command := range c.commands {
