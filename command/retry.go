@@ -60,9 +60,9 @@ func (c *retryCommand) Execute(event slack.MessageEvent) bool {
 func (c *retryCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			"repeat",
-			"repeat the last executed command",
-			[]string{
+			Command:     "repeat",
+			Description: "repeat the last executed command",
+			Examples: []string{
 				"retry",
 				"repeat",
 			},

@@ -64,9 +64,9 @@ func (c *nodesCommand) Run(match matcher.Result, event slack.MessageEvent) {
 func (c *nodesCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			"jenkins nodes",
-			"Prints a list of all jenkins nodes",
-			[]string{
+			Command:     "jenkins nodes",
+			Description: "Prints a list of all jenkins nodes",
+			Examples: []string{
 				"jenkins nodes",
 			},
 		},

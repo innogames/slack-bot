@@ -45,9 +45,9 @@ func (c *sendMessageCommand) SendMessage(match matcher.Result, event slack.Messa
 func (c *sendMessageCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			"send message",
-			"sends a message to given user/channel",
-			[]string{
+			Command:     "send message",
+			Description: "sends a message to given user/channel",
+			Examples: []string{
 				"send message #dev-backend PANIC MODE!!!",
 				"send message to @username please take a look in #general",
 			},

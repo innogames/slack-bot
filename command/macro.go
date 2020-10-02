@@ -7,8 +7,8 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 	"github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
 	"regexp"
 	"strings"
 )

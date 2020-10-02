@@ -82,9 +82,9 @@ func (c *watchCommand) watchTicket(event slack.MessageEvent, issue *jira.Issue) 
 func (c *watchCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			"watch jira",
-			"inform you about changes jira states",
-			[]string{
+			Command:     "watch jira",
+			Description: "inform you about changes jira states",
+			Examples: []string{
 				"watch ticket PROJECT-1234",
 			},
 		},

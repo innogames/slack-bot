@@ -74,9 +74,9 @@ func (c *bitbucketFetcher) GetTemplateFunction() template.FuncMap {
 func (c *bitbucketFetcher) getHelp() []bot.Help {
 	return []bot.Help{
 		{
-			"bitbucket pull request",
-			"tracks the state of bitbucket/stash pull requests",
-			[]string{
+			Command:     "bitbucket pull request",
+			Description: "tracks the state of bitbucket/stash pull requests",
+			Examples: []string{
 				"https://bitbucket.example.com/home-assistant/home-assistant/pull-requests/13958",
 			},
 		},

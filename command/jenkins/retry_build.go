@@ -7,8 +7,8 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
-	"github.com/slack-go/slack"
 	"github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
 )
 
 type retryCommand struct {

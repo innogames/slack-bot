@@ -5,8 +5,8 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 	"github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
 
 	cronLib "github.com/robfig/cron/v3"
 )

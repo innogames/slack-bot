@@ -61,9 +61,9 @@ func (c *commentCommand) AddComment(match matcher.Result, event slack.MessageEve
 func (c *commentCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			"comment jira ticket",
-			"adds a comment to a jira ticket",
-			[]string{
+			Command:     "comment jira ticket",
+			Description: "adds a comment to a jira ticket",
+			Examples: []string{
 				"comment ticket PROJECT-1234 Please check it on test server, I fixed it!",
 			},
 		},

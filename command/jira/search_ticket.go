@@ -237,9 +237,9 @@ func (c *jiraCommand) jqlList(event slack.MessageEvent, jql string) {
 func (c *jiraCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			"jira",
-			"list jira ticket information or performs jira searches. It uses the configured jira project by default to display/search tickets",
-			[]string{
+			Command:     "jira",
+			Description: "list jira ticket information or performs jira searches. It uses the configured jira project by default to display/search tickets",
+			Examples: []string{
 				"jql status=\"In Progress\"",
 				"issue 43234",
 				"issue PROJ-23123",

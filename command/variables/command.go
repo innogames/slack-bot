@@ -26,9 +26,8 @@ func (c *command) GetMatcher() matcher.Matcher {
 func (c *command) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			"custom variables",
-			"",
-			[]string{},
+			Command:  "custom variables",
+			Examples: []string{},
 		},
 	}
 }

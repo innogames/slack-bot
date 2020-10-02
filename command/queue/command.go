@@ -5,8 +5,8 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 	"github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
 	"time"
 )
 
@@ -74,9 +74,9 @@ func (c *command) Run(match matcher.Result, event slack.MessageEvent) {
 func (c *command) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			"queue",
-			"queue a queuedCommand which is executed when the current task is done",
-			[]string{
+			Command:     "queue",
+			Description: "queue a queuedCommand which is executed when the current task is done",
+			Examples: []string{
 				"queue reply My job is ready",
 				"queue trigger job Deploy master",
 				"then trigger job IntegrationTest",

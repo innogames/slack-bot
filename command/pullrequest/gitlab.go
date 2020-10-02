@@ -74,9 +74,9 @@ func (c *gitlabFetcher) GetTemplateFunction() template.FuncMap {
 func (c *gitlabFetcher) getHelp() []bot.Help {
 	return []bot.Help{
 		{
-			"gitlab pull request",
-			"tracks the state of gitlab pull requests",
-			[]string{
+			Command:     "gitlab pull request",
+			Description: "tracks the state of gitlab pull requests",
+			Examples: []string{
 				"https://gitlab.example.com/home-assistant/home-assistant/merge_requests/13958",
 			},
 		},

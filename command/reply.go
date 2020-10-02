@@ -45,16 +45,16 @@ func (c *replyCommand) CommentInNewThread(match matcher.Result, event slack.Mess
 func (c *replyCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			"reply",
-			"just reply the given message",
-			[]string{
+			Command:     "reply",
+			Description: "just reply the given message",
+			Examples: []string{
 				"reply Hello, how are you?",
 			},
 		},
 		{
-			"comment",
-			"comment the message in a new thread on this message",
-			[]string{
+			Command:     "comment",
+			Description: "comment the message in a new thread on this message",
+			Examples: []string{
 				"comment Hello, how are you?",
 			},
 		},

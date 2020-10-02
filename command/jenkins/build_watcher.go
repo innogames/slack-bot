@@ -108,18 +108,18 @@ func getBuild(job jenkins.Job, buildNumber int) (*gojenkins.Build, error) {
 func (c *buildWatcherCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			"notify build",
-			"inform you when a running jenkins build finishes",
-			[]string{
+			Command:     "notify build",
+			Description: "inform you when a running jenkins build finishes",
+			Examples: []string{
 				"inform me about build AtcBrowser #1233",
 				"inform me about build AtcMobile",
 				"notify build AtcMobile",
 			},
 		},
 		{
-			"inform job",
-			"inform you when a running jenkins build finishes",
-			[]string{
+			Command:     "inform job",
+			Description: "inform you when a running jenkins build finishes",
+			Examples: []string{
 				"inform me about build AtcBrowser #1233",
 				"inform me about build AtcMobile",
 				"notify build AtcMobile",

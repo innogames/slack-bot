@@ -6,8 +6,8 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
-	"github.com/slack-go/slack"
 	"github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
 )
 
 const (
@@ -77,9 +77,9 @@ func (c *watcherCommand) Run(match matcher.Result, event slack.MessageEvent) {
 func (c *watcherCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			"watch job",
-			"watch jenkins jobs and informs about successful/error jobs",
-			[]string{
+			Command:     "watch job",
+			Description: "watch jenkins jobs and informs about successful/error jobs",
+			Examples: []string{
 				"watch MyJobName",
 				"unwatch MyJobName",
 			},

@@ -95,9 +95,9 @@ func (c *githubFetcher) GetTemplateFunction() template.FuncMap {
 func (c *githubFetcher) getHelp() []bot.Help {
 	return []bot.Help{
 		{
-			"github pull request",
-			"tracks the state of github pull requests",
-			[]string{
+			Command:     "github pull request",
+			Description: "tracks the state of github pull requests",
+			Examples: []string{
 				"https://github.com/home-assistant/home-assistant/pull/13958",
 			},
 		},

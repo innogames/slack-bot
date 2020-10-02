@@ -85,16 +85,16 @@ func (c *statusCommand) GetTemplateFunction() template.FuncMap {
 func (c *statusCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			"enable job",
-			"enabled a jenkins job",
-			[]string{
+			Command:     "enable job",
+			Description: "enabled a jenkins job",
+			Examples: []string{
 				"enable job MyJobName",
 			},
 		},
 		{
-			"disable job",
-			"disable a jenkins job",
-			[]string{
+			Command:     "disable job",
+			Description: "disable a jenkins job",
+			Examples: []string{
 				"disable job MyJobName",
 			},
 		},
