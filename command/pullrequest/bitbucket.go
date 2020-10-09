@@ -1,7 +1,6 @@
 package pullrequest
 
 import (
-	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
@@ -42,9 +41,6 @@ func (c *bitbucketFetcher) getPullRequest(match matcher.Result) (pullRequest, er
 	if err != nil {
 		return pr, err
 	}
-
-	fmt.Println(rawPullRequest)
-	fmt.Println(rawPullRequest.State)
 
 	approvers := make([]string, 0)
 	for _, reviewer := range rawPullRequest.Reviewers {

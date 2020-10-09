@@ -159,7 +159,6 @@ func (c *command) removeReaction(currentReactions map[string]bool, icon string, 
 
 	delete(currentReactions, icon)
 	c.slackClient.RemoveReaction(icon, msgRef)
-	fmt.Println("remove " + icon)
 }
 
 func (c *command) addReaction(currentReactions map[string]bool, icon string, msgRef slack.ItemRef) {
@@ -170,10 +169,9 @@ func (c *command) addReaction(currentReactions map[string]bool, icon string, msg
 
 	currentReactions[icon] = true
 	c.slackClient.AddReaction(icon, msgRef)
-
-	fmt.Println("add " + icon)
 }
 
+// generates a map of all icons for the given approvers list. If there is no special mapping, it returns the default icon
 func (c *command) getApproveIcons(approvers []string) map[string]bool {
 	icons := make(map[string]bool)
 
@@ -189,8 +187,6 @@ func (c *command) getApproveIcons(approvers []string) map[string]bool {
 		// use the default approve icon by default
 		icons[iconApproved] = true
 	}
-
-	fmt.Println(icons)
 
 	return icons
 }
