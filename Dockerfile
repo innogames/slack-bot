@@ -4,7 +4,7 @@ WORKDIR /code/
 COPY . ./
 
 RUN apk add git
-RUN go build -o /app cmd/bot/main.go
+RUN go build -ldflags="-s -w" -o /app cmd/bot/main.go
 
 FROM alpine:latest as alpine
 RUN apk add --no-cache git ca-certificates tzdata

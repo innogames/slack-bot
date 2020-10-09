@@ -1,7 +1,9 @@
 package pullrequest
 
 import (
+	"fmt"
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
@@ -37,6 +39,7 @@ type fetcher interface {
 }
 
 type command struct {
+	cfg         config.PullRequest
 	slackClient client.SlackClient
 	fetcher     fetcher
 	regexp      string
@@ -47,7 +50,7 @@ type pullRequest struct {
 	declined    bool
 	merged      bool
 	closed      bool
-	approved    bool
+	approvers   []string
 	inReview    bool
 	buildStatus buildStatus
 }
@@ -100,47 +103,96 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 			}
 		}
 		connectionErrors = 0
+		currentReactions := make(map[string]bool) // todo load current reactions
 
 		if pr.merged || pr.closed {
 			// PR got merged/closed
-			c.slackClient.RemoveReaction(iconInReview, msgRef)
-			c.slackClient.AddReaction(iconMerged, msgRef)
+			c.removeReaction(currentReactions, iconInReview, msgRef)
+			c.addReaction(currentReactions, iconMerged, msgRef)
 
 			return
 		}
 
 		if pr.declined {
 			// PR got declined
-			c.slackClient.RemoveReaction(iconInReview, msgRef)
-			c.slackClient.RemoveReaction(iconApproved, msgRef)
-			c.slackClient.AddReaction(iconDeclined, msgRef)
+			c.removeReaction(currentReactions, iconInReview, msgRef)
+			c.removeReaction(currentReactions, iconApproved, msgRef)
+			c.addReaction(currentReactions, iconDeclined, msgRef)
 
 			return
 		}
 
-		if pr.approved && !hasApproval {
-			c.slackClient.RemoveReaction(iconInReview, msgRef)
-			c.slackClient.RemoveReaction(iconDeclined, msgRef)
-			c.slackClient.AddReaction(iconApproved, msgRef)
+		if len(pr.approvers) > 0 {
+			c.removeReaction(currentReactions, iconInReview, msgRef)
+			c.removeReaction(currentReactions, iconDeclined, msgRef)
+
+			for icon := range c.getApproveIcons(pr.approvers) {
+				c.addReaction(currentReactions, icon, msgRef)
+			}
+
 			hasApproval = true
 		}
 
 		if pr.inReview && (!hasApproval && !inReview) {
-			c.slackClient.AddReaction(iconInReview, msgRef)
+			c.addReaction(currentReactions, iconInReview, msgRef)
 			inReview = true
 		}
 
 		// monitor build status
 		if pr.buildStatus == buildStatusFailed && !failedBuild {
-			c.slackClient.AddReaction(iconBuildFailed, msgRef)
+			c.addReaction(currentReactions, iconBuildFailed, msgRef)
 			failedBuild = true
 		} else if pr.buildStatus != buildStatusFailed && failedBuild {
-			c.slackClient.RemoveReaction(iconBuildFailed, msgRef)
+			c.removeReaction(currentReactions, iconBuildFailed, msgRef)
 			failedBuild = false
 		}
 
 		time.Sleep(checkInterval)
 	}
+}
+
+func (c *command) removeReaction(currentReactions map[string]bool, icon string, msgRef slack.ItemRef) {
+	if ok := currentReactions[icon]; !ok {
+		// already removed
+		return
+	}
+
+	delete(currentReactions, icon)
+	c.slackClient.RemoveReaction(icon, msgRef)
+	fmt.Println("remove " + icon)
+}
+
+func (c *command) addReaction(currentReactions map[string]bool, icon string, msgRef slack.ItemRef) {
+	if _, ok := currentReactions[icon]; ok {
+		// already added
+		return
+	}
+
+	currentReactions[icon] = true
+	c.slackClient.AddReaction(icon, msgRef)
+
+	fmt.Println("add " + icon)
+}
+
+func (c *command) getApproveIcons(approvers []string) map[string]bool {
+	icons := make(map[string]bool)
+
+	for _, approver := range approvers {
+		if icon, ok := c.cfg.CustomApproveReaction[approver]; ok {
+			icons[icon] = true
+		} else {
+			fmt.Println("not mapped approver: " + approver)
+		}
+	}
+
+	if len(icons) == 0 {
+		// use the default approve icon by default
+		icons[iconApproved] = true
+	}
+
+	fmt.Println(icons)
+
+	return icons
 }
 
 func (c *command) GetHelp() []bot.Help {

@@ -14,7 +14,6 @@ require (
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/go-test/deep v1.0.7 // indirect
 	github.com/gomodule/redigo v1.8.2 // indirect
-	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/gookit/color v1.3.1
 	github.com/hashicorp/go-hclog v0.14.1 // indirect
@@ -29,8 +28,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/sirupsen/logrus v1.6.0
-	github.com/slack-go/slack v0.6.6
+	github.com/sirupsen/logrus v1.7.0
+	github.com/slack-go/slack v0.7.0
 	github.com/stretchr/objx v0.3.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/texttheater/golang-levenshtein v1.0.1
@@ -38,13 +37,10 @@ require (
 	github.com/xanzy/go-gitlab v0.38.1
 	github.com/xoom/stash v1.3.1
 	github.com/yuin/gopher-lua v0.0.0-20200603152657-dc2b0ca8b37e // indirect
-	golang.org/x/net v0.0.0-20200927032502-5d4f70055728 // indirect
+	golang.org/x/net v0.0.0-20201009032441-dbdefad45b89 // indirect
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
-	golang.org/x/sys v0.0.0-20200926100807-9d91bd62050c // indirect
-	golang.org/x/text v0.3.3 // indirect
+	golang.org/x/sys v0.0.0-20201009025420-dfb3f7c4e634 // indirect
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
-	google.golang.org/appengine v1.6.6 // indirect
-	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/andygrunwald/go-jira.v1 v1.8.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.3.0

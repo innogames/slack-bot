@@ -27,6 +27,7 @@ func newGitlabCommand(slackClient client.SlackClient, cfg config.Config) bot.Com
 	}
 
 	return &command{
+		cfg.PullRequest,
 		slackClient,
 		&gitlabFetcher{client},
 		"(?s).*" + regexp.QuoteMeta(cfg.Gitlab.Host) + "/(?P<repo>.+/.+)/merge_requests/(?P<number>\\d+).*",
@@ -49,12 +50,17 @@ func (c *gitlabFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 		return pr, err
 	}
 
+	approvers := make([]string, 0)
+	if rawPullRequest.Upvotes > 0 {
+		approvers = append(approvers, "unknown")
+	}
+
 	pr = pullRequest{
-		name:     rawPullRequest.Title,
-		merged:   rawPullRequest.State == "merged" || rawPullRequest.State == "closed",
-		declined: false,
-		approved: rawPullRequest.Upvotes > 0,
-		inReview: false,
+		name:      rawPullRequest.Title,
+		merged:    rawPullRequest.State == "merged" || rawPullRequest.State == "closed",
+		declined:  false,
+		approvers: approvers,
+		inReview:  false,
 	}
 
 	return pr, nil

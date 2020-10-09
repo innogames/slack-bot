@@ -29,6 +29,7 @@ func newGithubCommand(slackClient client.SlackClient, cfg config.Config) bot.Com
 	githubClient := github.NewClient(client)
 
 	return &command{
+		cfg.PullRequest,
 		slackClient,
 		&githubFetcher{githubClient},
 		"(?s).*https://github.com/(?P<project>.+)/(?P<repo>.+)/pull/(?P<number>\\d+).*",
@@ -53,7 +54,7 @@ func (c *githubFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 		return pr, err
 	}
 
-	approved := false
+	approvers := make([]string, 0)
 	inReview := false
 
 	for _, review := range reviews {
@@ -64,17 +65,17 @@ func (c *githubFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 		inReview = true
 
 		if state == "APPROVED" {
-			approved = true
+			approvers = append(approvers, *review.User.Login)
 		}
 	}
 
 	pr = pullRequest{
-		name:     rawPullRequest.GetTitle(),
-		merged:   rawPullRequest.GetMerged(),
-		closed:   *rawPullRequest.State == "closed",
-		declined: false,
-		approved: approved,
-		inReview: inReview,
+		name:      rawPullRequest.GetTitle(),
+		merged:    rawPullRequest.GetMerged(),
+		closed:    *rawPullRequest.State == "closed",
+		declined:  false,
+		approvers: approvers,
+		inReview:  inReview,
 	}
 
 	return pr, nil

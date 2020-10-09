@@ -66,10 +66,10 @@ func TestPullRequest(t *testing.T) {
 		event := slack.MessageEvent{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
-			declined: false,
-			merged:   true,
-			approved: true,
-			inReview: false,
+			declined:  false,
+			merged:    true,
+			approvers: []string{"test"},
+			inReview:  false,
 		}
 		event.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
@@ -87,10 +87,10 @@ func TestPullRequest(t *testing.T) {
 		event := slack.MessageEvent{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
-			declined: true,
-			merged:   false,
-			approved: false,
-			inReview: false,
+			declined:  true,
+			merged:    false,
+			approvers: []string{},
+			inReview:  false,
 		}
 		event.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
@@ -103,16 +103,16 @@ func TestPullRequest(t *testing.T) {
 		time.Sleep(time.Millisecond * 10) // todo channel
 	})
 
-	t.Run("PR got approved", func(t *testing.T) {
+	t.Run("PR got approvers", func(t *testing.T) {
 		commands, fetcher := initTest(slackClient)
 
 		event := slack.MessageEvent{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
-			declined: false,
-			merged:   false,
-			approved: true,
-			inReview: false,
+			declined:  false,
+			merged:    false,
+			approvers: []string{"test"},
+			inReview:  false,
 		}
 		event.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
@@ -131,10 +131,10 @@ func TestPullRequest(t *testing.T) {
 		event := slack.MessageEvent{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
-			declined: false,
-			merged:   false,
-			approved: false,
-			inReview: true,
+			declined:  false,
+			merged:    false,
+			approvers: []string{},
+			inReview:  true,
 		}
 		event.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
@@ -151,6 +151,7 @@ func initTest(slackClient *mocks.SlackClient) (bot.Commands, *testFetcher) {
 	fetcher := &testFetcher{}
 	commands := bot.Commands{}
 	cmd := &command{
+		config.PullRequest{},
 		slackClient,
 		fetcher,
 		".*/projects/(?P<project>.+)/repos/(?P<repo>.+)/pull-requests/(?P<number>\\d+).*",
