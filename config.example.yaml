@@ -122,3 +122,11 @@ macros:
 #server:
 #  listen: 127.0.0.1:4390 # using local ngrok.io tunnel
 #  verification_secret: 12345678qwertzuiopasdfghj
+
+
+# able to set a custom "approved" reactions to see directly who or which component/department approved a pullrequest
+pullrequest:
+  custom_approve_reaction:
+    nerdydev: "approved_backend"
+    iamamobiledev: "approved_mobile"
+    iamamobiledev2: "approved_mobile"

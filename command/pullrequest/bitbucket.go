@@ -24,6 +24,7 @@ func newBitbucketCommand(slackClient client.SlackClient, cfg config.Config) bot.
 	bitbucketClient := stash.NewClient(cfg.Bitbucket.Username, cfg.Bitbucket.Password, host)
 
 	return &command{
+		cfg.PullRequest,
 		slackClient,
 		&bitbucketFetcher{bitbucketClient},
 		"(?s).*" + regexp.QuoteMeta(cfg.Bitbucket.Host) + "/projects/(?P<project>.+)/repos/(?P<repo>.+)/pull-requests/(?P<number>\\d+).*",
@@ -41,19 +42,19 @@ func (c *bitbucketFetcher) getPullRequest(match matcher.Result) (pullRequest, er
 		return pr, err
 	}
 
-	approved := false
+	approvers := make([]string, 0)
 	for _, reviewer := range rawPullRequest.Reviewers {
 		if reviewer.Approved {
-			approved = true
+			approvers = append(approvers, reviewer.User.Name)
 		}
 	}
 
 	pr = pullRequest{
-		name:     rawPullRequest.Title,
-		merged:   rawPullRequest.State == "MERGED",
-		declined: rawPullRequest.State == "DECLINED",
-		approved: approved,
-		inReview: len(rawPullRequest.Reviewers) > 0,
+		name:      rawPullRequest.Title,
+		merged:    rawPullRequest.State == "MERGED",
+		declined:  rawPullRequest.State == "DECLINED",
+		approvers: approvers,
+		inReview:  len(rawPullRequest.Reviewers) > 0,
 	}
 
 	return pr, nil

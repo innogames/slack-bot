@@ -30,6 +30,7 @@ type Config struct {
 	AllowedUsers []string    `yaml:"allowed_users,flow"`
 	AdminUsers   []string    `yaml:"admin_users,flow"`
 	OpenWeather  OpenWeather `yaml:"open_weather"`
+	PullRequest  PullRequest `yaml:"pullrequest"`
 	Timezone     string      `yaml:"timezone"`
 }
 
@@ -86,6 +87,12 @@ type Mqtt struct {
 
 func (c Mqtt) IsEnabled() bool {
 	return c.Host != ""
+}
+
+// PullRequest special configuration to change the pull request behavior
+type PullRequest struct {
+	// able to set a custom "approved" reactions to see directly who or which component/department approved a pullrequest
+	CustomApproveReaction map[string]string `yaml:"custom_approve_reaction"`
 }
 
 // Bitbucket credentials/options
