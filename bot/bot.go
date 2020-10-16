@@ -61,6 +61,7 @@ func (b *bot) Init() (err error) {
 	if err != nil {
 		return errors.Wrap(err, "auth error")
 	}
+	client.BotUserId = b.auth.UserID
 
 	go b.slackClient.ManageConnection()
 
@@ -172,6 +173,8 @@ func (b bot) HandleMessages(kill chan os.Signal) {
 		case msg := <-b.slackClient.IncomingEvents:
 			// message received from user
 			switch message := msg.Data.(type) {
+			case *slack.HelloEvent:
+				b.logger.Info("Hello, the RTM connection is ready!")
 			case *slack.MessageEvent:
 				if b.shouldHandleMessage(message) {
 					go b.handleMessage(*message)

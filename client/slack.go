@@ -16,6 +16,9 @@ import (
 // InternalMessages is internal queue of internal messages
 var InternalMessages = make(chan slack.MessageEvent, 100)
 
+// BotUserId is filled with the slack user id of the bot
+var BotUserId = ""
+
 // Users is a lookup from user-id to user-name
 var Users map[string]string
 

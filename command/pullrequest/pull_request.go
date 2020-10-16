@@ -1,13 +1,13 @@
 package pullrequest
 
 import (
-	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"net"
 	"time"
@@ -41,6 +41,7 @@ type fetcher interface {
 type command struct {
 	cfg         config.PullRequest
 	slackClient client.SlackClient
+	logger      *logrus.Logger
 	fetcher     fetcher
 	regexp      string
 }
@@ -73,7 +74,6 @@ func (c *command) Execute(match matcher.Result, event slack.MessageEvent) {
 func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 	msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
 
-	inReview := false
 	hasApproval := false
 	failedBuild := false
 	connectionErrors := 0
@@ -82,6 +82,8 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 	defer func() {
 		done <- true
 	}()
+
+	currentReactions := c.getOwnReactions(msgRef)
 
 	for {
 		pr, err := c.fetcher.getPullRequest(match)
@@ -101,31 +103,12 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 				c.slackClient.AddReaction(iconError, msgRef)
 				return
 			}
+			continue
 		}
 		connectionErrors = 0
-		currentReactions := make(map[string]bool) // todo load current reactions
 
-		if pr.merged || pr.closed {
-			// PR got merged/closed
-			c.removeReaction(currentReactions, iconInReview, msgRef)
-			c.addReaction(currentReactions, iconMerged, msgRef)
-
-			return
-		}
-
-		if pr.declined {
-			// PR got declined
-			c.removeReaction(currentReactions, iconInReview, msgRef)
-			c.removeReaction(currentReactions, iconApproved, msgRef)
-			c.addReaction(currentReactions, iconDeclined, msgRef)
-
-			return
-		}
-
+		// add approved reaction(s)
 		if len(pr.approvers) > 0 {
-			c.removeReaction(currentReactions, iconInReview, msgRef)
-			c.removeReaction(currentReactions, iconDeclined, msgRef)
-
 			for icon := range c.getApproveIcons(pr.approvers) {
 				c.addReaction(currentReactions, icon, msgRef)
 			}
@@ -133,9 +116,26 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 			hasApproval = true
 		}
 
-		if pr.inReview && (!hasApproval && !inReview) {
+		// add :eyes: when someone is reviewing the PR but nobody approved it yet
+		if pr.inReview && !hasApproval && !pr.merged {
 			c.addReaction(currentReactions, iconInReview, msgRef)
-			inReview = true
+		} else {
+			c.removeReaction(currentReactions, iconInReview, msgRef)
+		}
+
+		// add merged reaction
+		if pr.merged || pr.closed {
+			c.addReaction(currentReactions, iconMerged, msgRef)
+
+			return
+		}
+
+		// add declined reaction
+		if pr.declined {
+			c.removeReaction(currentReactions, iconApproved, msgRef)
+			c.addReaction(currentReactions, iconDeclined, msgRef)
+
+			return
 		}
 
 		// monitor build status
@@ -149,6 +149,23 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 
 		time.Sleep(checkInterval)
 	}
+}
+
+// get the current reactions in the given message which got created by this bot user
+func (c *command) getOwnReactions(msgRef slack.ItemRef) map[string]bool {
+	currentReactions := make(map[string]bool)
+	reactions, _ := c.slackClient.GetReactions(msgRef, slack.NewGetReactionsParameters())
+
+	for _, reaction := range reactions {
+		for _, user := range reaction.Users {
+			if user == client.BotUserId {
+				currentReactions[reaction.Name] = true
+				break
+			}
+		}
+	}
+
+	return currentReactions
 }
 
 func (c *command) removeReaction(currentReactions map[string]bool, icon string, msgRef slack.ItemRef) {
@@ -179,7 +196,7 @@ func (c *command) getApproveIcons(approvers []string) map[string]bool {
 		if icon, ok := c.cfg.CustomApproveReaction[approver]; ok {
 			icons[icon] = true
 		} else {
-			fmt.Println("not mapped approver: " + approver)
+			c.logger.Infof("not mapped approver: %s", approver)
 		}
 	}
 

@@ -6,6 +6,7 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -28,9 +29,10 @@ func (t testFetcher) getHelp() []bot.Help {
 func TestGetCommands(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	cfg := config.Config{}
+	logger := logrus.New()
 
 	// as we pass a empty config, no PR fetcher is able to register -> 0 valid commands
-	commands := GetCommands(slackClient, cfg)
+	commands := GetCommands(slackClient, cfg, logger)
 	assert.Equal(t, 0, commands.Count())
 }
 
@@ -73,7 +75,12 @@ func TestPullRequest(t *testing.T) {
 		}
 		event.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
+		msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
+		slackClient.
+			On("GetReactions", msgRef, slack.NewGetReactionsParameters()).Return(nil, nil)
+
 		slackClient.On("RemoveReaction", iconInReview, slack.NewRefToMessage(event.Channel, event.Timestamp))
+		slackClient.On("AddReaction", iconApproved, slack.NewRefToMessage(event.Channel, event.Timestamp))
 		slackClient.On("AddReaction", iconMerged, slack.NewRefToMessage(event.Channel, event.Timestamp))
 
 		actual := commands.Run(event)
@@ -150,9 +157,12 @@ func TestPullRequest(t *testing.T) {
 func initTest(slackClient *mocks.SlackClient) (bot.Commands, *testFetcher) {
 	fetcher := &testFetcher{}
 	commands := bot.Commands{}
+	logger := logrus.New()
+
 	cmd := &command{
 		config.PullRequest{},
 		slackClient,
+		logger,
 		fetcher,
 		".*/projects/(?P<project>.+)/repos/(?P<repo>.+)/pull-requests/(?P<number>\\d+).*",
 	}
