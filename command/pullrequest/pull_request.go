@@ -83,6 +83,8 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 		done <- true
 	}()
 
+	currentReactions := c.getOwnReactions(msgRef)
+
 	for {
 		pr, err := c.fetcher.getPullRequest(match)
 		if err != nil {
@@ -103,9 +105,7 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 			}
 			continue
 		}
-
 		connectionErrors = 0
-		currentReactions := c.getReactions(err, msgRef)
 
 		// add approved reaction(s)
 		if len(pr.approvers) > 0 {
@@ -151,12 +151,18 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 	}
 }
 
-// get the current reactions in the given message
-func (c *command) getReactions(err error, msgRef slack.ItemRef) map[string]bool {
+// get the current reactions in the given message which got created by this bot user
+func (c *command) getOwnReactions(msgRef slack.ItemRef) map[string]bool {
 	currentReactions := make(map[string]bool)
-	reactions, err := c.slackClient.GetReactions(msgRef, slack.NewGetReactionsParameters())
+	reactions, _ := c.slackClient.GetReactions(msgRef, slack.NewGetReactionsParameters())
+
 	for _, reaction := range reactions {
-		currentReactions[reaction.Name] = true
+		for _, user := range reaction.Users {
+			if user == client.BotUserId {
+				currentReactions[reaction.Name] = true
+				break
+			}
+		}
 	}
 
 	return currentReactions
