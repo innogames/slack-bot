@@ -18,9 +18,10 @@ const (
 	iconApproved        = "white_check_mark"
 	iconMerged          = "twisted_rightwards_arrows"
 	iconDeclined        = "x"
-	iconBuildFailed     = "red_circle"
+	iconBuildFailed     = "fire"
+	iconBuildRunning    = "arrows_counterclockwise"
 	iconError           = "x"
-	checkInterval       = time.Second * 30
+	checkInterval       = time.Second * 30 // todo make it more dynamic + increasing check
 	maxConnectionErrors = 5
 )
 
@@ -75,7 +76,6 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 	msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
 
 	hasApproval := false
-	failedBuild := false
 	connectionErrors := 0
 
 	done := queue.AddRunningCommand(event, event.Text)
@@ -123,6 +123,19 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 			c.removeReaction(currentReactions, iconInReview, msgRef)
 		}
 
+		// monitor build status
+		if pr.buildStatus == buildStatusFailed {
+			c.addReaction(currentReactions, iconBuildFailed, msgRef)
+		} else {
+			c.removeReaction(currentReactions, iconBuildFailed, msgRef)
+		}
+
+		if pr.buildStatus == buildStatusRunning {
+			c.addReaction(currentReactions, iconBuildRunning, msgRef)
+		} else {
+			c.removeReaction(currentReactions, iconBuildRunning, msgRef)
+		}
+
 		// add merged reaction
 		if pr.merged || pr.closed {
 			c.addReaction(currentReactions, iconMerged, msgRef)
@@ -136,15 +149,6 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 			c.addReaction(currentReactions, iconDeclined, msgRef)
 
 			return
-		}
-
-		// monitor build status
-		if pr.buildStatus == buildStatusFailed && !failedBuild {
-			c.addReaction(currentReactions, iconBuildFailed, msgRef)
-			failedBuild = true
-		} else if pr.buildStatus != buildStatusFailed && failedBuild {
-			c.removeReaction(currentReactions, iconBuildFailed, msgRef)
-			failedBuild = false
 		}
 
 		time.Sleep(checkInterval)

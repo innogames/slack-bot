@@ -7,10 +7,12 @@ require (
 	github.com/ae6rt/retry v2.0.0+incompatible // indirect
 	github.com/alicebob/miniredis/v2 v2.13.1
 	github.com/bndr/gojenkins v1.0.1
+	github.com/brainexe/stash v1.0.2
 	github.com/channelmeter/iso8601duration v0.0.0-20150204201828-8da3af7a2a61 // indirect
 	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
+	github.com/gfleury/go-bitbucket-v1 v0.0.0-20200810125852-15f2a16ca820
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/go-test/deep v1.0.7 // indirect
 	github.com/gomodule/redigo v1.8.2 // indirect
@@ -35,7 +37,6 @@ require (
 	github.com/texttheater/golang-levenshtein v1.0.1
 	github.com/trivago/tgo v1.0.7 // indirect
 	github.com/xanzy/go-gitlab v0.38.1
-	github.com/xoom/stash v1.3.1
 	github.com/yuin/gopher-lua v0.0.0-20200603152657-dc2b0ca8b37e // indirect
 	golang.org/x/net v0.0.0-20201009032441-dbdefad45b89 // indirect
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
