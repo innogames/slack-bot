@@ -7,7 +7,7 @@ import (
 	"github.com/xoom/stash"
 )
 
-// todo switch to https://github.com/ktrysmt/go-bitbucket
+// todo switch to "github.com/gfleury/go-bitbucket-v1"
 type bitbucket struct {
 	client stash.Stash
 	cfg    config.Bitbucket

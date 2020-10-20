@@ -92,12 +92,16 @@ When a build failed you are able to retry any build by:
 - `retry build NightlyTests #100` (retries given build)
 
 ## Pull Requests
-If you just paste a link to a Github/Gitlab/Stash Pull request, the bot will track the state of the ticket! 
+If you just paste a link to a Github/Gitlab/Bitbucket/Stash Pull request, the bot will track the state of the ticket! 
 - When a developer was added as reviewer, it will add a "eyes" reaction to show other devs that someone is already taking a look
 - When the reviewer approved the ticket, a checkmark is added
 - After merging the pull request, it will add a "merge" reaction
 
 ![Screenshot](./docs/pull-request.png)
+
+**Extra Features:**
+For Bitbucket the bot is able to extract the current build status (e.g. from Jenkins/Bamboo etc) and show failed and running builds (fire reaction) as a reaction (circle arrow reaction). When the build is stable, the build reactions disappear.  
+![Screenshot](./docs/pull-request-build-status.png)
 
 ## Command Queue
 The `queue` command (with the alias `then`) is able to queue the given command, until the currently running command finished. 

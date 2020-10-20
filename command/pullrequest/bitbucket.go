@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"regexp"
 	"text/template"
+	"time"
 )
 
 type bitbucketFetcher struct {
@@ -21,12 +22,7 @@ func newBitbucketCommand(slackClient client.SlackClient, cfg config.Config, logg
 		return nil
 	}
 
-	basicAuth := bitbucket.BasicAuth{UserName: cfg.Bitbucket.Username, Password: cfg.Bitbucket.Password}
-	ctx := context.Background()
-	ctx = context.WithValue(ctx, bitbucket.ContextBasicAuth, basicAuth)
-
-	config := bitbucket.NewConfiguration(cfg.Bitbucket.Host + "/rest")
-	bitbucketClient := bitbucket.NewAPIClient(ctx, config)
+	bitbucketClient := getClient(cfg)
 
 	return &command{
 		cfg.PullRequest,
@@ -72,6 +68,7 @@ func (c *bitbucketFetcher) getPullRequest(match matcher.Result) (pullRequest, er
 	return pr, nil
 }
 
+// try to extract the current build status from a PR, based on the recent commit
 func (c *bitbucketFetcher) getBuildStatus(rawPullRequest bitbucket.PullRequest) buildStatus {
 	buildStatus := buildStatusUnknown
 
@@ -86,7 +83,6 @@ func (c *bitbucketFetcher) getBuildStatus(rawPullRequest bitbucket.PullRequest) 
 	}
 
 	builds, err := bitbucket.GetBuildStatusesResponse(rawBuilds)
-
 	for _, build := range builds {
 		switch build.State {
 		case "SUCCESS":
@@ -123,4 +119,15 @@ func (c *bitbucketFetcher) getHelp() []bot.Help {
 			},
 		},
 	}
+}
+
+func getClient(cfg config.Config) *bitbucket.APIClient {
+	basicAuth := bitbucket.BasicAuth{UserName: cfg.Bitbucket.Username, Password: cfg.Bitbucket.Password}
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
+	ctx = context.WithValue(ctx, bitbucket.ContextBasicAuth, basicAuth)
+
+	config := bitbucket.NewConfiguration(cfg.Bitbucket.Host + "/rest")
+	bitbucketClient := bitbucket.NewAPIClient(ctx, config)
+
+	return bitbucketClient
 }
