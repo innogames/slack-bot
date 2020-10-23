@@ -1,7 +1,6 @@
 package pullrequest
 
 import (
-	"context"
 	bitbucket "github.com/gfleury/go-bitbucket-v1"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
@@ -10,7 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"regexp"
 	"text/template"
-	"time"
 )
 
 type bitbucketFetcher struct {
@@ -22,7 +20,7 @@ func newBitbucketCommand(slackClient client.SlackClient, cfg config.Config, logg
 		return nil
 	}
 
-	bitbucketClient := getClient(cfg)
+	bitbucketClient, _ := client.GetBitbucketClient(cfg.Bitbucket)
 
 	return &command{
 		cfg.PullRequest,
@@ -119,15 +117,4 @@ func (c *bitbucketFetcher) getHelp() []bot.Help {
 			},
 		},
 	}
-}
-
-func getClient(cfg config.Config) *bitbucket.APIClient {
-	basicAuth := bitbucket.BasicAuth{UserName: cfg.Bitbucket.Username, Password: cfg.Bitbucket.Password}
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
-	ctx = context.WithValue(ctx, bitbucket.ContextBasicAuth, basicAuth)
-
-	config := bitbucket.NewConfiguration(cfg.Bitbucket.Host + "/rest")
-	bitbucketClient := bitbucket.NewAPIClient(ctx, config)
-
-	return bitbucketClient
 }

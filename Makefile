@@ -29,5 +29,5 @@ test-coverage:
 	mkdir -p build && go test ./... -coverpkg=./... -cover -coverprofile=./build/cover.out -covermode=atomic && go tool cover -html=./build/cover.out -o ./build/cover.html
 
 mocks: dep
-	go get github.com/vektra/mockery/
+	go get github.com/vektra/mockery/v2/.../
 	go generate ./...

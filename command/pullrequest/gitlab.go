@@ -52,20 +52,34 @@ func (c *gitlabFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 		return pr, err
 	}
 
-	approvers := make([]string, 0)
-	if rawPullRequest.Upvotes > 0 {
-		approvers = append(approvers, "unknown")
-	}
-
 	pr = pullRequest{
 		name:      rawPullRequest.Title,
 		merged:    rawPullRequest.State == "merged" || rawPullRequest.State == "closed",
 		declined:  false,
-		approvers: approvers,
+		approvers: c.getApprovers(rawPullRequest, prNumber),
 		inReview:  false,
 	}
 
 	return pr, nil
+}
+
+func (c *gitlabFetcher) getApprovers(rawPullRequest *gitlab.MergeRequest, prNumber int) []string {
+	approvers := make([]string, 0)
+
+	if rawPullRequest.Upvotes > 0 {
+		emojis, _, _ := c.client.AwardEmoji.ListMergeRequestAwardEmoji(
+			rawPullRequest.SourceProjectID,
+			prNumber,
+			&gitlab.ListAwardEmojiOptions{},
+		)
+		for _, emoji := range emojis {
+			if emoji.Name == "thumbsup" {
+				approvers = append(approvers, emoji.User.Username)
+			}
+		}
+	}
+
+	return approvers
 }
 
 func (c *gitlabFetcher) GetTemplateFunction() template.FuncMap {

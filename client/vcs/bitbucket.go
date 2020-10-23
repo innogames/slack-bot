@@ -1,15 +1,12 @@
 package vcs
 
-//go:generate $GOPATH/bin/mockery -output ../../mocks -dir ../../vendor/github.com/xoom/stash -name Stash
-
 import (
+	bitbucketApi "github.com/gfleury/go-bitbucket-v1"
 	"github.com/innogames/slack-bot/bot/config"
-	"github.com/xoom/stash"
 )
 
-// todo switch to "github.com/gfleury/go-bitbucket-v1"
 type bitbucket struct {
-	client stash.Stash
+	client *bitbucketApi.APIClient
 	cfg    config.Bitbucket
 }
 
@@ -17,14 +14,19 @@ type bitbucket struct {
 func (f bitbucket) LoadBranches() ([]string, error) {
 	var branchNames []string
 
-	branches, err := f.client.GetBranches(f.cfg.Project, f.cfg.Repository)
+	branchesRaw, err := f.client.DefaultApi.GetBranches(f.cfg.Project, f.cfg.Repository, nil)
+	if err != nil {
+		return branchNames, err
+	}
+
+	branches, err := bitbucketApi.GetBranchesResponse(branchesRaw)
 	if err != nil {
 		return branchNames, err
 	}
 
 	branchNames = make([]string, 0, len(branches))
-	for branchName := range branches {
-		branchNames = append(branchNames, branchName)
+	for _, branch := range branches {
+		branchNames = append(branchNames, branch.DisplayID)
 	}
 
 	return branchNames, nil

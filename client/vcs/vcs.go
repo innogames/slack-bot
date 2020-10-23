@@ -2,13 +2,12 @@ package vcs
 
 import (
 	"fmt"
-	"net/url"
+	"github.com/innogames/slack-bot/client"
 	"strings"
 	"time"
 
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/sirupsen/logrus"
-	"github.com/xoom/stash"
 )
 
 const branchFetchInterval = time.Minute * 2
@@ -67,10 +66,12 @@ func GetMatchingBranch(input string) (string, error) {
 func createBranchFetcher(cfg config.Config) BranchFetcher {
 	switch cfg.BranchLookup.Type {
 	case "stash", "bitbucket":
-		stashUrl, _ := url.Parse(cfg.Bitbucket.Host)
-		stashClient := stash.NewClient(cfg.Bitbucket.Username, cfg.Bitbucket.Password, stashUrl)
+		bitbucketClient, err := client.GetBitbucketClient(cfg.Bitbucket)
+		if err != nil {
+			logger.Errorf("Cannot init Bitbucket client: %s", err)
+		}
 
-		return bitbucket{stashClient, cfg.Bitbucket}
+		return bitbucket{bitbucketClient, cfg.Bitbucket}
 	case "git":
 		return git{cfg.BranchLookup.Repository}
 	default:

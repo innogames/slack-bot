@@ -1,7 +1,7 @@
 package jenkins
 
-//go:generate $GOPATH/bin/mockery --output ../../mocks -name Client
-//go:generate $GOPATH/bin/mockery --output ../../mocks -name Job
+//go:generate $GOPATH/bin/mockery --output ../../mocks --name Client
+//go:generate $GOPATH/bin/mockery --output ../../mocks --name Job
 
 import (
 	"github.com/bndr/gojenkins"

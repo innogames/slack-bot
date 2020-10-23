@@ -4,7 +4,6 @@ go 1.14
 
 require (
 	github.com/PuloV/ics-golang v0.0.0-20190808201353-a3394d3bcade
-	github.com/ae6rt/retry v2.0.0+incompatible // indirect
 	github.com/alicebob/miniredis/v2 v2.13.1
 	github.com/bndr/gojenkins v1.0.1
 	github.com/channelmeter/iso8601duration v0.0.0-20150204201828-8da3af7a2a61 // indirect
@@ -36,7 +35,6 @@ require (
 	github.com/texttheater/golang-levenshtein v1.0.1
 	github.com/trivago/tgo v1.0.7 // indirect
 	github.com/xanzy/go-gitlab v0.38.1
-	github.com/xoom/stash v1.3.1
 	github.com/yuin/gopher-lua v0.0.0-20200603152657-dc2b0ca8b37e // indirect
 	golang.org/x/net v0.0.0-20201009032441-dbdefad45b89 // indirect
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
