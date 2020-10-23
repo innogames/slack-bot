@@ -95,13 +95,14 @@ type PullRequest struct {
 	CustomApproveReaction map[string]string `yaml:"custom_approve_reaction"`
 }
 
-// Bitbucket credentials/options
+// Bitbucket credentials/options. Either add Username+Password OR a ApiKey
 type Bitbucket struct {
-	Host       string
-	Username   string
-	Password   string
-	Project    string
-	Repository string
+	Host       string `yaml:"host"`
+	Username   string `yaml:"username"`
+	Password   string `yaml:"password"`
+	ApiKey     string `yaml:"api_key"`
+	Project    string `yaml:"project"`
+	Repository string `yaml:"repository"`
 }
 
 func (c Bitbucket) IsEnabled() bool {

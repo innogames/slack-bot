@@ -2,15 +2,29 @@ package client
 
 import (
 	"context"
+	"errors"
 	bitbucket "github.com/gfleury/go-bitbucket-v1"
 	"github.com/innogames/slack-bot/bot/config"
 	"time"
 )
 
+const bitbucketTimeout = time.Second * 10
+
 func GetBitbucketClient(cfg config.Bitbucket) (*bitbucket.APIClient, error) {
-	basicAuth := bitbucket.BasicAuth{UserName: cfg.Username, Password: cfg.Password}
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
-	ctx = context.WithValue(ctx, bitbucket.ContextBasicAuth, basicAuth)
+	if !cfg.IsEnabled() {
+		return nil, errors.New("bitbucket: No host given")
+	}
+
+	ctx, _ := context.WithTimeout(context.Background(), bitbucketTimeout)
+	if cfg.ApiKey != "" {
+		apiKey := bitbucket.APIKey{Key: cfg.ApiKey}
+		ctx = context.WithValue(ctx, bitbucket.APIKey{}, apiKey)
+	} else if cfg.Username != "" && cfg.Password != "" {
+		basicAuth := bitbucket.BasicAuth{UserName: cfg.Username, Password: cfg.Password}
+		ctx = context.WithValue(ctx, bitbucket.ContextBasicAuth, basicAuth)
+	} else {
+		return nil, errors.New("bitbucket: No username/password or api_key given")
+	}
 
 	config := bitbucket.NewConfiguration(cfg.Host + "/rest")
 	bitbucketClient := bitbucket.NewAPIClient(ctx, config)
