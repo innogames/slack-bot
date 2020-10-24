@@ -1,6 +1,6 @@
 package client
 
-//go:generate $GOPATH/bin/mockery -output ../mocks -name SlackClient
+//go:generate $GOPATH/bin/mockery --output ../mocks --name SlackClient
 
 import (
 	"fmt"
