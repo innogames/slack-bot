@@ -12,8 +12,8 @@ This slack bot improves the workflow of development teams. Especially with focus
 # Installation
 **Create Classic Slack App:**
 - Create a [Classic Slack App](https://api.slack.com/apps?new_classic_app=1)
-- Goto "Bot" section and create a "Legacy Bot user" 
-- Goto "OAuth & Permissions" and install the app in your workspace
+- Go to "Bot" section and create a "Legacy Bot user" 
+- Go to "OAuth & Permissions" and install the app in your workspace
 - A "Bot User OAuth Access Token" is visible (starts with "xoxb-"). You need this one in the config.yaml in slack->token.
 
 **Quick steps:** (just use the bot via Docker)
@@ -456,3 +456,16 @@ make test-coverage
 ```
 make test-bench
 ```
+
+
+Required Scopes
+XX
+- channels:history
+- im:history
+
+Classic bot:
+bot
+
+Required subscribed events
+- message.channels 
+- message.im

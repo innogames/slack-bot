@@ -22,19 +22,30 @@ type BranchFetcher interface {
 }
 
 // InitBranchWatcher will load the current branches each X from the configured VCS -> e.g. used for branch lookup for Jenkins parameters
-func InitBranchWatcher(config config.Config, log *logrus.Logger) {
+func InitBranchWatcher(config config.Config, log *logrus.Logger) chan bool {
 	logger = log
+	quit := make(chan bool, 1)
+
+	ticker := time.NewTicker(branchFetchInterval)
 	go func() {
 		fetcher := createBranchFetcher(config)
+		var err error
+
 		for {
-			var err error
-			branches, err = fetcher.LoadBranches()
-			if err != nil {
-				logger.Error(err)
+			select {
+			case <-ticker.C:
+				branches, err = fetcher.LoadBranches()
+				if err != nil {
+					logger.Error(err)
+				}
+			case <-quit:
+				ticker.Stop()
+				return
 			}
-			time.Sleep(branchFetchInterval)
 		}
 	}()
+
+	return quit
 }
 
 // GetMatchingBranch does a fuzzy search on all loaded branches. If there are multiple matching branches, it fails.

@@ -12,13 +12,13 @@ import (
 )
 
 func TestStartBuild(t *testing.T) {
-	client := &mocks.Client{}
 	slackClient := &mocks.SlackClient{}
 	logger, _ := test.NewNullLogger()
 	cfg := config.JobConfig{}
 	event := slack.MessageEvent{}
 
 	t.Run("error fetching job", func(t *testing.T) {
+		client := &mocks.Client{}
 		jobName := "TestJob"
 		params := map[string]string{}
 

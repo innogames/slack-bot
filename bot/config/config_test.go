@@ -2,11 +2,12 @@ package config
 
 import (
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
 func TestLoadExampleConfig(t *testing.T) {
-	cfg, err := LoadPattern("../../config.example.yaml")
+	cfg, err := Load("../../config.example.yaml")
 	assert.Nil(t, err)
 	assert.NotNil(t, cfg.Slack)
 	assert.NotEmpty(t, cfg.Macros)
@@ -18,22 +19,44 @@ func TestLoadExampleConfig(t *testing.T) {
 	assert.Equal(t, false, cfg.Server.IsEnabled())
 }
 
-func TestLoadNotMatchingPattern(t *testing.T) {
-	cfg, err := LoadPattern("notexistingconfig.yaml")
-	assert.EqualError(t, err, "no config file found: notexistingconfig.yaml")
+func TestLoadDirectory(t *testing.T) {
+	cfg, err := Load("../../")
+
+	// load root pass == okay
+	assert.Nil(t, err)
+	assert.NotNil(t, cfg.Slack)
+
+	// invalid directory
+	cfg, err = Load("/sdsdsdds")
+	assert.EqualError(t, err, "stat /sdsdsdds: no such file or directory")
 	assert.Equal(t, defaultConfig, cfg)
 }
 
-func TestInvalidFiles(t *testing.T) {
-	cfg, err := LoadPattern("../neneneee*yaml")
-	assert.EqualError(t, err, "no config file found: ../neneneee*yaml")
+func TestLoadFile(t *testing.T) {
+	// not existing file
+	cfg, err := Load("../../readme.sdsdsd")
+	assert.Contains(t, err.Error(), "stat ../../readme.sdsdsd: no such file or directory")
 	assert.Equal(t, defaultConfig, cfg)
 
-	cfg, err = loadConfig("../fooo.yaml")
-	assert.EqualError(t, err, "failed to load config file from ../fooo.yaml: open ../fooo.yaml: no such file or directory")
-	assert.Equal(t, Config{}, cfg)
+	// parse invalid file
+	cfg, err = Load("../../readme.md")
+	assert.Contains(t, err.Error(), "While parsing config: yaml")
+	assert.Equal(t, defaultConfig, cfg)
 
-	cfg, err = loadConfig("../../Makefile")
-	assert.EqualError(t, err, "failed to parse configuration file: yaml: line 7: found character that cannot start any token")
-	assert.Equal(t, Config{}, cfg)
+	// load example file == okay
+	cfg, err = Load("../../config.example.yaml")
+	assert.Nil(t, err)
+	assert.NotNil(t, cfg.Slack)
+}
+
+func TestEnvironment(t *testing.T) {
+	os.Setenv("BOT_TIMEZONE", "test/test")
+	os.Setenv("BOT_SLACK_TOKEN", "myToken")
+
+	// load example file == okay
+	cfg, err := Load("../../config.example.yaml")
+	assert.Nil(t, err)
+	assert.Equal(t, "test/test", cfg.Timezone)
+	assert.Equal(t, "myToken", cfg.Slack.Token)
+
 }

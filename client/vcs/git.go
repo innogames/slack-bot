@@ -9,6 +9,8 @@ type git struct {
 	repo string
 }
 
+var gitBranchRe = regexp.MustCompile(`refs\/(remotes\/origin|heads)\/(.*)\n`)
+
 // LoadBranches will load the branches from a (remote) git repository
 func (f git) LoadBranches() ([]string, error) {
 	var branchNames []string
@@ -19,12 +21,11 @@ func (f git) LoadBranches() ([]string, error) {
 		return branchNames, err
 	}
 
-	re := regexp.MustCompile(`refs\/remotes\/origin\/(.*)\n`)
-	for _, match := range re.FindAllStringSubmatch(string(output), -1) {
-		if match[1] == "HEAD" {
+	for _, match := range gitBranchRe.FindAllStringSubmatch(string(output), -1) {
+		if match[2] == "HEAD" {
 			continue
 		}
-		branchNames = append(branchNames, match[1])
+		branchNames = append(branchNames, match[2])
 	}
 
 	return branchNames, err
