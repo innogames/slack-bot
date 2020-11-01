@@ -22,7 +22,7 @@ func main() {
 	configFile := flag.String("config", "config.yaml", "Path to config.yaml. Can be a glob pattern like 'config/*.yaml'")
 	flag.Parse()
 
-	cfg, err := config.LoadPattern(*configFile)
+	cfg, err := config.Load(*configFile)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)

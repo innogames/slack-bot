@@ -1,10 +1,20 @@
 package vcs
 
 import (
+	"github.com/innogames/slack-bot/bot/config"
+	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
+
+func TestInitBranchWatcher(t *testing.T) {
+	cfg := config.Config{}
+	logger := logrus.New()
+
+	abort := InitBranchWatcher(cfg, logger)
+	abort <- true
+}
 
 func TestGetMatchingBranches(t *testing.T) {
 	logger, _ = test.NewNullLogger()

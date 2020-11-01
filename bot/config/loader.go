@@ -1,52 +1,56 @@
 package config
 
 import (
-	"fmt"
-	"github.com/imdario/mergo"
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"path/filepath"
+	"bytes"
+	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
+	"os"
+	"strings"
 )
 
-// LoadPattern loads config yaml file(s) by a glob pattern
-func LoadPattern(pattern string) (Config, error) {
+// Load loads config yaml file(s) inside a directory or a single .yaml file
+func Load(configFile string) (Config, error) {
+	v := viper.New()
+
+	v.SetConfigType("yaml")
+	v.AllowEmptyEnv(true)
+	v.SetEnvPrefix("BOT")
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v.AutomaticEnv()
 	cfg := defaultConfig
 
-	fileNames, err := filepath.Glob(pattern)
+	// workaround to ake all keys from struct available
+	defaultYaml, _ := yaml.Marshal(defaultConfig)
+	v.ReadConfig(bytes.NewBuffer(defaultYaml))
+
+	fileInfo, err := os.Stat(configFile)
 	if err != nil {
+		// no file/directory
 		return cfg, err
-	}
+	} else if fileInfo.IsDir() {
+		// read all files in a directory
+		v.AddConfigPath(configFile)
+		err := v.MergeInConfig()
+		if err != nil {
+			return cfg, err
+		}
+	} else {
+		// read a single yaml file
+		file, err := os.Open(configFile)
 
-	if len(fileNames) == 0 {
-		return cfg, fmt.Errorf("no config file found: %s", pattern)
-	}
-
-	for _, fileName := range fileNames {
-		newCfg, err := loadConfig(fileName)
 		if err != nil {
 			return cfg, err
 		}
 
-		if err := mergo.Merge(&cfg, newCfg, mergo.WithAppendSlice, mergo.WithOverride); err != nil {
+		defer file.Close()
+		err = v.MergeConfig(file)
+		if err != nil {
 			return cfg, err
 		}
 	}
 
-	return cfg, nil
-}
-
-// loadConfig loads a single yaml config file
-func loadConfig(filename string) (Config, error) {
-	cfg := Config{}
-
-	content, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return cfg, errors.Errorf("failed to load config file from %s: %s", filename, err)
-	}
-
-	if err := yaml.UnmarshalStrict(content, &cfg); err != nil {
-		return cfg, errors.Errorf("failed to parse configuration file: %s", err)
+	if err := v.Unmarshal(&cfg); err != nil {
+		return cfg, err
 	}
 
 	return cfg, nil
