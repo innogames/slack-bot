@@ -1,0 +1,10 @@
+{
+  "values": [
+    {
+      "id": "feature/branch",
+      "displayId": "feature/branch",
+      "type": "origin",
+      "latestCommit": "0123456789abcde"
+    }
+  ]
+}

@@ -58,5 +58,4 @@ func TestEnvironment(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "test/test", cfg.Timezone)
 	assert.Equal(t, "myToken", cfg.Slack.Token)
-
 }

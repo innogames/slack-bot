@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -29,21 +30,18 @@ func Load(configFile string) (Config, error) {
 		return cfg, err
 	} else if fileInfo.IsDir() {
 		// read all files in a directory
-		v.AddConfigPath(configFile)
-		err := v.MergeInConfig()
+		files, err := filepath.Glob(configFile + "/*.yaml")
 		if err != nil {
 			return cfg, err
+		}
+		for _, file := range files {
+			err := loadFile(v, file)
+			if err != nil {
+				return cfg, err
+			}
 		}
 	} else {
-		// read a single yaml file
-		file, err := os.Open(configFile)
-
-		if err != nil {
-			return cfg, err
-		}
-
-		defer file.Close()
-		err = v.MergeConfig(file)
+		err := loadFile(v, configFile)
 		if err != nil {
 			return cfg, err
 		}
@@ -54,4 +52,16 @@ func Load(configFile string) (Config, error) {
 	}
 
 	return cfg, nil
+}
+
+func loadFile(v *viper.Viper, configFile string) error {
+	// read a single yaml file
+	file, err := os.Open(configFile)
+	if err != nil {
+		return err
+	}
+
+	defer file.Close()
+
+	return v.MergeConfig(file)
 }

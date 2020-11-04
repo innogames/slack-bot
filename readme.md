@@ -456,16 +456,3 @@ make test-coverage
 ```
 make test-bench
 ```
-
-
-Required Scopes
-XX
-- channels:history
-- im:history
-
-Classic bot:
-bot
-
-Required subscribed events
-- message.channels 
-- message.im

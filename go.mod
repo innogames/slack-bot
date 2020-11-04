@@ -11,6 +11,7 @@ require (
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gfleury/go-bitbucket-v1 v0.0.0-20200810125852-15f2a16ca820
+	github.com/gfleury/go-bitbucket-v1/test/bb-mock-server v0.0.0-20200810125852-15f2a16ca820
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/go-test/deep v1.0.7 // indirect
 	github.com/gomodule/redigo v1.8.2 // indirect
