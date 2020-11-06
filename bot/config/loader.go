@@ -20,7 +20,7 @@ func Load(configFile string) (Config, error) {
 	v.AutomaticEnv()
 	cfg := defaultConfig
 
-	// workaround to ake all keys from struct available
+	// workaround to take all keys from struct available
 	defaultYaml, _ := yaml.Marshal(defaultConfig)
 	v.ReadConfig(bytes.NewBuffer(defaultYaml))
 

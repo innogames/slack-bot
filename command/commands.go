@@ -4,6 +4,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
+	"github.com/innogames/slack-bot/command/admin"
 	"github.com/innogames/slack-bot/command/calendar"
 	"github.com/innogames/slack-bot/command/cron"
 	"github.com/innogames/slack-bot/command/custom"
@@ -32,9 +33,11 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logr
 		NewReactionCommand(slackClient),
 		NewSendMessageCommand(slackClient),
 		NewDelayCommand(slackClient),
-		NewBotLogCommand(slackClient, cfg),
 		NewRandomCommand(slackClient),
 		NewHelpCommand(slackClient, commands),
+
+		admin.NewBotLogCommand(slackClient, cfg),
+		admin.NewStatsCommand(slackClient, cfg),
 
 		weather.NewWeatherCommand(slackClient, cfg.OpenWeather),
 
