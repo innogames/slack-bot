@@ -33,6 +33,10 @@ allowed_users:
   - your.name
   - U122323
 
+# there are some restricted commands, like reading logs or gather stats
+admin_users:
+ - UADMINID
+
 # wip: allows receiving events directly from Slack server instead via RTM
 #server:
 #  listen: 127.0.0.1:4390

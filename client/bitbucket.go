@@ -5,17 +5,15 @@ import (
 	"errors"
 	bitbucket "github.com/gfleury/go-bitbucket-v1"
 	"github.com/innogames/slack-bot/bot/config"
-	"time"
 )
-
-const bitbucketTimeout = time.Second * 10
 
 func GetBitbucketClient(cfg config.Bitbucket) (*bitbucket.APIClient, error) {
 	if !cfg.IsEnabled() {
 		return nil, errors.New("bitbucket: No host given")
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), bitbucketTimeout)
+	// todo add proper configurable timeout
+	ctx := context.Background()
 	if cfg.ApiKey != "" {
 		apiKey := bitbucket.APIKey{Key: cfg.ApiKey}
 		ctx = context.WithValue(ctx, bitbucket.APIKey{}, apiKey)

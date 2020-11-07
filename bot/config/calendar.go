@@ -7,7 +7,7 @@ type Calendar struct {
 	Path   string
 	Name   string
 	Events []CalendarEvent
-	Ical   ics.Event `yaml:"-"` // todo temporary way to pass Ical event
+	Ical   ics.Event `mapstructure:"-"` // todo temporary way to pass Ical event
 }
 
 // CalendarEvent is one single calender config which should be watched

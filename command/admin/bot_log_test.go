@@ -1,4 +1,4 @@
-package command
+package admin
 
 import (
 	"github.com/innogames/slack-bot/bot"
