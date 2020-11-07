@@ -7,11 +7,12 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/slack-go/slack"
+	"runtime"
 )
 
-// NewDelayCommand delays the command execution by the given time
+// NewStatsCommand shows a bunch of runtime statistics of the bot (admin-only)
 func NewStatsCommand(slackClient client.SlackClient, cfg config.Config) bot.Command {
-	return &statsCommand{slackClient: slackClient}
+	return &statsCommand{slackClient, cfg}
 }
 
 type stats map[string]string
@@ -30,22 +31,21 @@ func (c statsCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c statsCommand) Stats(match matcher.Result, event slack.MessageEvent) {
-	currentStats := collectStats()
+	currentStats := c.collectStats()
 
 	message := "Here are some current stats:\n"
 	for key, value := range currentStats {
-		message += fmt.Sprintf("- %s: %s", key, value)
+		message += fmt.Sprintf("- %s: %s\n", key, value)
 	}
 
 	c.slackClient.Reply(event, message)
 }
 
-func collectStats() stats {
+func (c statsCommand) collectStats() stats {
 	currentStats := make(stats)
 
 	// todo https://github.com/jtaczanowski/go-runtime-stats/blob/master/collector/collector.go
-	currentStats["test"] = "100 rzc"
-	currentStats["bar"] = "1212 se/s"
+	currentStats["goroutines"] = fmt.Sprintf("%d goroutines", runtime.NumGoroutine())
 
 	return currentStats
 }
