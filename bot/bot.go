@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"github.com/innogames/slack-bot/bot/stats"
 	"os"
 	"regexp"
 	"strings"
@@ -218,6 +219,7 @@ func (b bot) shouldHandleMessage(event *slack.MessageEvent) bool {
 
 // remove @bot prefix of message and cleanup
 func (b bot) trimMessage(msg string) string {
+	// todo use strings.NewReplacer
 	msg = strings.Replace(msg, "<@"+b.auth.UserID+">", "", 1)
 	msg = strings.Replace(msg, "‘", "'", -1)
 	msg = strings.Replace(msg, "’", "'", -1)
@@ -242,20 +244,26 @@ func (b bot) handleMessage(event slack.MessageEvent) {
 	logger := b.getLogger(event)
 
 	// send "bot is typing" command
+	// todo check if RTM is enabled/ready
 	b.slackClient.RTM.SendMessage(b.slackClient.NewTypingMessage(event.Channel))
 
 	lock := b.getUserLock(event.User)
 	defer lock.Unlock()
 
+	stats.IncreaseOne(stats.TotalCommands)
+
 	_, existing := b.allowedUsers[event.User]
 	if !existing && event.SubType != TypeInternal && b.config.Slack.TestEndpointUrl == "" {
 		logger.Errorf("user %s is not allowed to execute message (missing in 'allowed_users' section): %s", event.User, event.Text)
+		// todo pass is cfg.AdminUsers here...if set
 		b.slackClient.Reply(event, "Sorry, you are not whitelisted yet. Please ask the slack-bot admin to get access.")
+		stats.IncreaseOne(stats.UnauthorizedCommands)
 		return
 	}
 
 	if !b.commands.Run(event) {
 		logger.Infof("Unknown command: %s", event.Text)
+		stats.IncreaseOne(stats.UnknownCommands)
 		b.sendFallbackMessage(event)
 	}
 

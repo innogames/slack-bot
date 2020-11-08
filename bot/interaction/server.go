@@ -28,6 +28,7 @@ type Server struct {
 func (s *Server) StartServer() {
 	http.HandleFunc("/health", s.healthCheckHandler)
 	http.HandleFunc("/commands", s.interactionHandler)
+	http.HandleFunc("/events-endpoint", s.eventHandler)
 
 	s.server = &http.Server{
 		Addr: s.cfg.Listen,

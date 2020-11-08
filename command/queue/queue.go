@@ -69,6 +69,11 @@ func IsBlocked(event slack.MessageEvent) bool {
 	return ok
 }
 
+// CountCurrentJobs will return the number of current pending/queued jobs
+func CountCurrentJobs() int {
+	return len(runningCommands)
+}
+
 func executeFallbackCommand(logger *logrus.Logger) {
 	keys, _ := storage.GetKeys(storageKey)
 
@@ -82,7 +87,7 @@ func executeFallbackCommand(logger *logrus.Logger) {
 		logger.Infof("[Queue] Booted! I'll trigger this command now: `%s`", event.Text)
 		client.InternalMessages <- event
 	}
-	storage.Delete(storageKey, "")
+	storage.DeleteCollection(storageKey)
 }
 
 func getKey(event slack.MessageEvent) string {

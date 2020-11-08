@@ -61,9 +61,29 @@ func testStorage(t *testing.T, storage storage) {
 	keys, err = storage.GetKeys(collection)
 	assert.Error(t, err)
 	assert.Len(t, keys, 0)
+
+	keys, err = GetKeys("../")
+	assert.EqualError(t, err, "invalid storage key: ../")
+	assert.Len(t, keys, 0)
 }
 
 func TestStorage(t *testing.T) {
+
+	t.Run("validate keys", func(t *testing.T) {
+		var err error
+		err = validateKey("valid", "also-val-id")
+		assert.Nil(t, err)
+
+		err = validateKey("valid", "not#valid")
+		assert.EqualError(t, err, "invalid storage key: not#valid")
+
+		err = validateKey("valid", "../../passwd")
+		assert.EqualError(t, err, "invalid storage key: ../../passwd")
+
+		err = validateKey("")
+		assert.EqualError(t, err, "invalid storage key: ")
+	})
+
 	t.Run("test init storage", func(t *testing.T) {
 		storage := getStorage()
 
