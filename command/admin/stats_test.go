@@ -31,7 +31,7 @@ func TestStatsLog(t *testing.T) {
 		assert.Equal(t, false, actual)
 	})
 
-	t.Run("display lbot stats", func(t *testing.T) {
+	t.Run("display bot statsType", func(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = "bot stats"
 		event.User = "UADMIN"
