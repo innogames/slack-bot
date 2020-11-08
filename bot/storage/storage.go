@@ -1,6 +1,9 @@
 package storage
 
+import "sync"
+
 var currentStorage storage
+var mu sync.Mutex
 
 type storage interface {
 	Write(collection, key string, v interface{}) error
@@ -47,6 +50,9 @@ func Delete(collection string, key string) error {
 }
 
 func getStorage() storage {
+	mu.Lock()
+	defer mu.Unlock()
+
 	if currentStorage == nil {
 		currentStorage = newMemoryStorage()
 	}

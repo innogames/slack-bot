@@ -58,7 +58,7 @@ func (t *helpCommand) Run(match matcher.Result, event slack.MessageEvent) {
 			}
 			text += "\n"
 		}
-		text += "With *help <command>_* I can provide you with more details!"
+		text += "With *help <command>* I can provide you with more details!"
 	} else {
 		// print details of a specific command
 		commandHelp, ok := t.compiledHelp[command]
