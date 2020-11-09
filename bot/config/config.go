@@ -16,9 +16,9 @@ type Config struct {
 		AccessToken string
 		Host        string
 	}
-	Macros []Macro
-	Crons  []Cron
-	Logger Logger
+	Macros []Macro `mapstructure:"macros"`
+	Crons  []Cron  `mapstructure:"crons"`
+	Logger Logger  `mapstructure:"logger"`
 
 	// @deprecated
 	BranchLookup struct {
@@ -84,9 +84,9 @@ type Macro struct {
 
 // Mqtt is a optional MQTT client to publish and subscribe values from the defined broker
 type Mqtt struct {
-	Host     string
-	Username string
-	Password string
+	Host     string `mapstructure:"host"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
 }
 
 func (c Mqtt) IsEnabled() bool {

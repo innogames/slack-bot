@@ -42,9 +42,11 @@ func WatchBuild(build *gojenkins.Build) <-chan jobResult {
 	go func() {
 		defer close(resultChan)
 
+		i := 0
 		delay := minDelay
 		for {
-			time.Sleep(delay)
+			time.Sleep(util.GetIncreasingTime(delay, i))
+			i++
 			if delay <= maxDelay {
 				delay += delayIncrease
 			}

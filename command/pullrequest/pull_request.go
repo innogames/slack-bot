@@ -4,6 +4,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
 	"github.com/pkg/errors"
@@ -84,7 +85,7 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 	}()
 
 	currentReactions := c.getOwnReactions(msgRef)
-
+	i := 0
 	for {
 		pr, err := c.fetcher.getPullRequest(match)
 		if err != nil {
@@ -151,7 +152,8 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 			return
 		}
 
-		time.Sleep(checkInterval)
+		time.Sleep(util.GetIncreasingTime(checkInterval, i))
+		i++
 	}
 }
 
