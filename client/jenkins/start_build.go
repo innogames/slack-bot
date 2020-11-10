@@ -147,13 +147,13 @@ func startJob(jenkins Client, jobName string, jobParams map[string]string, logge
 func GetAttachment(build *gojenkins.Build, message string) slack.MsgOption {
 	var icon string
 	var color string
-	if build.IsRunning() {
+	if build.Raw.Building {
 		icon = IconRunning
 		color = "#E0E000"
-	} else if build.IsGood() {
+	} else if build.Raw.Result == gojenkins.STATUS_SUCCESS {
 		icon = IconSuccess
 		color = "#00EE00"
-	} else if build.GetResult() == gojenkins.STATUS_ABORTED {
+	} else if build.Raw.Result == gojenkins.STATUS_ABORTED {
 		icon = iconAborted
 		color = "#CCCCCC"
 	} else {
@@ -184,7 +184,7 @@ func GetAttachment(build *gojenkins.Build, message string) slack.MsgOption {
 		client.GetSlackLink("Console :page_with_curl:", build.GetUrl()+"console"),
 	}
 
-	if build.IsRunning() {
+	if build.Raw.Building {
 		attachment.Actions = append(
 			attachment.Actions,
 			client.GetSlackLink("Abort :bomb:", build.GetUrl()+"stop/", "danger"),
