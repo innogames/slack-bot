@@ -22,7 +22,8 @@ const (
 	iconBuildFailed     = "fire"
 	iconBuildRunning    = "arrows_counterclockwise"
 	iconError           = "x"
-	checkInterval       = time.Second * 30 // todo make it more dynamic + increasing check
+	minCheckInterval    = time.Second * 20
+	maxCheckInterval    = time.Minute * 3
 	maxConnectionErrors = 5
 )
 
@@ -84,13 +85,14 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 		done <- true
 	}()
 
+	delay := util.GetIncreasingDelay(minCheckInterval, maxCheckInterval)
 	currentReactions := c.getOwnReactions(msgRef)
-	i := 0
+
 	for {
 		pr, err := c.fetcher.getPullRequest(match)
 		if err != nil {
 			if nerr, ok := err.(net.Error); ok && nerr.Temporary() {
-				time.Sleep(checkInterval)
+				time.Sleep(minCheckInterval)
 				continue
 			}
 
@@ -152,8 +154,7 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 			return
 		}
 
-		time.Sleep(util.GetIncreasingTime(checkInterval, i))
-		i++
+		time.Sleep(delay.GetNextDelay())
 	}
 }
 

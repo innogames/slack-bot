@@ -17,10 +17,9 @@ const (
 	iconPending = "coffee"
 	iconAborted = "black_circle_for_record"
 
-	// we are polling the job every 3-60seconds with a increasing delay
-	minDelay      = time.Second * 3
-	maxDelay      = time.Minute
-	delayIncrease = time.Second * 1
+	// we are polling the job every 10s-5min with a increasing delay
+	minDelay = time.Second * 10
+	maxDelay = time.Minute * 5
 )
 
 type jobResult struct {
@@ -42,16 +41,10 @@ func WatchBuild(build *gojenkins.Build) <-chan jobResult {
 	go func() {
 		defer close(resultChan)
 
-		i := 0
-		delay := minDelay
+		delay := util.GetIncreasingDelay(minDelay, maxDelay)
 		for {
-			time.Sleep(util.GetIncreasingTime(delay, i))
-			i++
-			if delay <= maxDelay {
-				delay += delayIncrease
-			}
+			time.Sleep(delay.GetNextDelay())
 
-			build.Poll()
 			if !build.IsRunning() {
 				resultChan <- jobResult{
 					status: build.GetResult(),
