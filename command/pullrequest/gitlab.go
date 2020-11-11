@@ -27,7 +27,7 @@ func newGitlabCommand(slackClient client.SlackClient, cfg config.Config, logger 
 		return nil
 	}
 
-	return &command{
+	return command{
 		cfg.PullRequest,
 		slackClient,
 		logger,

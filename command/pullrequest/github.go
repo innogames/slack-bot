@@ -29,7 +29,7 @@ func newGithubCommand(slackClient client.SlackClient, cfg config.Config, logger 
 
 	githubClient := github.NewClient(client)
 
-	return &command{
+	return command{
 		cfg.PullRequest,
 		slackClient,
 		logger,

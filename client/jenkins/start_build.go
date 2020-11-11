@@ -145,6 +145,12 @@ func startJob(jenkins Client, jobName string, jobParams map[string]string, logge
 
 // GetAttachment creates a attachment object for a given build
 func GetAttachment(build *gojenkins.Build, message string) slack.MsgOption {
+	attachment := getAttachment(build, message)
+
+	return slack.MsgOptionAttachments(attachment)
+}
+
+func getAttachment(build *gojenkins.Build, message string) slack.Attachment {
 	var icon string
 	var color string
 	if build.Raw.Building {
@@ -196,5 +202,5 @@ func GetAttachment(build *gojenkins.Build, message string) slack.MsgOption {
 		)
 	}
 
-	return slack.MsgOptionAttachments(attachment)
+	return attachment
 }

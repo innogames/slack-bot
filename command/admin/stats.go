@@ -24,7 +24,7 @@ func init() {
 
 // NewStatsCommand shows a bunch of runtime statistics of the bot (admin-only)
 func NewStatsCommand(slackClient client.SlackClient, cfg config.Config) bot.Command {
-	return &statsCommand{slackClient, cfg}
+	return statsCommand{slackClient, cfg}
 }
 
 type statsCommand struct {
@@ -52,6 +52,12 @@ func (c statsCommand) collectStats(result *statsResult) {
 	m := &runtime.MemStats{}
 	runtime.ReadMemStats(m)
 
+	result.addNewSection("Processed commands")
+	result.addValue("Total commands executed", formatStats(stats.TotalCommands))
+	result.addValue("Unknown Commands", formatStats(stats.UnknownCommands))
+	result.addValue("Unauthorized Commands", formatStats(stats.UnauthorizedCommands))
+	result.addValue("Queued commands", fmt.Sprintf("%d", queue.CountCurrentJobs()))
+
 	result.addNewSection("Server Runtime")
 	result.addValue("Uptime", util.FormatDuration(time.Since(startTime)))
 	result.addValue("Goroutines", fmt.Sprintf("%d", runtime.NumGoroutine()))
@@ -59,12 +65,6 @@ func (c statsCommand) collectStats(result *statsResult) {
 	result.addValue("Mem TotalAlloc", util.FormatBytes(m.TotalAlloc))
 	result.addValue("Mem Sys", util.FormatBytes(m.Sys))
 	result.addValue("NumGC", fmt.Sprintf("%d", m.NumGC))
-
-	result.addNewSection("Processed commands")
-	result.addValue("Total Commands", formatStats(stats.TotalCommands))
-	result.addValue("Unknown Commands", formatStats(stats.UnknownCommands))
-	result.addValue("Unauthorized Commands", formatStats(stats.UnauthorizedCommands))
-	result.addValue("Queued commands", fmt.Sprintf("%d", queue.CountCurrentJobs()))
 }
 
 type statsResult struct {

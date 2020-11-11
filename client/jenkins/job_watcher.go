@@ -32,7 +32,7 @@ func WatchJob(jenkins Client, jobName string, stop chan bool) (chan gojenkins.Bu
 				job.Poll()
 
 				build, _ := job.GetLastBuild()
-				if build == nil || build.IsRunning() {
+				if build == nil || build.Raw.Building {
 					continue
 				}
 

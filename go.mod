@@ -15,9 +15,9 @@ require (
 	github.com/go-test/deep v1.0.7 // indirect
 	github.com/gomodule/redigo v1.8.2 // indirect
 	github.com/google/go-github v17.0.0+incompatible
-	github.com/gookit/color v1.3.1
+	github.com/gookit/color v1.3.2
 	github.com/hashicorp/go-hclog v0.14.1 // indirect
-	github.com/hashicorp/go-retryablehttp v0.6.7 // indirect
+	github.com/hashicorp/go-retryablehttp v0.6.8 // indirect
 	github.com/jcelliott/lumber v0.0.0-20160324203708-dd349441af25 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.7 // indirect
@@ -34,11 +34,12 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/texttheater/golang-levenshtein v1.0.1
 	github.com/trivago/tgo v1.0.7 // indirect
-	github.com/xanzy/go-gitlab v0.38.2
+	github.com/xanzy/go-gitlab v0.39.0
 	github.com/yuin/gopher-lua v0.0.0-20200603152657-dc2b0ca8b37e // indirect
-	golang.org/x/net v0.0.0-20201024042810-be3efd7ff127 // indirect
-	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
-	golang.org/x/sys v0.0.0-20201024132449-ef9fd89ba245 // indirect
+	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect
+	golang.org/x/oauth2 v0.0.0-20201109201403-9fd604954f58
+	golang.org/x/sys v0.0.0-20201110211018-35f3e6cf4a65 // indirect
+	golang.org/x/text v0.3.4 // indirect
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776

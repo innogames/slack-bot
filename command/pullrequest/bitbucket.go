@@ -22,7 +22,7 @@ func newBitbucketCommand(slackClient client.SlackClient, cfg config.Config, logg
 
 	bitbucketClient, _ := client.GetBitbucketClient(cfg.Bitbucket)
 
-	return &command{
+	return command{
 		cfg.PullRequest,
 		slackClient,
 		logger,

@@ -6,16 +6,16 @@ import (
 )
 
 func NewConditionalMatcher(run conditionalRunner) Matcher {
-	return conditionalMather{run}
+	return conditionalMatcher{run}
 }
 
 type conditionalRunner func(event slack.MessageEvent) bool
 
-type conditionalMather struct {
+type conditionalMatcher struct {
 	run conditionalRunner
 }
 
-func (m conditionalMather) Match(event slack.MessageEvent) (Runner, Result) {
+func (m conditionalMatcher) Match(event slack.MessageEvent) (Runner, Result) {
 	var match MapResult
 
 	if m.run(event) {

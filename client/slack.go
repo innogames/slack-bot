@@ -81,11 +81,11 @@ func (s Slack) Reply(event slack.MessageEvent, text string, options ...slack.Msg
 }
 
 func (s Slack) AddReaction(name string, item slack.ItemRef) {
-	go s.Client.AddReaction(name, item)
+	s.Client.AddReaction(name, item)
 }
 
 func (s Slack) RemoveReaction(name string, item slack.ItemRef) {
-	go s.Client.RemoveReaction(name, item)
+	s.Client.RemoveReaction(name, item)
 }
 
 // SendMessage is the "slow" reply via POST request, needed for Attachment or MsgRef
