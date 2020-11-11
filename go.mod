@@ -3,10 +3,8 @@ module github.com/innogames/slack-bot
 go 1.14
 
 require (
-	github.com/PuloV/ics-golang v0.0.0-20190808201353-a3394d3bcade
 	github.com/alicebob/miniredis/v2 v2.13.1
 	github.com/bndr/gojenkins v1.0.1
-	github.com/channelmeter/iso8601duration v0.0.0-20150204201828-8da3af7a2a61 // indirect
 	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
