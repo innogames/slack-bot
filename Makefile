@@ -19,7 +19,7 @@ dep:
 docker-build:
 	docker build . --squash --force-rm -t brainexe/slack-bot:latest
 
-test:
+test: dep
 	go test ./... -race
 
 test-bench:

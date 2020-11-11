@@ -17,10 +17,9 @@ type Config struct {
 		AccessToken string
 		Host        string
 	}
-	Macros    []Macro
-	Crons     []Cron
-	Logger    Logger
-	Calendars []Calendar
+	Macros []Macro
+	Crons  []Cron
+	Logger Logger
 
 	// @deprecated
 	BranchLookup struct {

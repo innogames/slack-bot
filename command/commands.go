@@ -5,7 +5,6 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/admin"
-	"github.com/innogames/slack-bot/command/calendar"
 	"github.com/innogames/slack-bot/command/cron"
 	"github.com/innogames/slack-bot/command/custom"
 	"github.com/innogames/slack-bot/command/games"
@@ -43,8 +42,6 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logr
 
 		games.NewNumberGuesserCommand(slackClient),
 		games.NewQuizCommand(slackClient),
-
-		calendar.NewCalendarCommand(cfg.Calendars, logger),
 
 		mqtt.NewMqttCommand(slackClient, cfg.Mqtt),
 
