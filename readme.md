@@ -25,7 +25,7 @@ This slack bot improves the workflow of development teams. Especially with focus
 - `docker-compose up`
 
 **Advanced** (when planning working on the bot core)
-- install go (at least 1.12)
+- install go (at least 1.14)
 - clone/fork this repo
 - create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
 - run `go run cmd/bot/main.go` to run the go application
@@ -154,8 +154,8 @@ It's possible to create buttons which are performing any bot action when pressin
 **Config without a public reachable IP/Domain**
 1) start local [ngrok.io](https://ngrok.io) server (using local port 4390 by default)
 2) In [App settings](https://api.slack.com/apps) open the "Interactivity & Shortcuts" for your app and make sure it's enabled.
-3) Add the request URL. E.g. https://foobar.eu.ngrok.io/commands (Note: `/commands` is the slack-bot handle)
-4) In "Basic Information" of the Slack app, use the "Signing Secret" as verification_secret below:
+3) Add the request URL. E.g. https://foobar.eu.ngrok.io/interactions (Note: `/interactions` is the slack-bot handle)
+4) In "Basic Information" of the Slack app, use the "Signing Secret" as server.signing_secret below.
 5) Add this to the config and start the bot:
 ```
 server:

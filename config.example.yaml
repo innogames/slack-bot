@@ -123,10 +123,9 @@ macros:
       - "send message to <@UADMINID> We got feedback: {{ .feedback }}"
 
 # slack interaction server:
-#server:
-#  listen: 127.0.0.1:4390 # using local ngrok.io tunnel
-#  verification_secret: 12345678qwertzuiopasdfghj
-
+server:
+  listen: 127.0.0.1:4390 # using local ngrok.io tunnel
+  verification_secret: 12345678qwertzuiopasdfghj
 
 # used for the "weather" command to fetch current weather information from openweathermap.org
 #open_weathermap:

@@ -1,7 +1,6 @@
-package interaction
+package server
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -17,26 +16,60 @@ import (
 
 func (s *Server) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("pong"))
 }
 
-func (s *Server) interactionHandler(w http.ResponseWriter, r *http.Request) {
-	verifier, err := slack.NewSecretsVerifier(r.Header, s.cfg.VerificationSecret)
-	if err != nil {
-		s.error(w, errors.Wrap(err, "Could not initialize SecretVerifier"), http.StatusInternalServerError)
+func (s *Server) eventHandler(w http.ResponseWriter, r *http.Request) {
+	body, _ := ioutil.ReadAll(r.Body)
+	if !s.verifyRequest(w, r, body) {
 		return
 	}
 
-	re, _ := ioutil.ReadAll(r.Body)
-	verifier.Write(re)
-	r.Body = ioutil.NopCloser(bytes.NewReader(re))
+	eventsAPIEvent, e := slackevents.ParseEvent(body, slackevents.OptionNoVerifyToken())
+	if e != nil {
+		s.error(w, e, http.StatusInternalServerError)
+		return
+	}
 
-	if err = verifier.Ensure(); err != nil {
-		s.error(w, errors.Wrap(err, "Used invalid signature"), http.StatusUnauthorized)
+	if eventsAPIEvent.Type == slackevents.CallbackEvent {
+		innerEvent := eventsAPIEvent.InnerEvent
+
+		switch ev := innerEvent.Data.(type) {
+		case slackevents.MessageEvent:
+			client.InternalMessages <- slack.MessageEvent{
+				// todo fill
+			}
+		default:
+			fmt.Printf("%T -> %s \n ", ev, ev)
+		}
+		return
+	}
+
+	if eventsAPIEvent.Type == slackevents.URLVerification {
+		var r *slackevents.ChallengeResponse
+		err := json.Unmarshal(body, &r)
+		if err != nil {
+			s.error(w, e, http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "text")
+		w.Write([]byte(r.Challenge))
+		return
+	}
+}
+
+func (s *Server) indexHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("I'm your friendly slack-bot"))
+}
+
+func (s *Server) interactionHandler(w http.ResponseWriter, r *http.Request) {
+	body, _ := ioutil.ReadAll(r.Body)
+	if !s.verifyRequest(w, r, body) {
 		return
 	}
 
 	var payload slack.InteractionCallback
-	err = json.Unmarshal([]byte(r.FormValue("payload")), &payload)
+	err := json.Unmarshal([]byte(r.FormValue("payload")), &payload)
 	if err != nil {
 		s.error(w, errors.Wrap(err, "Could not parse action response JSON"), http.StatusInternalServerError)
 		return
@@ -84,6 +117,23 @@ func (s *Server) interactionHandler(w http.ResponseWriter, r *http.Request) {
 		slack.MsgOptionAttachments(newMessage.Attachments...),
 		slack.MsgOptionBlocks(newMessage.Blocks.BlockSet...),
 	)
+}
+
+func (s *Server) verifyRequest(w http.ResponseWriter, r *http.Request, body []byte) bool {
+	// verifyRequest signature
+	sv, err := slack.NewSecretsVerifier(r.Header, s.cfg.SigningSecret)
+	if err != nil {
+		s.error(w, err, http.StatusUnauthorized)
+		return false
+	}
+
+	sv.Write(body)
+	if err := sv.Ensure(); err != nil {
+		s.error(w, err, http.StatusUnauthorized)
+		return false
+	}
+
+	return true
 }
 
 func (s *Server) error(w http.ResponseWriter, err error, status int) {

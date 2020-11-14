@@ -49,7 +49,7 @@ func TestDelay(t *testing.T) {
 		assert.Equal(t, true, actual)
 		assert.Empty(t, client.InternalMessages)
 
-		time.Sleep(time.Millisecond * 30)
+		time.Sleep(time.Millisecond * 250)
 		assert.NotEmpty(t, client.InternalMessages)
 
 		handledEvent := <-client.InternalMessages

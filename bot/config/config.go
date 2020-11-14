@@ -2,8 +2,7 @@ package config
 
 // Config contains the full config structure of this bot
 type Config struct {
-	Slack Slack `mapstructure:"slack"`
-	// todo move
+	Slack       Slack     `mapstructure:"slack"`
 	Server      Server    `mapstructure:"server"`
 	Jenkins     Jenkins   `mapstructure:"jenkins"`
 	Jira        Jira      `mapstructure:"jira"`
@@ -61,12 +60,12 @@ type Slack struct {
 }
 
 type Server struct {
-	Listen             string `mapstructure:"listen"`
-	VerificationSecret string `mapstructure:"verification_secret"`
+	Listen        string `mapstructure:"listen"`
+	SigningSecret string `mapstructure:"signing_secret"`
 }
 
 func (c Server) IsEnabled() bool {
-	return c.Listen != "" && c.VerificationSecret != ""
+	return c.Listen != "" && c.SigningSecret != ""
 }
 
 type Logger struct {
