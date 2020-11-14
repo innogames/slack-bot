@@ -62,7 +62,7 @@ func TestJira(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = "jira ZOOKEEPER-10000000000"
 
-		slackClient.On("Reply", event, "Issue Does Not Exist: Request failed. Please analyze the request body for more details. Status code: 404")
+		slackClient.On("Reply", event, "Issue Does Not Exist: request failed. Please analyze the request body for more details. Status code: 404")
 
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
@@ -72,7 +72,7 @@ func TestJira(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = "jql FOO=BAR"
 
-		slackClient.On("Reply", event, "Field 'FOO' does not exist or this field cannot be viewed by anonymous users.: Request failed. Please analyze the request body for more details. Status code: 400")
+		slackClient.On("Reply", event, "Field 'FOO' does not exist or this field cannot be viewed by anonymous users.: request failed. Please analyze the request body for more details. Status code: 400")
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
 	})

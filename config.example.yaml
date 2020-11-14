@@ -128,6 +128,11 @@ macros:
 #  verification_secret: 12345678qwertzuiopasdfghj
 
 
+# used for the "weather" command to fetch current weather information from openweathermap.org
+#open_weathermap:
+#  api_key: iamtheapifromopenweathermap
+#  location: Hamburg
+
 # able to set a custom "approved" reactions to see directly who or which component/department approved a pullrequest
 pullrequest:
   custom_approve_reaction:

@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/alicebob/miniredis/v2 v2.13.1
+	github.com/andygrunwald/go-jira v1.13.0
 	github.com/bndr/gojenkins v1.0.1
 	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/fatih/color v1.9.0 // indirect
@@ -39,7 +40,8 @@ require (
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 	golang.org/x/sys v0.0.0-20201024132449-ef9fd89ba245 // indirect
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
-	gopkg.in/andygrunwald/go-jira.v1 v1.8.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
 )
+
+replace github.com/spf13/viper => github.com/brainexe/viper v0.0.0-20201112092033-7bf4d99562ca

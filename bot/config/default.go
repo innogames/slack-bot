@@ -8,7 +8,9 @@ var defaultConfig = Config{
 	Server: Server{
 		Listen: ":8765",
 	},
-
+	OpenWeather: OpenWeather{
+		Units: "metric",
+	},
 	// some default jira fields
 	Jira: Jira{
 		Fields: []JiraField{

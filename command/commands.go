@@ -54,7 +54,7 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logr
 		variables.GetCommand(slackClient),
 	)
 
-	// jenkins
+	// jira
 	commands.Merge(jira.GetCommands(cfg.Jira, slackClient, logger))
 
 	// jenkins

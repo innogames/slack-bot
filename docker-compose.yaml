@@ -2,13 +2,14 @@ version: '3'
 
 services:
   bot:
+    build: .
     image: brainexe/slack-bot:latest
     restart: always
     volumes:
-      - ./config.yaml:/config/config.yaml:ro
+      - ./config.yaml:/config.yaml:ro
       - ./bot.log:/bot.log
       - bot-data:/storage
-    command: ./app -config /config/*.yaml
+    command: ./app -config /config.yaml
 
 volumes:
   bot-data:

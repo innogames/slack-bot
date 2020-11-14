@@ -28,7 +28,8 @@ func GetLogger(cfg config.Config) *log.Logger {
 	return logger
 }
 
-func (b bot) getLogger(event slack.MessageEvent) *log.Entry {
+// get a log.Entry with some user related fields
+func (b bot) getUserBasedLogger(event slack.MessageEvent) *log.Entry {
 	_, username := client.GetUser(event.User)
 
 	channel := ""

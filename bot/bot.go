@@ -64,7 +64,7 @@ func (b *bot) Init() (err error) {
 	}
 	client.BotUserId = b.auth.UserID
 
-	go b.slackClient.ManageConnection()
+	go b.slackClient.RTM.ManageConnection()
 
 	err = b.loadChannels()
 	if err != nil {
@@ -241,12 +241,13 @@ func (b bot) handleMessage(event slack.MessageEvent) {
 	}
 
 	start := time.Now()
-	logger := b.getLogger(event)
+	logger := b.getUserBasedLogger(event)
 
 	// send "bot is typing" command
 	// todo check if RTM is enabled/ready
 	b.slackClient.RTM.SendMessage(b.slackClient.NewTypingMessage(event.Channel))
 
+	// prevent messages from one user processed in parallel (usual + internal ones)
 	lock := b.getUserLock(event.User)
 	defer lock.Unlock()
 
