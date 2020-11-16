@@ -17,7 +17,7 @@ dep:
 	go mod vendor
 
 docker-build:
-	docker build . --squash --force-rm -t brainexe/slack-bot:latest
+	docker build . --force-rm -t brainexe/slack-bot:latest
 
 test: dep
 	go test ./... -race

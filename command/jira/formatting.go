@@ -2,8 +2,8 @@ package jira
 
 import (
 	"fmt"
+	"github.com/andygrunwald/go-jira"
 	"github.com/innogames/slack-bot/bot/config"
-	"gopkg.in/andygrunwald/go-jira.v1"
 	"strings"
 )
 

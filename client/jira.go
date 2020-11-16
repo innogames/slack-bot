@@ -1,12 +1,12 @@
 package client
 
 import (
+	"github.com/andygrunwald/go-jira"
 	"github.com/innogames/slack-bot/bot/config"
-	"gopkg.in/andygrunwald/go-jira.v1"
 	"net/http"
 )
 
-// GetJiraClient created a jira client based on gopkg.in/andygrunwald/go-jira.v1
+// GetJiraClient created a jira client based on github.com/andygrunwald/go-jira"
 func GetJiraClient(cfg config.Jira) (*jira.Client, error) {
 	var client *http.Client
 
@@ -16,6 +16,8 @@ func GetJiraClient(cfg config.Jira) (*jira.Client, error) {
 			Password: cfg.Password,
 		}
 		client = authClient.Client()
+	} else {
+		client = http.DefaultClient
 	}
 
 	return jira.NewClient(client, cfg.Host)

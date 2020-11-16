@@ -11,10 +11,11 @@ This slack bot improves the workflow of development teams. Especially with focus
 
 # Installation
 **Create Classic Slack App:**
-- Create a [Classic Slack App](https://api.slack.com/apps?new_classic_app=1)
-- Go to "Bot" section and create a "Legacy Bot user" 
-- Go to "OAuth & Permissions" and install the app in your workspace
-- A "Bot User OAuth Access Token" is visible (starts with "xoxb-"). You need this one in the config.yaml in slack->token.
+- Create a [Classic Slack App](https://api.slack.com/apps?new_classic_app=1) - IMPORTANT: only Classic apps are fully supported yet!
+- Go to "App Home" and "First, add a legacy bot user"
+- Go to "Incoming Webhooks" and Activate Incoming Webhooks"
+- Go to "Basic Information" and "Install your app to your workspace"
+- Back to "Install app" tab, the "Bot User OAuth Access Token" is visible (starts with "xoxb-"). You need this one in the config.yaml in slack->token.
 
 **Quick steps:** (just use the bot via Docker)
 - install Docker incl. docker-compose
@@ -24,7 +25,7 @@ This slack bot improves the workflow of development teams. Especially with focus
 - `docker-compose up`
 
 **Advanced** (when planning working on the bot core)
-- install go (at least 1.12)
+- install go (at least 1.14)
 - clone/fork this repo
 - create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
 - run `go run cmd/bot/main.go` to run the go application
@@ -153,8 +154,8 @@ It's possible to create buttons which are performing any bot action when pressin
 **Config without a public reachable IP/Domain**
 1) start local [ngrok.io](https://ngrok.io) server (using local port 4390 by default)
 2) In [App settings](https://api.slack.com/apps) open the "Interactivity & Shortcuts" for your app and make sure it's enabled.
-3) Add the request URL. E.g. https://foobar.eu.ngrok.io/commands (Note: `/commands` is the slack-bot handle)
-4) In "Basic Information" of the Slack app, use the "Signing Secret" as verification_secret below:
+3) Add the request URL. E.g. https://foobar.eu.ngrok.io/interactions (Note: `/interactions` is the slack-bot handle)
+4) In "Basic Information" of the Slack app, use the "Signing Secret" as server.signing_secret below.
 5) Add this to the config and start the bot:
 ```
 server:
@@ -386,27 +387,6 @@ crons:
     channel: "#backend"
 ```
 
-### Calendar
-Trigger commands by calendar entries of an ical/icl calendar.
-
-**Example:**
-```
-calendars:
-  - path: https://calendar.google.com/calendar/ical/ic2sdfafdsfdsfdsfsdfds5d0c19f8/basic.ics
-    events:
-    - name: Create release branch
-      trigger: "Create release branch (?P<branch>.*)"
-      commands:
-      - "trigger job CreateReleaseBranch {.branch}"
-      - "send message to #release I'll created branch {.branch}"
-    - name: "beer time"
-      trigger: "beer time"
-      commands:
-      - "send message to #all :beer:"
-
-```
-The calendar appointment "Create release branch 2.124" will start the given jenkins job and post a message into #release channel
-
 ## VCS / Stash / Bitbucket
 To be able to resolve branch names in jenkins trigger, a VCS system can be configured (at the moment it's just Stash/Bitbucket).
 ```
@@ -424,8 +404,8 @@ If no config is provided, there is no automated branch lookup and the "branch" p
 
 ## File structure
 - `bot` contains the code classes of the bot: connection to slack, user management, command matching
-- `cmd` entry points aka main.go for the bot and the CLI tool
-- `command` real command implementations impleenting the bot.Command interace
+- `cmd` entry points aka main.go for the bot and the CLI test tool
+- `command` real command implementing the bot.Command interface
 
 ## Create a new (native) command
 If you need a new command, which is not implementable with a "macro" command, you have to write to write go code.
@@ -452,7 +432,5 @@ Test coverage is generated to build/coverage.html
 make test-coverage
 ```
 
-## Benchmarks
-```
-make test-bench
-```
+# Support
+There is [a new Slack-Group](https://join.slack.com/t/slack-bot-go/signup) which can give support if you need help to setup this slack-bot.

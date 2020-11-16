@@ -1,4 +1,4 @@
-package interaction
+package server
 
 import (
 	"context"
@@ -23,12 +23,14 @@ type Server struct {
 	allowedUsers map[string]string
 }
 
-// StartServer to receive slack interactions
+// StartServer to receive slack interactions or events via event-api
 // https://api.slack.com/messaging/interactivity
+// https://api.slack.com/events-api
 func (s *Server) StartServer() {
+	http.HandleFunc("/", s.indexHandler)
 	http.HandleFunc("/health", s.healthCheckHandler)
-	http.HandleFunc("/commands", s.interactionHandler)
-	//	http.HandleFunc("/events-endpoint", s.eventHandler)
+	http.HandleFunc("/interactions", s.interactionHandler)
+	http.HandleFunc("/events", s.eventHandler)
 
 	s.server = &http.Server{
 		Addr: s.cfg.Listen,

@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/interaction"
+	"github.com/innogames/slack-bot/bot/server"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/pkg/errors"
@@ -47,7 +47,7 @@ type bot struct {
 	auth         *slack.AuthTestResponse
 	commands     *Commands
 	allowedUsers map[string]string
-	server       *interaction.Server
+	server       *server.Server
 	userLocks    map[string]*sync.Mutex
 }
 
@@ -64,7 +64,7 @@ func (b *bot) Init() (err error) {
 	}
 	client.BotUserId = b.auth.UserID
 
-	go b.slackClient.ManageConnection()
+	go b.slackClient.RTM.ManageConnection()
 
 	err = b.loadChannels()
 	if err != nil {
@@ -88,12 +88,12 @@ func (b *bot) Init() (err error) {
 	}
 
 	if b.config.Server.IsEnabled() {
-		b.server = interaction.NewServer(b.config.Server, b.logger, b.slackClient, b.allowedUsers)
+		b.server = server.NewServer(b.config.Server, b.logger, b.slackClient, b.allowedUsers)
 		go b.server.StartServer()
 	}
 
 	b.logger.Infof("Loaded %d allowed users and %d channels", len(b.allowedUsers), len(client.Channels))
-	b.logger.Infof("bot user: %s with ID: %s", b.auth.User, b.auth.UserID)
+	b.logger.Infof("Bot user: %s with ID %s on workspace %s", b.auth.User, b.auth.UserID, b.auth.URL)
 	b.logger.Infof("Initialized %d commands", b.commands.Count())
 
 	return nil
@@ -241,12 +241,13 @@ func (b bot) handleMessage(event slack.MessageEvent) {
 	}
 
 	start := time.Now()
-	logger := b.getLogger(event)
+	logger := b.getUserBasedLogger(event)
 
 	// send "bot is typing" command
 	// todo check if RTM is enabled/ready
 	b.slackClient.RTM.SendMessage(b.slackClient.NewTypingMessage(event.Channel))
 
+	// prevent messages from one user processed in parallel (usual + internal ones)
 	lock := b.getUserLock(event.User)
 	defer lock.Unlock()
 

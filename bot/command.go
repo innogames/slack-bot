@@ -99,6 +99,10 @@ func (c *Commands) Count() int {
 }
 
 func (c *Commands) compile() {
+	if c.compiled {
+		return
+	}
+
 	// make sure only one process is creating the compiled list
 	lock.Lock()
 	defer lock.Unlock()

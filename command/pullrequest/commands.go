@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// GetCommands returns a list of all available PR watcher (gitlab, github etc) based on the current config
+// GetCommands returns a list of all available PR watcher (gitlab, github, bitbucket etc) based on the current config
 func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logrus.Logger) bot.Commands {
 	commands := bot.Commands{}
 

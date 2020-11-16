@@ -7,6 +7,7 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 )
 
+// GetBitbucketClient initialized a API client based on the given config
 func GetBitbucketClient(cfg config.Bitbucket) (*bitbucket.APIClient, error) {
 	if !cfg.IsEnabled() {
 		return nil, errors.New("bitbucket: No host given")

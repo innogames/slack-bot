@@ -18,8 +18,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// main entry point for the bot application. Listens on incoming slack messages and handles them
 func main() {
-	configFile := flag.String("config", "config.yaml", "Path to config.yaml. Can be a glob pattern like 'config/*.yaml'")
+	configFile := flag.String("config", "config.yaml", "Path to config.yaml. Can be a directory which will load all '*.yaml' inside")
 	flag.Parse()
 
 	cfg, err := config.Load(*configFile)
@@ -38,6 +39,7 @@ func main() {
 
 	vcs.InitBranchWatcher(cfg, logger)
 
+	// todo(matze) check if we really want it here
 	// make sure we're random enough
 	rand.Seed(time.Now().UnixNano())
 
