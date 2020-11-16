@@ -18,7 +18,7 @@ import (
 )
 
 // TypeInternal is only used internally to identify internal slack messages.
-// @deprecated do not use it anymore
+// todo(matze) do not use it anymore
 const TypeInternal = "internal"
 
 var linkRegexp = regexp.MustCompile("<[^\\s]+?\\|(.*?)>")

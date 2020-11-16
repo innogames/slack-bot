@@ -7,12 +7,15 @@ import (
 )
 
 var stripDecimalPlace = regexp.MustCompile(`(\d+)\.\d+([µa-z]+)`)
+var durationReplacer = strings.NewReplacer(
+	"min", "m",
+	"sec", "s",
+)
 
 // ParseDuration also allowes other duration modifier like "min" or "sec"
 // e.g. 12min10sec -> 12m10s
 func ParseDuration(input string) (time.Duration, error) {
-	input = strings.Replace(input, "min", "m", 1)
-	input = strings.Replace(input, "sec", "s", 1)
+	input = durationReplacer.Replace(input)
 
 	return time.ParseDuration(input)
 }

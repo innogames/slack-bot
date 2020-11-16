@@ -3,7 +3,7 @@ package vcs
 import (
 	bitbucketServer "github.com/gfleury/go-bitbucket-v1/test/bb-mock-server/go"
 	"github.com/innogames/slack-bot/bot/config"
-	client2 "github.com/innogames/slack-bot/client"
+	"github.com/innogames/slack-bot/client"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -21,7 +21,7 @@ func TestBitbucketLoader(t *testing.T) {
 		Repository: "myRepo",
 		ApiKey:     "0815",
 	}
-	bitbucketClient, _ := client2.GetBitbucketClient(cfg)
+	bitbucketClient, _ := client.GetBitbucketClient(cfg)
 	fetcher := &bitbucket{
 		bitbucketClient,
 		cfg,

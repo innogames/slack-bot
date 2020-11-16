@@ -43,7 +43,7 @@ func (c *gitlabFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 	repo = strings.TrimSuffix(repo, "/-")
 
 	prNumber := match.GetInt("number")
-	rawPullRequest, _, err := c.client.MergeRequests.GetMergeRequest(
+	rawPullRequest, resp, err := c.client.MergeRequests.GetMergeRequest(
 		repo,
 		prNumber,
 		&gitlab.GetMergeRequestsOptions{},
@@ -51,6 +51,7 @@ func (c *gitlabFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 	if err != nil {
 		return pr, err
 	}
+	resp.Body.Close()
 
 	pr = pullRequest{
 		name:      rawPullRequest.Title,
@@ -67,11 +68,14 @@ func (c *gitlabFetcher) getApprovers(rawPullRequest *gitlab.MergeRequest, prNumb
 	approvers := make([]string, 0)
 
 	if rawPullRequest.Upvotes > 0 {
-		emojis, _, _ := c.client.AwardEmoji.ListMergeRequestAwardEmoji(
+		emojis, resp, _ := c.client.AwardEmoji.ListMergeRequestAwardEmoji(
 			rawPullRequest.SourceProjectID,
 			prNumber,
 			&gitlab.ListAwardEmojiOptions{},
 		)
+		if resp != nil {
+			resp.Body.Close()
+		}
 		for _, emoji := range emojis {
 			if emoji.Name == "thumbsup" {
 				approvers = append(approvers, emoji.User.Username)

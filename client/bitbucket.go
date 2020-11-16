@@ -21,8 +21,6 @@ func GetBitbucketClient(cfg config.Bitbucket) (*bitbucket.APIClient, error) {
 	} else if cfg.Username != "" && cfg.Password != "" {
 		basicAuth := bitbucket.BasicAuth{UserName: cfg.Username, Password: cfg.Password}
 		ctx = context.WithValue(ctx, bitbucket.ContextBasicAuth, basicAuth)
-	} else {
-		return nil, errors.New("bitbucket: No username/password or api_key given")
 	}
 
 	config := bitbucket.NewConfiguration(cfg.Host + "/rest")

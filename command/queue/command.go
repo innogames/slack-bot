@@ -49,9 +49,11 @@ func (c *command) Run(match matcher.Result, event slack.MessageEvent) {
 		// todo avoid polling here by another chan etc + make thread safe
 		ticker := time.NewTicker(time.Millisecond * 250)
 		defer ticker.Stop()
+		key := getKey(event)
+
 		for range ticker.C {
-			mu.Lock()
-			if _, ok := runningCommands[getKey(event)]; ok {
+			mu.Lock() // todo rlock
+			if _, ok := runningCommands[key]; ok {
 				// still running...
 				mu.Unlock()
 

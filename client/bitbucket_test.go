@@ -22,9 +22,8 @@ func TestBitbucket(t *testing.T) {
 		}
 
 		client, err := GetBitbucketClient(cfg)
-
-		assert.Nil(t, client)
-		assert.Equal(t, "bitbucket: No username/password or api_key given", err.Error())
+		assert.Nil(t, err)
+		assert.NotNil(t, client)
 	})
 
 	t.Run("with username/password", func(t *testing.T) {

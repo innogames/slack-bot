@@ -64,6 +64,7 @@ func (c command) GetWeather(match matcher.Result, event slack.MessageEvent) {
 
 	var record CurrentWeatherResponse
 	err = json.NewDecoder(response.Body).Decode(&record)
+	response.Body.Close()
 	if err != nil {
 		c.slackClient.ReplyError(event, err)
 		return

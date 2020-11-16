@@ -18,6 +18,7 @@ func (f bitbucket) LoadBranches() ([]string, error) {
 	if err != nil {
 		return branchNames, err
 	}
+	branchesRaw.Body.Close()
 
 	branches, err := bitbucketApi.GetBranchesResponse(branchesRaw)
 	if err != nil {

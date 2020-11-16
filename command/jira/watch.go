@@ -33,12 +33,13 @@ func (c *watchCommand) GetMatcher() matcher.Matcher {
 
 func (c *watchCommand) Run(match matcher.Result, event slack.MessageEvent) {
 	ticketId := match.GetString("ticketId")
-	issue, _, err := c.jira.Issue.Get(ticketId, nil)
+	issue, response, err := c.jira.Issue.Get(ticketId, nil)
 
 	if err != nil {
 		c.slackClient.Reply(event, err.Error())
 		return
 	}
+	response.Body.Close()
 
 	go c.watchTicket(event, issue)
 
@@ -56,12 +57,13 @@ func (c *watchCommand) watchTicket(event slack.MessageEvent, issue *jira.Issue) 
 
 	done := queue.AddRunningCommand(event, event.Text)
 	for range ticker.C {
-		issue, _, err := c.jira.Issue.Get(issue.ID, nil)
+		issue, resp, err := c.jira.Issue.Get(issue.ID, nil)
 		if err != nil {
 			done <- true
 			c.slackClient.ReplyError(event, err)
 			return
 		}
+		resp.Body.Close()
 		newStatus := issue.Fields.Status.Name
 
 		if newStatus != lastStatus {
