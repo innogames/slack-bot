@@ -8,7 +8,7 @@ import (
 )
 
 // GetBitbucketClient initialized a API client based on the given config
-func GetBitbucketClient(cfg config.Bitbucket) (*bitbucket.APIClient, error) {
+func GetBitbucketClient(cfg config.Bitbucket) (*bitbucket.DefaultApiService, error) {
 	if !cfg.IsEnabled() {
 		return nil, errors.New("bitbucket: No host given")
 	}
@@ -26,5 +26,5 @@ func GetBitbucketClient(cfg config.Bitbucket) (*bitbucket.APIClient, error) {
 	config := bitbucket.NewConfiguration(cfg.Host + "/rest")
 	bitbucketClient := bitbucket.NewAPIClient(ctx, config)
 
-	return bitbucketClient, nil
+	return bitbucketClient.DefaultApi, nil
 }

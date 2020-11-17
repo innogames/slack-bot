@@ -36,8 +36,10 @@ func GetSlackClient(cfg config.Slack, logger *logrus.Logger) *Slack {
 		options = append(options, slack.OptionDebug(true))
 	}
 
-	rtm := slack.New(cfg.Token, options...).NewRTM()
-	slackClient := &Slack{RTM: *rtm, logger: logger, config: cfg}
+	rawClient := slack.New(cfg.Token, options...)
+	rtm := rawClient.NewRTM()
+
+	slackClient := &Slack{Client: rawClient, RTM: rtm, logger: logger, config: cfg}
 
 	return slackClient
 }
@@ -60,7 +62,8 @@ type SlackClient interface {
 }
 
 type Slack struct {
-	slack.RTM
+	*slack.Client
+	RTM    *slack.RTM
 	config config.Slack
 	logger *logrus.Logger
 }

@@ -1,4 +1,9 @@
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
 name: Test
 jobs:
   test:
@@ -18,3 +23,12 @@ jobs:
         run: make test-coverage
       - name: Upload Coverage
         uses: codecov/codecov-action@v1
+  lint:
+    runs-on: ubuntu-latest
+    name: lint
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.32

@@ -18,7 +18,7 @@ func TestGetSlackClient(t *testing.T) {
 
 	client := GetSlackClient(cfg, logger)
 
-	_, _, err := client.ConnectRTM()
+	_, _, err := client.RTM.ConnectRTM()
 	assert.Contains(t, err.Error(), "slack.example.com")
 }
 

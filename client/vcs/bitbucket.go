@@ -6,7 +6,7 @@ import (
 )
 
 type bitbucket struct {
-	client *bitbucketApi.APIClient
+	client *bitbucketApi.DefaultApiService
 	cfg    config.Bitbucket
 }
 
@@ -14,7 +14,7 @@ type bitbucket struct {
 func (f bitbucket) LoadBranches() ([]string, error) {
 	var branchNames []string
 
-	branchesRaw, err := f.client.DefaultApi.GetBranches(f.cfg.Project, f.cfg.Repository, nil)
+	branchesRaw, err := f.client.GetBranches(f.cfg.Project, f.cfg.Repository, nil)
 	if err != nil {
 		return branchNames, err
 	}

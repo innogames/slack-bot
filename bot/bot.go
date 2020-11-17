@@ -23,6 +23,11 @@ const TypeInternal = "internal"
 
 var linkRegexp = regexp.MustCompile("<[^\\s]+?\\|(.*?)>")
 
+var cleanMessage = strings.NewReplacer(
+	"‘", "'",
+	"’", "'",
+)
+
 // Handler is the main bot interface
 type Handler interface {
 	HandleMessages(kill chan os.Signal)
@@ -57,7 +62,7 @@ func (b *bot) Init() (err error) {
 		return errors.Errorf("No slack.token provided in config!")
 	}
 
-	b.logger.Infof("Connecting to slack...")
+	b.logger.Info("Connecting to slack...")
 	b.auth, err = b.slackClient.AuthTest()
 	if err != nil {
 		return errors.Wrap(err, "auth error")
@@ -106,6 +111,7 @@ func (b *bot) loadChannels() error {
 
 	client.Channels = make(map[string]string)
 
+	// todo proper pagination
 	for err == nil {
 		options := &slack.GetConversationsParameters{
 			Limit:           500,
@@ -128,13 +134,13 @@ func (b *bot) loadChannels() error {
 	return nil
 }
 
-// Disconnect will do a clean shutdown and kills all connections
-func (b *bot) Disconnect() error {
+// DisconnectRTM will do a clean shutdown and kills all connections
+func (b *bot) DisconnectRTM() error {
 	if b.server != nil {
 		b.server.Stop()
 	}
 
-	return b.slackClient.Disconnect()
+	return b.slackClient.RTM.Disconnect()
 }
 
 // load the public channels and list of all users from current space
@@ -171,7 +177,7 @@ func (b *bot) loadSlackData() error {
 func (b bot) HandleMessages(kill chan os.Signal) {
 	for {
 		select {
-		case msg := <-b.slackClient.IncomingEvents:
+		case msg := <-b.slackClient.RTM.IncomingEvents:
 			// message received from user
 			switch message := msg.Data.(type) {
 			case *slack.HelloEvent:
@@ -191,8 +197,8 @@ func (b bot) HandleMessages(kill chan os.Signal) {
 			msg.SubType = TypeInternal
 			go b.handleMessage(msg)
 		case <-kill:
-			b.Disconnect()
-			b.logger.Warnf("Shutdown!")
+			b.DisconnectRTM()
+			b.logger.Warn("Shutdown!")
 			return
 		}
 	}
@@ -219,10 +225,8 @@ func (b bot) shouldHandleMessage(event *slack.MessageEvent) bool {
 
 // remove @bot prefix of message and cleanup
 func (b bot) trimMessage(msg string) string {
-	// todo use strings.NewReplacer
 	msg = strings.Replace(msg, "<@"+b.auth.UserID+">", "", 1)
-	msg = strings.Replace(msg, "‘", "'", -1)
-	msg = strings.Replace(msg, "’", "'", -1)
+	msg = cleanMessage.Replace(msg)
 
 	return strings.TrimSpace(msg)
 }
@@ -244,8 +248,9 @@ func (b bot) handleMessage(event slack.MessageEvent) {
 	logger := b.getUserBasedLogger(event)
 
 	// send "bot is typing" command
-	// todo check if RTM is enabled/ready
-	b.slackClient.RTM.SendMessage(b.slackClient.NewTypingMessage(event.Channel))
+	if b.slackClient.RTM != nil {
+		b.slackClient.RTM.SendMessage(b.slackClient.RTM.NewTypingMessage(event.Channel))
+	}
 
 	// prevent messages from one user processed in parallel (usual + internal ones)
 	lock := b.getUserLock(event.User)

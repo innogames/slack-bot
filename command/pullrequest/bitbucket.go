@@ -12,7 +12,7 @@ import (
 )
 
 type bitbucketFetcher struct {
-	bitbucketClient *bitbucket.APIClient
+	bitbucketClient *bitbucket.DefaultApiService
 }
 
 func newBitbucketCommand(slackClient client.SlackClient, cfg config.Config, logger *logrus.Logger) bot.Command {
@@ -37,7 +37,7 @@ func (c *bitbucketFetcher) getPullRequest(match matcher.Result) (pullRequest, er
 	project := match.GetString("project")
 	repo := match.GetString("repo")
 	number := match.GetInt("number")
-	rawResponse, err := c.bitbucketClient.DefaultApi.GetPullRequest(project, repo, number)
+	rawResponse, err := c.bitbucketClient.GetPullRequest(project, repo, number)
 	if err != nil {
 		return pr, err
 	}
@@ -75,7 +75,7 @@ func (c *bitbucketFetcher) getBuildStatus(rawPullRequest bitbucket.PullRequest) 
 		return buildStatus
 	}
 
-	rawBuilds, err := c.bitbucketClient.DefaultApi.GetCommitBuildStatuses(lastCommit)
+	rawBuilds, err := c.bitbucketClient.GetCommitBuildStatuses(lastCommit)
 	if err != nil {
 		return buildStatus
 	}

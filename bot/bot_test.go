@@ -15,8 +15,8 @@ import (
 func TestBot(t *testing.T) {
 	cfg := config.Config{}
 
-	slackClient := &client.Slack{}
-	slackClient.RTM = *slackClient.NewRTM()
+	rawSlackClient := &slack.Client{}
+	slackClient := &client.Slack{Client: rawSlackClient, RTM: rawSlackClient.NewRTM()}
 
 	logger, _ := test.NewNullLogger()
 

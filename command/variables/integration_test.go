@@ -12,7 +12,7 @@ import (
 func TestCustomCommands(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	commands := bot.Commands{}
-	variablesCommand := GetCommand(slackClient).(*command)
+	variablesCommand := GetCommand(slackClient).(command)
 	commands.AddCommand(variablesCommand)
 
 	t.Run("Invalid command", func(t *testing.T) {
