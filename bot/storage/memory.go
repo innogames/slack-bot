@@ -8,7 +8,7 @@ import (
 
 type memoryCollection map[string][]byte
 
-func newMemoryStorage() storage {
+func newMemoryStorage() Storage {
 	return &memoryStorage{
 		storage: make(map[string]memoryCollection),
 		mutex:   sync.RWMutex{},

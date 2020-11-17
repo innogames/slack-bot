@@ -9,7 +9,7 @@ import (
 	scribble "github.com/nanobox-io/golang-scribble"
 )
 
-func newFileStorage(dir string) (storage, error) {
+func newFileStorage(dir string) (Storage, error) {
 	driver, err := scribble.New(dir, &scribble.Options{})
 
 	return &fileStorage{driver, dir}, err

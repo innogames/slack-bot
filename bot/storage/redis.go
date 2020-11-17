@@ -7,7 +7,7 @@ import (
 	"github.com/go-redis/redis/v7"
 )
 
-func NewRedisStorage(client *redis.Client) storage {
+func NewRedisStorage(client *redis.Client) Storage {
 	return &redisStorage{
 		client: client,
 	}

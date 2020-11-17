@@ -4,14 +4,14 @@ import "sync"
 
 var globalLock sync.Mutex
 
-func (b bot) getUserLock(userId string) *sync.Mutex {
+func (b Bot) getUserLock(userID string) *sync.Mutex {
 	var userLock *sync.Mutex
 
 	globalLock.Lock()
-	userLock, ok := b.userLocks[userId]
+	userLock, ok := b.userLocks[userID]
 	if !ok {
 		userLock = &sync.Mutex{}
-		b.userLocks[userId] = userLock
+		b.userLocks[userID] = userLock
 	}
 	globalLock.Unlock()
 

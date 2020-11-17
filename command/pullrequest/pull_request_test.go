@@ -4,6 +4,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -154,7 +155,7 @@ func TestPullRequest(t *testing.T) {
 }
 
 // creates a fresh instance of Commands a clean Fetcher to avoid racing conditions
-func initTest(slackClient *mocks.SlackClient) (bot.Commands, *testFetcher) {
+func initTest(slackClient client.SlackClient) (bot.Commands, *testFetcher) {
 	fetcher := &testFetcher{}
 	commands := bot.Commands{}
 	logger := logrus.New()

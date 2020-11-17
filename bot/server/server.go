@@ -51,14 +51,14 @@ func (s *Server) Stop() error {
 	return s.server.Shutdown(context.Background())
 }
 
-func getChangedMessage(newMessage slack.Message, actionId string) slack.Message {
+func getChangedMessage(newMessage slack.Message, actionID string) slack.Message {
 	for _, blocks := range newMessage.Blocks.BlockSet {
 		if actionBlock, ok := blocks.(*slack.ActionBlock); ok {
 			for _, block := range actionBlock.Elements.ElementSet {
 				if buttonBlock, ok := block.(*slack.ButtonBlockElement); ok {
-					if buttonBlock.Value == actionId {
+					if buttonBlock.Value == actionID {
 						buttonBlock.Value = ""
-						buttonBlock.Text.Text = buttonBlock.Text.Text + " (already clicked)"
+						buttonBlock.Text.Text += " (already clicked)"
 					}
 				}
 			}

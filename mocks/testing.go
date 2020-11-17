@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func AssertSlackJson(t *testing.T, slackClient *SlackClient, event slack.MessageEvent, expected url.Values) {
+func AssertSlackJSON(t *testing.T, slackClient *SlackClient, event slack.MessageEvent, expected url.Values) {
 	slackClient.On("SendMessage", event, "", mock.MatchedBy(func(option slack.MsgOption) bool {
 		_, values, _ := slack.UnsafeApplyMsgOptions(
 			"token",

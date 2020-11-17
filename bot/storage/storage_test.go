@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func testStorage(t *testing.T, storage storage) {
+func testStorage(t *testing.T, storage Storage) {
 	var err error
 	var stringValue string
 	var intValue int
@@ -31,7 +31,7 @@ func testStorage(t *testing.T, storage storage) {
 	keys, err := storage.GetKeys(collection)
 	assert.Nil(t, err)
 	assert.Len(t, keys, 3)
-	//assert.Equal(t, []string{"test-string", "test-int", "test-map"}, keys)
+	// assert.Equal(t, []string{"test-string", "test-int", "test-map"}, keys)
 
 	keys, err = storage.GetKeys("invalid-collection")
 	assert.Error(t, err)
@@ -63,28 +63,27 @@ func testStorage(t *testing.T, storage storage) {
 	assert.Len(t, keys, 0)
 
 	keys, err = GetKeys("../")
-	assert.EqualError(t, err, "invalid storage key: ../")
+	assert.EqualError(t, err, "invalid Storage key: ../")
 	assert.Len(t, keys, 0)
 }
 
 func TestStorage(t *testing.T) {
-
 	t.Run("validate keys", func(t *testing.T) {
 		var err error
 		err = validateKey("valid", "also-val-id")
 		assert.Nil(t, err)
 
 		err = validateKey("valid", "not#valid")
-		assert.EqualError(t, err, "invalid storage key: not#valid")
+		assert.EqualError(t, err, "invalid Storage key: not#valid")
 
 		err = validateKey("valid", "../../passwd")
-		assert.EqualError(t, err, "invalid storage key: ../../passwd")
+		assert.EqualError(t, err, "invalid Storage key: ../../passwd")
 
 		err = validateKey("")
-		assert.EqualError(t, err, "invalid storage key: ")
+		assert.EqualError(t, err, "invalid Storage key: ")
 	})
 
-	t.Run("test init storage", func(t *testing.T) {
+	t.Run("test init Storage", func(t *testing.T) {
 		storage := getStorage()
 
 		assert.IsType(t, &memoryStorage{}, storage)

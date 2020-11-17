@@ -16,11 +16,7 @@ import (
 )
 
 // bots uptime
-var startTime time.Time
-
-func init() {
-	startTime = time.Now()
-}
+var startTime = time.Now()
 
 // NewStatsCommand shows a bunch of runtime statistics of the bot (admin-only)
 func NewStatsCommand(slackClient client.SlackClient, cfg config.Config) bot.Command {

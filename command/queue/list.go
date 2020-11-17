@@ -33,18 +33,18 @@ func (c *listCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c *listCommand) ListAll(match matcher.Result, event slack.MessageEvent) {
-	c.listQueue(match, event, func(event slack.MessageEvent) bool {
+	c.listQueue(event, func(event slack.MessageEvent) bool {
 		return true
 	})
 }
 
 func (c *listCommand) ListChannel(match matcher.Result, event slack.MessageEvent) {
-	c.listQueue(match, event, func(queuedEvent slack.MessageEvent) bool {
+	c.listQueue(event, func(queuedEvent slack.MessageEvent) bool {
 		return event.Channel == queuedEvent.Channel
 	})
 }
 
-func (c *listCommand) listQueue(match matcher.Result, event slack.MessageEvent, filter filterFunc) {
+func (c *listCommand) listQueue(event slack.MessageEvent, filter filterFunc) {
 	keys, _ := storage.GetKeys(storageKey)
 	now := time.Now()
 
@@ -62,14 +62,14 @@ func (c *listCommand) listQueue(match matcher.Result, event slack.MessageEvent, 
 		}
 
 		count++
-		userId, _ := client.GetUser(queuedEvent.User)
+		userID, _ := client.GetUser(queuedEvent.User)
 
 		messageTime := util.GetMessageTime(queuedEvent)
 		timeAgo := now.Sub(messageTime)
 		color := getColor(timeAgo)
 		text := fmt.Sprintf(
 			"<@%s> (%s, %s ago): ```%s``` %s \n",
-			userId,
+			userID,
 			messageTime.Format(time.Stamp),
 			util.FormatDuration(timeAgo),
 			queuedEvent.Text,

@@ -16,8 +16,8 @@ import (
 // InternalMessages is internal queue of internal messages
 var InternalMessages = make(chan slack.MessageEvent, 50)
 
-// BotUserId is filled with the slack user id of the bot
-var BotUserId = ""
+// BotUserID is filled with the slack user id of the bot
+var BotUserID = ""
 
 // Users is a lookup from user-id to user-name
 var Users map[string]string
@@ -28,8 +28,8 @@ var Channels map[string]string
 // GetSlackClient establishes a RTM connection to the slack server
 func GetSlackClient(cfg config.Slack, logger *logrus.Logger) *Slack {
 	options := make([]slack.Option, 0)
-	if cfg.TestEndpointUrl != "" {
-		options = append(options, slack.OptionAPIURL(cfg.TestEndpointUrl))
+	if cfg.TestEndpointURL != "" {
+		options = append(options, slack.OptionAPIURL(cfg.TestEndpointURL))
 	}
 
 	if cfg.Debug {

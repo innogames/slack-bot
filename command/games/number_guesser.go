@@ -61,7 +61,7 @@ func (c *numberGuesserCommand) Guess(match matcher.Result, event slack.MessageEv
 	}
 
 	guess := match.GetInt("number")
-	currentGame.tries += 1
+	currentGame.tries++
 
 	if guess == currentGame.randomNumber {
 		c.slackClient.Reply(event, fmt.Sprintf("Wow! you got it in %d tries :beers:", currentGame.tries))

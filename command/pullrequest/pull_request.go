@@ -165,7 +165,7 @@ func (c command) getOwnReactions(msgRef slack.ItemRef) map[string]bool {
 
 	for _, reaction := range reactions {
 		for _, user := range reaction.Users {
-			if user == client.BotUserId {
+			if user == client.BotUserID {
 				currentReactions[reaction.Name] = true
 				break
 			}

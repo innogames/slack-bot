@@ -15,8 +15,8 @@ func GetBitbucketClient(cfg config.Bitbucket) (*bitbucket.DefaultApiService, err
 
 	// todo add proper configurable timeout
 	ctx := context.Background()
-	if cfg.ApiKey != "" {
-		apiKey := bitbucket.APIKey{Key: cfg.ApiKey}
+	if cfg.APIKey != "" {
+		apiKey := bitbucket.APIKey{Key: cfg.APIKey}
 		ctx = context.WithValue(ctx, bitbucket.APIKey{}, apiKey)
 	} else if cfg.Username != "" && cfg.Password != "" {
 		basicAuth := bitbucket.BasicAuth{UserName: cfg.Username, Password: cfg.Password}

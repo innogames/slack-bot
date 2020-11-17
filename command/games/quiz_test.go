@@ -24,8 +24,8 @@ func TestQuiz(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	command := NewQuizCommand(slackClient)
-	command.apiUrl = ts.URL
+	command := NewQuizCommand(slackClient).(quizCommand)
+	command.apiURL = ts.URL
 	commands := bot.Commands{}
 	commands.AddCommand(command)
 
@@ -64,6 +64,5 @@ func TestQuiz(t *testing.T) {
 		slackClient.On("Reply", event, "correct")
 		actual = commands.Run(event)
 		assert.Equal(t, true, actual)
-
 	})
 }

@@ -1,12 +1,11 @@
 package variables
 
 import (
-	"testing"
-
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestCustomCommands(t *testing.T) {
@@ -64,7 +63,6 @@ func TestCustomCommands(t *testing.T) {
 	})
 
 	t.Run("Template with unknown user", func(t *testing.T) {
-
 		function := variablesCommand.GetTemplateFunction()["customVariable"]
 
 		actual := function.(func(string, string) string)("U123", "myKey")
@@ -72,7 +70,6 @@ func TestCustomCommands(t *testing.T) {
 	})
 
 	t.Run("Template with unknown user", func(t *testing.T) {
-
 		function := variablesCommand.GetTemplateFunction()["customVariable"]
 
 		actual := function.(func(string, string) string)("user1", "myKey2")
@@ -80,7 +77,6 @@ func TestCustomCommands(t *testing.T) {
 	})
 
 	t.Run("Template with known variable", func(t *testing.T) {
-
 		function := variablesCommand.GetTemplateFunction()["customVariable"]
 
 		actual := function.(func(string, string) string)("user1", "myKey")
@@ -108,5 +104,4 @@ func TestCustomCommands(t *testing.T) {
 
 		assert.Equal(t, true, actual)
 	})
-
 }

@@ -39,7 +39,7 @@ func TestQueue(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = "queue reply test"
 
-		slackClient.On("ReplyError", event, fmt.Errorf("You have to call this command when another long running command is already running")).Return(true)
+		slackClient.On("ReplyError", event, fmt.Errorf("you have to call this command when another long running command is already running")).Return(true)
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
 		assert.Empty(t, client.InternalMessages)
@@ -56,7 +56,7 @@ func TestQueue(t *testing.T) {
 			"",
 		)
 
-		slackClient.On("ReplyError", event, fmt.Errorf("You have to call this command when another long running command is already running")).Return(true)
+		slackClient.On("ReplyError", event, fmt.Errorf("you have to call this command when another long running command is already running")).Return(true)
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
 		assert.Empty(t, client.InternalMessages)

@@ -37,7 +37,7 @@ func (c testCommand) GetMatcher() matcher.Matcher {
 
 func TestFallback(t *testing.T) {
 	slackClient := &client.Slack{}
-	bot := bot{
+	bot := Bot{
 		auth: &slack.AuthTestResponse{
 			User: "test",
 		},

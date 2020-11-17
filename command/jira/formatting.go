@@ -30,29 +30,20 @@ func idToIcon(priority *jira.Priority) string {
 	}
 }
 
-// todo move to default map
-func typeIcon(ticketType string) string {
-	switch ticketType {
-	case "Bug":
-		return ":beetle:"
-	}
-	return ""
-}
-
 func convertMarkdown(content string) string {
-	content = strings.Replace(content, "{code}", "```", -1)
-	content = strings.Replace(content, "{quote}", "```", -1)
-	content = strings.Replace(content, "h1. ", "", -1)
-	content = strings.Replace(content, "h2. ", "", -1)
-	content = strings.Replace(content, "h3. ", "", -1)
+	content = strings.ReplaceAll(content, "{code}", "```")
+	content = strings.ReplaceAll(content, "{quote}", "```")
+	content = strings.ReplaceAll(content, "h1. ", "")
+	content = strings.ReplaceAll(content, "h2. ", "")
+	content = strings.ReplaceAll(content, "h3. ", "")
 
 	return content
 }
 
-func getFormattedUrl(cfg config.Jira, issue *jira.Issue) string {
-	return fmt.Sprintf("<%s|%s>", getTicketUrl(cfg, issue), issue.Key)
+func getFormattedURL(cfg config.Jira, issue jira.Issue) string {
+	return fmt.Sprintf("<%s|%s>", getTicketURL(cfg, issue), issue.Key)
 }
 
-func getTicketUrl(cfg config.Jira, issue *jira.Issue) string {
+func getTicketURL(cfg config.Jira, issue jira.Issue) string {
 	return fmt.Sprintf("%sbrowse/%s", cfg.Host, issue.Key)
 }

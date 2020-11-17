@@ -22,7 +22,7 @@ const (
 	maxDelay = time.Minute * 5
 )
 
-type jobResult struct {
+type JobResult struct {
 	build  *gojenkins.Build
 	status string
 }
@@ -35,8 +35,8 @@ type Job interface {
 }
 
 // WatchBuild will return a chan which is filled/closed when the build finished
-func WatchBuild(build *gojenkins.Build) <-chan jobResult {
-	resultChan := make(chan jobResult, 1)
+func WatchBuild(build *gojenkins.Build) <-chan JobResult {
+	resultChan := make(chan JobResult, 1)
 
 	go func() {
 		defer close(resultChan)
@@ -46,7 +46,7 @@ func WatchBuild(build *gojenkins.Build) <-chan jobResult {
 			time.Sleep(delay.GetNextDelay())
 
 			if !build.IsRunning() {
-				resultChan <- jobResult{
+				resultChan <- JobResult{
 					status: build.GetResult(),
 					build:  build,
 				}

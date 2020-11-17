@@ -14,12 +14,12 @@ import (
 	"time"
 )
 
-const defaultApiUrl = "https://api.openweathermap.org/data/2.5/weather"
+const defaultAPIURL = "https://api.openweathermap.org/data/2.5/weather"
 
 // NewWeatherCommand is using OpenWeatherMap to display current weather and the forecast
 func NewWeatherCommand(slackClient client.SlackClient, config config.OpenWeather) bot.Command {
-	if config.Url == "" {
-		config.Url = defaultApiUrl
+	if config.URL == "" {
+		config.URL = defaultAPIURL
 	}
 
 	return command{slackClient, config}
@@ -43,15 +43,15 @@ func (c command) GetWeather(match matcher.Result, event slack.MessageEvent) {
 		location = c.config.Location
 	}
 
-	apiUrl := fmt.Sprintf(
+	apiURL := fmt.Sprintf(
 		"%s?q=%s&units=%s&appid=%s",
-		c.config.Url,
+		c.config.URL,
 		url.QueryEscape(location),
 		c.config.Units,
 		c.config.Apikey,
 	)
 
-	response, err := http.Get(apiUrl)
+	response, err := http.Get(apiURL)
 	if err != nil {
 		c.slackClient.ReplyError(event, errors.Wrap(err, "Api call returned an err"))
 		return
@@ -73,7 +73,7 @@ func (c command) GetWeather(match matcher.Result, event slack.MessageEvent) {
 	var fields = [][]string{
 		{
 			fmt.Sprintf("*:thermometer: TEMPERATURE:*  *Current:* %2.fC°", record.Main.Temp),
-			fmt.Sprintf(":arrow_down_small: *Min:* %2.fC°\t\t:arrow_up_small: *Max:* %2.fC°", record.Main.Temp_min, record.Main.Temp_max),
+			fmt.Sprintf(":arrow_down_small: *Min:* %2.fC°\t\t:arrow_up_small: *Max:* %2.fC°", record.Main.TempMin, record.Main.TempMax),
 		},
 		{
 			fmt.Sprintf("*:wind_blowing_face: WIND:*  *Speed:* %2.fm/s", record.Wind.Speed),
@@ -95,7 +95,7 @@ func (c command) GetWeather(match matcher.Result, event slack.MessageEvent) {
 			"*Weather information for: %s :flag-%s:* %s",
 			record.Name,
 			record.Sys.Country,
-			getIcon(record.Weather[0].Id),
+			getIcon(record.Weather[0].ID),
 		),
 		false,
 		false,

@@ -36,7 +36,7 @@ func (c *command) Run(match matcher.Result, event slack.MessageEvent) {
 	if !IsBlocked(event) {
 		c.slackClient.ReplyError(
 			event,
-			fmt.Errorf("You have to call this command when another long running command is already running"),
+			fmt.Errorf("you have to call this command when another long running command is already running"),
 		)
 		return
 	}

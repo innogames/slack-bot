@@ -9,10 +9,10 @@ const storeKey = "user_variables"
 
 type list map[string]string
 
-func loadList(userId string) list {
-	list := make(list, 0)
+func loadList(userID string) list {
+	list := make(list)
 
-	storage.Read(storeKey, userId, &list)
+	storage.Read(storeKey, userID, &list)
 
 	return list
 }

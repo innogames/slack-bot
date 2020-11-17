@@ -19,7 +19,7 @@ func TestBitbucketLoader(t *testing.T) {
 		Host:       "http://localhost:7991",
 		Project:    "myProject",
 		Repository: "myRepo",
-		ApiKey:     "0815",
+		APIKey:     "0815",
 	}
 	bitbucketClient, _ := client.GetBitbucketClient(cfg)
 	fetcher := &bitbucket{

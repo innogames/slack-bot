@@ -4,7 +4,7 @@ import (
 	"net/http/httptrace"
 )
 
-func GetHttpTracer() httptrace.ClientTrace {
+func GetHTTPTracer() httptrace.ClientTrace {
 	return httptrace.ClientTrace{
 		GotConn: func(connInfo httptrace.GotConnInfo) {
 			IncreaseOne("http_request")

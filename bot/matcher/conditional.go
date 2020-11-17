@@ -5,6 +5,7 @@ import (
 	"github.com/slack-go/slack"
 )
 
+// todo(matze): rename to wildcardMatcher etc?
 func NewConditionalMatcher(run conditionalRunner) Matcher {
 	return conditionalMatcher{run}
 }

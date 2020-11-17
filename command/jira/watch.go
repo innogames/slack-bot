@@ -32,8 +32,8 @@ func (c *watchCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c *watchCommand) Run(match matcher.Result, event slack.MessageEvent) {
-	ticketId := match.GetString("ticketId")
-	issue, response, err := c.jira.Issue.Get(ticketId, nil)
+	ticketID := match.GetString("ticketId")
+	issue, response, err := c.jira.Issue.Get(ticketID, nil)
 
 	if err != nil {
 		c.slackClient.Reply(event, err.Error())
@@ -46,7 +46,7 @@ func (c *watchCommand) Run(match matcher.Result, event slack.MessageEvent) {
 	// add button to link
 	c.slackClient.SendMessage(
 		event,
-		fmt.Sprintf("I'll inform you about changes of ticket %s", ticketId),
+		fmt.Sprintf("I'll inform you about changes of ticket %s", ticketID),
 	)
 }
 
@@ -69,7 +69,7 @@ func (c *watchCommand) watchTicket(event slack.MessageEvent, issue *jira.Issue) 
 		if newStatus != lastStatus {
 			c.slackClient.Reply(event, fmt.Sprintf(
 				"%s %s: status changed from *%s* to *%s*",
-				getFormattedUrl(c.config, issue),
+				getFormattedURL(c.config, *issue),
 				issue.Fields.Summary,
 				lastStatus,
 				newStatus,

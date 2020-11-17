@@ -31,8 +31,8 @@ func (c *commentCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c *commentCommand) AddComment(match matcher.Result, event slack.MessageEvent) {
-	ticketId := match.GetString("ticketId")
-	issue, resp, err := c.jira.Issue.Get(ticketId, nil)
+	ticketID := match.GetString("ticketID")
+	issue, resp, err := c.jira.Issue.Get(ticketID, nil)
 
 	if err != nil {
 		c.slackClient.ReplyError(event, err)

@@ -51,7 +51,7 @@ func BenchmarkHandle(b *testing.B) {
 	event := slack.MessageEvent{}
 	event.User = "U123"
 	event.Channel = "C1234"
-	event.Text = "<@" + botId + "> reply test"
+	event.Text = "<@" + botID + "> reply test"
 
 	for i := 0; i < b.N; i++ {
 		bot.handleMessage(event)

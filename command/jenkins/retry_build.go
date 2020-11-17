@@ -52,7 +52,7 @@ func (c *retryCommand) Run(match matcher.Result, event slack.MessageEvent) {
 	buildNumber := match.GetInt("build")
 	build, err := getBuild(job, buildNumber)
 	if err != nil {
-		c.slackClient.ReplyError(event, fmt.Errorf("Given build *%s #%d* does not exist: %s", jobName, buildNumber, err.Error()))
+		c.slackClient.ReplyError(event, fmt.Errorf("given build *%s #%d* does not exist: %s", jobName, buildNumber, err.Error()))
 		return
 	}
 

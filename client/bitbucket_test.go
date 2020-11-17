@@ -42,7 +42,7 @@ func TestBitbucket(t *testing.T) {
 	t.Run("with apiKey", func(t *testing.T) {
 		cfg := config.Bitbucket{
 			Host:   "https://bitbucket.example.com",
-			ApiKey: "myApiKey",
+			APIKey: "myApiKey",
 		}
 
 		client, err := GetBitbucketClient(cfg)

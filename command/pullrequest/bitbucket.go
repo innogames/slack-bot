@@ -81,6 +81,9 @@ func (c *bitbucketFetcher) getBuildStatus(rawPullRequest bitbucket.PullRequest) 
 	}
 
 	builds, err := bitbucket.GetBuildStatusesResponse(rawBuilds)
+	if err != nil {
+		return buildStatus
+	}
 	for _, build := range builds {
 		switch build.State {
 		case "SUCCESS":

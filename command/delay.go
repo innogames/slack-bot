@@ -76,7 +76,7 @@ func (c *delayCommand) Stop(match matcher.Result, event slack.MessageEvent) {
 		c.timers[timerNr] = nil
 		c.slackClient.Reply(event, "Stopped timer!")
 	} else {
-		c.slackClient.ReplyError(event, errors.New("Invalid timer"))
+		c.slackClient.ReplyError(event, errors.New("invalid timer"))
 	}
 }
 

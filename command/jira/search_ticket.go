@@ -96,20 +96,17 @@ func (c *jiraCommand) getTicketNumber(eventText string) string {
 
 func (c *jiraCommand) sendTicket(event slack.MessageEvent, issue *jira.Issue, format string) {
 	if format == FormatLink {
-		text := fmt.Sprintf("<%s|%s: %s>", getTicketUrl(c.config, issue), issue.Key, issue.Fields.Summary)
+		text := fmt.Sprintf("<%s|%s: %s>", getTicketURL(c.config, *issue), issue.Key, issue.Fields.Summary)
 		c.slackClient.Reply(event, text)
 		return
 	}
-
-	information := c.getField("Priority", issue.Fields.Priority.Name)
-	information += " " + issue.Fields.Type.Name + c.getField("Type", issue.Fields.Type.Name)
 
 	var fields []slack.AttachmentField
 	fields = append(
 		fields,
 		slack.AttachmentField{
 			Title: "Name",
-			Value: fmt.Sprintf("%s: %s", getFormattedUrl(c.config, issue), issue.Fields.Summary),
+			Value: fmt.Sprintf("%s: %s", getFormattedURL(c.config, *issue), issue.Fields.Summary),
 		},
 		slack.AttachmentField{
 			Title: "Priority",
@@ -175,7 +172,7 @@ func (c *jiraCommand) sendTicket(event slack.MessageEvent, issue *jira.Issue, fo
 			"text", "fields",
 		},
 		Actions: []slack.AttachmentAction{
-			client.GetSlackLink("Open in Jira", getTicketUrl(c.config, issue)),
+			client.GetSlackLink("Open in Jira", getTicketURL(c.config, *issue)),
 		},
 	}
 
@@ -217,7 +214,7 @@ func (c *jiraCommand) jqlList(event slack.MessageEvent, jql string) {
 		}
 		text += fmt.Sprintf(
 			"%s %s%s - %s (%s)",
-			getFormattedUrl(c.config, &ticket),
+			getFormattedURL(c.config, ticket),
 			idToIcon(ticket.Fields.Priority),
 			c.getField("Type", ticket.Fields.Type.Name),
 			ticket.Fields.Summary,

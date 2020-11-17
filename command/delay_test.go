@@ -108,7 +108,7 @@ func TestDelay(t *testing.T) {
 
 		// now try to stop an invalid timer
 		event.Text = "stop timer 5"
-		slackClient.On("ReplyError", event, fmt.Errorf("Invalid timer")).Return("")
+		slackClient.On("ReplyError", event, fmt.Errorf("invalid timer")).Return("")
 		actual = command.Run(event)
 		assert.Equal(t, true, actual)
 	})

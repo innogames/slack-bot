@@ -59,7 +59,7 @@ func TestBot(t *testing.T) {
 }
 
 func TestIsBotMessage(t *testing.T) {
-	bot := bot{}
+	bot := Bot{}
 	bot.auth = &slack.AuthTestResponse{
 		UserID: "BOT",
 	}
@@ -79,7 +79,7 @@ func TestIsBotMessage(t *testing.T) {
 		assert.Equal(t, false, actual)
 	})
 
-	t.Run("Is bot mentioned", func(t *testing.T) {
+	t.Run("Is Bot mentioned", func(t *testing.T) {
 		event := &slack.MessageEvent{}
 		event.User = "U1234"
 		event.Text = "<@BOT> random test"
@@ -127,11 +127,10 @@ func TestIsBotMessage(t *testing.T) {
 		assert.Equal(t, bot.trimMessage("<@BOT> random ’test’"), "random 'test'")
 		assert.Equal(t, bot.trimMessage("<https://test.com|TEST> <https://example.com|example>"), "<https://test.com|TEST> <https://example.com|example>")
 	})
-
 }
 
 func BenchmarkTrimMessage(b *testing.B) {
-	bot := bot{}
+	bot := Bot{}
 	bot.auth = &slack.AuthTestResponse{}
 	bot.auth.User = "botId"
 
@@ -145,7 +144,7 @@ func BenchmarkTrimMessage(b *testing.B) {
 }
 
 func BenchmarkShouldHandle(b *testing.B) {
-	bot := bot{}
+	bot := Bot{}
 	bot.auth = &slack.AuthTestResponse{}
 	bot.auth.User = "botId"
 
