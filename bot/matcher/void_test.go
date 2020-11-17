@@ -7,7 +7,6 @@ import (
 )
 
 func TestVoid(t *testing.T) {
-
 	t.Run("Match void", func(t *testing.T) {
 		subject := NewVoidMatcher()
 

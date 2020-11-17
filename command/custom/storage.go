@@ -10,7 +10,7 @@ const storeKey = "user_commands"
 type list map[string]string
 
 func loadList(event slack.MessageEvent) list {
-	list := make(list, 0)
+	list := make(list)
 
 	storage.Read(storeKey, event.User, &list)
 

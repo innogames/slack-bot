@@ -114,14 +114,14 @@ func startJob(jenkins Client, jobName string, jobParams map[string]string, logge
 		return nil, err
 	}
 
-	lastBuildId := job.Raw.LastBuild.Number
+	lastBuildID := job.Raw.LastBuild.Number
 
 	_, err = job.InvokeSimple(jobParams)
 	if err != nil {
 		return nil, err
 	}
 
-	var newBuildId int64
+	var newBuildID int64
 
 	ticker := time.NewTicker(time.Second * 1)
 	defer ticker.Stop()
@@ -130,30 +130,36 @@ func startJob(jenkins Client, jobName string, jobParams map[string]string, logge
 	for range ticker.C {
 		job.Poll()
 
-		newBuildId = job.Raw.LastBuild.Number
-		if newBuildId > lastBuildId {
+		newBuildID = job.Raw.LastBuild.Number
+		if newBuildID > lastBuildID {
 			break
 		}
 	}
 
 	logger.
 		WithField("job", jobName).
-		Infof("Queued job %s #%d", jobName, newBuildId)
+		Infof("Queued job %s #%d", jobName, newBuildID)
 
-	return job.GetBuild(newBuildId)
+	return job.GetBuild(newBuildID)
 }
 
 // GetAttachment creates a attachment object for a given build
 func GetAttachment(build *gojenkins.Build, message string) slack.MsgOption {
+	attachment := getAttachment(build, message)
+
+	return slack.MsgOptionAttachments(attachment)
+}
+
+func getAttachment(build *gojenkins.Build, message string) slack.Attachment {
 	var icon string
 	var color string
-	if build.IsRunning() {
+	if build.Raw.Building {
 		icon = IconRunning
 		color = "#E0E000"
-	} else if build.IsGood() {
+	} else if build.Raw.Result == gojenkins.STATUS_SUCCESS {
 		icon = IconSuccess
 		color = "#00EE00"
-	} else if build.GetResult() == gojenkins.STATUS_ABORTED {
+	} else if build.Raw.Result == gojenkins.STATUS_ABORTED {
 		icon = iconAborted
 		color = "#CCCCCC"
 	} else {
@@ -184,7 +190,7 @@ func GetAttachment(build *gojenkins.Build, message string) slack.MsgOption {
 		client.GetSlackLink("Console :page_with_curl:", build.GetUrl()+"console"),
 	}
 
-	if build.IsRunning() {
+	if build.Raw.Building {
 		attachment.Actions = append(
 			attachment.Actions,
 			client.GetSlackLink("Abort :bomb:", build.GetUrl()+"stop/", "danger"),
@@ -196,5 +202,5 @@ func GetAttachment(build *gojenkins.Build, message string) slack.MsgOption {
 		)
 	}
 
-	return slack.MsgOptionAttachments(attachment)
+	return attachment
 }

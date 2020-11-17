@@ -32,20 +32,21 @@ func (c *watchCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c *watchCommand) Run(match matcher.Result, event slack.MessageEvent) {
-	ticketId := match.GetString("ticketId")
-	issue, _, err := c.jira.Issue.Get(ticketId, nil)
+	ticketID := match.GetString("ticketId")
+	issue, response, err := c.jira.Issue.Get(ticketID, nil)
 
 	if err != nil {
 		c.slackClient.Reply(event, err.Error())
 		return
 	}
+	response.Body.Close()
 
 	go c.watchTicket(event, issue)
 
 	// add button to link
 	c.slackClient.SendMessage(
 		event,
-		fmt.Sprintf("I'll inform you about changes of ticket %s", ticketId),
+		fmt.Sprintf("I'll inform you about changes of ticket %s", ticketID),
 	)
 }
 
@@ -56,18 +57,19 @@ func (c *watchCommand) watchTicket(event slack.MessageEvent, issue *jira.Issue) 
 
 	done := queue.AddRunningCommand(event, event.Text)
 	for range ticker.C {
-		issue, _, err := c.jira.Issue.Get(issue.ID, nil)
+		issue, resp, err := c.jira.Issue.Get(issue.ID, nil)
 		if err != nil {
 			done <- true
 			c.slackClient.ReplyError(event, err)
 			return
 		}
+		resp.Body.Close()
 		newStatus := issue.Fields.Status.Name
 
 		if newStatus != lastStatus {
 			c.slackClient.Reply(event, fmt.Sprintf(
 				"%s %s: status changed from *%s* to *%s*",
-				getFormattedUrl(c.config, issue),
+				getFormattedURL(c.config, *issue),
 				issue.Fields.Summary,
 				lastStatus,
 				newStatus,

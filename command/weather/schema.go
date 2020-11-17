@@ -1,7 +1,7 @@
 package weather
 
 type City struct {
-	Id   int    `json:"id"`
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -11,7 +11,7 @@ type Coord struct {
 }
 
 type Weather struct {
-	Id          int    `json:"id"`
+	ID          int    `json:"id"`
 	Main        string `json:"main"`
 	Description string `json:"description"`
 	Icon        string `json:"icon"`
@@ -34,8 +34,8 @@ type Main struct {
 	Temp     float64 `json:"temp"`
 	Pressure int     `json:"pressure"`
 	Humidity int     `json:"humidity"`
-	Temp_min float64 `json:"temp_min"`
-	Temp_max float64 `json:"temp_max"`
+	TempMin  float64 `json:"temp_min"`
+	TempMax  float64 `json:"temp_max"`
 }
 
 type Sys struct {
@@ -53,7 +53,7 @@ type CurrentWeatherResponse struct {
 	Clouds  Clouds    `json:"clouds"`
 	Sys     Sys       `json:"sys"`
 	Dt      int       `json:"dt"`
-	Id      int       `json:"id"`
+	ID      int       `json:"id"`
 	Name    string    `json:"name"`
 }
 

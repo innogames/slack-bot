@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (c *command) Handle(event slack.MessageEvent) bool {
+func (c command) Handle(event slack.MessageEvent) bool {
 	var commands string
 
 	list := loadList(event)

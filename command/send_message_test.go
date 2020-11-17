@@ -43,5 +43,4 @@ func TestSendMessage(t *testing.T) {
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
 	})
-
 }

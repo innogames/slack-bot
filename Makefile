@@ -25,8 +25,11 @@ test: dep
 test-bench:
 	go test -bench . ./... -benchmem
 
-test-coverage:
-	mkdir -p build && go test ./... -coverpkg=./... -cover -coverprofile=./build/cover.out -covermode=atomic && go tool cover -html=./build/cover.out -o ./build/cover.html
+test-coverage: dep
+	mkdir -p build
+	go test ./... -coverpkg=./... -cover -coverprofile=./build/cover.out -covermode=atomic
+	go tool cover -html=./build/cover.out -o ./build/cover.html
+	echo see ./build/cover.html
 
 mocks: dep
 	go get github.com/vektra/mockery/v2/.../

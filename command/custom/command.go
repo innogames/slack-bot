@@ -8,14 +8,14 @@ import (
 
 // GetCommand returns a set of all custom commands
 func GetCommand(slackClient client.SlackClient) bot.Command {
-	return &command{slackClient}
+	return command{slackClient}
 }
 
 type command struct {
 	slackClient client.SlackClient
 }
 
-func (c *command) GetMatcher() matcher.Matcher {
+func (c command) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewConditionalMatcher(c.Handle),
 		matcher.NewRegexpMatcher("add command '(?P<alias>.*)'( as)? '(?P<command>.*)'", c.Add),
@@ -24,7 +24,7 @@ func (c *command) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *command) GetHelp() []bot.Help {
+func (c command) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "custom commands",

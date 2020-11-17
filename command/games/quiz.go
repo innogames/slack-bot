@@ -16,16 +16,16 @@ import (
 )
 
 const maxQuestions int = 50 // api limit is 50
-const apiUrl string = "https://opentdb.com/api.php"
+const apiURL string = "https://opentdb.com/api.php"
 
-func NewQuizCommand(slackClient client.SlackClient) *quizCommand {
-	return &quizCommand{slackClient: slackClient, apiUrl: apiUrl}
+func NewQuizCommand(slackClient client.SlackClient) bot.Command {
+	return quizCommand{slackClient: slackClient, apiURL: apiURL}
 }
 
 type quizCommand struct {
 	slackClient client.SlackClient
 	quiz        Quiz
-	apiUrl      string
+	apiURL      string
 }
 
 type question struct {
@@ -63,7 +63,7 @@ func (c *quizCommand) StartQuiz(match matcher.Result, event slack.MessageEvent) 
 		return
 	}
 
-	resp, err := http.Get(fmt.Sprintf("%s?amount=%d", c.apiUrl, questions))
+	resp, err := http.Get(fmt.Sprintf("%s?amount=%d", c.apiURL, questions))
 	if err != nil {
 		c.slackClient.ReplyError(event, errors.Wrap(err, "Error while loading Quiz"))
 		return

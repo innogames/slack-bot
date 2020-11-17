@@ -16,9 +16,9 @@ type Config struct {
 		AccessToken string
 		Host        string
 	}
-	Macros []Macro
-	Crons  []Cron
-	Logger Logger
+	Macros []Macro `mapstructure:"macros"`
+	Crons  []Cron  `mapstructure:"crons"`
+	Logger Logger  `mapstructure:"logger"`
 
 	// @deprecated
 	BranchLookup struct {
@@ -37,7 +37,7 @@ type Config struct {
 type OpenWeather struct {
 	Apikey   string
 	Location string
-	Url      string
+	URL      string
 	Units    string
 }
 
@@ -55,7 +55,7 @@ type Slack struct {
 	UseEventAPI bool `mapstructure:"use_event_api"`
 
 	// only used for integration tests
-	TestEndpointUrl   string `mapstructure:"-"`
+	TestEndpointURL   string `mapstructure:"-"`
 	VerificationToken string `mapstructure:"-"`
 }
 
@@ -84,9 +84,9 @@ type Macro struct {
 
 // Mqtt is a optional MQTT client to publish and subscribe values from the defined broker
 type Mqtt struct {
-	Host     string
-	Username string
-	Password string
+	Host     string `mapstructure:"host"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
 }
 
 func (c Mqtt) IsEnabled() bool {
@@ -99,12 +99,12 @@ type PullRequest struct {
 	CustomApproveReaction map[string]string `mapstructure:"custom_approve_reaction"`
 }
 
-// Bitbucket credentials/options. Either add Username+Password OR a ApiKey
+// Bitbucket credentials/options. Either add Username+Password OR a APIKey
 type Bitbucket struct {
 	Host       string `mapstructure:"host"`
 	Username   string `mapstructure:"username"`
 	Password   string `mapstructure:"password"`
-	ApiKey     string `mapstructure:"api_key"`
+	APIKey     string `mapstructure:"api_key"`
 	Project    string `mapstructure:"project"`
 	Repository string `mapstructure:"repository"`
 }

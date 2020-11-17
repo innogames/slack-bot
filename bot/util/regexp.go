@@ -39,7 +39,7 @@ func CompileRegexp(pattern string) *regexp.Regexp {
 		pattern = "^" + pattern
 	}
 	if !strings.HasSuffix(pattern, "$") {
-		pattern = pattern + "$"
+		pattern += "$"
 	}
 
 	// make all regexp case insensitive by default

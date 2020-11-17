@@ -6,10 +6,8 @@ import (
 )
 
 func TestStats(t *testing.T) {
-	var value int
-	var err error
-
-	value, err = Get("test")
+	value, err := Get("test")
+	assert.NotNil(t, err)
 	assert.Equal(t, value, 0)
 
 	Increase("test", 2)

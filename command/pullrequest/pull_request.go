@@ -4,6 +4,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
 	"github.com/pkg/errors"
@@ -21,7 +22,8 @@ const (
 	iconBuildFailed     = "fire"
 	iconBuildRunning    = "arrows_counterclockwise"
 	iconError           = "x"
-	checkInterval       = time.Second * 30 // todo make it more dynamic + increasing check
+	minCheckInterval    = time.Second * 20
+	maxCheckInterval    = time.Minute * 3
 	maxConnectionErrors = 5
 )
 
@@ -57,11 +59,11 @@ type pullRequest struct {
 	buildStatus buildStatus
 }
 
-func (c *command) GetMatcher() matcher.Matcher {
+func (c command) GetMatcher() matcher.Matcher {
 	return matcher.NewRegexpMatcher(c.regexp, c.Execute)
 }
 
-func (c *command) Execute(match matcher.Result, event slack.MessageEvent) {
+func (c command) Execute(match matcher.Result, event slack.MessageEvent) {
 	_, err := c.fetcher.getPullRequest(match)
 
 	if err != nil {
@@ -72,7 +74,7 @@ func (c *command) Execute(match matcher.Result, event slack.MessageEvent) {
 	go c.watch(match, event)
 }
 
-func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
+func (c command) watch(match matcher.Result, event slack.MessageEvent) {
 	msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
 
 	hasApproval := false
@@ -83,13 +85,14 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 		done <- true
 	}()
 
+	delay := util.GetIncreasingDelay(minCheckInterval, maxCheckInterval)
 	currentReactions := c.getOwnReactions(msgRef)
 
 	for {
 		pr, err := c.fetcher.getPullRequest(match)
 		if err != nil {
 			if nerr, ok := err.(net.Error); ok && nerr.Temporary() {
-				time.Sleep(checkInterval)
+				time.Sleep(minCheckInterval)
 				continue
 			}
 
@@ -151,18 +154,18 @@ func (c *command) watch(match matcher.Result, event slack.MessageEvent) {
 			return
 		}
 
-		time.Sleep(checkInterval)
+		time.Sleep(delay.GetNextDelay())
 	}
 }
 
 // get the current reactions in the given message which got created by this bot user
-func (c *command) getOwnReactions(msgRef slack.ItemRef) map[string]bool {
+func (c command) getOwnReactions(msgRef slack.ItemRef) map[string]bool {
 	currentReactions := make(map[string]bool)
 	reactions, _ := c.slackClient.GetReactions(msgRef, slack.NewGetReactionsParameters())
 
 	for _, reaction := range reactions {
 		for _, user := range reaction.Users {
-			if user == client.BotUserId {
+			if user == client.BotUserID {
 				currentReactions[reaction.Name] = true
 				break
 			}
@@ -172,7 +175,7 @@ func (c *command) getOwnReactions(msgRef slack.ItemRef) map[string]bool {
 	return currentReactions
 }
 
-func (c *command) removeReaction(currentReactions map[string]bool, icon string, msgRef slack.ItemRef) {
+func (c command) removeReaction(currentReactions map[string]bool, icon string, msgRef slack.ItemRef) {
 	if ok := currentReactions[icon]; !ok {
 		// already removed
 		return
@@ -193,7 +196,7 @@ func (c *command) addReaction(currentReactions map[string]bool, icon string, msg
 }
 
 // generates a map of all icons for the given approvers list. If there is no special mapping, it returns the default icon
-func (c *command) getApproveIcons(approvers []string) map[string]bool {
+func (c command) getApproveIcons(approvers []string) map[string]bool {
 	icons := make(map[string]bool)
 
 	for _, approver := range approvers {
@@ -212,6 +215,6 @@ func (c *command) getApproveIcons(approvers []string) map[string]bool {
 	return icons
 }
 
-func (c *command) GetHelp() []bot.Help {
+func (c command) GetHelp() []bot.Help {
 	return c.fetcher.getHelp()
 }

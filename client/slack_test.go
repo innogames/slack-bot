@@ -12,13 +12,13 @@ func TestGetSlackClient(t *testing.T) {
 	logger, _ := test.NewNullLogger()
 
 	cfg := config.Slack{
-		TestEndpointUrl: "http://slack.example.com/",
+		TestEndpointURL: "http://slack.example.com/",
 		Debug:           true,
 	}
 
 	client := GetSlackClient(cfg, logger)
 
-	_, _, err := client.ConnectRTM()
+	_, _, err := client.RTM.ConnectRTM()
 	assert.Contains(t, err.Error(), "slack.example.com")
 }
 
@@ -27,15 +27,15 @@ func TestGetSlackUser(t *testing.T) {
 		"U121": "Jon Doe",
 		"U122": "Doe Jon",
 	}
-	assertIdNameLookup(t, "Jon Doe", "U121", "Jon Doe")
-	assertIdNameLookup(t, "@Jon Doe", "U121", "Jon Doe")
-	assertIdNameLookup(t, "jOn Doe", "U121", "Jon Doe")
-	assertIdNameLookup(t, "jOn", "", "")
-	assertIdNameLookup(t, "", "", "")
-	assertIdNameLookup(t, "Doe Jon", "U122", "Doe Jon")
+	assertIDNameLookup(t, "Jon Doe", "U121", "Jon Doe")
+	assertIDNameLookup(t, "@Jon Doe", "U121", "Jon Doe")
+	assertIDNameLookup(t, "jOn Doe", "U121", "Jon Doe")
+	assertIDNameLookup(t, "jOn", "", "")
+	assertIDNameLookup(t, "", "", "")
+	assertIDNameLookup(t, "Doe Jon", "U122", "Doe Jon")
 
-	assertIdNameLookup(t, "U122", "U122", "Doe Jon")
-	assertIdNameLookup(t, "U121", "U121", "Jon Doe")
+	assertIDNameLookup(t, "U122", "U122", "Doe Jon")
+	assertIDNameLookup(t, "U121", "U121", "Jon Doe")
 }
 
 func TestGetSlackChannel(t *testing.T) {
@@ -63,8 +63,8 @@ func TestGetSlackLink(t *testing.T) {
 	assert.Equal(t, "name", link.Text)
 }
 
-func assertIdNameLookup(t *testing.T, identifier string, expectedId string, expectedName string) {
+func assertIDNameLookup(t *testing.T, identifier string, expectedID string, expectedName string) {
 	id, name := GetUser(identifier)
 	assert.Equal(t, expectedName, name)
-	assert.Equal(t, expectedId, id)
+	assert.Equal(t, expectedID, id)
 }

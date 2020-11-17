@@ -138,5 +138,4 @@ func TestJenkinsMixedParameters(t *testing.T) {
 		"SUBTYPE": "testsubtype",
 		"VALUE":   "testvalue",
 	}, params)
-
 }

@@ -60,7 +60,7 @@ func TestNumberGuesser(t *testing.T) {
 
 		// guess without running game -> error message
 		event := slack.MessageEvent{}
-		event.Text = fmt.Sprintf("guess number 100")
+		event.Text = "guess number 100"
 		slackClient.On("Reply", event, "There is no game running. Use `start number guesser`")
 		actual := commands.Run(event)
 		assert.Equal(t, true, actual)

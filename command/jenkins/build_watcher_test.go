@@ -33,4 +33,9 @@ func TestBuildWatcher(t *testing.T) {
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
 	})
+
+	t.Run("help", func(t *testing.T) {
+		help := command.GetHelp()
+		assert.Equal(t, 2, len(help))
+	})
 }

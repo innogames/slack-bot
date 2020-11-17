@@ -48,7 +48,7 @@ func (c *buildWatcherCommand) Run(match matcher.Result, event slack.MessageEvent
 		return
 	}
 
-	if !build.IsRunning() {
+	if !build.Raw.Building {
 		c.slackClient.Reply(event, fmt.Sprintf("No job for *%s* is running right now", jobName))
 		return
 	}

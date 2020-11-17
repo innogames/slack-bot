@@ -19,7 +19,7 @@ import (
 
 // TestChannel is just a test channel name which is used for testing
 const TestChannel = "#dev"
-const botId = "W12345"
+const botID = "W12345"
 
 // StartBot will start this bot against the fake slack instance
 func StartBot(cfg config.Config, logger *logrus.Logger) bot.Handler {
@@ -58,7 +58,7 @@ func StartFakeSlack(cfg *config.Config) *slacktest.Server {
 		"team_id": "%s",
 		"user_id": "%s"
 	}
-`, "T123", "bot", "teamId", botId)
+`, "T123", "bot", "teamId", botID)
 
 	auth := func(c slacktest.Customize) {
 		c.Handle("/auth.test", func(w http.ResponseWriter, _ *http.Request) {
@@ -75,11 +75,11 @@ func StartFakeSlack(cfg *config.Config) *slacktest.Server {
 
 	fakeSlack := slacktest.NewTestServer(auth)
 	fakeSlack.SetBotName("MyBotName")
-	fakeSlack.BotID = botId
+	fakeSlack.BotID = botID
 	fakeSlack.Start()
 
 	cfg.Slack.Token = "not needed"
-	cfg.Slack.TestEndpointUrl = fakeSlack.GetAPIURL()
+	cfg.Slack.TestEndpointURL = fakeSlack.GetAPIURL()
 	cfg.AllowedUsers = []string{
 		"W012A3CDE",
 	}

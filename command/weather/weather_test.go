@@ -29,7 +29,7 @@ func TestWeather(t *testing.T) {
 	cfg := config.OpenWeather{}
 	cfg.Location = "Hamburg"
 	cfg.Apikey = "12345"
-	cfg.Url = ts.URL
+	cfg.URL = ts.URL
 
 	command := bot.Commands{}
 	command.AddCommand(NewWeatherCommand(slackClient, cfg))
@@ -60,7 +60,7 @@ func TestWeather(t *testing.T) {
 			"{\"type\":\"mrkdwn\",\"text\":\"*:night_with_stars: Sunset:* 18:11 :clock11: \"}]}]",
 		)
 
-		mocks.AssertSlackJson(t, slackClient, event, expected)
+		mocks.AssertSlackJSON(t, slackClient, event, expected)
 
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)

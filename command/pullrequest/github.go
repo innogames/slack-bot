@@ -22,14 +22,12 @@ func newGithubCommand(slackClient client.SlackClient, cfg config.Config, logger 
 	}
 
 	ctx := context.Background()
-
-	client := oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+	oauthClient := oauth2.NewClient(ctx, oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: cfg.Github.AccessToken},
 	))
+	githubClient := github.NewClient(oauthClient)
 
-	githubClient := github.NewClient(client)
-
-	return &command{
+	return command{
 		cfg.PullRequest,
 		slackClient,
 		logger,
@@ -46,15 +44,17 @@ func (c *githubFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 	prNumber := match.GetInt("number")
 
 	ctx := context.Background()
-	rawPullRequest, _, err := c.client.PullRequests.Get(ctx, project, repo, prNumber)
+	rawPullRequest, resp, err := c.client.PullRequests.Get(ctx, project, repo, prNumber)
 	if err != nil {
 		return pr, err
 	}
+	resp.Body.Close()
 
-	reviews, _, err := c.client.PullRequests.ListReviews(ctx, project, repo, prNumber, &github.ListOptions{})
+	reviews, resp, err := c.client.PullRequests.ListReviews(ctx, project, repo, prNumber, &github.ListOptions{})
 	if err != nil {
 		return pr, err
 	}
+	resp.Body.Close()
 
 	approvers := make([]string, 0)
 	inReview := false

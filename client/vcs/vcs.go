@@ -28,6 +28,8 @@ func InitBranchWatcher(config config.Config, log *logrus.Logger) chan bool {
 
 	ticker := time.NewTicker(branchFetchInterval)
 	go func() {
+		defer ticker.Stop()
+
 		fetcher := createBranchFetcher(config)
 		var err error
 
@@ -39,7 +41,6 @@ func InitBranchWatcher(config config.Config, log *logrus.Logger) chan bool {
 					logger.Error(err)
 				}
 			case <-quit:
-				ticker.Stop()
 				return
 			}
 		}

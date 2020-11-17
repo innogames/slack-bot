@@ -6,7 +6,7 @@ import (
 	"github.com/slack-go/slack"
 )
 
-func (c *command) Add(match matcher.Result, event slack.MessageEvent) {
+func (c command) Add(match matcher.Result, event slack.MessageEvent) {
 	alias := match.GetString("alias")
 	command := match.GetString("command")
 

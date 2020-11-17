@@ -21,7 +21,7 @@ func newJobWatcherCommand(jenkinsClient jenkins.Client, slackClient client.Slack
 		jenkinsClient,
 		slackClient,
 		logger,
-		make(map[string]chan bool, 0),
+		make(map[string]chan bool),
 	}
 }
 

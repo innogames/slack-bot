@@ -6,10 +6,10 @@ import (
 	"sync"
 )
 
-var currentStorage storage
+var currentStorage Storage
 var mu sync.Mutex
 
-type storage interface {
+type Storage interface {
 	Write(collection, key string, v interface{}) error
 	Read(collection, key string, v interface{}) error
 	GetKeys(collection string) ([]string, error)
@@ -17,9 +17,9 @@ type storage interface {
 }
 
 // allowed characters for stage keys/collection
-var keyRegexp = regexp.MustCompile("^[\\w\\d_\\-,+@]+$")
+var keyRegexp = regexp.MustCompile(`^[\w\d_\-,+@]+$`)
 
-// InitStorage registers a local directory as JSON file storage
+// InitStorage registers a local directory as JSON file Storage
 func InitStorage(path string) error {
 	var err error
 	if path == "" {
@@ -31,12 +31,12 @@ func InitStorage(path string) error {
 	return err
 }
 
-// SetStorage provide storage to persist data for bot usage
-func SetStorage(storage storage) {
+// SetStorage provide Storage to persist data for bot usage
+func SetStorage(storage Storage) {
 	currentStorage = storage
 }
 
-// Write stores one value in the persistent storage
+// Write stores one value in the persistent Storage
 func Write(collection string, key string, v interface{}) error {
 	if err := validateKey(collection, key); err != nil {
 		return err
@@ -85,14 +85,15 @@ func Delete(collection string, key string) error {
 func validateKey(keys ...string) error {
 	for _, key := range keys {
 		if !keyRegexp.MatchString(key) {
-			return fmt.Errorf("invalid storage key: %s", key)
+			return fmt.Errorf("invalid Storage key: %s", key)
 		}
 	}
 
 	return nil
 }
 
-func getStorage() storage {
+func getStorage() Storage {
+	// todo(matze) this was added avoid concurrent newStorage() calls...should not cause issues anymore?!
 	mu.Lock()
 	defer mu.Unlock()
 

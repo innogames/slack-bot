@@ -6,6 +6,7 @@ import (
 	"github.com/innogames/slack-bot/client"
 	"github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
+	"strings"
 	"sync"
 )
 
@@ -31,7 +32,7 @@ func AddRunningCommand(event slack.MessageEvent, fallbackCommand string) chan bo
 	if fallbackCommand != "" {
 		event.Text = fallbackCommand
 
-		queueKey = event.Timestamp + "-" + util.GetFullEventKey(event)
+		queueKey = strings.ReplaceAll(event.Timestamp, ".", "") + "-" + util.GetFullEventKey(event)
 		storage.Write(storageKey, queueKey, event)
 	}
 

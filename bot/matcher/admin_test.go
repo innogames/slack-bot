@@ -25,7 +25,7 @@ func TestAdmin(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = "test"
 
-		slackClient.On("ReplyError", event, errors.New("Sorry, you are no admin and not allowed to execute this command!"))
+		slackClient.On("ReplyError", event, errors.New("sorry, you are no admin and not allowed to execute this command"))
 
 		runner, match := subject.Match(event)
 		runner(MapResult{}, event)

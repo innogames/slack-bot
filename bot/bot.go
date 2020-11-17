@@ -18,19 +18,24 @@ import (
 )
 
 // TypeInternal is only used internally to identify internal slack messages.
-// @deprecated do not use it anymore
+// todo(matze) do not use it anymore
 const TypeInternal = "internal"
 
-var linkRegexp = regexp.MustCompile("<[^\\s]+?\\|(.*?)>")
+var linkRegexp = regexp.MustCompile(`<[^\s]+?\|(.*?)>`)
 
-// Handler is the main bot interface
+var cleanMessage = strings.NewReplacer(
+	"‘", "'",
+	"’", "'",
+)
+
+// Handler is the main Bot interface
 type Handler interface {
 	HandleMessages(kill chan os.Signal)
 }
 
-// NewBot created main bot struct which holds the slack connection and dispatch messages to commands
-func NewBot(cfg config.Config, slackClient *client.Slack, logger *log.Logger, commands *Commands) bot {
-	return bot{
+// NewBot created main Bot struct which holds the slack connection and dispatch messages to commands
+func NewBot(cfg config.Config, slackClient *client.Slack, logger *log.Logger, commands *Commands) Bot {
+	return Bot{
 		config:       cfg,
 		slackClient:  slackClient,
 		logger:       logger,
@@ -40,7 +45,7 @@ func NewBot(cfg config.Config, slackClient *client.Slack, logger *log.Logger, co
 	}
 }
 
-type bot struct {
+type Bot struct {
 	config       config.Config
 	slackClient  *client.Slack
 	logger       *log.Logger
@@ -52,17 +57,17 @@ type bot struct {
 }
 
 // Init establishes the slack connection and load allowed users
-func (b *bot) Init() (err error) {
+func (b *Bot) Init() (err error) {
 	if b.config.Slack.Token == "" {
 		return errors.Errorf("No slack.token provided in config!")
 	}
 
-	b.logger.Infof("Connecting to slack...")
+	b.logger.Info("Connecting to slack...")
 	b.auth, err = b.slackClient.AuthTest()
 	if err != nil {
 		return errors.Wrap(err, "auth error")
 	}
-	client.BotUserId = b.auth.UserID
+	client.BotUserID = b.auth.UserID
 
 	go b.slackClient.RTM.ManageConnection()
 
@@ -99,13 +104,14 @@ func (b *bot) Init() (err error) {
 	return nil
 }
 
-func (b *bot) loadChannels() error {
+func (b *Bot) loadChannels() error {
 	var err error
 	var cursor string
 	var chunkedChannels []slack.Channel
 
 	client.Channels = make(map[string]string)
 
+	// todo proper pagination
 	for err == nil {
 		options := &slack.GetConversationsParameters{
 			Limit:           500,
@@ -128,17 +134,17 @@ func (b *bot) loadChannels() error {
 	return nil
 }
 
-// Disconnect will do a clean shutdown and kills all connections
-func (b *bot) Disconnect() error {
+// DisconnectRTM will do a clean shutdown and kills all connections
+func (b *Bot) DisconnectRTM() error {
 	if b.server != nil {
 		b.server.Stop()
 	}
 
-	return b.slackClient.Disconnect()
+	return b.slackClient.RTM.Disconnect()
 }
 
 // load the public channels and list of all users from current space
-func (b *bot) loadSlackData() error {
+func (b *Bot) loadSlackData() error {
 	// whitelist users by group
 	for _, groupName := range b.config.Slack.AllowedGroups {
 		group, err := b.slackClient.GetUserGroupMembers(groupName)
@@ -168,10 +174,10 @@ func (b *bot) loadSlackData() error {
 }
 
 // HandleMessages is blocking method to handle new incoming events
-func (b bot) HandleMessages(kill chan os.Signal) {
+func (b Bot) HandleMessages(kill chan os.Signal) {
 	for {
 		select {
-		case msg := <-b.slackClient.IncomingEvents:
+		case msg := <-b.slackClient.RTM.IncomingEvents:
 			// message received from user
 			switch message := msg.Data.(type) {
 			case *slack.HelloEvent:
@@ -191,20 +197,20 @@ func (b bot) HandleMessages(kill chan os.Signal) {
 			msg.SubType = TypeInternal
 			go b.handleMessage(msg)
 		case <-kill:
-			b.Disconnect()
-			b.logger.Warnf("Shutdown!")
+			b.DisconnectRTM()
+			b.logger.Warn("Shutdown!")
 			return
 		}
 	}
 }
 
-func (b bot) shouldHandleMessage(event *slack.MessageEvent) bool {
-	// exclude all bot traffic
+func (b Bot) shouldHandleMessage(event *slack.MessageEvent) bool {
+	// exclude all Bot traffic
 	if event.BotID != "" || event.User == "" || event.User == b.auth.UserID || event.SubType == "bot_message" {
 		return false
 	}
 
-	// <@bot> was mentioned in a public channel
+	// <@Bot> was mentioned in a public channel
 	if strings.Contains(event.Text, "<@"+b.auth.UserID+">") {
 		return true
 	}
@@ -217,18 +223,16 @@ func (b bot) shouldHandleMessage(event *slack.MessageEvent) bool {
 	return false
 }
 
-// remove @bot prefix of message and cleanup
-func (b bot) trimMessage(msg string) string {
-	// todo use strings.NewReplacer
+// remove @Bot prefix of message and cleanup
+func (b Bot) trimMessage(msg string) string {
 	msg = strings.Replace(msg, "<@"+b.auth.UserID+">", "", 1)
-	msg = strings.Replace(msg, "‘", "'", -1)
-	msg = strings.Replace(msg, "’", "'", -1)
+	msg = cleanMessage.Replace(msg)
 
 	return strings.TrimSpace(msg)
 }
 
 // handleMessage process the incoming message and respond appropriately
-func (b bot) handleMessage(event slack.MessageEvent) {
+func (b Bot) handleMessage(event slack.MessageEvent) {
 	event.Text = b.trimMessage(event.Text)
 
 	// remove links from incoming messages. for internal ones they might be wanted, as they contain valid links with texts
@@ -243,9 +247,10 @@ func (b bot) handleMessage(event slack.MessageEvent) {
 	start := time.Now()
 	logger := b.getUserBasedLogger(event)
 
-	// send "bot is typing" command
-	// todo check if RTM is enabled/ready
-	b.slackClient.RTM.SendMessage(b.slackClient.NewTypingMessage(event.Channel))
+	// send "Bot is typing" command
+	if b.slackClient.RTM != nil {
+		b.slackClient.RTM.SendMessage(b.slackClient.RTM.NewTypingMessage(event.Channel))
+	}
 
 	// prevent messages from one user processed in parallel (usual + internal ones)
 	lock := b.getUserLock(event.User)
@@ -254,7 +259,7 @@ func (b bot) handleMessage(event slack.MessageEvent) {
 	stats.IncreaseOne(stats.TotalCommands)
 
 	_, existing := b.allowedUsers[event.User]
-	if !existing && event.SubType != TypeInternal && b.config.Slack.TestEndpointUrl == "" {
+	if !existing && event.SubType != TypeInternal && b.config.Slack.TestEndpointURL == "" {
 		logger.Errorf("user %s is not allowed to execute message (missing in 'allowed_users' section): %s", event.User, event.Text)
 		// todo pass is cfg.AdminUsers here...if set
 		b.slackClient.Reply(event, "Sorry, you are not whitelisted yet. Please ask the slack-bot admin to get access.")
@@ -269,6 +274,6 @@ func (b bot) handleMessage(event slack.MessageEvent) {
 	}
 
 	logger.
-		WithField("duration", util.FormatDuration(time.Now().Sub(start))).
+		WithField("duration", util.FormatDuration(time.Since(start))).
 		Infof("handled message: %s", event.Text)
 }

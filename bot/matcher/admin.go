@@ -26,8 +26,8 @@ func (m adminMatcher) Match(event slack.MessageEvent) (Runner, Result) {
 		return nil, result
 	}
 
-	for _, adminId := range m.cfg.AdminUsers {
-		if adminId == event.User {
+	for _, adminID := range m.cfg.AdminUsers {
+		if adminID == event.User {
 			return run, result
 		}
 	}
@@ -39,7 +39,7 @@ func (m adminMatcher) Match(event slack.MessageEvent) (Runner, Result) {
 	return func(match Result, event slack.MessageEvent) {
 		m.slackClient.ReplyError(
 			event,
-			errors.New("Sorry, you are no admin and not allowed to execute this command!"),
+			errors.New("sorry, you are no admin and not allowed to execute this command"),
 		)
 	}, match
 }

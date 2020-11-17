@@ -34,7 +34,7 @@ func BenchmarkStartBot(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		bot = StartBot(cfg, logger)
 		time.Sleep(time.Millisecond * 10)
-		bot.Disconnect()
+		bot.DisconnectRTM()
 	}
 }
 
@@ -45,13 +45,13 @@ func BenchmarkHandle(b *testing.B) {
 	fakeSlack := StartFakeSlack(&cfg)
 
 	bot := StartBot(cfg, logger)
-	//	defer bot.Disconnect()
+	//	defer bot.DisconnectRTM()
 	defer fakeSlack.Stop()
 
 	event := slack.MessageEvent{}
 	event.User = "U123"
 	event.Channel = "C1234"
-	event.Text = "<@" + botId + "> reply test"
+	event.Text = "<@" + botID + "> reply test"
 
 	for i := 0; i < b.N; i++ {
 		bot.handleMessage(event)

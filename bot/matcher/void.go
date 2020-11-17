@@ -10,7 +10,6 @@ func NewVoidMatcher() Matcher {
 }
 
 type voidMatcher struct {
-	run conditionalRunner
 }
 
 func (m voidMatcher) Match(event slack.MessageEvent) (Runner, Result) {

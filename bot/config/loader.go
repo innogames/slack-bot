@@ -11,7 +11,7 @@ import (
 
 // Load loads config yaml file(s) inside a directory or a single .yaml file
 func Load(configFile string) (Config, error) {
-	v := viper.New()
+	v := viper.NewWithOptions(viper.KeyDelimiter("#"), viper.KeyPreserveCase())
 
 	v.SetConfigType("yaml")
 	v.AllowEmptyEnv(true)
