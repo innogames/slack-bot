@@ -4,7 +4,7 @@ import "sync"
 
 var globalLock sync.Mutex
 
-func (b Bot) getUserLock(userID string) *sync.Mutex {
+func (b *Bot) getUserLock(userID string) *sync.Mutex {
 	var userLock *sync.Mutex
 
 	globalLock.Lock()

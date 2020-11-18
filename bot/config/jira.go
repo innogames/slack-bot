@@ -17,6 +17,6 @@ type JiraField struct {
 }
 
 // IsEnabled checks if a host is defined (username/password) is not needed for public projects
-func (c Jira) IsEnabled() bool {
+func (c *Jira) IsEnabled() bool {
 	return c.Host != ""
 }

@@ -1,5 +1,17 @@
 package config
 
+type UserList []string
+
+func (l UserList) Contains(userID string) bool {
+	for _, adminID := range l {
+		if adminID == userID {
+			return true
+		}
+	}
+
+	return false
+}
+
 // Config contains the full config structure of this bot
 type Config struct {
 	Slack       Slack     `mapstructure:"slack"`
@@ -26,8 +38,8 @@ type Config struct {
 		Repository string
 	} `mapstructure:"branch_lookup"`
 
-	AllowedUsers []string    `mapstructure:"allowed_users,flow"`
-	AdminUsers   []string    `mapstructure:"admin_users,flow"`
+	AllowedUsers UserList    `mapstructure:"allowed_users,flow"`
+	AdminUsers   UserList    `mapstructure:"admin_users,flow"`
 	OpenWeather  OpenWeather `mapstructure:"open_weather"`
 	PullRequest  PullRequest `mapstructure:"pullrequest"`
 	Timezone     string      `mapstructure:"timezone"`
@@ -109,6 +121,6 @@ type Bitbucket struct {
 	Repository string `mapstructure:"repository"`
 }
 
-func (c Bitbucket) IsEnabled() bool {
+func (c *Bitbucket) IsEnabled() bool {
 	return c.Host != ""
 }

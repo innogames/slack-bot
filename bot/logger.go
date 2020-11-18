@@ -33,7 +33,7 @@ func (b Bot) getUserBasedLogger(event slack.MessageEvent) *log.Entry {
 	_, username := client.GetUser(event.User)
 
 	channel := ""
-	if event.Channel[0] == 'D' {
+	if event.Channel != "" && event.Channel[0] == 'D' {
 		channel = "@" + username
 	} else {
 		_, channel = client.GetChannel(event.Channel)

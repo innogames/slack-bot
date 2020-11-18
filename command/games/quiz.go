@@ -15,11 +15,11 @@ import (
 	"strconv"
 )
 
-const maxQuestions int = 50 // api limit is 50
-const apiURL string = "https://opentdb.com/api.php"
+const maxQuestions = 50 // api limit is 50
+const apiURL = "https://opentdb.com/api.php"
 
 func NewQuizCommand(slackClient client.SlackClient) bot.Command {
-	return quizCommand{slackClient: slackClient, apiURL: apiURL}
+	return &quizCommand{slackClient: slackClient, apiURL: apiURL}
 }
 
 type quizCommand struct {
@@ -45,7 +45,7 @@ type Quiz struct {
 	tries           int
 }
 
-func (c quizCommand) GetMatcher() matcher.Matcher {
+func (c *quizCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewRegexpMatcher(`quiz`, c.StartQuiz),
 		matcher.NewRegexpMatcher(`quiz (?P<questions>\d+)`, c.StartQuiz),

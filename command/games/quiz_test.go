@@ -6,10 +6,9 @@ import (
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"net/http/httptest"
-
-	"math/rand"
 	"testing"
 )
 
@@ -24,7 +23,7 @@ func TestQuiz(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	command := NewQuizCommand(slackClient).(quizCommand)
+	command := NewQuizCommand(slackClient).(*quizCommand)
 	command.apiURL = ts.URL
 	commands := bot.Commands{}
 	commands.AddCommand(command)

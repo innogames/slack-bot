@@ -27,7 +27,7 @@ type retryCommand struct {
 }
 
 func (c *retryCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewConditionalMatcher(c.Execute)
+	return matcher.WildcardMatcher(c.Execute)
 }
 
 func (c *retryCommand) Execute(event slack.MessageEvent) bool {

@@ -8,7 +8,7 @@ import (
 
 func TestIncreasingDelay(t *testing.T) {
 	subject := GetIncreasingDelay(time.Second*10, time.Second*60)
-
+	subject.randomAdd = time.Duration(0)
 	var actual time.Duration
 
 	// just started -> should return min

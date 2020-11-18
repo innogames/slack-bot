@@ -19,11 +19,11 @@ func IncreaseOne(key string) {
 	Increase(key, 1)
 }
 
-func Increase(key string, count int) {
+func Increase(key string, count uint) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	var value int
+	var value uint
 	storage.Read(collection, key, &value)
 
 	value += count
@@ -31,8 +31,8 @@ func Increase(key string, count int) {
 	storage.Write(collection, key, value)
 }
 
-func Get(key string) (int, error) {
-	var value int
+func Get(key string) (uint, error) {
+	var value uint
 	err := storage.Read(collection, key, &value)
 
 	return value, err

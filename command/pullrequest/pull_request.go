@@ -22,12 +22,12 @@ const (
 	iconBuildFailed     = "fire"
 	iconBuildRunning    = "arrows_counterclockwise"
 	iconError           = "x"
-	minCheckInterval    = time.Second * 20
+	minCheckInterval    = time.Second * 30
 	maxCheckInterval    = time.Minute * 3
-	maxConnectionErrors = 5
+	maxConnectionErrors = 10
 )
 
-type buildStatus int
+type buildStatus int8
 
 const (
 	buildStatusUnknown buildStatus = iota
@@ -88,8 +88,10 @@ func (c command) watch(match matcher.Result, event slack.MessageEvent) {
 	delay := util.GetIncreasingDelay(minCheckInterval, maxCheckInterval)
 	currentReactions := c.getOwnReactions(msgRef)
 
+	var pr pullRequest
+	var err error
 	for {
-		pr, err := c.fetcher.getPullRequest(match)
+		pr, err = c.fetcher.getPullRequest(match)
 		if err != nil {
 			if nerr, ok := err.(net.Error); ok && nerr.Temporary() {
 				time.Sleep(minCheckInterval)

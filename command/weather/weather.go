@@ -22,7 +22,7 @@ func NewWeatherCommand(slackClient client.SlackClient, config config.OpenWeather
 		config.URL = defaultAPIURL
 	}
 
-	return command{slackClient, config}
+	return &command{slackClient, config}
 }
 
 type command struct {
@@ -30,7 +30,7 @@ type command struct {
 	config      config.OpenWeather
 }
 
-func (c command) GetMatcher() matcher.Matcher {
+func (c *command) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewTextMatcher("weather", c.GetWeather),
 		matcher.NewRegexpMatcher("weather in (?P<location>\\w\\s+)", c.GetWeather),
@@ -106,8 +106,11 @@ func (c command) GetWeather(match matcher.Result, event slack.MessageEvent) {
 	sections = append(sections, headerSection)
 	for _, element := range fields {
 		var textBlocks []*slack.TextBlockObject
-		textBlocks = append(textBlocks, slack.NewTextBlockObject("mrkdwn", element[0], false, false))
-		textBlocks = append(textBlocks, slack.NewTextBlockObject("mrkdwn", element[1], false, false))
+		textBlocks = append(
+			textBlocks,
+			slack.NewTextBlockObject("mrkdwn", element[0], false, false),
+			slack.NewTextBlockObject("mrkdwn", element[1], false, false),
+		)
 
 		sections = append(sections, slack.NewSectionBlock(nil, textBlocks, nil))
 	}
@@ -119,11 +122,11 @@ func timestampToTime(timestamp int) string {
 	return time.Unix(int64(timestamp), 0).Format("15:04")
 }
 
-func (c command) IsEnabled() bool {
+func (c *command) IsEnabled() bool {
 	return c.config.Apikey != ""
 }
 
-func (c command) GetHelp() []bot.Help {
+func (c *command) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "weather",

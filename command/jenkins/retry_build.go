@@ -20,12 +20,12 @@ type retryCommand struct {
 
 // newRetryCommand initialize a new command to trigger for whitelisted jenkins job
 func newRetryCommand(
-	jenkins jenkins.Client,
+	jenkinsClient jenkins.Client,
 	slackClient client.SlackClient,
 	jobs config.JenkinsJobs,
 	logger *logrus.Logger,
 ) bot.Command {
-	return &retryCommand{jenkins, slackClient, jobs, logger}
+	return &retryCommand{jenkinsClient, slackClient, jobs, logger}
 }
 
 func (c *retryCommand) GetMatcher() matcher.Matcher {

@@ -17,7 +17,7 @@ type Storage interface {
 }
 
 // allowed characters for stage keys/collection
-var keyRegexp = regexp.MustCompile(`^[\w\d_\-,+@]+$`)
+var keyRegexp = regexp.MustCompile(`^[\w\-,+@]+$`)
 
 // InitStorage registers a local directory as JSON file Storage
 func InitStorage(path string) error {

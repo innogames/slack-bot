@@ -21,7 +21,7 @@ import (
 // todo(matze) do not use it anymore
 const TypeInternal = "internal"
 
-var linkRegexp = regexp.MustCompile(`<[^\s]+?\|(.*?)>`)
+var linkRegexp = regexp.MustCompile(`<\S+?\|(.*?)>`)
 
 var cleanMessage = strings.NewReplacer(
 	"‘", "'",
@@ -34,8 +34,8 @@ type Handler interface {
 }
 
 // NewBot created main Bot struct which holds the slack connection and dispatch messages to commands
-func NewBot(cfg config.Config, slackClient *client.Slack, logger *log.Logger, commands *Commands) Bot {
-	return Bot{
+func NewBot(cfg config.Config, slackClient *client.Slack, logger *log.Logger, commands *Commands) *Bot {
+	return &Bot{
 		config:       cfg,
 		slackClient:  slackClient,
 		logger:       logger,
@@ -174,7 +174,7 @@ func (b *Bot) loadSlackData() error {
 }
 
 // HandleMessages is blocking method to handle new incoming events
-func (b Bot) HandleMessages(kill chan os.Signal) {
+func (b *Bot) HandleMessages(kill chan os.Signal) {
 	for {
 		select {
 		case msg := <-b.slackClient.RTM.IncomingEvents:
@@ -204,7 +204,7 @@ func (b Bot) HandleMessages(kill chan os.Signal) {
 	}
 }
 
-func (b Bot) shouldHandleMessage(event *slack.MessageEvent) bool {
+func (b *Bot) shouldHandleMessage(event *slack.MessageEvent) bool {
 	// exclude all Bot traffic
 	if event.BotID != "" || event.User == "" || event.User == b.auth.UserID || event.SubType == "bot_message" {
 		return false
@@ -224,7 +224,7 @@ func (b Bot) shouldHandleMessage(event *slack.MessageEvent) bool {
 }
 
 // remove @Bot prefix of message and cleanup
-func (b Bot) trimMessage(msg string) string {
+func (b *Bot) trimMessage(msg string) string {
 	msg = strings.Replace(msg, "<@"+b.auth.UserID+">", "", 1)
 	msg = cleanMessage.Replace(msg)
 
@@ -232,7 +232,7 @@ func (b Bot) trimMessage(msg string) string {
 }
 
 // handleMessage process the incoming message and respond appropriately
-func (b Bot) handleMessage(event slack.MessageEvent) {
+func (b *Bot) handleMessage(event slack.MessageEvent) {
 	event.Text = b.trimMessage(event.Text)
 
 	// remove links from incoming messages. for internal ones they might be wanted, as they contain valid links with texts

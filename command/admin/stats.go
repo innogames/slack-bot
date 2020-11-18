@@ -20,7 +20,7 @@ var startTime = time.Now()
 
 // NewStatsCommand shows a bunch of runtime statistics of the bot (admin-only)
 func NewStatsCommand(slackClient client.SlackClient, cfg config.Config) bot.Command {
-	return statsCommand{slackClient, cfg}
+	return &statsCommand{slackClient, cfg}
 }
 
 type statsCommand struct {
@@ -28,9 +28,9 @@ type statsCommand struct {
 	cfg         config.Config
 }
 
-func (c statsCommand) GetMatcher() matcher.Matcher {
+func (c *statsCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewAdminMatcher(
-		c.cfg,
+		c.cfg.AdminUsers,
 		c.slackClient,
 		matcher.NewTextMatcher("bot stats", c.Stats),
 	)
@@ -44,7 +44,7 @@ func (c statsCommand) Stats(match matcher.Result, event slack.MessageEvent) {
 	c.slackClient.Reply(event, result.String())
 }
 
-func (c statsCommand) collectStats(result *statsResult) {
+func (c *statsCommand) collectStats(result *statsResult) {
 	m := &runtime.MemStats{}
 	runtime.ReadMemStats(m)
 
@@ -84,7 +84,7 @@ func formatStats(key string) string {
 	return fmt.Sprintf("%d", value)
 }
 
-func (c statsCommand) GetHelp() []bot.Help {
+func (c *statsCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "bot stats",

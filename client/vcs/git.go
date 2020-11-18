@@ -9,7 +9,7 @@ type git struct {
 	repo string
 }
 
-var gitBranchRe = regexp.MustCompile(`refs\/(remotes\/origin|heads)\/(.*)\n`)
+var gitBranchRe = regexp.MustCompile(`refs/(remotes/origin|heads)/(.*)\n`)
 
 // LoadBranches will load the branches from a (remote) git repository
 func (f git) LoadBranches() ([]string, error) {

@@ -9,14 +9,14 @@ import (
 	"github.com/slack-go/slack"
 )
 
-// NewAdminMatcher is a wrapper to only executable by a whitelisted admin user
-func NewAdminMatcher(cfg config.Config, slackClient client.SlackClient, matcher Matcher) Matcher {
-	return adminMatcher{matcher, cfg, slackClient}
+// NewAdminMatcher is a wrapper to only executable by a whitelisted admins user
+func NewAdminMatcher(admins config.UserList, slackClient client.SlackClient, matcher Matcher) Matcher {
+	return adminMatcher{matcher, admins, slackClient}
 }
 
 type adminMatcher struct {
 	matcher     Matcher
-	cfg         config.Config
+	admins      config.UserList
 	slackClient client.SlackClient
 }
 
@@ -26,10 +26,9 @@ func (m adminMatcher) Match(event slack.MessageEvent) (Runner, Result) {
 		return nil, result
 	}
 
-	for _, adminID := range m.cfg.AdminUsers {
-		if adminID == event.User {
-			return run, result
-		}
+	if m.admins.Contains(event.User) {
+		// valid admin -> execute the wrapped command
+		return run, result
 	}
 
 	match := MapResult{
@@ -39,7 +38,7 @@ func (m adminMatcher) Match(event slack.MessageEvent) (Runner, Result) {
 	return func(match Result, event slack.MessageEvent) {
 		m.slackClient.ReplyError(
 			event,
-			errors.New("sorry, you are no admin and not allowed to execute this command"),
+			errors.New("sorry, you are no admins and not allowed to execute this command"),
 		)
 	}, match
 }
