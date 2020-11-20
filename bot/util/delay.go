@@ -1,6 +1,7 @@
 package util
 
 import (
+	"math/rand"
 	"time"
 )
 
@@ -14,6 +15,7 @@ const durationForMaxDelay = time.Hour * 24
 // Result:   22223333444455556666777788889999999999999999999
 func GetIncreasingDelay(minDuration time.Duration, maxDuration time.Duration) IncreasingDelay {
 	return IncreasingDelay{
+		time.Millisecond * time.Duration(rand.Intn(2000)), // add up to 2s randomly to avoid peaks
 		time.Now(),
 		minDuration,
 		maxDuration,
@@ -21,6 +23,7 @@ func GetIncreasingDelay(minDuration time.Duration, maxDuration time.Duration) In
 }
 
 type IncreasingDelay struct {
+	randomAdd   time.Duration
 	startedAt   time.Time
 	minDuration time.Duration
 	maxDuration time.Duration
@@ -35,5 +38,5 @@ func (d IncreasingDelay) GetNextDelay() time.Duration {
 
 	additional := float64((d.maxDuration - d.minDuration).Nanoseconds()) * (startedAgo.Minutes() / durationForMaxDelay.Minutes())
 
-	return d.minDuration + time.Duration(additional)
+	return d.minDuration + time.Duration(additional) + d.randomAdd
 }

@@ -6,12 +6,12 @@ import (
 	"testing"
 )
 
-func TestConditional(t *testing.T) {
+func TestWildcard(t *testing.T) {
 	t.Run("Match", func(t *testing.T) {
 		runner := func(event slack.MessageEvent) bool {
 			return true
 		}
-		subject := NewConditionalMatcher(runner)
+		subject := WildcardMatcher(runner)
 
 		event := slack.MessageEvent{}
 		event.Text = "any"
@@ -24,7 +24,7 @@ func TestConditional(t *testing.T) {
 		runner := func(event slack.MessageEvent) bool {
 			return false
 		}
-		subject := NewConditionalMatcher(runner)
+		subject := WildcardMatcher(runner)
 
 		event := slack.MessageEvent{}
 		event.Text = "any"

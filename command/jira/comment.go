@@ -32,13 +32,12 @@ func (c *commentCommand) GetMatcher() matcher.Matcher {
 
 func (c *commentCommand) AddComment(match matcher.Result, event slack.MessageEvent) {
 	ticketID := match.GetString("ticketID")
-	issue, resp, err := c.jira.Issue.Get(ticketID, nil)
+	issue, _, err := c.jira.Issue.Get(ticketID, nil)
 
 	if err != nil {
 		c.slackClient.ReplyError(event, err)
 		return
 	}
-	resp.Body.Close()
 
 	_, userName := client.GetUser(event.User)
 
@@ -47,14 +46,13 @@ func (c *commentCommand) AddComment(match matcher.Result, event slack.MessageEve
 		userName,
 		match.GetString("comment"),
 	)
-	_, resp, err = c.jira.Issue.AddComment(issue.ID, &jira.Comment{
+	_, _, err = c.jira.Issue.AddComment(issue.ID, &jira.Comment{
 		Body: comment,
 	})
 	if err != nil {
 		c.slackClient.ReplyError(event, err)
 		return
 	}
-	resp.Body.Close()
 
 	msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
 	c.slackClient.AddReaction("white_check_mark", msgRef)

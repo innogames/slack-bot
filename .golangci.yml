@@ -1,6 +1,13 @@
 run:
   issues-exit-code: 1
 
+linters-settings:
+  gocritic:
+    enabled-tags:
+      - performance
+      - diagnostic
+      - style
+
 linters:
   enable:
     - bodyclose

@@ -24,11 +24,11 @@ type statusCommand struct {
 }
 
 // newStatusCommand is able to enable/disable (whitelisted) Jenkins jobs
-func newStatusCommand(jenkins jenkins.Client, slackClient client.SlackClient, jobs config.JenkinsJobs) bot.Command {
-	return &statusCommand{jenkins, slackClient, jobs}
+func newStatusCommand(jenkinsClient jenkins.Client, slackClient client.SlackClient, jobs config.JenkinsJobs) bot.Command {
+	return &statusCommand{jenkinsClient, slackClient, jobs}
 }
 
-func (c *statusCommand) GetMatcher() matcher.Matcher {
+func (c statusCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewRegexpMatcher("(?P<action>enable|disable) job (?P<job>[\\w\\-_]+)", c.Run)
 }
 

@@ -49,8 +49,8 @@ func TestJobStatus(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = "enable job TestJob"
 
-		jenkins.On("GetJob", "TestJob").Return(nil, fmt.Errorf("Invalid job TestJob"))
-		slackClient.On("ReplyError", event, fmt.Errorf("Invalid job TestJob")).Return(true)
+		jenkins.On("GetJob", "TestJob").Return(nil, fmt.Errorf("invalid job TestJob"))
+		slackClient.On("ReplyError", event, fmt.Errorf("invalid job TestJob")).Return(true)
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
 	})

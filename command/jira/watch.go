@@ -33,13 +33,12 @@ func (c *watchCommand) GetMatcher() matcher.Matcher {
 
 func (c *watchCommand) Run(match matcher.Result, event slack.MessageEvent) {
 	ticketID := match.GetString("ticketId")
-	issue, response, err := c.jira.Issue.Get(ticketID, nil)
+	issue, _, err := c.jira.Issue.Get(ticketID, nil)
 
 	if err != nil {
 		c.slackClient.Reply(event, err.Error())
 		return
 	}
-	response.Body.Close()
 
 	go c.watchTicket(event, issue)
 

@@ -60,17 +60,15 @@ func (c *bitbucketFetcher) getPullRequest(match matcher.Result) (pullRequest, er
 		declined:    rawPullRequest.State == "DECLINED",
 		approvers:   approvers,
 		inReview:    len(rawPullRequest.Reviewers) > 0,
-		buildStatus: c.getBuildStatus(rawPullRequest),
+		buildStatus: c.getBuildStatus(rawPullRequest.FromRef.LatestCommit),
 	}
 
 	return pr, nil
 }
 
 // try to extract the current build status from a PR, based on the recent commit
-func (c *bitbucketFetcher) getBuildStatus(rawPullRequest bitbucket.PullRequest) buildStatus {
+func (c *bitbucketFetcher) getBuildStatus(lastCommit string) buildStatus {
 	buildStatus := buildStatusUnknown
-
-	lastCommit := rawPullRequest.FromRef.LatestCommit
 	if lastCommit == "" {
 		return buildStatus
 	}

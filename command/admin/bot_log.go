@@ -15,7 +15,7 @@ const logChars = 4000
 
 // NewBotLogCommand prints the recent bot.log as slack command
 func NewBotLogCommand(slackClient client.SlackClient, cfg config.Config) bot.Command {
-	return botLogCommand{
+	return &botLogCommand{
 		slackClient,
 		cfg,
 	}
@@ -26,9 +26,9 @@ type botLogCommand struct {
 	cfg         config.Config
 }
 
-func (c botLogCommand) GetMatcher() matcher.Matcher {
+func (c *botLogCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewAdminMatcher(
-		c.cfg,
+		c.cfg.AdminUsers,
 		c.slackClient,
 		matcher.NewTextMatcher("bot log", c.Run),
 	)
@@ -44,7 +44,7 @@ func (c botLogCommand) Run(match matcher.Result, event slack.MessageEvent) {
 	c.slackClient.Reply(event, fmt.Sprintf("The most recent messages:\n```%s```", parts[1]))
 }
 
-func (c botLogCommand) GetHelp() []bot.Help {
+func (c *botLogCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "bot log",
@@ -57,7 +57,7 @@ func (c botLogCommand) GetHelp() []bot.Help {
 }
 
 // get the last X characters from the given file
-func (c botLogCommand) readFile(filename string, chars int64) []byte {
+func (c *botLogCommand) readFile(filename string, chars int64) []byte {
 	buf := make([]byte, chars)
 	file, err := os.Open(filename)
 	if err != nil {

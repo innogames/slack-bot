@@ -20,7 +20,7 @@ func TestGroup(t *testing.T) {
 	matcher := NewGroupMatcher(
 		NewRegexpMatcher(`add reaction :(?P<reaction>.*):`, testRunner),
 		NewAdminMatcher(
-			cfg,
+			cfg.AdminUsers,
 			&mocks.SlackClient{},
 			NewRegexpMatcher(`remove reaction :(?P<reaction>.*):`, testRunner),
 		),
@@ -60,7 +60,7 @@ func BenchmarkMatchChained(b *testing.B) {
 		NewRegexpMatcher(`remove reaction :(?P<reaction>.*):`, testRunner),
 		NewPrefixMatcher(`prefix`, testRunner),
 		NewAdminMatcher(
-			config.Config{},
+			config.UserList{},
 			&mocks.SlackClient{},
 			NewTextMatcher(`text`, testRunner),
 		),

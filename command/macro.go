@@ -44,7 +44,7 @@ type command struct {
 }
 
 func (c *macroCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewConditionalMatcher(c.Execute)
+	return matcher.WildcardMatcher(c.Execute)
 }
 
 func (c *macroCommand) Execute(event slack.MessageEvent) bool {

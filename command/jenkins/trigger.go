@@ -54,8 +54,8 @@ func (c *triggerCommand) IsEnabled() bool {
 
 func (c *triggerCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewRegexpMatcher("((trigger|start) (jenkins|build|job)) (?P<job>[\\w\\-_]*)(?P<parameters>.*)", c.GenericCall),
-		matcher.NewConditionalMatcher(c.ConfigTrigger),
+		matcher.NewRegexpMatcher(`((trigger|start) (jenkins|build|job)) (?P<job>[\w\-_\\/]*)(?P<parameters>.*)`, c.GenericCall),
+		matcher.WildcardMatcher(c.ConfigTrigger),
 	)
 }
 

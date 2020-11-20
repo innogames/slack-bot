@@ -22,7 +22,7 @@ func newGitlabCommand(slackClient client.SlackClient, cfg config.Config, logger 
 	}
 
 	options := gitlab.WithBaseURL(cfg.Gitlab.Host)
-	client, err := gitlab.NewClient(cfg.Gitlab.AccessToken, options)
+	gitlabClient, err := gitlab.NewClient(cfg.Gitlab.AccessToken, options)
 	if err != nil {
 		return nil
 	}
@@ -31,7 +31,7 @@ func newGitlabCommand(slackClient client.SlackClient, cfg config.Config, logger 
 		cfg.PullRequest,
 		slackClient,
 		logger,
-		&gitlabFetcher{client},
+		&gitlabFetcher{gitlabClient},
 		"(?s).*" + regexp.QuoteMeta(cfg.Gitlab.Host) + "/(?P<repo>.+/.+)/merge_requests/(?P<number>\\d+).*",
 	}
 }

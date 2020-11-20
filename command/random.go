@@ -25,7 +25,7 @@ func (c *randomCommand) GetMatcher() matcher.Matcher {
 
 func (c *randomCommand) GetRandom(match matcher.Result, event slack.MessageEvent) {
 	optionsString := match.MatchedString()
-	if len(optionsString) == 0 {
+	if optionsString == "" {
 		c.slackClient.Reply(event, "You have to pass more arguments")
 		return
 	}

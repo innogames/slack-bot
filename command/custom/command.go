@@ -17,7 +17,7 @@ type command struct {
 
 func (c command) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewConditionalMatcher(c.Handle),
+		matcher.WildcardMatcher(c.Handle),
 		matcher.NewRegexpMatcher("add command '(?P<alias>.*)'( as)? '(?P<command>.*)'", c.Add),
 		matcher.NewRegexpMatcher("(delete|remove) command '?(?P<alias>.*?)'?", c.Delete),
 		matcher.NewTextMatcher("list commands", c.List),

@@ -19,11 +19,11 @@ type testFetcher struct {
 	err error
 }
 
-func (t testFetcher) getPullRequest(match matcher.Result) (pullRequest, error) {
+func (t *testFetcher) getPullRequest(match matcher.Result) (pullRequest, error) {
 	return t.pr, t.err
 }
 
-func (t testFetcher) getHelp() []bot.Help {
+func (t *testFetcher) getHelp() []bot.Help {
 	return []bot.Help{}
 }
 

@@ -31,6 +31,11 @@ func TestJenkinsTrigger(t *testing.T) {
 		"TestJobWithoutTrigger": {
 			Parameters: []config.JobParameter{},
 		},
+		"Prefix/Test": {
+			Parameters: []config.JobParameter{
+				{Name: "PARAM1"},
+			},
+		},
 	}
 
 	trigger := newTriggerCommand(jenkinsClient, &slackClient, cfg, logger)
@@ -47,7 +52,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = "trigger job NotExisting"
 
-		slackClient.On("Reply", event, "Sorry, job *NotExisting* is not startable. Possible jobs: \n - *TestJob* \n - *TestJobWithTrigger* \n - *TestJobWithoutTrigger*")
+		slackClient.On("Reply", event, "Sorry, job *NotExisting* is not startable. Possible jobs: \n - *Prefix/Test* \n - *TestJob* \n - *TestJobWithTrigger* \n - *TestJobWithoutTrigger*")
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
 	})
@@ -64,6 +69,15 @@ func TestJenkinsTrigger(t *testing.T) {
 	t.Run("matched trigger, but not all parameters provided", func(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = "start test job"
+
+		slackClient.On("ReplyError", event, fmt.Errorf("sorry, you have to pass 1 parameters (PARAM1)"))
+		actual := command.Run(event)
+		assert.Equal(t, true, actual)
+	})
+
+	t.Run("matched prefixed trigger, but not all parameters provided", func(t *testing.T) {
+		event := slack.MessageEvent{}
+		event.Text = "trigger job Prefix/Test"
 
 		slackClient.On("ReplyError", event, fmt.Errorf("sorry, you have to pass 1 parameters (PARAM1)"))
 		actual := command.Run(event)

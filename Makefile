@@ -5,7 +5,7 @@ all: clean dep test build/slack-bot
 
 build/slack-bot:
 	mkdir -p build/
-	go build -o build/slack-bot -ldflags="-s -w" cmd/bot/main.go
+	go build -o build/slack-bot -trimpath -ldflags="-s -w" cmd/bot/main.go
 
 run:
 	go run cmd/bot/main.go

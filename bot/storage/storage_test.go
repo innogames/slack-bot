@@ -31,7 +31,6 @@ func testStorage(t *testing.T, storage Storage) {
 	keys, err := storage.GetKeys(collection)
 	assert.Nil(t, err)
 	assert.Len(t, keys, 3)
-	// assert.Equal(t, []string{"test-string", "test-int", "test-map"}, keys)
 
 	keys, err = storage.GetKeys("invalid-collection")
 	assert.Error(t, err)
