@@ -2,6 +2,7 @@ package queue
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/msg"
 	"strconv"
 	"testing"
 	"time"
@@ -16,7 +17,7 @@ import (
 )
 
 func TestQueue(t *testing.T) {
-	client.InternalMessages = make(chan slack.MessageEvent, 2)
+	client.InternalMessages = make(chan msg.Message, 2)
 	slackClient := &mocks.SlackClient{}
 
 	event := slack.MessageEvent{}
@@ -113,12 +114,10 @@ func TestQueue(t *testing.T) {
 		assert.NotEmpty(t, client.InternalMessages)
 
 		handledEvent := <-client.InternalMessages
-		assert.Equal(t, handledEvent, slack.MessageEvent{
-			Msg: slack.Msg{
-				Timestamp: event.Timestamp,
-				User:      "testUser1",
-				Text:      "reply test",
-			},
+		assert.Equal(t, handledEvent, msg.Message{
+			Timestamp: event.Timestamp,
+			User:      "testUser1",
+			Text:      "reply test",
 		})
 	})
 }

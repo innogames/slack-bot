@@ -5,6 +5,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/sirupsen/logrus"
@@ -77,7 +78,7 @@ func (c *macroCommand) Execute(event slack.MessageEvent) bool {
 			for _, part := range strings.Split(text, "\n") {
 				newMessage := event
 				newMessage.Text = part
-				client.InternalMessages <- newMessage
+				client.InternalMessages <- msg.FromSlackEvent(newMessage)
 			}
 		}
 

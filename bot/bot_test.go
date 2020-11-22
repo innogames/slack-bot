@@ -34,7 +34,7 @@ func TestBot(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.Text = ""
 		event.Channel = "C123"
-		bot.handleMessage(event)
+		bot.handleMessage(event, true)
 	})
 
 	t.Run("handle unauthenticated message", func(t *testing.T) {
@@ -43,7 +43,7 @@ func TestBot(t *testing.T) {
 		event.Text = "test"
 		event.User = "U888"
 		event.Channel = "C123"
-		bot.handleMessage(event)
+		bot.handleMessage(event, true)
 	})
 
 	t.Run("handle valid message", func(t *testing.T) {
@@ -52,7 +52,7 @@ func TestBot(t *testing.T) {
 		event.Text = "test"
 		event.User = "U123"
 		event.Channel = "C123"
-		bot.handleMessage(event)
+		bot.handleMessage(event, true)
 		fmt.Println(bot.slackClient.RTM.IncomingEvents)
 	})
 }
@@ -89,7 +89,6 @@ func TestIsBotMessage(t *testing.T) {
 
 	t.Run("Pass internal events", func(t *testing.T) {
 		event := &slack.MessageEvent{}
-		event.SubType = TypeInternal
 		event.User = "U1234"
 		event.Text = "<@BOT> random test"
 

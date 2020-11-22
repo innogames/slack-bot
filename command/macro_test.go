@@ -3,6 +3,7 @@ package command
 import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/sirupsen/logrus"
@@ -15,7 +16,7 @@ func TestInvalidMacro(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	logger := logrus.New()
 
-	client.InternalMessages = make(chan slack.MessageEvent, 2)
+	client.InternalMessages = make(chan msg.Message, 2)
 	cfg := []config.Macro{
 		{
 			Name: "Test",
@@ -42,7 +43,7 @@ func TestMacro(t *testing.T) {
 	logger := logrus.New()
 
 	slackClient := &mocks.SlackClient{}
-	client.InternalMessages = make(chan slack.MessageEvent, 2)
+	client.InternalMessages = make(chan msg.Message, 2)
 	cfg := []config.Macro{
 		{
 			Name: "Test",
@@ -75,16 +76,12 @@ func TestMacro(t *testing.T) {
 		assert.NotEmpty(t, client.InternalMessages)
 
 		handledEvent := <-client.InternalMessages
-		assert.Equal(t, handledEvent, slack.MessageEvent{
-			Msg: slack.Msg{
-				Text: "macro 1",
-			},
+		assert.Equal(t, handledEvent, msg.Message{
+			Text: "macro 1",
 		})
 		handledEvent = <-client.InternalMessages
-		assert.Equal(t, handledEvent, slack.MessageEvent{
-			Msg: slack.Msg{
-				Text: "macro test",
-			},
+		assert.Equal(t, handledEvent, msg.Message{
+			Text: "macro test",
 		})
 		assert.Empty(t, client.InternalMessages)
 	})

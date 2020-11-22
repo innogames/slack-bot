@@ -22,7 +22,7 @@ const TestChannel = "#dev"
 const botID = "W12345"
 
 // StartBot will start this bot against the fake slack instance
-func StartBot(cfg config.Config, logger *logrus.Logger) bot.Handler {
+func StartBot(cfg config.Config, logger *logrus.Logger) *bot.Bot {
 	slackClient := client.GetSlackClient(cfg.Slack, logger)
 
 	commands := command.GetCommands(

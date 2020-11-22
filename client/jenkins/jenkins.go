@@ -2,6 +2,7 @@ package jenkins
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/msg"
 	"time"
 
 	"github.com/bndr/gojenkins"
@@ -69,6 +70,6 @@ func processHooks(commands []string, event slack.MessageEvent, params map[string
 		text, _ := util.EvalTemplate(temp, params)
 
 		event.Text = text
-		client.InternalMessages <- event
+		client.InternalMessages <- msg.FromSlackEvent(event)
 	}
 }

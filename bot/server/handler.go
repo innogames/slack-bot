@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/innogames/slack-bot/bot/msg"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -36,7 +37,7 @@ func (s *Server) eventHandler(w http.ResponseWriter, r *http.Request) {
 
 		switch ev := innerEvent.Data.(type) {
 		case slackevents.MessageEvent:
-			client.InternalMessages <- slack.MessageEvent{
+			client.InternalMessages <- msg.Message{
 				// todo fill
 			}
 		default:
@@ -101,7 +102,7 @@ func (s *Server) interactionHandler(w http.ResponseWriter, r *http.Request) {
 	storage.Delete("interactions", action.Value)
 	event.User = payload.User.ID
 
-	client.InternalMessages <- event
+	client.InternalMessages <- msg.FromSlackEvent(event)
 
 	newMessage := getChangedMessage(payload.Message, action.Value)
 	w.WriteHeader(http.StatusOK)

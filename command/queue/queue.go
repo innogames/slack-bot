@@ -1,6 +1,7 @@
 package queue
 
 import (
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
@@ -86,7 +87,7 @@ func executeFallbackCommand(logger *logrus.Logger) {
 		}
 
 		logger.Infof("[Queue] Booted! I'll trigger this command now: `%s`", event.Text)
-		client.InternalMessages <- event
+		client.InternalMessages <- msg.FromSlackEvent(event)
 	}
 	storage.DeleteCollection(storageKey)
 }

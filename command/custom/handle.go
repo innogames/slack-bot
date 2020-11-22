@@ -2,6 +2,7 @@ package custom
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/slack-go/slack"
 	"strings"
@@ -19,7 +20,7 @@ func (c command) Handle(event slack.MessageEvent) bool {
 	for _, command := range strings.Split(commands, ";") {
 		newMessage := event
 		newMessage.Text = command
-		client.InternalMessages <- newMessage
+		client.InternalMessages <- msg.FromSlackEvent(newMessage)
 	}
 
 	return true
