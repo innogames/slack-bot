@@ -3,7 +3,7 @@ module github.com/innogames/slack-bot
 go 1.14
 
 require (
-	github.com/alicebob/miniredis/v2 v2.13.1
+	github.com/alicebob/miniredis/v2 v2.14.1
 	github.com/andygrunwald/go-jira v1.13.0
 	github.com/bndr/gojenkins v1.0.1
 	github.com/eclipse/paho.mqtt.golang v1.2.0
@@ -13,7 +13,6 @@ require (
 	github.com/gfleury/go-bitbucket-v1/test/bb-mock-server v0.0.0-20200810125852-15f2a16ca820
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/go-test/deep v1.0.7 // indirect
-	github.com/gomodule/redigo v1.8.2 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/gookit/color v1.3.2
 	github.com/hashicorp/go-hclog v0.14.1 // indirect
