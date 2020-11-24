@@ -1,0 +1,26 @@
+name: Master change
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  update_release_draft:
+    name: Update release draft description
+    runs-on: ubuntu-latest
+    steps:
+      - uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  push_to_registry:
+    name: Push latest Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Push to GitHub Packages
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: innogames/slack-bot:latest
