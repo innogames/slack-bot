@@ -8,7 +8,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// GetJenkins will return a list of available Jenkins commands...if the config is set!
+var category = bot.Category{
+	Name:        "Jenkins",
+	Description: "Interact with Jenkins jobs: Trigger builds, check job status or watch builds",
+	HelpUrl:     "https://github.com/innogames/slack-bot#jenkins",
+}
+
+// GetCommands will return a list of available Jenkins commands...if the config is set!
 func GetCommands(cfg config.Jenkins, slackClient client.SlackClient, logger *logrus.Logger) bot.Commands {
 	var commands bot.Commands
 

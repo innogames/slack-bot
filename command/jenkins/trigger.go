@@ -146,6 +146,7 @@ func (c *triggerCommand) GetHelp() []bot.Help {
 			Examples: []string{
 				jobConfig.config.Trigger,
 			},
+			Category: category,
 		}
 		help = append(help, commandHelp)
 	}

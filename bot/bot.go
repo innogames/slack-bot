@@ -59,8 +59,6 @@ func (b *Bot) Init() (err error) {
 	}
 	client.BotUserID = b.auth.UserID
 
-	go b.slackClient.RTM.ManageConnection()
-
 	err = b.loadChannels()
 	if err != nil {
 		return errors.Wrap(err, "error while fetching public channels")
@@ -87,6 +85,8 @@ func (b *Bot) Init() (err error) {
 		go b.server.StartServer()
 	}
 
+	go b.slackClient.RTM.ManageConnection()
+
 	b.logger.Infof("Loaded %d allowed users and %d channels", len(b.allowedUsers), len(client.Channels))
 	b.logger.Infof("Bot user: %s with ID %s on workspace %s", b.auth.User, b.auth.UserID, b.auth.URL)
 	b.logger.Infof("Initialized %d commands", b.commands.Count())
@@ -98,6 +98,11 @@ func (b *Bot) loadChannels() error {
 	var err error
 	var cursor string
 	var chunkedChannels []slack.Channel
+
+	// in CLI context we don't have to channels
+	if b.config.Slack.TestEndpointURL != "" {
+		return nil
+	}
 
 	client.Channels = make(map[string]string)
 

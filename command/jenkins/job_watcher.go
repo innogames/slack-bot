@@ -83,6 +83,7 @@ func (c *watcherCommand) GetHelp() []bot.Help {
 				"watch MyJobName",
 				"unwatch MyJobName",
 			},
+			Category: category,
 		},
 	}
 }

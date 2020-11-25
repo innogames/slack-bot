@@ -11,6 +11,12 @@ func GetCommand(slackClient client.SlackClient) bot.Command {
 	return command{slackClient}
 }
 
+var category = bot.Category{
+	Name:        "Custom Commands",
+	Description: "Define your own alias commands",
+	HelpUrl:     "https://github.com/innogames/slack-bot#custom-command",
+}
+
 type command struct {
 	slackClient client.SlackClient
 }
@@ -29,6 +35,7 @@ func (c command) GetHelp() []bot.Help {
 		{
 			Command:     "custom commands",
 			Description: "Define command aliases which are just available for you. You can use a `;` to separate single commands",
+			Category:    category,
 			Examples: []string{
 				"`list commands`",
 				"`add command 'myCommand' as 'trigger job RestoreWorld 7'` -> then just call `myCommand` later",

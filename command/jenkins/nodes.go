@@ -69,6 +69,7 @@ func (c *nodesCommand) GetHelp() []bot.Help {
 			Examples: []string{
 				"jenkins nodes",
 			},
+			Category: category,
 		},
 	}
 }

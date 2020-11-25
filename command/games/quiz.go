@@ -154,6 +154,7 @@ func (c *quizCommand) GetHelp() []bot.Help {
 		{
 			Command:     "quiz",
 			Description: "small quiz for a nice break",
+			Category:    category,
 			Examples: []string{
 				"quiz",
 				"quiz 10",

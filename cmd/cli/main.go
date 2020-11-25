@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -15,7 +14,6 @@ import (
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/bot/tester"
 	"github.com/sirupsen/logrus"
-	"github.com/slack-go/slack"
 )
 
 // starts a interactive shell to communicate with a fake slack server and execute real commands
@@ -52,22 +50,6 @@ func startCli(input io.Reader, output io.Writer, kill chan os.Signal) {
 
 	fmt.Println("Type in your command:")
 	reader := bufio.NewReader(input)
-
-	// loop to print received messages from websocket connection
-	go func() {
-		for m := range fakeSlack.SeenFeed {
-			var message slack.MessageEvent
-			err := json.Unmarshal([]byte(m), &message)
-			if err != nil {
-				fmt.Println(err)
-				continue
-			}
-			if message.Type == "typing" {
-				continue
-			}
-			color.Yellow.Printf("\n<<<< %s\n", message.Text)
-		}
-	}()
 
 	// loop to send stdin input to slack bot
 	for {

@@ -28,9 +28,10 @@ type Config struct {
 		AccessToken string
 		Host        string
 	}
-	Macros []Macro `mapstructure:"macros"`
-	Crons  []Cron  `mapstructure:"crons"`
-	Logger Logger  `mapstructure:"logger"`
+
+	Commands []Macro `mapstructure:"commands"`
+	Crons    []Cron  `mapstructure:"crons"`
+	Logger   Logger  `mapstructure:"logger"`
 
 	// @deprecated
 	BranchLookup struct {

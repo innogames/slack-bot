@@ -4,6 +4,8 @@ package bot
 type Help struct {
 	Command     string
 	Description string
+	HelpUrl     string
+	Category    Category
 	Examples    []string
 }
 
@@ -13,5 +15,16 @@ func (h Help) GetKeywords() []string {
 	keywords = append(keywords, h.Command)
 	keywords = append(keywords, h.Examples...)
 
+	if h.Category.Name != "" {
+		keywords = append(keywords, h.Category.Name)
+	}
+
 	return keywords
+}
+
+// Category of Help entries. -> Groups command in help command by "Jenkins", "Pull request" etc
+type Category struct {
+	Name        string
+	Description string
+	HelpUrl     string
 }

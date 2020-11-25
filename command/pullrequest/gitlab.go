@@ -101,6 +101,7 @@ func (c *gitlabFetcher) getHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "gitlab pull request",
+			Category:    category,
 			Description: "tracks the state of gitlab pull requests",
 			Examples: []string{
 				"https://gitlab.example.com/home-assistant/home-assistant/merge_requests/13958",

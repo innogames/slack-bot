@@ -33,6 +33,7 @@ func GetSlackClient(cfg config.Slack, logger *logrus.Logger) *Slack {
 		options = append(options, slack.OptionAPIURL(cfg.TestEndpointURL))
 	}
 
+	// todo add slack.OptionLog() and proxy to logger
 	if cfg.Debug {
 		options = append(options, slack.OptionDebug(true))
 	}
@@ -40,9 +41,7 @@ func GetSlackClient(cfg config.Slack, logger *logrus.Logger) *Slack {
 	rawClient := slack.New(cfg.Token, options...)
 	rtm := rawClient.NewRTM()
 
-	slackClient := &Slack{Client: rawClient, RTM: rtm, logger: logger, config: cfg}
-
-	return slackClient
+	return &Slack{Client: rawClient, RTM: rtm, logger: logger, config: cfg}
 }
 
 type SlackClient interface {
@@ -71,17 +70,7 @@ type Slack struct {
 
 // Reply fast reply via RTM websocket
 func (s Slack) Reply(event slack.MessageEvent, text string, options ...slack.MsgOption) {
-	// slow http POST fallback in case of huge message which is not sendable via websocket
-	if len(text) >= slack.MaxMessageTextLength || len(options) > 0 {
-		s.SendMessage(event, text, options...)
-		return
-	}
-
-	s.RTM.SendMessage(s.RTM.NewOutgoingMessage(
-		text,
-		event.Channel,
-		slack.RTMsgOptionTS(event.ThreadTimestamp),
-	))
+	s.SendMessage(event, text, options...)
 }
 
 func (s Slack) AddReaction(name string, item slack.ItemRef) {

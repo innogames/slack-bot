@@ -10,6 +10,9 @@ build/slack-bot:
 run:
 	go run cmd/bot/main.go
 
+run-cli:
+	go run cmd/cli/main.go
+
 clean:
 	rm -rf build/
 

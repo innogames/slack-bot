@@ -115,6 +115,7 @@ func (c *buildWatcherCommand) GetHelp() []bot.Help {
 				"inform me about build AtcMobile",
 				"notify build AtcMobile",
 			},
+			Category: category,
 		},
 		{
 			Command:     "inform job",
@@ -124,6 +125,7 @@ func (c *buildWatcherCommand) GetHelp() []bot.Help {
 				"inform me about build AtcMobile",
 				"notify build AtcMobile",
 			},
+			Category: category,
 		},
 	}
 }

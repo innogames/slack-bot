@@ -7,7 +7,7 @@ import (
 	"github.com/slack-go/slack"
 )
 
-// NewReactionCommand simply adds a reaction to the current message...used in "macros" and other internal commands
+// NewReactionCommand simply adds a reaction to the current message...used in "commands" and other internal commands
 func NewReactionCommand(slackClient client.SlackClient) bot.Command {
 	return &reactionCommand{slackClient}
 }

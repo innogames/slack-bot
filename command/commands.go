@@ -25,7 +25,7 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logr
 		// needs to be the first commands to store all executed commands
 		NewRetryCommand(slackClient),
 
-		NewMacroCommand(slackClient, cfg.Macros, logger),
+		NewMacroCommand(slackClient, cfg.Commands, logger),
 		NewReplyCommand(slackClient),
 		NewAddLinkCommand(slackClient),
 		NewAddButtonCommand(slackClient, cfg.Server),
@@ -40,9 +40,6 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logr
 
 		weather.NewWeatherCommand(slackClient, cfg.OpenWeather),
 
-		games.NewNumberGuesserCommand(slackClient),
-		games.NewQuizCommand(slackClient),
-
 		mqtt.NewMqttCommand(slackClient, cfg.Mqtt),
 
 		cron.NewCronCommand(slackClient, logger, cfg.Crons),
@@ -53,6 +50,9 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logr
 		custom.GetCommand(slackClient),
 		variables.GetCommand(slackClient),
 	)
+
+	// games
+	commands.Merge(games.GetCommands(slackClient))
 
 	// jira
 	commands.Merge(jira.GetCommands(cfg.Jira, slackClient, logger))

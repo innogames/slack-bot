@@ -112,6 +112,7 @@ func (c *bitbucketFetcher) getHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "bitbucket pull request",
+			Category:    category,
 			Description: "tracks the state of bitbucket/stash pull requests",
 			Examples: []string{
 				"https://bitbucket.example.com/home-assistant/home-assistant/pull-requests/13958",
