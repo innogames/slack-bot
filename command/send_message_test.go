@@ -27,7 +27,7 @@ func TestSendMessage(t *testing.T) {
 		event.Text = "send message <@1234|testuser> message"
 		event.User = "testUser1"
 
-		slackClient.On("SendToUser", "1234", "Message from <@testUser1>: message").Return("")
+		slackClient.On("SendToUser", "1234", "Text from <@testUser1>: message").Return("")
 		slackClient.On("Reply", event, "I'll send `message` to <@1234|testuser>")
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)
@@ -38,7 +38,7 @@ func TestSendMessage(t *testing.T) {
 		event.Text = "send message <#JDGS|general> message"
 		event.User = "testUser1"
 
-		slackClient.On("Reply", slack.MessageEvent{Msg: slack.Msg{Channel: "JDGS"}}, "Message from <@testUser1>: message").Return("")
+		slackClient.On("Reply", slack.MessageEvent{Msg: slack.Msg{Channel: "JDGS"}}, "Text from <@testUser1>: message").Return("")
 		slackClient.On("Reply", event, "I'll send `message` to <#JDGS|general>")
 		actual := command.Run(event)
 		assert.Equal(t, true, actual)

@@ -3,6 +3,7 @@ package cron
 import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/sirupsen/logrus"
@@ -59,7 +60,7 @@ func (c *command) getCallback(cron config.Cron) func() {
 			newMessage.User = "cron"
 			newMessage.Channel, _ = client.GetChannel(cron.Channel)
 			newMessage.Text = text
-			client.InternalMessages <- newMessage
+			client.InternalMessages <- msg.FromSlackEvent(newMessage)
 		}
 	}
 }

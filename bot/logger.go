@@ -38,9 +38,6 @@ func (b Bot) getUserBasedLogger(event slack.MessageEvent) *log.Entry {
 	} else {
 		_, channel = client.GetChannel(event.Channel)
 	}
-	if event.SubType == TypeInternal {
-		channel += " (internal)"
-	}
 
 	return b.logger.
 		WithField("channel", channel).

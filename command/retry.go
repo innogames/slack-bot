@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
@@ -31,7 +32,7 @@ func (c *retryCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c *retryCommand) Execute(event slack.MessageEvent) bool {
-	if event.SubType == bot.TypeInternal {
+	if event.SubType == "internal" {
 		return false
 	}
 
@@ -49,7 +50,7 @@ func (c *retryCommand) Execute(event slack.MessageEvent) bool {
 
 		newMessage := event
 		newMessage.Text = lastCommand
-		client.InternalMessages <- newMessage
+		client.InternalMessages <- msg.FromSlackEvent(newMessage)
 	} else {
 		c.slackClient.Reply(event, "Sorry, no history found.")
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
@@ -65,7 +66,7 @@ func (c *command) Run(match matcher.Result, event slack.MessageEvent) {
 			// trigger new command
 			newMessage := event
 			newMessage.Text = command
-			client.InternalMessages <- newMessage
+			client.InternalMessages <- msg.FromSlackEvent(newMessage)
 
 			c.logger.Infof("[Queue] Blocking command is over, eval newMessage: %s", newMessage.Text)
 			return

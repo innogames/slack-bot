@@ -4,6 +4,7 @@ package client
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/msg"
 	"strings"
 
 	"github.com/innogames/slack-bot/bot/config"
@@ -14,7 +15,7 @@ import (
 )
 
 // InternalMessages is internal queue of internal messages
-var InternalMessages = make(chan slack.MessageEvent, 50)
+var InternalMessages = make(chan msg.Message, 50)
 
 // BotUserID is filled with the slack user id of the bot
 var BotUserID = ""

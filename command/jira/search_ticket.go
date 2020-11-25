@@ -52,9 +52,6 @@ func (c *jiraCommand) Run(match matcher.Result, event slack.MessageEvent) {
 
 	if ticketNumber != "" {
 		issue, response, err := c.jira.Issue.Get(ticketNumber, nil)
-		if response != nil {
-			defer response.Body.Close()
-		}
 		if response == nil || response.StatusCode > 400 {
 			c.slackClient.Reply(event, err.Error())
 			return
@@ -251,10 +248,7 @@ func (c *jiraCommand) GetHelp() []bot.Help {
 func (c *jiraCommand) GetTemplateFunction() template.FuncMap {
 	return template.FuncMap{
 		"jiraTicket": func(ticketId string) *jira.Issue {
-			issue, resp, _ := c.jira.Issue.Get(ticketId, nil)
-			if resp != nil {
-				resp.Body.Close()
-			}
+			issue, _, _ := c.jira.Issue.Get(ticketId, nil)
 
 			return issue
 		},

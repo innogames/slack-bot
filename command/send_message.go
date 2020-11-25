@@ -24,7 +24,7 @@ func (c *sendMessageCommand) GetMatcher() matcher.Matcher {
 func (c *sendMessageCommand) SendMessage(match matcher.Result, event slack.MessageEvent) {
 	text := match.GetString("text")
 	if event.User != "" {
-		text = fmt.Sprintf("Message from <@%s>: %s", event.User, text)
+		text = fmt.Sprintf("Text from <@%s>: %s", event.User, text)
 	}
 
 	if match.GetString("type") == "#" {

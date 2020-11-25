@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
@@ -61,7 +62,7 @@ func (c *delayCommand) Delay(match matcher.Result, event slack.MessageEvent) {
 
 		newMessage := event
 		newMessage.Text = command
-		client.InternalMessages <- newMessage
+		client.InternalMessages <- msg.FromSlackEvent(newMessage)
 	}()
 }
 

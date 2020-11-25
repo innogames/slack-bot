@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/slack-go/slack"
@@ -12,7 +13,7 @@ import (
 )
 
 func TestDelay(t *testing.T) {
-	client.InternalMessages = make(chan slack.MessageEvent, 2)
+	client.InternalMessages = make(chan msg.Message, 2)
 	slackClient := mocks.SlackClient{}
 
 	command := bot.Commands{}
@@ -59,7 +60,7 @@ func TestDelay(t *testing.T) {
 			},
 		}
 
-		assert.Equal(t, handledEvent, expectedEvent)
+		assert.Equal(t, handledEvent, msg.FromSlackEvent(expectedEvent))
 	})
 
 	t.Run("Test quiet option", func(t *testing.T) {
@@ -83,7 +84,7 @@ func TestDelay(t *testing.T) {
 			},
 		}
 
-		assert.Equal(t, handledEvent, expectedEvent)
+		assert.Equal(t, handledEvent, msg.FromSlackEvent(expectedEvent))
 	})
 
 	t.Run("Test stop", func(t *testing.T) {

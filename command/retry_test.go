@@ -2,6 +2,7 @@ package command
 
 import (
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/slack-go/slack"
@@ -10,7 +11,7 @@ import (
 )
 
 func TestRetry(t *testing.T) {
-	client.InternalMessages = make(chan slack.MessageEvent, 2)
+	client.InternalMessages = make(chan msg.Message, 2)
 	slackClient := mocks.SlackClient{}
 
 	retry := bot.Commands{}
@@ -20,7 +21,7 @@ func TestRetry(t *testing.T) {
 		event := slack.MessageEvent{}
 		event.User = "testUser1"
 		event.Text = "i'm a submessage"
-		event.SubType = bot.TypeInternal
+		event.SubType = "internal"
 
 		actual := retry.Run(event)
 		assert.Equal(t, false, actual)
@@ -55,7 +56,7 @@ func TestRetry(t *testing.T) {
 		assert.NotEmpty(t, client.InternalMessages)
 
 		handledEvent := <-client.InternalMessages
-		assert.Equal(t, handledEvent, event)
+		assert.Equal(t, handledEvent, msg.FromSlackEvent(event))
 	})
 
 	t.Run("With with other user", func(t *testing.T) {

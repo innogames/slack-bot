@@ -2,6 +2,7 @@ package bot
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/msg"
 	"math"
 	"strings"
 
@@ -24,7 +25,7 @@ func (b *Bot) sendFallbackMessage(event slack.MessageEvent) {
 	b.slackClient.SendMessage(event, "Command `"+event.Text+"` not found...do you mean *"+bestMatching.Command+"* command?")
 
 	event.Text = fmt.Sprintf("help %s", bestMatching.Command)
-	client.InternalMessages <- event
+	client.InternalMessages <- msg.FromSlackEvent(event)
 }
 
 func getBestMatchingHelp(b *Bot, eventText string) Help {
