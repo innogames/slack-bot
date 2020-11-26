@@ -11,11 +11,14 @@ func TestRegexp(t *testing.T) {
 		match := re.FindStringSubmatch("foo bar")
 
 		actual := RegexpResultToParams(re, match)
-		assert.Equal(t, map[string]string{
-			FullMatch: "foo bar",
-			"first":   "foo",
-			"second":  "bar",
-		}, actual)
+		assert.Equal(
+			t,
+			map[string]string{
+				FullMatch: "foo bar",
+				"first":   "foo",
+				"second":  "bar",
+			}, actual,
+		)
 	})
 
 	t.Run("RegexpEmptyResultToParams", func(t *testing.T) {

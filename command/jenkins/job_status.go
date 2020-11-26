@@ -90,6 +90,7 @@ func (c *statusCommand) GetHelp() []bot.Help {
 			Examples: []string{
 				"enable job MyJobName",
 			},
+			Category: category,
 		},
 		{
 			Command:     "disable job",
@@ -97,6 +98,7 @@ func (c *statusCommand) GetHelp() []bot.Help {
 			Examples: []string{
 				"disable job MyJobName",
 			},
+			Category: category,
 		},
 	}
 }

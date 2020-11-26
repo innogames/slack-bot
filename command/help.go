@@ -17,15 +17,18 @@ func NewHelpCommand(slackClient client.SlackClient, commands *bot.Commands) bot.
 }
 
 func (t *helpCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher("help ?(?P<command>.*)", t.Run)
+	return matcher.NewGroupMatcher(
+		matcher.NewTextMatcher("help", t.ShowAll),
+		matcher.NewRegexpMatcher("help (?P<command>.*)", t.ShowSingleCommand),
+	)
 }
 
 type helpCommand struct {
-	slackClient  client.SlackClient
-	commands     *bot.Commands
-	commandNames []string
-	compiledHelp map[string]bot.Help
-	once         sync.Once
+	slackClient    client.SlackClient
+	commands       *bot.Commands
+	sortedCommands []bot.Help
+	commandHelp    map[string]bot.Help
+	once           sync.Once
 }
 
 func (t *helpCommand) GetHelp() []bot.Help {
@@ -41,65 +44,96 @@ func (t *helpCommand) GetHelp() []bot.Help {
 	}
 }
 
-func (t *helpCommand) Run(match matcher.Result, event slack.MessageEvent) {
+// ShowAll command entries and group them by "category"
+func (t *helpCommand) ShowAll(match matcher.Result, event slack.MessageEvent) {
+	t.once.Do(t.prebuildHelp)
+
+	var text strings.Builder
+	text.WriteString("Hello <@" + event.User + ">, I’m your friendly slack-bot. You want me to show you around?\n")
+	text.WriteString("I currently listen to the following commands:\n")
+
+	var lastCategory = bot.Category{}
+	for _, commandHelp := range t.sortedCommands {
+		// print new category header
+		if commandHelp.Category.Name != "" && lastCategory != commandHelp.Category {
+			lastCategory = commandHelp.Category
+			t.printCategoryHeader(commandHelp, &text)
+		}
+
+		if commandHelp.HelpUrl != "" {
+			text.WriteString(fmt.Sprintf(" - <%s|%s>", commandHelp.HelpUrl, commandHelp.Command))
+		} else {
+			text.WriteString(fmt.Sprintf("- *%s*", commandHelp.Command))
+		}
+		if commandHelp.Description != "" {
+			text.WriteString(fmt.Sprintf(" _(%s)_", commandHelp.Description))
+		}
+		text.WriteString("\n")
+	}
+
+	text.WriteString("With *help <command>* I can provide you with more details!")
+	t.slackClient.Reply(event, text.String())
+}
+
+func (t *helpCommand) printCategoryHeader(commandHelp bot.Help, text *strings.Builder) {
+	if commandHelp.Category.HelpUrl != "" {
+		text.WriteString(fmt.Sprintf("*<%s|%s>*", commandHelp.Category.HelpUrl, commandHelp.Category.Name))
+	} else {
+		text.WriteString(fmt.Sprintf("*%s*", commandHelp.Category.Name))
+	}
+
+	if commandHelp.Category.Description != "" {
+		text.WriteString(fmt.Sprintf(" (_%s_)", commandHelp.Category.Description))
+	}
+
+	text.WriteString(":\n")
+}
+
+// ShowSingleCommand prints details of a specific command
+func (t *helpCommand) ShowSingleCommand(match matcher.Result, event slack.MessageEvent) {
 	// compile help only once
-	t.once.Do(t.buildHelpTree)
+	t.once.Do(t.prebuildHelp)
 
 	command := strings.TrimSpace(match.GetString("command"))
-	text := ""
-	if command == "" {
-		// print all command
-		text = "Hello <@" + event.User + ">, I’m your friendly slack-bot. You want me to show you around?\n"
-		text += "I currently listen to the following commands:\n "
-		for _, name := range t.commandNames {
-			text += "- *" + name + "*"
-			if t.compiledHelp[name].Description != "" {
-				text += " _(" + t.compiledHelp[name].Description + ")_"
-			}
-			text += "\n"
-		}
-		text += "With *help <command>* I can provide you with more details!"
-	} else {
-		// print details of a specific command
-		commandHelp, ok := t.compiledHelp[command]
-		if !ok {
-			t.slackClient.Reply(event, fmt.Sprintf("Invalid command: `%s`", command))
-			return
-		}
 
-		text += fmt.Sprintf("*%s command*:\n", commandHelp.Command)
-		if commandHelp.Description != "" {
-			text += commandHelp.Description + "\n"
-		}
+	commandHelp, ok := t.commandHelp[command]
+	if !ok {
+		t.slackClient.Reply(event, fmt.Sprintf("Invalid command: `%s`", command))
+		return
+	}
 
-		if len(commandHelp.Examples) > 0 {
-			text += "*Some examples:*\n"
-			for _, example := range commandHelp.Examples {
-				text += " - " + example + "\n"
-			}
+	text := fmt.Sprintf("*%s command*:\n", commandHelp.Command)
+	if commandHelp.Description != "" {
+		text += commandHelp.Description + "\n"
+	}
+
+	if len(commandHelp.Examples) > 0 {
+		text += "*Some examples:*\n"
+		for _, example := range commandHelp.Examples {
+			text += " - " + example + "\n"
 		}
 	}
 
 	t.slackClient.Reply(event, text)
 }
 
-func (t *helpCommand) buildHelpTree() {
-	var names []string
-	help := map[string]bot.Help{}
+// generate the list of all commands only once and sort them by category/name
+func (t *helpCommand) prebuildHelp() {
+	var allCommands []bot.Help
+	commandMap := map[string]bot.Help{}
 
 	for _, commandHelp := range t.commands.GetHelp() {
-		if _, ok := help[commandHelp.Command]; ok {
-			// main command already defined
-			continue
-		}
-		help[commandHelp.Command] = commandHelp
-		names = append(names, commandHelp.Command)
+		commandMap[commandHelp.Command] = commandHelp
+		allCommands = append(allCommands, commandHelp)
 	}
 
-	sort.Slice(names, func(i, j int) bool {
-		return strings.ToLower(names[i]) < strings.ToLower(names[j])
+	sort.Slice(allCommands, func(i, j int) bool {
+		if allCommands[i].Category.Name == allCommands[j].Category.Name {
+			return strings.ToLower(allCommands[i].Command) < strings.ToLower(allCommands[j].Command)
+		}
+		return allCommands[i].Category.Name < allCommands[j].Category.Name
 	})
 
-	t.commandNames = names
-	t.compiledHelp = help
+	t.sortedCommands = allCommands
+	t.commandHelp = commandMap
 }

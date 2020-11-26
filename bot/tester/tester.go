@@ -4,7 +4,9 @@ package tester
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/innogames/slack-bot/bot"
@@ -70,6 +72,13 @@ func StartFakeSlack(cfg *config.Config) *slacktest.Server {
 			}
 			bytes, _ := json.Marshal(users)
 			_, _ = w.Write(bytes)
+		})
+		c.Handle("/chat.postMessage", func(w http.ResponseWriter, r *http.Request) {
+			payload, _ := ioutil.ReadAll(r.Body)
+			query, _ := url.ParseQuery(string(payload))
+
+			fmt.Print("\n")
+			fmt.Println(query.Get("text"))
 		})
 	}
 

@@ -60,7 +60,7 @@ func TestMacro(t *testing.T) {
 
 	t.Run("invalid macro", func(t *testing.T) {
 		event := slack.MessageEvent{}
-		event.Text = "help quatsch"
+		event.Text = "commandHelp quatsch"
 
 		actual := command.Run(event)
 		assert.Equal(t, false, actual)

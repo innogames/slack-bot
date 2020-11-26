@@ -8,7 +8,7 @@ slack:
     - backend
     - frontend
 jenkins:
-  host: #https://example.com
+  host: #https://jenkins.example.com
   username: username
   password: secret
   jobs:
@@ -33,11 +33,11 @@ allowed_users:
   - your.name
   - U122323
 
-# there are some restricted commands, like reading logs or gather stats
+# there are some restricted commands, like reading logs or show runtime stats
 admin_users:
  - UADMINID
 
-# wip: allows receiving events directly from Slack server instead via RTM
+# WIP: allows receiving events directly from Slack server instead via RTM
 #server:
 #  listen: 127.0.0.1:4390
 #  verification_secret: d12345sd943434sdfdsfsif9sif9
@@ -61,7 +61,7 @@ logger:
   level: info
   file: ./bot.log
 
-macros:
+commands:
   - name: thanks
     trigger: (thanks|thank you|danke|sudo)
     commands:

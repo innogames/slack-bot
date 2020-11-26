@@ -16,6 +16,9 @@ func (c testCommand) GetHelp() []Help {
 		{
 			Command:     "delay",
 			Description: "delay a command by the given offset",
+			Category: Category{
+				Name: "testCategory",
+			},
 			Examples: []string{
 				"delay 1h rely remind me to go to toilet",
 				"delay 15m30s trigger job DeployBeta",
@@ -52,7 +55,7 @@ func TestFallback(t *testing.T) {
 
 	t.Run("getBestMatchingHelp", func(t *testing.T) {
 		event := slack.MessageEvent{}
-		event.Text = "delya"
+		event.Text = "delay"
 
 		actual := getBestMatchingHelp(bot, "reply")
 		assert.Equal(t, "delay", actual.Command)

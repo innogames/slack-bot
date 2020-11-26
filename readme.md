@@ -42,8 +42,12 @@ Additionally you can execute bot commands in channels by prefix your command wit
 The `help` command just prints a list of all available commands of this bot. 
 With `help *command*` you'll get a short description and some examples for a single command.
 
+![Screenshot](./docs/help.png)
+
 ## Jenkins
 The bot is able to start and monitor jenkins job on a simple but powerful way.
+
+By default the commands are not available and not visible in the "help", till the "jenkins.host" is defined in the config file.
 
 ### Start Jenkins jobs
 The `start job` command starts a Jenkins job and shows the current progress. **Attention:** only whitelisted jobs in the config are startable!
@@ -120,7 +124,9 @@ To see all running background commands (like Jenkins jobs or PR watcher) use thi
 - `list queue`
 
 ## Jira
-Query information from Jira, either from a single ticket, or a whole list of tickets.
+The bot is able to query information from Jira, either from a single ticket, or a whole list of tickets.
+
+By default the commands are not available and not visible in the "help", till the "jira.host" is defined in the config file.
 
 **Examples**
 - `jira TEST-1234`
@@ -168,7 +174,7 @@ Configure user specific variables to customize bot behaviour. E.g. each develope
 
 **Example:** Having this global config:
 ```
-macros:
+commands:
   - name: deploy
     trigger: "deploy (?P<branch>.*)"
     commands:
@@ -216,14 +222,15 @@ Every user is able to define own command aliases. This is a handy feature to avo
 - -> then you can execute `myCommand` to trigger this jenkins job
 ![Screenshot](./docs/custom-commands.png)
 
-## Macro
-Macros are very magical and can be defined in the yaml configuration files.
+## Commands
+Defined "Commands" (former called "Macros") are very magical and can be defined in the yaml configuration files.
 
-They have a trigger (a regular expression) and have a list of sub commands which will be executed. They take parameter groups from regexp into account - so they can be very flexible!
+They have a trigger (a regular expression) and have a list of sub commands which will be executed. 
+They take parameter groups from regexp into account - so they can be very flexible!
 
 One simple example to start two Jenkins jobs with a given branch name at the same time:
 ```
-macros:
+commands:
  - name: build clients
    trigger: "build clients (?P<branch>.*)"
    commands:
@@ -420,6 +427,9 @@ If you need a new command, which is not implementable with a "macro" command, yo
 ## CLI tool
 There is a handy CLI application which emulates the Slack application...just chat with your local console without any Slack connection!
 ![CLI tool](./docs/cli.png)
+```
+make run-cli
+```
 
 ## Testing
 There are a bunch of tests which can be executed via:

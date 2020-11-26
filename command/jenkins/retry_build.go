@@ -78,6 +78,7 @@ func (c *retryCommand) GetHelp() []bot.Help {
 		Command:     "retry job",
 		Description: "restart the most recent jenkins build of the givenn job",
 		Examples:    examples,
+		Category:    category,
 	})
 
 	return help

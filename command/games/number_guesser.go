@@ -86,6 +86,7 @@ func (c *numberGuesserCommand) GetHelp() []bot.Help {
 		{
 			Command:     "number guesser",
 			Description: "small game to guess a random number",
+			Category:    category,
 			Examples: []string{
 				"start number guesser",
 				"guess number 100",
