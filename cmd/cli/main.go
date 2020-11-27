@@ -26,7 +26,11 @@ func main() {
 	flag.BoolVar(&verbose, "v", false, "-v to use verbose logging")
 	flag.Parse()
 
-	cfg := config.Config{}
+	cfg, err := config.Load(*configFile)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
 
 	ctx, _ := context.WithCancel(context.Background())
 	wg := &sync.WaitGroup{}
