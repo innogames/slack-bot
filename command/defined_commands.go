@@ -14,9 +14,9 @@ import (
 	"strings"
 )
 
-// NewMacroCommand defines custom commands by defining a trigger (regexp) and a list of commands which should be executed
+// NewCommands defines custom commands by defining a trigger (regexp) and a list of commands which should be executed
 // it also supports placeholders by {{ .param }} using the regexp group name
-func NewMacroCommand(slackClient client.SlackClient, macros []config.Macro, logger *logrus.Logger) bot.Command {
+func NewCommands(slackClient client.SlackClient, macros []config.Command, logger *logrus.Logger) bot.Command {
 	commands := make([]command, len(macros))
 
 	for i, macro := range macros {
@@ -41,7 +41,7 @@ type macroCommand struct {
 
 type command struct {
 	re     *regexp.Regexp
-	config config.Macro
+	config config.Command
 }
 
 func (c *macroCommand) GetMatcher() matcher.Matcher {
@@ -64,6 +64,7 @@ func (c *macroCommand) Execute(event slack.MessageEvent) bool {
 			if err != nil {
 				fmt.Printf("cannot parse command %s: %s\n", commandText, err.Error())
 				c.slackClient.ReplyError(event, err)
+
 				continue
 			}
 
@@ -71,6 +72,7 @@ func (c *macroCommand) Execute(event slack.MessageEvent) bool {
 			if err != nil {
 				fmt.Printf("cannot executing command %s: %s\n", commandText, err.Error())
 				c.slackClient.ReplyError(event, err)
+
 				continue
 			}
 
@@ -92,10 +94,17 @@ func (c *macroCommand) GetHelp() []bot.Help {
 	help := make([]bot.Help, 0, len(c.commands))
 
 	for _, macro := range c.commands {
+		var category bot.Category
+		if macro.config.Category != "" {
+			category = bot.Category{
+				Name: macro.config.Category,
+			}
+		}
 		patternHelp := bot.Help{
 			Command:     macro.config.Name,
 			Description: macro.config.Description,
 			Examples:    macro.config.Examples,
+			Category:    category,
 		}
 
 		// as fallback use the command regexp as example

@@ -17,18 +17,19 @@ func TestInvalidMacro(t *testing.T) {
 	logger := logrus.New()
 
 	client.InternalMessages = make(chan msg.Message, 2)
-	cfg := []config.Macro{
+	cfg := []config.Command{
 		{
 			Name: "Test",
 			Commands: []string{
 				"macro 1",
 			},
-			Trigger: "start test",
+			Category: "Test",
+			Trigger:  "start test",
 		},
 	}
 
 	command := bot.Commands{}
-	command.AddCommand(NewMacroCommand(slackClient, cfg, logger))
+	command.AddCommand(NewCommands(slackClient, cfg, logger))
 
 	t.Run("invalid command", func(t *testing.T) {
 		event := slack.MessageEvent{}
@@ -44,7 +45,7 @@ func TestMacro(t *testing.T) {
 
 	slackClient := &mocks.SlackClient{}
 	client.InternalMessages = make(chan msg.Message, 2)
-	cfg := []config.Macro{
+	cfg := []config.Command{
 		{
 			Name: "Test",
 			Commands: []string{
@@ -56,7 +57,7 @@ func TestMacro(t *testing.T) {
 	}
 
 	command := bot.Commands{}
-	command.AddCommand(NewMacroCommand(slackClient, cfg, logger))
+	command.AddCommand(NewCommands(slackClient, cfg, logger))
 
 	t.Run("invalid macro", func(t *testing.T) {
 		event := slack.MessageEvent{}

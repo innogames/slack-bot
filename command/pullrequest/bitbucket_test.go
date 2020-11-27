@@ -26,5 +26,4 @@ func TestBitbucket(t *testing.T) {
 		actual := command.Run(event)
 		assert.Equal(t, false, actual)
 	})
-	// todo add real test
 }

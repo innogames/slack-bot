@@ -14,7 +14,7 @@ func GetCommand(slackClient client.SlackClient) bot.Command {
 var category = bot.Category{
 	Name:        "Custom Commands",
 	Description: "Define your own alias commands",
-	HelpUrl:     "https://github.com/innogames/slack-bot#custom-command",
+	HelpURL:     "https://github.com/innogames/slack-bot#custom-command",
 }
 
 type command struct {

@@ -4,13 +4,13 @@ package bot
 type Help struct {
 	Command     string
 	Description string
-	HelpUrl     string
+	HelpURL     string
 	Category    Category
 	Examples    []string
 }
 
 // GetKeywords crates a string slice of help keywords -> used by fuzzy search
-func (h Help) GetKeywords() []string {
+func (h *Help) GetKeywords() []string {
 	keywords := make([]string, 0, len(h.Examples)+1)
 	keywords = append(keywords, h.Command)
 	keywords = append(keywords, h.Examples...)
@@ -26,5 +26,5 @@ func (h Help) GetKeywords() []string {
 type Category struct {
 	Name        string
 	Description string
-	HelpUrl     string
+	HelpURL     string
 }

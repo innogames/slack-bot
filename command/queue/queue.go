@@ -40,12 +40,14 @@ func AddRunningCommand(event slack.MessageEvent, fallbackCommand string) chan bo
 	if logger != nil {
 		logger.Infof("add a blocking process: %s", event.Text)
 	}
+
 	mu.Lock()
 	defer mu.Unlock()
 
 	runningCommands[getKey(event)] = event
 
 	finished := make(chan bool, 1)
+
 	go func() {
 		defer close(finished)
 

@@ -54,7 +54,7 @@ type SlackClient interface {
 	// SendMessage is the extended version of Reply and accepts any slack.MsgOption
 	SendMessage(event slack.MessageEvent, text string, options ...slack.MsgOption) string
 
-	SendToUser(user string, text string) string
+	SendToUser(user string, text string)
 
 	RemoveReaction(name string, item slack.ItemRef)
 	AddReaction(name string, item slack.ItemRef)
@@ -69,20 +69,21 @@ type Slack struct {
 }
 
 // Reply fast reply via RTM websocket
-func (s Slack) Reply(event slack.MessageEvent, text string, options ...slack.MsgOption) {
+// todo merge with SendMessage which is doing the same stuff now
+func (s *Slack) Reply(event slack.MessageEvent, text string, options ...slack.MsgOption) {
 	s.SendMessage(event, text, options...)
 }
 
-func (s Slack) AddReaction(name string, item slack.ItemRef) {
+func (s *Slack) AddReaction(name string, item slack.ItemRef) {
 	s.Client.AddReaction(name, item)
 }
 
-func (s Slack) RemoveReaction(name string, item slack.ItemRef) {
+func (s *Slack) RemoveReaction(name string, item slack.ItemRef) {
 	s.Client.RemoveReaction(name, item)
 }
 
 // SendMessage is the "slow" reply via POST request, needed for Attachment or MsgRef
-func (s Slack) SendMessage(event slack.MessageEvent, text string, options ...slack.MsgOption) string {
+func (s *Slack) SendMessage(event slack.MessageEvent, text string, options ...slack.MsgOption) string {
 	if event.Channel == "" {
 		return ""
 	}
@@ -113,7 +114,7 @@ func (s Slack) SendMessage(event slack.MessageEvent, text string, options ...sla
 	return msgTimestamp
 }
 
-func (s Slack) ReplyError(event slack.MessageEvent, err error) {
+func (s *Slack) ReplyError(event slack.MessageEvent, err error) {
 	s.logger.WithError(err).Warnf("Error while sending reply")
 	s.Reply(event, err.Error())
 
@@ -130,7 +131,7 @@ func (s Slack) ReplyError(event slack.MessageEvent, err error) {
 }
 
 // SendToUser sends a message to any user via IM channel
-func (s Slack) SendToUser(user string, text string) string {
+func (s *Slack) SendToUser(user string, text string) {
 	// check if a real username was passed -> we need the user-id here
 	user, _ = GetUser(user)
 
@@ -146,7 +147,7 @@ func (s Slack) SendToUser(user string, text string) string {
 	event := slack.MessageEvent{}
 	event.Channel = channel.ID
 
-	return s.SendMessage(event, text)
+	s.SendMessage(event, text)
 }
 
 func GetUser(identifier string) (id string, name string) {

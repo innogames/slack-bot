@@ -29,9 +29,9 @@ type Config struct {
 		Host        string
 	}
 
-	Commands []Macro `mapstructure:"commands"`
-	Crons    []Cron  `mapstructure:"crons"`
-	Logger   Logger  `mapstructure:"logger"`
+	Commands []Command `mapstructure:"commands"`
+	Crons    []Cron    `mapstructure:"crons"`
+	Logger   Logger    `mapstructure:"logger"`
 
 	// @deprecated
 	BranchLookup struct {
@@ -86,11 +86,12 @@ type Logger struct {
 	File  string `mapstructure:"file"`
 }
 
-// Macro represents a single macro which is defined by a trigger regexp and a list of executed commands
-type Macro struct {
+// Command represents a single macro which is defined by a trigger regexp and a list of executed commands
+type Command struct {
 	Name        string
 	Description string
 	Trigger     string
+	Category    string
 	Commands    []string
 	Examples    []string
 }

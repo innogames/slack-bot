@@ -42,7 +42,7 @@ type command struct {
 }
 
 func (c *command) getCallback(cron config.Cron) func() {
-	// todo validate template before execution
+	// todo validate template before execution. but this is tricky as some functions gets registered later on...
 	return func() {
 		for _, commandTemplate := range cron.Commands {
 			command, err := util.CompileTemplate(commandTemplate)

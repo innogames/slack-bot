@@ -63,6 +63,7 @@ func (c *commentCommand) GetHelp() []bot.Help {
 		{
 			Command:     "comment jira ticket",
 			Description: "adds a comment to a jira ticket",
+			Category:    category,
 			Examples: []string{
 				"comment ticket PROJECT-1234 Please check it on test server, I fixed it!",
 			},

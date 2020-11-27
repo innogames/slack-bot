@@ -16,8 +16,9 @@ func Load(configFile string) (Config, error) {
 	v.SetConfigType("yaml")
 	v.AllowEmptyEnv(true)
 	v.SetEnvPrefix("BOT")
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "#", "_"))
 	v.AutomaticEnv()
+
 	cfg := defaultConfig
 
 	// workaround to take all keys from struct available

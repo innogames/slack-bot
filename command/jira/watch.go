@@ -52,6 +52,7 @@ func (c *watchCommand) Run(match matcher.Result, event slack.MessageEvent) {
 func (c *watchCommand) watchTicket(event slack.MessageEvent, issue *jira.Issue) {
 	lastStatus := issue.Fields.Status.Name
 	ticker := time.NewTicker(time.Minute)
+
 	defer ticker.Stop()
 
 	done := queue.AddRunningCommand(event, event.Text)
@@ -85,6 +86,7 @@ func (c *watchCommand) GetHelp() []bot.Help {
 		{
 			Command:     "watch jira",
 			Description: "inform you about changes jira states",
+			Category:    category,
 			Examples: []string{
 				"watch ticket PROJECT-1234",
 			},

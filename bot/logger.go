@@ -1,26 +1,27 @@
 package bot
 
 import (
+	"github.com/innogames/slack-bot/bot/msg"
 	"os"
 
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
 	"github.com/rifflock/lfshook"
 	log "github.com/sirupsen/logrus"
-	"github.com/slack-go/slack"
 )
 
 // GetLogger provides logger instance for the given config
-func GetLogger(cfg config.Config) *log.Logger {
-	level, _ := log.ParseLevel(cfg.Logger.Level)
+func GetLogger(cfg config.Logger) *log.Logger {
+	level, _ := log.ParseLevel(cfg.Level)
 
 	log.SetOutput(os.Stdout)
 	log.SetLevel(level)
 
 	logger := log.New()
-	if cfg.Logger.File != "" {
+
+	if cfg.File != "" {
 		logger.AddHook(lfshook.NewHook(
-			cfg.Logger.File,
+			cfg.File,
 			&log.TextFormatter{},
 		))
 	}
@@ -29,14 +30,14 @@ func GetLogger(cfg config.Config) *log.Logger {
 }
 
 // get a log.Entry with some user related fields
-func (b Bot) getUserBasedLogger(event slack.MessageEvent) *log.Entry {
-	_, username := client.GetUser(event.User)
+func (b *Bot) getUserBasedLogger(msg msg.Message) *log.Entry {
+	_, username := client.GetUser(msg.User)
 
 	channel := ""
-	if event.Channel != "" && event.Channel[0] == 'D' {
+	if msg.Channel != "" && msg.Channel[0] == 'D' {
 		channel = "@" + username
 	} else {
-		_, channel = client.GetChannel(event.Channel)
+		_, channel = client.GetChannel(msg.Channel)
 	}
 
 	return b.logger.

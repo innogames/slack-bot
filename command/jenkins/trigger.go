@@ -154,6 +154,7 @@ func (c *triggerCommand) GetHelp() []bot.Help {
 		Command:     "jenkins",
 		Description: "start a jenkins build",
 		Examples:    examples,
+		Category:    category,
 	})
 
 	return help

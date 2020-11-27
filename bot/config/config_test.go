@@ -1,7 +1,10 @@
 package config
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
+	"os"
+	"path"
 	"testing"
 )
 
@@ -33,24 +36,25 @@ func TestLoadDirectory(t *testing.T) {
 
 func TestLoadFile(t *testing.T) {
 	// not existing file
-	cfg, err := Load("../../readme.sdsdsd")
-	assert.Contains(t, err.Error(), "stat ../../readme.sdsdsd: no such file or directory")
+	configPath := path.Join("..", "..", "readme.sdsdsd")
+	cfg, err := Load(configPath)
+	assert.Contains(t, err.Error(), "stat "+configPath+": no such file or directory")
 	assert.Equal(t, defaultConfig, cfg)
 
 	// parse invalid file
-	cfg, err = Load("../../readme.md")
+	configPath = path.Join("..", "..", "readme.md")
+	cfg, err = Load(configPath)
 	assert.Contains(t, err.Error(), "While parsing config: yaml")
 	assert.Equal(t, defaultConfig, cfg)
 
 	// load example file == okay
-	cfg, err = Load("../../config.example.yaml")
+	configPath = path.Join("..", "..", "config.example.yaml")
+	cfg, err = Load(configPath)
 	assert.Nil(t, err)
 	assert.NotNil(t, cfg.Slack)
 	assert.Equal(t, "info", cfg.Logger.Level)
 }
 
-// todo fixed with viper2
-/*
 func TestEnvironment(t *testing.T) {
 	os.Setenv("BOT_TIMEZONE", "test/test")
 	os.Setenv("BOT_SLACK_TOKEN", "myToken")
@@ -64,4 +68,3 @@ func TestEnvironment(t *testing.T) {
 
 	fmt.Println(cfg.AllowedUsers)
 }
-*/

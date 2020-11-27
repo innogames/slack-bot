@@ -4,6 +4,7 @@ package tester
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -50,7 +51,7 @@ type usersResponse struct {
 }
 
 // StartFakeSlack will start a http server which implements the basic Slack API
-func StartFakeSlack(cfg *config.Config) *slacktest.Server {
+func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 	authResponse := fmt.Sprintf(`
 	{
 		"ok": true,
@@ -62,8 +63,9 @@ func StartFakeSlack(cfg *config.Config) *slacktest.Server {
 	}
 `, "T123", "bot", "teamId", botID)
 
-	auth := func(c slacktest.Customize) {
-		c.Handle("/auth.test", func(w http.ResponseWriter, _ *http.Request) {
+	// handle requests sto the mocked slack server and react on them for the "cli" tool
+	handler := func(c slacktest.Customize) {
+		c.Handle("/handler.test", func(w http.ResponseWriter, _ *http.Request) {
 			_, _ = w.Write([]byte(authResponse))
 		})
 		c.Handle("/users.list", func(w http.ResponseWriter, _ *http.Request) {
@@ -76,13 +78,16 @@ func StartFakeSlack(cfg *config.Config) *slacktest.Server {
 		c.Handle("/chat.postMessage", func(w http.ResponseWriter, r *http.Request) {
 			payload, _ := ioutil.ReadAll(r.Body)
 			query, _ := url.ParseQuery(string(payload))
-
-			fmt.Print("\n")
-			fmt.Println(query.Get("text"))
+			text := query.Get("text")
+			fmt.Fprintf(output, formatSlackMessage(text)+"\n")
+		})
+		c.Handle("/reactions.add", func(w http.ResponseWriter, r *http.Request) {
+			payload, _ := ioutil.ReadAll(r.Body)
+			fmt.Fprintln(output, getEmoji(string(payload)))
 		})
 	}
 
-	fakeSlack := slacktest.NewTestServer(auth)
+	fakeSlack := slacktest.NewTestServer(handler)
 	fakeSlack.SetBotName("MyBotName")
 	fakeSlack.BotID = botID
 	fakeSlack.Start()

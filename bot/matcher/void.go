@@ -4,7 +4,7 @@ import (
 	"github.com/slack-go/slack"
 )
 
-// NewVoidMatcher  just do nothing (might be useful when a command is not loadable because dependencies are not configures)
+// NewVoidMatcher just do nothing (might be useful when a command is not loadable because dependencies are not configures)
 func NewVoidMatcher() Matcher {
 	return voidMatcher{}
 }

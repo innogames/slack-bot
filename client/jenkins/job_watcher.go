@@ -21,9 +21,11 @@ func WatchJob(jenkins Client, jobName string, stop chan bool) (chan gojenkins.Bu
 	}
 
 	returnChan := make(chan gojenkins.Build, 1)
+
 	go func() {
 		timer := time.NewTicker(watchInterval)
 		defer timer.Stop()
+
 		for {
 			select {
 			case <-stop:

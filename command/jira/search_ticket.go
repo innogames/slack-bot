@@ -235,6 +235,7 @@ func (c *jiraCommand) GetHelp() []bot.Help {
 		{
 			Command:     "jira",
 			Description: "list jira ticket information or performs jira searches. It uses the configured jira project by default to display/search tickets",
+			Category:    category,
 			Examples: []string{
 				"jql status=\"In Progress\"",
 				"issue 43234",

@@ -1,9 +1,9 @@
 package bot
 
 import (
-	"fmt"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/slack-go/slack"
@@ -31,29 +31,28 @@ func TestBot(t *testing.T) {
 	}
 
 	t.Run("handle empty message", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = ""
-		event.Channel = "C123"
-		bot.handleMessage(event, true)
+		message := msg.Message{}
+		message.Text = ""
+		message.Channel = "C123"
+		bot.handleMessage(message, true)
 	})
 
 	t.Run("handle unauthenticated message", func(t *testing.T) {
-		event := slack.MessageEvent{}
+		message := msg.Message{}
 
-		event.Text = "test"
-		event.User = "U888"
-		event.Channel = "C123"
-		bot.handleMessage(event, true)
+		message.Text = "test"
+		message.User = "U888"
+		message.Channel = "C123"
+		bot.handleMessage(message, false)
 	})
 
 	t.Run("handle valid message", func(t *testing.T) {
-		event := slack.MessageEvent{}
+		message := msg.Message{}
 
-		event.Text = "test"
-		event.User = "U123"
-		event.Channel = "C123"
-		bot.handleMessage(event, true)
-		fmt.Println(bot.slackClient.RTM.IncomingEvents)
+		message.Text = "test"
+		message.User = "U123"
+		message.Channel = "C123"
+		bot.handleMessage(message, true)
 	})
 }
 
@@ -66,7 +65,7 @@ func TestIsBotMessage(t *testing.T) {
 	t.Run("Is random message", func(t *testing.T) {
 		event := &slack.MessageEvent{}
 		event.Text = "random text"
-		actual := bot.shouldHandleMessage(event)
+		actual := bot.canHandleMessage(event)
 		assert.Equal(t, false, actual)
 	})
 
@@ -74,7 +73,7 @@ func TestIsBotMessage(t *testing.T) {
 		event := &slack.MessageEvent{}
 		event.Text = "<@USER2> random test"
 
-		actual := bot.shouldHandleMessage(event)
+		actual := bot.canHandleMessage(event)
 		assert.Equal(t, false, actual)
 	})
 
@@ -83,7 +82,7 @@ func TestIsBotMessage(t *testing.T) {
 		event.User = "U1234"
 		event.Text = "<@BOT> random test"
 
-		actual := bot.shouldHandleMessage(event)
+		actual := bot.canHandleMessage(event)
 		assert.Equal(t, true, actual)
 	})
 
@@ -92,7 +91,7 @@ func TestIsBotMessage(t *testing.T) {
 		event.User = "U1234"
 		event.Text = "<@BOT> random test"
 
-		actual := bot.shouldHandleMessage(event)
+		actual := bot.canHandleMessage(event)
 		assert.Equal(t, true, actual)
 	})
 
@@ -104,7 +103,7 @@ func TestIsBotMessage(t *testing.T) {
 			},
 		}
 		event.Text = "random test"
-		actual := bot.shouldHandleMessage(event)
+		actual := bot.canHandleMessage(event)
 		assert.Equal(t, true, actual)
 	})
 
@@ -116,14 +115,15 @@ func TestIsBotMessage(t *testing.T) {
 			},
 		}
 		event.Text = "random test"
-		actual := bot.shouldHandleMessage(event)
+		actual := bot.canHandleMessage(event)
 		assert.Equal(t, false, actual)
 	})
 
 	t.Run("Trim", func(t *testing.T) {
-		assert.Equal(t, bot.trimMessage(" "), "")
-		assert.Equal(t, bot.trimMessage("<@BOT> random ’test’"), "random 'test'")
-		assert.Equal(t, bot.trimMessage("<https://test.com|TEST> <https://example.com|example>"), "<https://test.com|TEST> <https://example.com|example>")
+		assert.Equal(t, bot.cleanMessage(" ", true), "")
+		assert.Equal(t, bot.cleanMessage("<@BOT> random ’test’", true), "random 'test'")
+		assert.Equal(t, bot.cleanMessage("<https://test.com|TEST> <https://example.com|example>", false), "<https://test.com|TEST> <https://example.com|example>")
+		assert.Equal(t, bot.cleanMessage("<https://test.com|TEST> <https://example.com|example>", true), "TEST example")
 	})
 }
 
@@ -136,7 +136,7 @@ func BenchmarkTrimMessage(b *testing.B) {
 
 	b.Run("trim", func(b *testing.B) {
 		for i := 0; i < b.N; i++ {
-			bot.trimMessage(message)
+			bot.cleanMessage(message, false)
 		}
 	})
 }
@@ -153,7 +153,7 @@ func BenchmarkShouldHandle(b *testing.B) {
 		event.User = "U123"
 
 		for i := 0; i < b.N; i++ {
-			result = bot.shouldHandleMessage(event)
+			result = bot.canHandleMessage(event)
 		}
 		assert.True(b, result)
 	})

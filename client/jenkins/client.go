@@ -11,7 +11,6 @@ import (
 type Client interface {
 	GetJob(id string, parentIDs ...string) (*gojenkins.Job, error)
 	BuildJob(name string, options ...interface{}) (int64, error)
-	GetQueue() (*gojenkins.Queue, error)
 	GetAllNodes() ([]*gojenkins.Node, error)
 }
 

@@ -6,6 +6,7 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"github.com/slack-go/slack"
+	"io"
 	"sort"
 	"strings"
 	"sync"
@@ -49,7 +50,8 @@ func (t *helpCommand) ShowAll(match matcher.Result, event slack.MessageEvent) {
 	t.once.Do(t.prebuildHelp)
 
 	var text strings.Builder
-	text.WriteString("Hello <@" + event.User + ">, I’m your friendly slack-bot. You want me to show you around?\n")
+
+	text.WriteString("Hello <@" + event.User + ">, I’m your friendly slack-bot. You want me to show you around? :smile: \n")
 	text.WriteString("I currently listen to the following commands:\n")
 
 	var lastCategory = bot.Category{}
@@ -60,8 +62,8 @@ func (t *helpCommand) ShowAll(match matcher.Result, event slack.MessageEvent) {
 			t.printCategoryHeader(commandHelp, &text)
 		}
 
-		if commandHelp.HelpUrl != "" {
-			text.WriteString(fmt.Sprintf(" - <%s|%s>", commandHelp.HelpUrl, commandHelp.Command))
+		if commandHelp.HelpURL != "" {
+			text.WriteString(fmt.Sprintf(" - <%s|%s>", commandHelp.HelpURL, commandHelp.Command))
 		} else {
 			text.WriteString(fmt.Sprintf("- *%s*", commandHelp.Command))
 		}
@@ -75,9 +77,9 @@ func (t *helpCommand) ShowAll(match matcher.Result, event slack.MessageEvent) {
 	t.slackClient.Reply(event, text.String())
 }
 
-func (t *helpCommand) printCategoryHeader(commandHelp bot.Help, text *strings.Builder) {
-	if commandHelp.Category.HelpUrl != "" {
-		text.WriteString(fmt.Sprintf("*<%s|%s>*", commandHelp.Category.HelpUrl, commandHelp.Category.Name))
+func (t *helpCommand) printCategoryHeader(commandHelp bot.Help, text io.StringWriter) {
+	if commandHelp.Category.HelpURL != "" {
+		text.WriteString(fmt.Sprintf("*<%s|%s>*", commandHelp.Category.HelpURL, commandHelp.Category.Name))
 	} else {
 		text.WriteString(fmt.Sprintf("*%s*", commandHelp.Category.Name))
 	}

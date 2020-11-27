@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/innogames/slack-bot/bot/config"
@@ -39,18 +40,17 @@ func (s *Server) StartServer() {
 	s.logger.Infof("Started Server on %s", s.cfg.Listen)
 
 	err := s.server.ListenAndServe()
-	if err != nil {
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		s.logger.Fatal(err)
 	}
 }
 
 // Stop the http server to receive slack interactions
 func (s *Server) Stop() error {
-	s.logger.Infof("Shutting down server")
-
 	return s.server.Shutdown(context.Background())
 }
 
+// copy the given message and disable the button which got pressed and mark it as clicked
 func getChangedMessage(newMessage slack.Message, actionID string) slack.Message {
 	for _, blocks := range newMessage.Blocks.BlockSet {
 		if actionBlock, ok := blocks.(*slack.ActionBlock); ok {

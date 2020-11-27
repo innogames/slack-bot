@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"math/rand"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -29,7 +31,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger := bot.GetLogger(cfg)
+	logger := bot.GetLogger(cfg.Logger)
 	logger.Infof("Loaded config from %s", *configFile)
 
 	err = storage.InitStorage(cfg.StoragePath)
@@ -55,12 +57,21 @@ func main() {
 	err = b.Init()
 	checkError(err, logger)
 
-	// clean shutdown on sigterm/sigint
-	var stopChan = make(chan os.Signal, 2)
-	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+	wg := &sync.WaitGroup{}
+	ctx, cancel := context.WithCancel(context.Background())
 
 	// start main loop!
-	b.HandleMessages(stopChan)
+	go b.HandleMessages(ctx, wg)
+
+	var stopChan = make(chan os.Signal, 2)
+
+	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+
+	<-stopChan
+	logger.Infof("Starting shutdown")
+	cancel()
+	wg.Wait()
+	logger.Infof("Shutdown done, bye bye!")
 }
 
 func checkError(err error, logger *logrus.Logger) {
