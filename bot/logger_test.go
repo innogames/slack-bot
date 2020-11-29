@@ -10,7 +10,7 @@ import (
 func TestLogger(t *testing.T) {
 	cfg := config.Config{}
 
-	logger := GetLogger(cfg)
+	logger := GetLogger(cfg.Logger)
 
 	assert.IsType(t, &logrus.Logger{}, logger)
 }

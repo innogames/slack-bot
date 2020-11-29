@@ -2,11 +2,14 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"flag"
-	"fmt"
+	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/innogames/slack-bot/client"
 	"io"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/gookit/color"
 	"github.com/innogames/slack-bot/bot"
@@ -16,50 +19,65 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// starts a interactive shell to communicate with a fake slack server and execute real commands
+// starts a interactive shell to communicate with a mocked slack server and execute real commands
 func main() {
-	kill := make(chan os.Signal, 1)
-
-	startCli(os.Stdin, os.Stdout, kill)
-}
-
-func startCli(input io.Reader, output io.Writer, kill chan os.Signal) {
-	var logger *logrus.Logger
 	var verbose bool
-
-	color.SetOutput(output)
 
 	flag.BoolVar(&verbose, "v", false, "-v to use verbose logging")
 	flag.Parse()
 
 	cfg := config.Config{}
 
+	ctx, _ := context.WithCancel(context.Background())
+	wg := &sync.WaitGroup{}
+
+	startCli(ctx, wg, os.Stdin, os.Stdout, cfg, verbose)
+}
+
+func startCli(ctx context.Context, wg *sync.WaitGroup, input io.Reader, output io.Writer, cfg config.Config, verbose bool) {
+	wg.Add(1)
+	defer wg.Done()
+
+	var logger *logrus.Logger
 	if verbose {
-		logger = bot.GetLogger(cfg)
+		logger = bot.GetLogger(cfg.Logger)
 	} else {
 		logger = tester.GetNullLogger()
 	}
 
+	// set an empty storage -> just store data in Ram
 	storage.InitStorage("")
 
-	fakeSlack := tester.StartFakeSlack(&cfg)
+	// starts a local http server which is mocking the needed Slack API
+	fakeSlack := tester.StartFakeSlack(&cfg, output)
 	defer fakeSlack.Stop()
 
 	realBot := tester.StartBot(cfg, logger)
-	go realBot.HandleMessages(kill)
+	go realBot.HandleMessages(ctx, wg)
 
-	fmt.Println("Type in your command:")
+	color.SetOutput(output)
+	color.Red.Print("Type in your command:\n")
 	reader := bufio.NewReader(input)
 
 	// loop to send stdin input to slack bot
 	for {
-		text, err := reader.ReadString('\n')
-		if err != nil {
-			continue
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			text, err := reader.ReadString('\n')
+			if err != nil {
+				continue
+			}
+
+			color.Blue.Printf(">>>> %s\n", strings.TrimSuffix(text, "\n"))
+
+			message := msg.Message{
+				Text:    text,
+				Channel: tester.TestChannel,
+				User:    "cli",
+			}
+			client.InternalMessages <- message
 		}
-
-		color.Blue.Printf(">>>> %s", strings.TrimSuffix(text, "\n"))
-
-		fakeSlack.SendMessageToBot(tester.TestChannel, text)
 	}
 }

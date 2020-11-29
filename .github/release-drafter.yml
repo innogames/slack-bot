@@ -1,3 +1,5 @@
+# see https://github.com/marketplace/actions/release-drafter
+
 template: |
   ## What’s Changed
 

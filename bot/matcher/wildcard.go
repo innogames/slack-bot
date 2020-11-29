@@ -5,6 +5,8 @@ import (
 	"github.com/slack-go/slack"
 )
 
+// WildcardMatcher will pass all messages into the runner. The runner needs to check if the event is relevant or not
+// if the runner returns "true", the command is marked as executed and no other commands are checked
 func WildcardMatcher(run wildcardRunner) Matcher {
 	return wildcardMatcher{run}
 }

@@ -90,6 +90,7 @@ func (c command) watch(match matcher.Result, event slack.MessageEvent) {
 
 	var pr pullRequest
 	var err error
+
 	for {
 		pr, err = c.fetcher.getPullRequest(match)
 		if err != nil {

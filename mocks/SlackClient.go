@@ -84,15 +84,6 @@ func (_m *SlackClient) SendMessage(event slack.MessageEvent, text string, option
 }
 
 // SendToUser provides a mock function with given fields: user, text
-func (_m *SlackClient) SendToUser(user string, text string) string {
-	ret := _m.Called(user, text)
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func(string, string) string); ok {
-		r0 = rf(user, text)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	return r0
+func (_m *SlackClient) SendToUser(user string, text string) {
+	_m.Called(user, text)
 }

@@ -32,3 +32,9 @@ jobs:
         with:
           push: false
           tags: innogames/slack-bot:latest
+  reports:
+    name: Update Go Reports
+    runs-on: ubuntu-latest
+    steps:
+      - name: Goreportcard
+        uses: creekorful/goreportcard-action@v1.0

@@ -7,6 +7,8 @@ linters-settings:
       - performance
       - diagnostic
       - style
+      - experimental
+      - opinionated
 
 linters:
   enable:

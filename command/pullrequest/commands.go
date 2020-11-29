@@ -10,7 +10,7 @@ import (
 var category = bot.Category{
 	Name:        "Pull Request",
 	Description: "Track the state of pull/merge requests",
-	HelpUrl:     "https://github.com/innogames/slack-bot#pull-requests",
+	HelpURL:     "https://github.com/innogames/slack-bot#pull-requests",
 }
 
 // GetCommands returns a list of all available PR watcher (gitlab, github, bitbucket etc) based on the current config

@@ -1,8 +1,10 @@
 package bot
 
 import (
+	"context"
+	"fmt"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/stats"
-	"os"
 	"regexp"
 	"strings"
 	"sync"
@@ -41,15 +43,15 @@ type Bot struct {
 	logger       *log.Logger
 	auth         *slack.AuthTestResponse
 	commands     *Commands
-	allowedUsers map[string]string
 	server       *server.Server
+	allowedUsers map[string]string
 	userLocks    map[string]*sync.Mutex
 }
 
 // Init establishes the slack connection and load allowed users
 func (b *Bot) Init() (err error) {
 	if b.config.Slack.Token == "" {
-		return errors.Errorf("No slack.token provided in config!")
+		return errors.New("no slack.token provided in config")
 	}
 
 	b.logger.Info("Connecting to slack...")
@@ -58,8 +60,7 @@ func (b *Bot) Init() (err error) {
 		return errors.Wrap(err, "auth error")
 	}
 	client.BotUserID = b.auth.UserID
-
-	err = b.loadChannels()
+	client.Channels, err = b.loadChannels()
 	if err != nil {
 		return errors.Wrap(err, "error while fetching public channels")
 	}
@@ -94,39 +95,38 @@ func (b *Bot) Init() (err error) {
 	return nil
 }
 
-func (b *Bot) loadChannels() error {
+func (b *Bot) loadChannels() (map[string]string, error) {
 	var err error
 	var cursor string
 	var chunkedChannels []slack.Channel
 
+	channels := make(map[string]string)
+
 	// in CLI context we don't have to channels
 	if b.config.Slack.TestEndpointURL != "" {
-		return nil
+		return channels, nil
 	}
 
-	client.Channels = make(map[string]string)
-
-	// todo proper pagination
-	for err == nil {
+	for {
 		options := &slack.GetConversationsParameters{
-			Limit:           500,
+			Limit:           1,
 			Cursor:          cursor,
 			ExcludeArchived: "true",
 		}
 
 		chunkedChannels, cursor, err = b.slackClient.GetConversations(options)
 		if err != nil {
-			return err
+			return channels, err
 		}
 		for _, channel := range chunkedChannels {
-			client.Channels[channel.ID] = channel.Name
+			channels[channel.ID] = channel.Name
 		}
 		if cursor == "" {
 			break
 		}
 	}
 
-	return nil
+	return channels, nil
 }
 
 // DisconnectRTM will do a clean shutdown and kills all connections
@@ -135,7 +135,11 @@ func (b *Bot) DisconnectRTM() error {
 		b.server.Stop()
 	}
 
-	return b.slackClient.RTM.Disconnect()
+	if b.slackClient.RTM != nil {
+		return b.slackClient.RTM.Disconnect()
+	}
+
+	return nil
 }
 
 // load the public channels and list of all users from current space
@@ -169,38 +173,40 @@ func (b *Bot) loadSlackData() error {
 }
 
 // HandleMessages is blocking method to handle new incoming events
-func (b *Bot) HandleMessages(kill chan os.Signal) {
+func (b *Bot) HandleMessages(ctx context.Context, wg *sync.WaitGroup) {
+	wg.Add(1)
+	defer wg.Done()
+
 	for {
 		select {
-		case msg := <-b.slackClient.RTM.IncomingEvents:
+		case event := <-b.slackClient.RTM.IncomingEvents:
 			// message received from user
-			switch message := msg.Data.(type) {
+			switch message := event.Data.(type) {
 			case *slack.HelloEvent:
 				b.logger.Info("Hello, the RTM connection is ready!")
 			case *slack.MessageEvent:
-				if b.shouldHandleMessage(message) {
-					go b.handleMessage(*message, true)
+				if b.canHandleMessage(message) {
+					go b.handleMessage(msg.FromSlackEvent(*message), true)
 				}
 			case *slack.RTMError, *slack.UnmarshallingErrorEvent, *slack.RateLimitEvent, *slack.ConnectionErrorEvent:
-				b.logger.Error(msg)
+				b.logger.Error(event)
 			case *slack.LatencyReport:
 				b.logger.Debugf("Current latency: %v\n", message.Value)
 			}
-		case msg := <-client.InternalMessages:
+		case message := <-client.InternalMessages:
 			// e.g. triggered by "delay" or "macro" command. They are still executed in original event context
 			// -> will post in same channel as the user posted the original command
-			msg.InternalMessage = true
-			event := msg.ToSlackEvent()
-			go b.handleMessage(event, false)
-		case <-kill:
+			message.InternalMessage = true
+			go b.handleMessage(message, false)
+		case <-ctx.Done():
 			b.DisconnectRTM()
-			b.logger.Warn("Shutdown!")
 			return
 		}
 	}
 }
 
-func (b *Bot) shouldHandleMessage(event *slack.MessageEvent) bool {
+// check if a user message was targeted to @bot or is a direct message to the bot
+func (b *Bot) canHandleMessage(event *slack.MessageEvent) bool {
 	// exclude all Bot traffic
 	if event.User == "" || event.User == b.auth.UserID || event.SubType == "bot_message" {
 		return false
@@ -219,57 +225,63 @@ func (b *Bot) shouldHandleMessage(event *slack.MessageEvent) bool {
 	return false
 }
 
-// remove @Bot prefix of message and cleanup
-func (b *Bot) trimMessage(msg string) string {
+// remove @Bot prefix of message and cleans the message
+func (b *Bot) cleanMessage(msg string, fromUserContext bool) string {
 	msg = strings.ReplaceAll(msg, "<@"+b.auth.UserID+">", "")
 	msg = cleanMessage.Replace(msg)
 
-	return strings.TrimSpace(msg)
+	msg = strings.TrimSpace(msg)
+
+	// remove links from incoming messages. for internal ones they might be wanted, as they contain valid links with texts
+	if fromUserContext {
+		msg = linkRegexp.ReplaceAllString(msg, "$1")
+	}
+
+	return msg
 }
 
 // handleMessage process the incoming message and respond appropriately
-func (b *Bot) handleMessage(event slack.MessageEvent, fromUserContext bool) {
-	event.Text = b.trimMessage(event.Text)
-
-	// remove links from incoming messages. for internal ones they might be wanted, as they contain valid links with texts
-	if !fromUserContext {
-		event.Text = linkRegexp.ReplaceAllString(event.Text, "$1")
-	}
-
-	if event.Text == "" {
+func (b *Bot) handleMessage(message msg.Message, fromUserContext bool) {
+	message.Text = b.cleanMessage(message.Text, fromUserContext)
+	if message.Text == "" {
 		return
 	}
 
 	start := time.Now()
-	logger := b.getUserBasedLogger(event)
+	logger := b.getUserBasedLogger(message)
 
 	// send "Bot is typing" command
 	if b.slackClient.RTM != nil {
-		b.slackClient.RTM.SendMessage(b.slackClient.RTM.NewTypingMessage(event.Channel))
+		b.slackClient.RTM.SendMessage(b.slackClient.RTM.NewTypingMessage(message.Channel))
 	}
 
 	// prevent messages from one user processed in parallel (usual + internal ones)
-	lock := b.getUserLock(event.User)
+	lock := b.getUserLock(message.User)
 	defer lock.Unlock()
 
 	stats.IncreaseOne(stats.TotalCommands)
 
-	_, existing := b.allowedUsers[event.User]
-	if !existing && !fromUserContext && b.config.Slack.TestEndpointURL == "" {
-		logger.Errorf("user %s is not allowed to execute message (missing in 'allowed_users' section): %s", event.User, event.Text)
-		// todo pass imploded cfg.AdminUsers here...if set
-		b.slackClient.Reply(event, "Sorry, you are not whitelisted yet. Please ask the slack-bot admin to get access.")
+	// temporary code to support old message.MessageEvent - the new way would be msg.Message only
+	event := message.ToSlackEvent()
+
+	_, existing := b.allowedUsers[message.User]
+	if !existing && fromUserContext && b.config.Slack.TestEndpointURL == "" {
+		logger.Errorf("user %s is not allowed to execute message (missing in 'allowed_users' section): %s", message.User, message.Text)
+		b.slackClient.Reply(event, fmt.Sprintf(
+			"Sorry, you are not whitelisted yet. Please ask a slack-bot admin to get access: %s",
+			strings.Join(b.config.AdminUsers, ", "),
+		))
 		stats.IncreaseOne(stats.UnauthorizedCommands)
 		return
 	}
 
 	if !b.commands.Run(event) {
-		logger.Infof("Unknown command: %s", event.Text)
+		logger.Infof("Unknown command: %s", message.Text)
 		stats.IncreaseOne(stats.UnknownCommands)
 		b.sendFallbackMessage(event)
 	}
 
 	logger.
 		WithField("duration", util.FormatDuration(time.Since(start))).
-		Infof("handled message: %s", event.Text)
+		Infof("handled message: %s", message.Text)
 }

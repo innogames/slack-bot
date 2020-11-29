@@ -2,6 +2,7 @@ package msg
 
 import "github.com/slack-go/slack"
 
+// ToSlackEvent converts a Message to a slack.MessageEvent which is needed in some slack APIs
 func (msg *Message) ToSlackEvent() slack.MessageEvent {
 	subtype := ""
 	if msg.InternalMessage {

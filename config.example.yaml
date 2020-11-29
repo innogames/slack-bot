@@ -1,12 +1,21 @@
 
 slack:
   token: # use xoxb-1234567-secret
-  #team: "Developer"
+  #useRTM: true # only supported in old apps with RTM support
+
   # auto_join_channels:
-  # - #fancy-channel"
-  allowed_groups:
-    - backend
-    - frontend
+  # - fancy-channel
+
+# list of trusted slack users: allows the user-id and the name
+allowed_users:
+  - your.name
+  - U122323
+
+# there are some restricted commands, like reading logs or show runtime stats
+admin_users:
+  - UADMINID
+
+# optional Jenkins integration
 jenkins:
   host: #https://jenkins.example.com
   username: username
@@ -28,34 +37,26 @@ jenkins:
           default: master
           type: branch
 
-# list of trusted slack users: allows the user-id and the name
-allowed_users:
-  - your.name
-  - U122323
-
-# there are some restricted commands, like reading logs or show runtime stats
-admin_users:
- - UADMINID
-
 # WIP: allows receiving events directly from Slack server instead via RTM
 #server:
 #  listen: 127.0.0.1:4390
 #  verification_secret: d12345sd943434sdfdsfsif9sif9
 
+# optional Jenkins integration
 jira:
   #host: https://jira.example.de
   username: readonlyuser
   password: secret
   project: FOO
 
+# optional Github integration to watch PR state
 github:
   accesstoken: # optional when using github features
 
+# optional Gitlab integration to watch merge request state
 gitlab:
 #  host: https://gitlab.example.de
 #  accesstoken: # optional when using gitlab features
-
-storage_path: ./storage
 
 logger:
   level: info
@@ -91,37 +92,6 @@ commands:
       - flip
       - flip table
 
-  - name: bring me coffee
-    trigger: "(bring|get|make) me( a)? coffee"
-    commands:
-      - "reply Get your ass up and pick it yourself!"
-      - "add reaction :coffee:"
-    examples:
-      - bring me a coffee
-      - make me a coffee
-
-  - name: build clients
-    description: build all development clients
-    trigger: "build clients? (?P<branch>.*)"
-    commands:
-      - "reply I'll build {{ .branch }} for you"
-      - "trigger job BuildFrontendClient {{ .branch }}"
-      - "trigger job BuildMobileClient {{ .branch }}"
-      - "add reaction :white_check_mark:"
-
-  - name: meeting time
-    trigger: "meeting time"
-    commands:
-      - "send message to #tech-team It's meeting time :)"
-      - "add reaction :loudspeaker:"
-
-  - name: bot feedback
-    description: Send issues/suggestions etc. to the bot maintainer
-    trigger: "bot feedback:? (?P<feedback>.*)"
-    commands:
-      - "reply thanks for your feedback :)"
-      - "send message to <@UADMINID> We got feedback: {{ .feedback }}"
-
 # slack interaction server:
 server:
   listen: 127.0.0.1:4390 # using local ngrok.io tunnel
@@ -133,8 +103,10 @@ server:
 #  location: Hamburg
 
 # able to set a custom "approved" reactions to see directly who or which component/department approved a pullrequest
-pullrequest:
-  custom_approve_reaction:
-    nerdydev: "approved_backend"
-    iamamobiledev: "approved_mobile"
-    iamamobiledev2: "approved_mobile"
+#pullrequest:
+#  custom_approve_reaction:
+#    nerdydev: "approved_backend"
+#    iamamobiledev: "approved_mobile"
+#    iamamobiledev2: "approved_mobile"
+
+timezone: UTC

@@ -83,7 +83,7 @@ func (c *delayCommand) Stop(match matcher.Result, event slack.MessageEvent) {
 
 var delayCategory = bot.Category{
 	Name:    "Delay",
-	HelpUrl: "https://github.com/innogames/slack-bot#delay",
+	HelpURL: "https://github.com/innogames/slack-bot#delay",
 }
 
 func (c *delayCommand) GetHelp() []bot.Help {

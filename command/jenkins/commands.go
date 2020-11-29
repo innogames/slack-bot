@@ -11,7 +11,7 @@ import (
 var category = bot.Category{
 	Name:        "Jenkins",
 	Description: "Interact with Jenkins jobs: Trigger builds, check job status or watch builds",
-	HelpUrl:     "https://github.com/innogames/slack-bot#jenkins",
+	HelpURL:     "https://github.com/innogames/slack-bot#jenkins",
 }
 
 // GetCommands will return a list of available Jenkins commands...if the config is set!

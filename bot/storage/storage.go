@@ -22,6 +22,7 @@ var keyRegexp = regexp.MustCompile(`^[\w\-,+@]+$`)
 // InitStorage registers a local directory as JSON file Storage
 func InitStorage(path string) error {
 	var err error
+
 	if path == "" {
 		currentStorage = newMemoryStorage()
 	} else {

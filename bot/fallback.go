@@ -18,7 +18,7 @@ func (b *Bot) sendFallbackMessage(event slack.MessageEvent) {
 	bestMatching := getBestMatchingHelp(b, event.Text)
 
 	if bestMatching.Command == "" {
-		b.slackClient.SendMessage(event, "Oops! Command `"+event.Text+"` not found...try `help`.")
+		b.slackClient.Reply(event, "Oops! Command `"+event.Text+"` not found...try `help`.")
 		return
 	}
 
@@ -28,6 +28,7 @@ func (b *Bot) sendFallbackMessage(event slack.MessageEvent) {
 	client.InternalMessages <- msg.FromSlackEvent(event)
 }
 
+// find the best matching command bases on the given strings...using levenstein to fetch the best one
 func getBestMatchingHelp(b *Bot, eventText string) Help {
 	var distance = math.MaxInt32
 	var bestMatching Help

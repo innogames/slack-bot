@@ -15,6 +15,8 @@ import (
 	"github.com/slack-go/slack/slackevents"
 )
 
+// todo: this whole file is WIP and not ready for production yet - just use the RTM api for a stable API
+
 func (s *Server) healthCheckHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("pong"))
