@@ -7,6 +7,7 @@ import (
 	"github.com/go-redis/redis/v7"
 )
 
+// NewRedisStorage defined a redis bases storage to persist bot related information
 func NewRedisStorage(client *redis.Client) Storage {
 	return &redisStorage{
 		client: client,

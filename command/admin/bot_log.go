@@ -34,7 +34,7 @@ func (c *botLogCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c botLogCommand) Run(match matcher.Result, event slack.MessageEvent) {
+func (c *botLogCommand) Run(match matcher.Result, event slack.MessageEvent) {
 	log := c.readFile(c.cfg.Logger.File, logChars)
 	parts := strings.SplitN(string(log), "\n", 2)
 	if len(parts) <= 1 {

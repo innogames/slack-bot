@@ -43,6 +43,7 @@ func WatchBuild(build *gojenkins.Build) <-chan JobResult {
 		defer close(resultChan)
 
 		delay := util.GetIncreasingDelay(minDelay, maxDelay)
+
 		for {
 			time.Sleep(delay.GetNextDelay())
 

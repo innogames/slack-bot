@@ -17,17 +17,17 @@ import (
 const defaultAPIURL = "https://api.openweathermap.org/data/2.5/weather"
 
 // NewWeatherCommand is using OpenWeatherMap to display current weather and the forecast
-func NewWeatherCommand(slackClient client.SlackClient, config config.OpenWeather) bot.Command {
-	if config.URL == "" {
-		config.URL = defaultAPIURL
+func NewWeatherCommand(slackClient client.SlackClient, cfg config.OpenWeather) bot.Command {
+	if cfg.URL == "" {
+		cfg.URL = defaultAPIURL
 	}
 
-	return &command{slackClient, config}
+	return &command{slackClient, cfg}
 }
 
 type command struct {
 	slackClient client.SlackClient
-	config      config.OpenWeather
+	cfg         config.OpenWeather
 }
 
 func (c *command) GetMatcher() matcher.Matcher {
@@ -37,18 +37,18 @@ func (c *command) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c command) GetWeather(match matcher.Result, event slack.MessageEvent) {
+func (c *command) GetWeather(match matcher.Result, event slack.MessageEvent) {
 	location := match.GetString("location")
 	if location == "" {
-		location = c.config.Location
+		location = c.cfg.Location
 	}
 
 	apiURL := fmt.Sprintf(
 		"%s?q=%s&units=%s&appid=%s",
-		c.config.URL,
+		c.cfg.URL,
 		url.QueryEscape(location),
-		c.config.Units,
-		c.config.Apikey,
+		c.cfg.Units,
+		c.cfg.Apikey,
 	)
 
 	response, err := http.Get(apiURL)
@@ -104,6 +104,7 @@ func (c command) GetWeather(match matcher.Result, event slack.MessageEvent) {
 
 	var sections []slack.Block
 	sections = append(sections, headerSection)
+
 	for _, element := range fields {
 		var textBlocks []*slack.TextBlockObject
 		textBlocks = append(
@@ -123,7 +124,7 @@ func timestampToTime(timestamp int) string {
 }
 
 func (c *command) IsEnabled() bool {
-	return c.config.Apikey != ""
+	return c.cfg.Apikey != ""
 }
 
 func (c *command) GetHelp() []bot.Help {

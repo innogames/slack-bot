@@ -30,7 +30,7 @@ type triggerCommandData struct {
 
 // newTriggerCommand initialize a new command to trigger for whitelisted jenkins job
 func newTriggerCommand(
-	jenkins jenkins.Client,
+	jenkinsClient jenkins.Client,
 	slackClient client.SlackClient,
 	jobs config.JenkinsJobs,
 	logger *logrus.Logger,
@@ -45,7 +45,7 @@ func newTriggerCommand(
 		}
 	}
 
-	return &triggerCommand{jenkins, slackClient, trigger, logger}
+	return &triggerCommand{jenkinsClient, slackClient, trigger, logger}
 }
 
 func (c *triggerCommand) IsEnabled() bool {

@@ -99,6 +99,7 @@ func (c *jiraCommand) sendTicket(event slack.MessageEvent, issue *jira.Issue, fo
 	}
 
 	var fields []slack.AttachmentField
+	// ineff?!
 	fields = append(
 		fields,
 		slack.AttachmentField{

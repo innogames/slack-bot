@@ -19,7 +19,7 @@ const (
 
 var logger *logrus.Logger
 var runningCommands = map[string]slack.MessageEvent{}
-var mu sync.Mutex
+var mu sync.RWMutex
 
 // AddRunningCommand registers a long running command, e.g. a running Jenkins job or watching a pull request
 // it's doing following magic:
@@ -41,10 +41,12 @@ func AddRunningCommand(event slack.MessageEvent, fallbackCommand string) chan bo
 		logger.Infof("add a blocking process: %s", event.Text)
 	}
 
+	key := getKey(event)
+
 	mu.Lock()
 	defer mu.Unlock()
 
-	runningCommands[getKey(event)] = event
+	runningCommands[key] = event
 
 	finished := make(chan bool, 1)
 
@@ -55,7 +57,7 @@ func AddRunningCommand(event slack.MessageEvent, fallbackCommand string) chan bo
 		<-finished
 
 		mu.Lock()
-		delete(runningCommands, getKey(event))
+		delete(runningCommands, key)
 		mu.Unlock()
 
 		if queueKey != "" {
@@ -91,7 +93,10 @@ func executeFallbackCommand(logger *logrus.Logger) {
 		logger.Infof("[Queue] Booted! I'll trigger this command now: `%s`", event.Text)
 		client.InternalMessages <- msg.FromSlackEvent(event)
 	}
-	storage.DeleteCollection(storageKey)
+
+	if err := storage.DeleteCollection(storageKey); err != nil {
+		logger.Infof("[Queue] Can't delete event: %s, %s", event.Text, err)
+	}
 }
 
 func getKey(event slack.MessageEvent) string {

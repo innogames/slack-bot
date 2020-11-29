@@ -53,14 +53,14 @@ func (c *command) Run(match matcher.Result, event slack.MessageEvent) {
 		key := getKey(event)
 
 		for range ticker.C {
-			mu.Lock() // todo rlock
+			mu.RLock()
 			if _, ok := runningCommands[key]; ok {
 				// still running...
-				mu.Unlock()
+				mu.RUnlock()
 
 				continue
 			}
-			mu.Unlock()
+			mu.RUnlock()
 			c.slackClient.AddReaction(doneIcon, msgRef)
 
 			// trigger new command
@@ -78,7 +78,7 @@ func (c *command) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "queue",
-			Description: "queue a queuedCommand which is executed when the current task is done",
+			Description: "queue a command which is executed when the current task is done",
 			Examples: []string{
 				"queue reply My job is ready",
 				"queue trigger job Deploy master",

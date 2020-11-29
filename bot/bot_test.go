@@ -147,6 +147,7 @@ func BenchmarkShouldHandle(b *testing.B) {
 	bot.auth.User = "botId"
 
 	var result bool
+
 	b.Run("match", func(b *testing.B) {
 		event := &slack.MessageEvent{}
 		event.Channel = "D123"

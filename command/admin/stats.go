@@ -36,7 +36,7 @@ func (c *statsCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c statsCommand) Stats(match matcher.Result, event slack.MessageEvent) {
+func (c *statsCommand) Stats(match matcher.Result, event slack.MessageEvent) {
 	result := statsResult{}
 	result.WriteString("Here are some current stats:\n")
 
