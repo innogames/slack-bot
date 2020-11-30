@@ -2,8 +2,8 @@ package bot
 
 import (
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
-	"github.com/slack-go/slack"
 	"sync"
 )
 
@@ -46,15 +46,15 @@ func (c *Commands) GetHelp() []Help {
 }
 
 // Run executes the first matched command and return true in case one command matched
-func (c *Commands) Run(event slack.MessageEvent) bool {
+func (c *Commands) Run(message msg.Message) bool {
 	c.compile()
 
 	for _, command := range c.matcher {
-		run, match := command.Match(event)
+		run, match := command.Match(message)
 		if match.Matched() {
 			// this is is needed for ConditionMatcher: runner gets already executed in the matcher itself!
 			if run != nil {
-				run(match, event)
+				run(match, message)
 			}
 
 			// only the first command is executed -> abort here

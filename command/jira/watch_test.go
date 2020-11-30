@@ -3,9 +3,9 @@ package jira
 import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -24,20 +24,20 @@ func TestWatchJira(t *testing.T) {
 	command.AddCommand(newWatchCommand(jiraClient, slackClient, cfg))
 
 	t.Run("No match", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "quatsch"
+		message := msg.Message{}
+		message.Text = "quatsch"
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, false, actual)
 	})
 
 	t.Run("watch not existing ticket", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "watch ticket ZOOKEEPER-345600010"
+		message := msg.Message{}
+		message.Text = "watch ticket ZOOKEEPER-345600010"
 
-		slackClient.On("Reply", event, "Issue Does Not Exist: request failed. Please analyze the request body for more details. Status code: 404")
+		slackClient.On("SendMessage", message, "Issue Does Not Exist: request failed. Please analyze the request body for more details. Status code: 404").Return("")
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 }

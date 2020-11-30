@@ -5,7 +5,6 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -18,64 +17,64 @@ func TestRetry(t *testing.T) {
 	retry.AddCommand(NewRetryCommand(&slackClient))
 
 	t.Run("Ignore internal messages", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.User = "testUser1"
-		event.Text = "i'm a submessage"
-		event.SubType = "internal"
+		message := msg.Message{}
+		message.User = "testUser1"
+		message.Text = "i'm a submessage"
+		message.InternalMessage = true
 
-		actual := retry.Run(event)
+		actual := retry.Run(message)
 		assert.Equal(t, false, actual)
 		assert.Empty(t, client.InternalMessages)
 	})
 
 	t.Run("Full test", func(t *testing.T) {
 		// no retry available
-		event := slack.MessageEvent{}
-		event.User = "testUser1"
-		event.Text = "retry"
-		slackClient.On("Reply", event, "Sorry, no history found.")
-		actual := retry.Run(event)
+		message := msg.Message{}
+		message.User = "testUser1"
+		message.Text = "retry"
+		slackClient.On("SendMessage", message, "Sorry, no history found.").Return("")
+		actual := retry.Run(message)
 		assert.Equal(t, true, actual)
 		assert.Empty(t, client.InternalMessages)
 
 		// send any other command
-		event = slack.MessageEvent{}
-		event.User = "testUser1"
-		event.Text = "magic command"
-		actual = retry.Run(event)
+		message = msg.Message{}
+		message.User = "testUser1"
+		message.Text = "magic command"
+		actual = retry.Run(message)
 		assert.Equal(t, false, actual)
 		assert.Empty(t, client.InternalMessages)
 
 		// retry -> "magic command"
-		event2 := slack.MessageEvent{}
-		event2.User = "testUser1"
-		event2.Text = "retry"
-		slackClient.On("Reply", event2, "Executing command: magic command")
-		actual = retry.Run(event2)
+		message2 := msg.Message{}
+		message2.User = "testUser1"
+		message2.Text = "retry"
+		slackClient.On("SendMessage", message2, "Executing command: magic command").Return("")
+		actual = retry.Run(message2)
 		assert.Equal(t, true, actual)
 		assert.NotEmpty(t, client.InternalMessages)
 
 		handledEvent := <-client.InternalMessages
-		assert.Equal(t, handledEvent, msg.FromSlackEvent(event))
+		assert.Equal(t, handledEvent, message)
 	})
 
 	t.Run("With with other user", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.User = "testUser1"
-		event.Text = "magic command"
+		message := msg.Message{}
+		message.User = "testUser1"
+		message.Text = "magic command"
 
-		actual := retry.Run(event)
+		actual := retry.Run(message)
 
 		assert.Equal(t, false, actual)
 		assert.Empty(t, client.InternalMessages)
 
-		event2 := slack.MessageEvent{}
-		event2.User = "testUser2"
-		event2.Text = "retry"
+		message2 := msg.Message{}
+		message2.User = "testUser2"
+		message2.Text = "retry"
 
-		slackClient.On("Reply", event2, "Sorry, no history found.")
+		slackClient.On("SendMessage", message2, "Sorry, no history found.").Return("")
 
-		actual = retry.Run(event2)
+		actual = retry.Run(message2)
 
 		assert.Equal(t, true, actual)
 		assert.Empty(t, client.InternalMessages)

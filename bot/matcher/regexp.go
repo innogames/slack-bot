@@ -1,8 +1,8 @@
 package matcher
 
 import (
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
-	"github.com/slack-go/slack"
 	"regexp"
 )
 
@@ -21,10 +21,10 @@ type regexpMatcher struct {
 	run    Runner
 }
 
-func (m *regexpMatcher) Match(event slack.MessageEvent) (Runner, Result) {
+func (m *regexpMatcher) Match(message msg.Message) (Runner, Result) {
 	var match MapResult
 
-	matches := m.regexp.FindStringSubmatch(event.Text)
+	matches := m.regexp.FindStringSubmatch(message.GetText())
 	if len(matches) == 0 {
 		return nil, match
 	}

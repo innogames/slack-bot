@@ -30,14 +30,14 @@ func GetLogger(cfg config.Logger) *log.Logger {
 }
 
 // get a log.Entry with some user related fields
-func (b *Bot) getUserBasedLogger(message msg.Message) *log.Entry {
-	_, username := client.GetUser(message.User)
+func (b *Bot) getUserBasedLogger(ref msg.Ref) *log.Entry {
+	_, username := client.GetUser(ref.GetUser())
 
 	channel := ""
-	if message.Channel != "" && message.Channel[0] == 'D' {
+	if ref.GetChannel() != "" && ref.GetChannel()[0] == 'D' {
 		channel = "@" + username
 	} else {
-		_, channel = client.GetChannel(message.Channel)
+		_, channel = client.GetChannel(ref.GetChannel())
 	}
 
 	return b.logger.

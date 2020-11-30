@@ -2,6 +2,7 @@ package queue
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/msg"
 	"time"
 
 	"github.com/innogames/slack-bot/bot"
@@ -16,7 +17,7 @@ type listCommand struct {
 	slackClient client.SlackClient
 }
 
-type filterFunc func(slack.MessageEvent) bool
+type filterFunc func(msg.Message) bool
 
 // NewListCommand prints the list of all queued commands (blocking commands like running Jenkins jobs)
 func NewListCommand(slackClient client.SlackClient) bot.Command {
@@ -32,26 +33,26 @@ func (c *listCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *listCommand) ListAll(match matcher.Result, event slack.MessageEvent) {
-	c.listQueue(event, func(event slack.MessageEvent) bool {
+func (c *listCommand) ListAll(match matcher.Result, message msg.Message) {
+	c.listQueue(message, func(event msg.Message) bool {
 		return true
 	})
 }
 
-func (c *listCommand) ListChannel(match matcher.Result, event slack.MessageEvent) {
-	c.listQueue(event, func(queuedEvent slack.MessageEvent) bool {
-		return event.Channel == queuedEvent.Channel
+func (c *listCommand) ListChannel(match matcher.Result, message msg.Message) {
+	c.listQueue(message, func(queuedEvent msg.Message) bool {
+		return message.GetChannel() == queuedEvent.GetChannel()
 	})
 }
 
-func (c *listCommand) listQueue(event slack.MessageEvent, filter filterFunc) {
+func (c *listCommand) listQueue(message msg.Message, filter filterFunc) {
 	keys, _ := storage.GetKeys(storageKey)
 	now := time.Now()
 
 	count := 0
 	attachments := make([]slack.Attachment, 0, len(keys))
 
-	var queuedEvent slack.MessageEvent
+	var queuedEvent msg.Message
 	for _, key := range keys {
 		if err := storage.Read(storageKey, key, &queuedEvent); err != nil {
 			continue
@@ -64,7 +65,7 @@ func (c *listCommand) listQueue(event slack.MessageEvent, filter filterFunc) {
 		count++
 		userID, _ := client.GetUser(queuedEvent.User)
 
-		messageTime := util.GetMessageTime(queuedEvent)
+		messageTime := queuedEvent.GetTime()
 		timeAgo := now.Sub(messageTime)
 		color := getColor(timeAgo)
 		text := fmt.Sprintf(
@@ -72,7 +73,7 @@ func (c *listCommand) listQueue(event slack.MessageEvent, filter filterFunc) {
 			userID,
 			messageTime.Format(time.Stamp),
 			util.FormatDuration(timeAgo),
-			queuedEvent.Text,
+			queuedEvent.GetText(),
 			c.getReactions(queuedEvent),
 		)
 		attachments = append(attachments, slack.Attachment{
@@ -86,7 +87,7 @@ func (c *listCommand) listQueue(event slack.MessageEvent, filter filterFunc) {
 
 	response := fmt.Sprintf("%d queued commands", count)
 
-	c.slackClient.SendMessage(event, response, slack.MsgOptionAttachments(attachments...))
+	c.slackClient.SendMessage(message, response, slack.MsgOptionAttachments(attachments...))
 }
 
 // get attachment color for a given message time
@@ -102,9 +103,9 @@ func getColor(timeAgo time.Duration) string {
 	return color
 }
 
-func (c *listCommand) getReactions(event slack.MessageEvent) string {
+func (c *listCommand) getReactions(ref msg.Ref) string {
 	formattedReactions := ""
-	msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
+	msgRef := slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp())
 	reactions, _ := c.slackClient.GetReactions(msgRef, slack.NewGetReactionsParameters())
 
 	for _, reaction := range reactions {

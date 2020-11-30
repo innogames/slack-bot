@@ -9,7 +9,6 @@ import (
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/sirupsen/logrus"
-	"github.com/slack-go/slack"
 	"regexp"
 	"strings"
 )
@@ -48,22 +47,22 @@ func (c *macroCommand) GetMatcher() matcher.Matcher {
 	return matcher.WildcardMatcher(c.Execute)
 }
 
-func (c *macroCommand) Execute(event slack.MessageEvent) bool {
+func (c *macroCommand) Execute(ref msg.Ref, text string) bool {
 	for _, macro := range c.commands {
-		match := macro.re.FindStringSubmatch(event.Text)
+		match := macro.re.FindStringSubmatch(text)
 		if len(match) == 0 {
 			continue
 		}
 
 		// extract the parameters from regexp
 		params := util.RegexpResultToParams(macro.re, match)
-		params["userId"] = event.User
+		params["userId"] = ref.GetUser()
 
 		for _, commandText := range macro.config.Commands {
 			command, err := util.CompileTemplate(commandText)
 			if err != nil {
 				fmt.Printf("cannot parse command %s: %s\n", commandText, err.Error())
-				c.slackClient.ReplyError(event, err)
+				c.slackClient.ReplyError(ref, err)
 
 				continue
 			}
@@ -71,16 +70,14 @@ func (c *macroCommand) Execute(event slack.MessageEvent) bool {
 			text, err := util.EvalTemplate(command, params)
 			if err != nil {
 				fmt.Printf("cannot executing command %s: %s\n", commandText, err.Error())
-				c.slackClient.ReplyError(event, err)
+				c.slackClient.ReplyError(ref, err)
 
 				continue
 			}
 
 			// each line is interpreted as command
 			for _, part := range strings.Split(text, "\n") {
-				newMessage := event
-				newMessage.Text = part
-				client.InternalMessages <- msg.FromSlackEvent(newMessage)
+				client.InternalMessages <- ref.WithText(part)
 			}
 		}
 

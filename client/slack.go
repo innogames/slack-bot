@@ -5,6 +5,7 @@ package client
 import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/pkg/errors"
 	"strings"
 
 	"github.com/innogames/slack-bot/bot/config"
@@ -45,19 +46,16 @@ func GetSlackClient(cfg config.Slack, logger *logrus.Logger) *Slack {
 }
 
 type SlackClient interface {
-	// Reply a message to the current channel/user/thread
-	Reply(event slack.MessageEvent, text string, options ...slack.MsgOption)
-
 	// ReplyError Replies a error to the current channel/user/thread + log it!
-	ReplyError(event slack.MessageEvent, err error)
+	ReplyError(ref msg.Ref, err error)
 
 	// SendMessage is the extended version of Reply and accepts any slack.MsgOption
-	SendMessage(event slack.MessageEvent, text string, options ...slack.MsgOption) string
+	SendMessage(ref msg.Ref, text string, options ...slack.MsgOption) string
 
 	SendToUser(user string, text string)
 
-	RemoveReaction(name string, item slack.ItemRef)
-	AddReaction(name string, item slack.ItemRef)
+	RemoveReaction(name string, ref msg.Ref)
+	AddReaction(name string, ref msg.Ref)
 	GetReactions(item slack.ItemRef, params slack.GetReactionsParameters) ([]slack.ItemReaction, error)
 }
 
@@ -68,23 +66,23 @@ type Slack struct {
 	logger *logrus.Logger
 }
 
-// Reply fast reply via RTM websocket
-// todo merge with SendMessage which is doing the same stuff now
-func (s *Slack) Reply(event slack.MessageEvent, text string, options ...slack.MsgOption) {
-	s.SendMessage(event, text, options...)
+func (s *Slack) AddReaction(name string, ref msg.Ref) {
+	err := s.Client.AddReaction(name, slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp()))
+	if err != nil {
+		s.logger.Warn(errors.Wrap(err, "Error while adding reaction"))
+	}
 }
 
-func (s *Slack) AddReaction(name string, item slack.ItemRef) {
-	s.Client.AddReaction(name, item)
-}
-
-func (s *Slack) RemoveReaction(name string, item slack.ItemRef) {
-	s.Client.RemoveReaction(name, item)
+func (s *Slack) RemoveReaction(name string, ref msg.Ref) {
+	err := s.Client.RemoveReaction(name, slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp()))
+	if err != nil {
+		s.logger.Warn(errors.Wrap(err, "Error while removing reaction"))
+	}
 }
 
 // SendMessage is the "slow" reply via POST request, needed for Attachment or MsgRef
-func (s *Slack) SendMessage(event slack.MessageEvent, text string, options ...slack.MsgOption) string {
-	if event.Channel == "" {
+func (s *Slack) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption) string {
+	if ref.GetChannel() == "" {
 		return ""
 	}
 
@@ -93,7 +91,7 @@ func (s *Slack) SendMessage(event slack.MessageEvent, text string, options ...sl
 	}
 
 	defaultOptions := []slack.MsgOption{
-		slack.MsgOptionTS(event.ThreadTimestamp), // send in current thread by default
+		slack.MsgOptionTS(ref.GetThread()), // send in current thread by default
 		slack.MsgOptionAsUser(true),
 		slack.MsgOptionText(text, false),
 		slack.MsgOptionDisableLinkUnfurl(),
@@ -101,32 +99,32 @@ func (s *Slack) SendMessage(event slack.MessageEvent, text string, options ...sl
 
 	options = append(defaultOptions, options...)
 	_, msgTimestamp, err := s.PostMessage(
-		event.Channel,
+		ref.GetChannel(),
 		options...,
 	)
 
 	if err != nil {
 		s.logger.
-			WithField("user", event.User).
+			WithField("user", ref.GetUser()).
 			Errorf(err.Error())
 	}
 
 	return msgTimestamp
 }
 
-func (s *Slack) ReplyError(event slack.MessageEvent, err error) {
+func (s *Slack) ReplyError(ref msg.Ref, err error) {
 	s.logger.WithError(err).Warnf("Error while sending reply")
-	s.Reply(event, err.Error())
+	s.SendMessage(ref, err.Error())
 
 	if s.config.ErrorChannel != "" {
 		text := fmt.Sprintf(
-			"<@%s> Error in command `%s`: %s",
-			event.User,
-			event.Msg.Text,
+			"<@%s> Error in command: %s",
+			ref.GetUser(),
 			err.Error(),
 		)
-		event.Channel, _ = GetChannel(s.config.ErrorChannel)
-		s.SendMessage(event, text)
+		message := msg.Message{}
+		message.Channel, _ = GetChannel(s.config.ErrorChannel)
+		s.SendMessage(message, text)
 	}
 }
 
@@ -144,10 +142,10 @@ func (s *Slack) SendToUser(user string, text string) {
 		s.logger.WithError(err).Errorf("Cannot open channel")
 	}
 
-	event := slack.MessageEvent{}
-	event.Channel = channel.ID
+	message := msg.Message{}
+	message.Channel = channel.ID
 
-	s.SendMessage(event, text)
+	s.SendMessage(message, text)
 }
 
 func GetUser(identifier string) (id string, name string) {
@@ -166,6 +164,7 @@ func GetUser(identifier string) (id string, name string) {
 	return "", ""
 }
 
+// GetChannel returns channel-id and channel-name by an identifier which can be an id or a name
 func GetChannel(identifier string) (id string, name string) {
 	identifier = strings.TrimPrefix(identifier, "#")
 	if name, ok := Channels[identifier]; ok {
@@ -198,7 +197,7 @@ func GetSlackLink(name string, url string, args ...string) slack.AttachmentActio
 	return action
 }
 
-func GetInteraction(event slack.MessageEvent, text string, command string, args ...string) *slack.ActionBlock {
+func GetInteraction(ref msg.Ref, text string, command string, args ...string) *slack.ActionBlock {
 	var style slack.Style
 	if len(args) > 0 {
 		style = slack.Style(args[0])
@@ -206,8 +205,8 @@ func GetInteraction(event slack.MessageEvent, text string, command string, args 
 
 	id := util.RandString(32)
 
-	event.Text = command
-	storage.Write("interactions", id, event)
+	message := ref.WithText(command)
+	storage.Write("interactions", id, message)
 
 	buttonText := slack.NewTextBlockObject("plain_text", text, true, false)
 	button := slack.NewButtonBlockElement("id", id, buttonText)

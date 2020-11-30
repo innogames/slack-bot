@@ -2,15 +2,15 @@ package matcher
 
 import (
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestGroup(t *testing.T) {
-	event := slack.MessageEvent{}
-	event.User = "UADMIN"
+	message := msg.Message{}
+	message.User = "UADMIN"
 
 	cfg := config.Config{}
 	cfg.AdminUsers = []string{
@@ -41,8 +41,8 @@ func TestGroup(t *testing.T) {
 		}
 
 		for _, testCase := range matchTest {
-			event.Text = testCase.input
-			run, result := matcher.Match(event)
+			message.Text = testCase.input
+			run, result := matcher.Match(message)
 			if testCase.expected {
 				assert.NotNil(t, run)
 				assert.True(t, result.Matched())
@@ -67,20 +67,20 @@ func BenchmarkMatchChained(b *testing.B) {
 		NewVoidMatcher(),
 	)
 	b.Run("chained prefix: no match", func(b *testing.B) {
-		event := slack.MessageEvent{}
-		event.Text = "haha reaction :foo:"
+		message := msg.Message{}
+		message.Text = "haha reaction :foo:"
 
 		for i := 0; i < b.N; i++ {
-			regexpChainMatcher.Match(event)
+			regexpChainMatcher.Match(message)
 		}
 	})
 
 	b.Run("chained prefix: match", func(b *testing.B) {
-		event := slack.MessageEvent{}
-		event.Text = "add reaction :foo:"
+		message := msg.Message{}
+		message.Text = "add reaction :foo:"
 
 		for i := 0; i < b.N; i++ {
-			regexpChainMatcher.Match(event)
+			regexpChainMatcher.Match(message)
 		}
 	})
 }

@@ -1,7 +1,7 @@
 package matcher
 
 import (
-	"github.com/slack-go/slack"
+	"github.com/innogames/slack-bot/bot/msg"
 )
 
 // NewVoidMatcher just do nothing (might be useful when a command is not loadable because dependencies are not configures)
@@ -12,7 +12,7 @@ func NewVoidMatcher() Matcher {
 type voidMatcher struct {
 }
 
-func (m voidMatcher) Match(event slack.MessageEvent) (Runner, Result) {
+func (m voidMatcher) Match(message msg.Message) (Runner, Result) {
 	var match MapResult
 
 	return nil, match

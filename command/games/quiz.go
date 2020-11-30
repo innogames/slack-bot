@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/pkg/errors"
-	"github.com/slack-go/slack"
 	"html"
 	"io/ioutil"
 	"math/rand"
@@ -53,19 +53,19 @@ func (c *quizCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *quizCommand) StartQuiz(match matcher.Result, event slack.MessageEvent) {
+func (c *quizCommand) StartQuiz(match matcher.Result, message msg.Message) {
 	questions := match.GetInt("questions")
 	if questions == 0 {
 		questions = 2
 	}
 	if questions > maxQuestions {
-		c.slackClient.Reply(event, fmt.Sprintf("No more than %d questions allowed", maxQuestions))
+		c.slackClient.SendMessage(message, fmt.Sprintf("No more than %d questions allowed", maxQuestions))
 		return
 	}
 
 	resp, err := http.Get(fmt.Sprintf("%s?amount=%d", c.apiURL, questions))
 	if err != nil {
-		c.slackClient.ReplyError(event, errors.Wrap(err, "Error while loading Quiz"))
+		c.slackClient.ReplyError(message, errors.Wrap(err, "Error while loading Quiz"))
 		return
 	}
 	defer resp.Body.Close()
@@ -73,12 +73,12 @@ func (c *quizCommand) StartQuiz(match matcher.Result, event slack.MessageEvent) 
 	if resp.StatusCode == http.StatusOK {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			c.slackClient.ReplyError(event, errors.Wrap(err, "Error while loading Quiz"))
+			c.slackClient.ReplyError(message, errors.Wrap(err, "Error while loading Quiz"))
 			return
 		}
 
 		if err := json.Unmarshal(bodyBytes, &c.quiz); err != nil {
-			c.slackClient.ReplyError(event, errors.Wrap(err, "Error while loading Quiz"))
+			c.slackClient.ReplyError(message, errors.Wrap(err, "Error while loading Quiz"))
 			return
 		}
 	}
@@ -87,10 +87,10 @@ func (c *quizCommand) StartQuiz(match matcher.Result, event slack.MessageEvent) 
 
 	c.parseAnswers()
 
-	c.printCurrentQuestion(event)
+	c.printCurrentQuestion(message)
 }
 
-func (c *quizCommand) Answer(match matcher.Result, event slack.MessageEvent) {
+func (c *quizCommand) Answer(match matcher.Result, message msg.Message) {
 	c.quiz.tries++
 
 	answer := match.GetString("answer")
@@ -102,15 +102,15 @@ func (c *quizCommand) Answer(match matcher.Result, event slack.MessageEvent) {
 	}
 
 	if c.getCurrentQuestion().CorrectAnswer == answer {
-		c.slackClient.Reply(event, "correct")
+		c.slackClient.SendMessage(message, "correct")
 		c.quiz.currentQuestion++
 		if c.quiz.currentQuestion == len(c.quiz.Questions) {
-			c.slackClient.Reply(event, fmt.Sprintf("You finished this quiz with %d Questions. You needed %d answers.", len(c.quiz.Questions), c.quiz.tries))
+			c.slackClient.SendMessage(message, fmt.Sprintf("You finished this quiz with %d Questions. You needed %d answers.", len(c.quiz.Questions), c.quiz.tries))
 		} else {
-			c.printCurrentQuestion(event)
+			c.printCurrentQuestion(message)
 		}
 	} else {
-		c.slackClient.Reply(event, "incorrect. try again")
+		c.slackClient.SendMessage(message, "incorrect. try again")
 	}
 }
 
@@ -124,21 +124,22 @@ func (c *quizCommand) parseAnswers() {
 	}
 }
 
-func (c *quizCommand) printCurrentQuestion(event slack.MessageEvent) {
+func (c *quizCommand) printCurrentQuestion(message msg.Message) {
 	question := c.getCurrentQuestion()
-	message := fmt.Sprintf(
+	text := fmt.Sprintf(
 		"Next question (#%d) is of *\"%s\" difficulty* from the category: \"*%s*\"\n",
 		c.quiz.currentQuestion+1,
 		html.UnescapeString(question.Difficulty),
 		html.UnescapeString(question.Category),
 	)
-	message += html.UnescapeString(question.Question) + "\n"
+	text += html.UnescapeString(question.Question) + "\n"
 	for index, answer := range question.Answers {
-		message += fmt.Sprintf("%d.) %s\n", index+1, html.UnescapeString(answer))
+		text += fmt.Sprintf("%d.) %s\n", index+1, html.UnescapeString(answer))
 	}
-	message += ":interrobang: Hint type `answer {number}` to send your answer :interrobang:"
 
-	c.slackClient.Reply(event, message)
+	text += ":interrobang: Hint type `answer {number}` to send your answer :interrobang:"
+
+	c.slackClient.SendMessage(message, text)
 }
 
 func (c *quizCommand) getCurrentQuestion() question {

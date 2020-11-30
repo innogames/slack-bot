@@ -5,10 +5,10 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
 	"github.com/sirupsen/logrus"
-	"github.com/slack-go/slack"
 )
 
 type retryCommand struct {
@@ -36,23 +36,23 @@ func (c *retryCommand) IsEnabled() bool {
 	return c.jenkins != nil
 }
 
-func (c *retryCommand) Run(match matcher.Result, event slack.MessageEvent) {
+func (c *retryCommand) Run(match matcher.Result, message msg.Message) {
 	jobName := match.GetString("job")
 	if _, ok := c.jobs[jobName]; !ok {
-		c.slackClient.ReplyError(event, fmt.Errorf("job *%s* is not whitelisted", jobName))
+		c.slackClient.ReplyError(message, fmt.Errorf("job *%s* is not whitelisted", jobName))
 		return
 	}
 
 	job, err := c.jenkins.GetJob(jobName)
 	if err != nil {
-		c.slackClient.Reply(event, fmt.Sprintf("Job *%s* does not exist", jobName))
+		c.slackClient.SendMessage(message, fmt.Sprintf("Job *%s* does not exist", jobName))
 		return
 	}
 
 	buildNumber := match.GetInt("build")
 	build, err := getBuild(job, buildNumber)
 	if err != nil {
-		c.slackClient.ReplyError(event, fmt.Errorf("given build *%s #%d* does not exist: %s", jobName, buildNumber, err.Error()))
+		c.slackClient.ReplyError(message, fmt.Errorf("given build *%s #%d* does not exist: %s", jobName, buildNumber, err.Error()))
 		return
 	}
 
@@ -61,9 +61,9 @@ func (c *retryCommand) Run(match matcher.Result, event slack.MessageEvent) {
 		parameters[param.Name] = param.Value
 	}
 
-	err = jenkins.TriggerJenkinsJob(c.jobs[jobName], jobName, parameters, c.slackClient, c.jenkins, event, c.logger)
+	err = jenkins.TriggerJenkinsJob(c.jobs[jobName], jobName, parameters, c.slackClient, c.jenkins, message, c.logger)
 	if err != nil {
-		c.slackClient.ReplyError(event, err)
+		c.slackClient.ReplyError(message, err)
 	}
 }
 
@@ -76,7 +76,7 @@ func (c *retryCommand) GetHelp() []bot.Help {
 	var help []bot.Help
 	help = append(help, bot.Help{
 		Command:     "retry job",
-		Description: "restart the most recent jenkins build of the givenn job",
+		Description: "restart the most recent jenkins build of the given job",
 		Examples:    examples,
 		Category:    category,
 	})

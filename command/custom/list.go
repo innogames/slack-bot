@@ -3,13 +3,13 @@ package custom
 import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/slack-go/slack"
+	"github.com/innogames/slack-bot/bot/msg"
 )
 
-func (c command) List(match matcher.Result, event slack.MessageEvent) {
-	list := loadList(event)
+func (c command) List(match matcher.Result, message msg.Message) {
+	list := loadList(message)
 	if len(list) == 0 {
-		c.slackClient.Reply(event, "No commands define yet. Use `add command 'your alias' 'command to execute'`")
+		c.slackClient.SendMessage(message, "No commands define yet. Use `add command 'your alias' 'command to execute'`")
 		return
 	}
 
@@ -18,5 +18,5 @@ func (c command) List(match matcher.Result, event slack.MessageEvent) {
 		responseText += fmt.Sprintf("\n - %s: `%s`", alias, command)
 	}
 
-	c.slackClient.Reply(event, responseText)
+	c.slackClient.SendMessage(message, responseText)
 }

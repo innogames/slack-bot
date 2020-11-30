@@ -1,6 +1,7 @@
 package mocks
 
 import (
+	"github.com/innogames/slack-bot/bot/msg"
 	"net/url"
 	"testing"
 
@@ -9,8 +10,9 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func AssertSlackJSON(t *testing.T, slackClient *SlackClient, event slack.MessageEvent, expected url.Values) {
-	slackClient.On("SendMessage", event, "", mock.MatchedBy(func(option slack.MsgOption) bool {
+// AssertSlackJSON is a test helper to assert full slack attachments
+func AssertSlackJSON(t *testing.T, slackClient *SlackClient, message msg.Message, expected url.Values) {
+	slackClient.On("SendMessage", message, "", mock.MatchedBy(func(option slack.MsgOption) bool {
 		_, values, _ := slack.UnsafeApplyMsgOptions(
 			"token",
 			"channel",

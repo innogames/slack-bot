@@ -2,11 +2,10 @@ package matcher
 
 import (
 	"errors"
-
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 )
 
 // NewAdminMatcher is a wrapper to only executable by a whitelisted admins user
@@ -20,24 +19,24 @@ type adminMatcher struct {
 	slackClient client.SlackClient
 }
 
-func (m adminMatcher) Match(event slack.MessageEvent) (Runner, Result) {
-	run, result := m.matcher.Match(event)
+func (m adminMatcher) Match(message msg.Message) (Runner, Result) {
+	run, result := m.matcher.Match(message)
 	if !result.Matched() {
 		return nil, result
 	}
 
-	if m.admins.Contains(event.User) {
+	if m.admins.Contains(message.User) {
 		// valid admin -> execute the wrapped command
 		return run, result
 	}
 
 	match := MapResult{
-		util.FullMatch: event.Text,
+		util.FullMatch: message.Text,
 	}
 
-	return func(match Result, event slack.MessageEvent) {
+	return func(match Result, message msg.Message) {
 		m.slackClient.ReplyError(
-			event,
+			message,
 			errors.New("sorry, you are no admins and not allowed to execute this command"),
 		)
 	}, match

@@ -1,13 +1,13 @@
 package command
 
 import (
+	"github.com/innogames/slack-bot/bot/msg"
 	"testing"
 
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/sirupsen/logrus"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -24,37 +24,37 @@ func TestHelp(t *testing.T) {
 	help.AddCommand(NewHelpCommand(slackClient, commands))
 
 	t.Run("invalid command", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "no help"
+		message := msg.Message{}
+		message.Text = "no help"
 
-		actual := help.Run(event)
+		actual := help.Run(message)
 		assert.Equal(t, false, actual)
 	})
 
 	t.Run("list all commands", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "help"
+		message := msg.Message{}
+		message.Text = "help"
 
-		slackClient.On("Reply", event, mock.AnythingOfType("string"))
-		actual := help.Run(event)
+		slackClient.On("SendMessage", message, mock.AnythingOfType("string")).Return("")
+		actual := help.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("help for specific command", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "help reply"
+		message := msg.Message{}
+		message.Text = "help reply"
 
-		slackClient.On("Reply", event, "*reply command*:\njust reply the given message\n*Some examples:*\n - reply Hello, how are you?\n")
-		actual := help.Run(event)
+		slackClient.On("SendMessage", message, "*reply command*:\njust reply the given message\n*Some examples:*\n - reply Hello, how are you?\n").Return("")
+		actual := help.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("help for invalid command", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "help sdsadasdasd"
+		message := msg.Message{}
+		message.Text = "help sdsadasdasd"
 
-		slackClient.On("Reply", event, "Invalid command: `sdsadasdasd`")
-		actual := help.Run(event)
+		slackClient.On("SendMessage", message, "Invalid command: `sdsadasdasd`").Return("")
+		actual := help.Run(message)
 		assert.Equal(t, true, actual)
 	})
 }

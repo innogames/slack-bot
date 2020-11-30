@@ -2,8 +2,8 @@ package command
 
 import (
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
@@ -23,55 +23,55 @@ func TestReply(t *testing.T) {
 		}
 
 		for _, text := range texts {
-			event := slack.MessageEvent{}
-			event.Text = text
+			message := msg.Message{}
+			message.Text = text
 
-			actual := command.Run(event)
+			actual := command.Run(message)
 			assert.Equal(t, false, actual)
 		}
 	})
 
 	t.Run("reply without text", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "reply"
+		message := msg.Message{}
+		message.Text = "reply"
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("simple reply", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "reply Test"
+		message := msg.Message{}
+		message.Text = "reply Test"
 
-		slackClient.On("Reply", event, "Test")
-		actual := command.Run(event)
+		slackClient.On("SendMessage", message, "Test").Return("")
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("simple reply case sensitive", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "reply Test"
+		message := msg.Message{}
+		message.Text = "reply Test"
 
-		slackClient.On("SendMessage", event, "Test").Return("")
-		actual := command.Run(event)
+		slackClient.On("SendMessage", message, "Test").Return("")
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("comment without text", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "comment"
+		message := msg.Message{}
+		message.Text = "comment"
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("comment", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "comment test"
-		event.Timestamp = "1234"
+		message := msg.Message{}
+		message.Text = "comment test"
+		message.Timestamp = "1234"
 
-		slackClient.On("SendMessage", event, "test", mock.AnythingOfType("slack.MsgOption")).Return("")
-		actual := command.Run(event)
+		slackClient.On("SendMessage", message, "test", mock.AnythingOfType("slack.MsgOption")).Return("")
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 }

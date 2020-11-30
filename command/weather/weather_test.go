@@ -3,8 +3,8 @@ package weather
 import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
@@ -35,16 +35,16 @@ func TestWeather(t *testing.T) {
 	command.AddCommand(NewWeatherCommand(slackClient, cfg))
 
 	t.Run("Send invalid command", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "I hate the current weather..."
+		message := msg.Message{}
+		message.Text = "I hate the current weather..."
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, false, actual)
 	})
 
 	t.Run("Fetch default weather", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "weather"
+		message := msg.Message{}
+		message.Text = "weather"
 
 		expected := url.Values{}
 		expected.Add("blocks", "["+
@@ -60,9 +60,9 @@ func TestWeather(t *testing.T) {
 			"{\"type\":\"mrkdwn\",\"text\":\"*:night_with_stars: Sunset:* 18:11 :clock11: \"}]}]",
 		)
 
-		mocks.AssertSlackJSON(t, slackClient, event, expected)
+		mocks.AssertSlackJSON(t, slackClient, message, expected)
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 }

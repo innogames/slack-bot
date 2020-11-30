@@ -2,8 +2,8 @@ package command
 
 import (
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -16,36 +16,32 @@ func TestReaction(t *testing.T) {
 	command.AddCommand(reaction)
 
 	t.Run("invalid command", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "i need a reaction"
+		message := msg.Message{}
+		message.Text = "i need a reaction"
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, false, actual)
 	})
 
 	t.Run("add reaction", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "add reaction :test:"
-		event.Channel = "chan"
-		event.Timestamp = "time"
+		message := msg.Message{}
+		message.Text = "add reaction :test:"
+		message.Channel = "chan"
+		message.Timestamp = "time"
 
-		msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
-
-		slackClient.On("AddReaction", "test", msgRef)
-		actual := command.Run(event)
+		slackClient.On("AddReaction", "test", message)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("remove reaction", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "remove reaction :test:"
-		event.Channel = "chan"
-		event.Timestamp = "time"
+		message := msg.Message{}
+		message.Text = "remove reaction :test:"
+		message.Channel = "chan"
+		message.Timestamp = "time"
 
-		msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
-
-		slackClient.On("RemoveReaction", "test", msgRef)
-		actual := command.Run(event)
+		slackClient.On("RemoveReaction", "test", message)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 }

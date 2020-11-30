@@ -20,8 +20,8 @@ func TestQueue(t *testing.T) {
 	client.InternalMessages = make(chan msg.Message, 2)
 	slackClient := &mocks.SlackClient{}
 
-	event := slack.MessageEvent{}
-	event.User = "testUser1"
+	message := msg.Message{}
+	message.User = "testUser1"
 
 	logger, _ := test.NewNullLogger()
 
@@ -30,58 +30,57 @@ func TestQueue(t *testing.T) {
 	command.AddCommand(NewListCommand(slackClient))
 
 	t.Run("Invalid command", func(t *testing.T) {
-		event.Text = "I have a queuedCommand"
-		actual := command.Run(event)
+		message := msg.Message{}
+		actual := command.Run(message)
 		assert.Equal(t, false, actual)
 		assert.Empty(t, client.InternalMessages)
 	})
 
 	t.Run("No command running", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "queue reply test"
+		message := msg.Message{}
+		message.Text = "queue reply test"
 
-		slackClient.On("ReplyError", event, fmt.Errorf("you have to call this command when another long running command is already running")).Return(true)
-		actual := command.Run(event)
+		slackClient.On("ReplyError", message, fmt.Errorf("you have to call this command when another long running command is already running")).Return(true)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 		assert.Empty(t, client.InternalMessages)
 	})
 
 	t.Run("No command from other user running", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "queue reply test"
+		message := msg.Message{}
+		message.Text = "queue reply test"
 
-		AddRunningCommand(slack.MessageEvent{
-			Msg: slack.Msg{
-				User: "testUser2",
-			}},
+		message2 := msg.Message{}
+		message2.User = "testUser2"
+		AddRunningCommand(
+			message2,
 			"",
 		)
 
-		slackClient.On("ReplyError", event, fmt.Errorf("you have to call this command when another long running command is already running")).Return(true)
-		actual := command.Run(event)
+		slackClient.On("ReplyError", message, fmt.Errorf("you have to call this command when another long running command is already running")).Return(true)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 		assert.Empty(t, client.InternalMessages)
 	})
 
 	t.Run("Test queue command", func(t *testing.T) {
 		now := time.Now()
-		event.Timestamp = strconv.Itoa(int(now.Unix()))
-		done := AddRunningCommand(event, "test")
+		message.Timestamp = strconv.Itoa(int(now.Unix()))
+		message.Text = "queue reply test"
+		done := AddRunningCommand(message, "test")
+		msgRef := slack.NewRefToMessage(message.Channel, message.Timestamp)
 
-		msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
+		slackClient.On("AddReaction", waitIcon, message)
+		slackClient.On("AddReaction", doneIcon, message)
+		slackClient.On("RemoveReaction", waitIcon, message)
 
-		slackClient.On("AddReaction", waitIcon, msgRef)
-		slackClient.On("AddReaction", doneIcon, msgRef)
-		slackClient.On("RemoveReaction", waitIcon, msgRef)
-
-		event.Text = "queue reply test"
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 		assert.Empty(t, client.InternalMessages)
 
 		// list queue
-		event.Text = "list queue"
-		slackClient.On("SendMessage", event, "1 queued commands", mock.Anything).Return("")
+		message.Text = "list queue"
+		slackClient.On("SendMessage", mock.Anything, "1 queued commands", mock.Anything).Return("")
 
 		slackClient.On("GetReactions", msgRef, slack.NewGetReactionsParameters()).Return(
 			[]slack.ItemReaction{
@@ -90,22 +89,22 @@ func TestQueue(t *testing.T) {
 			},
 			nil,
 		)
-		actual = command.Run(event)
+		actual = command.Run(message)
 		assert.Equal(t, true, actual)
 
 		// list queue for current channel
-		event.Text = "list queue in channel"
-		slackClient.On("SendMessage", event, "1 queued commands", mock.Anything).Return("")
+		message.Text = "list queue in channel"
+		slackClient.On("SendMessage", mock.Anything, "1 queued commands", mock.Anything).Return("")
 
-		actual = command.Run(event)
+		actual = command.Run(message)
 		assert.Equal(t, true, actual)
 
 		// list queue for other channel
-		event.Text = "list queue in channel"
-		event.Channel = "C1212121"
-		slackClient.On("SendMessage", event, "0 queued commands", mock.Anything).Return("")
+		message.Text = "list queue in channel"
+		message.Channel = "C1212121"
+		slackClient.On("SendMessage", mock.Anything, "0 queued commands", mock.Anything).Return("")
 
-		actual = command.Run(event)
+		actual = command.Run(message)
 		assert.Equal(t, true, actual)
 
 		done <- true
@@ -114,10 +113,11 @@ func TestQueue(t *testing.T) {
 		assert.NotEmpty(t, client.InternalMessages)
 
 		handledEvent := <-client.InternalMessages
-		assert.Equal(t, handledEvent, msg.Message{
-			Timestamp: event.Timestamp,
-			User:      "testUser1",
-			Text:      "reply test",
-		})
+
+		expectedMessage := msg.Message{}
+		expectedMessage.Timestamp = message.Timestamp
+		expectedMessage.User = "testUser1"
+		expectedMessage.Text = "reply test"
+		assert.Equal(t, handledEvent, expectedMessage)
 	})
 }

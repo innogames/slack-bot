@@ -7,7 +7,6 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/sirupsen/logrus"
-	"github.com/slack-go/slack"
 	"time"
 )
 
@@ -33,24 +32,24 @@ func (c *command) GetMatcher() matcher.Matcher {
 	return matcher.NewRegexpMatcher("(?i:queue|then) (?P<command>.*)", c.Run)
 }
 
-func (c *command) Run(match matcher.Result, event slack.MessageEvent) {
-	if !IsBlocked(event) {
+func (c *command) Run(match matcher.Result, message msg.Message) {
+	if !IsBlocked(message) {
 		c.slackClient.ReplyError(
-			event,
+			message,
 			fmt.Errorf("you have to call this command when another long running command is already running"),
 		)
 		return
 	}
 
 	command := match.GetString("command")
-	msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
-	c.slackClient.AddReaction(waitIcon, msgRef)
+	c.slackClient.AddReaction(waitIcon, message)
+
+	key := getKey(message)
 
 	go func() {
-		// todo avoid polling here by another chan etc + make thread safe
+		// todo avoid polling here by another chan etc
 		ticker := time.NewTicker(time.Millisecond * 250)
 		defer ticker.Stop()
-		key := getKey(event)
 
 		for range ticker.C {
 			mu.RLock()
@@ -61,14 +60,12 @@ func (c *command) Run(match matcher.Result, event slack.MessageEvent) {
 				continue
 			}
 			mu.RUnlock()
-			c.slackClient.AddReaction(doneIcon, msgRef)
+			c.slackClient.AddReaction(doneIcon, message)
 
 			// trigger new command
-			newMessage := event
-			newMessage.Text = command
-			client.InternalMessages <- msg.FromSlackEvent(newMessage)
+			client.InternalMessages <- message.WithText(command)
 
-			c.logger.Infof("[Queue] Blocking command is over, eval newMessage: %s", newMessage.Text)
+			c.logger.Infof("[Queue] Blocking command is over, eval newMessage: %s", command)
 			return
 		}
 	}()

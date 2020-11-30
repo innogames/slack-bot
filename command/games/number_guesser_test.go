@@ -3,8 +3,8 @@ package games
 import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -21,36 +21,36 @@ func TestNumberGuesser(t *testing.T) {
 		assert.Equal(t, 0, len(gameCommand.games))
 
 		// start the game
-		event := slack.MessageEvent{}
-		event.Text = "start number guesser"
-		slackClient.On("Reply", event, fmt.Sprintf("I chose a number between 0 an %d. Good luck! Use `guess number XX`", maxNumber))
-		actual := commands.Run(event)
+		message := msg.Message{}
+		message.Text = "start number guesser"
+		slackClient.On("SendMessage", message, fmt.Sprintf("I chose a number between 0 an %d. Good luck! Use `guess number XX`", maxNumber)).Return("")
+		actual := commands.Run(message)
 		assert.Equal(t, true, actual)
 		assert.Equal(t, 1, len(gameCommand.games))
 
-		game := gameCommand.games[event.User]
+		game := gameCommand.games[message.User]
 		assert.True(t, game.randomNumber >= 0)
 		assert.True(t, game.randomNumber <= maxNumber)
 		assert.Equal(t, 0, game.tries)
 
 		// too low number
-		event.Text = fmt.Sprintf("guess number %d", game.randomNumber-1)
-		slackClient.On("Reply", event, "Higher :arrow_up_small:")
-		actual = commands.Run(event)
+		message.Text = fmt.Sprintf("guess number %d", game.randomNumber-1)
+		slackClient.On("SendMessage", message, "Higher :arrow_up_small:").Return("")
+		actual = commands.Run(message)
 		assert.Equal(t, true, actual)
 		assert.Equal(t, 1, game.tries)
 
 		// too high number
-		event.Text = fmt.Sprintf("guess number %d", game.randomNumber+1)
-		slackClient.On("Reply", event, "Lower :arrow_down_small:")
-		actual = commands.Run(event)
+		message.Text = fmt.Sprintf("guess number %d", game.randomNumber+1)
+		slackClient.On("SendMessage", message, "Lower :arrow_down_small:").Return("")
+		actual = commands.Run(message)
 		assert.Equal(t, true, actual)
 		assert.Equal(t, 2, game.tries)
 
 		// bingo! -> win message + remove game
-		event.Text = fmt.Sprintf("guess number %d", game.randomNumber)
-		slackClient.On("Reply", event, "Wow! you got it in 3 tries :beers:")
-		actual = commands.Run(event)
+		message.Text = fmt.Sprintf("guess number %d", game.randomNumber)
+		slackClient.On("SendMessage", message, "Wow! you got it in 3 tries :beers:").Return("")
+		actual = commands.Run(message)
 		assert.Equal(t, true, actual)
 		assert.Equal(t, 0, len(gameCommand.games))
 	})
@@ -59,30 +59,30 @@ func TestNumberGuesser(t *testing.T) {
 		assert.Equal(t, 0, len(gameCommand.games))
 
 		// guess without running game -> error message
-		event := slack.MessageEvent{}
-		event.Text = "guess number 100"
-		slackClient.On("Reply", event, "There is no game running. Use `start number guesser`")
-		actual := commands.Run(event)
+		message := msg.Message{}
+		message.Text = "guess number 100"
+		slackClient.On("SendMessage", message, "There is no game running. Use `start number guesser`").Return("")
+		actual := commands.Run(message)
 		assert.Equal(t, true, actual)
 
 		// start the game
-		event = slack.MessageEvent{}
-		event.Text = "start number guesser"
-		slackClient.On("Reply", event, fmt.Sprintf("I chose a number between 0 an %d. Good luck! Use `guess number XX`", maxNumber))
-		actual = commands.Run(event)
+		message = msg.Message{}
+		message.Text = "start number guesser"
+		slackClient.On("SendMessage", message, fmt.Sprintf("I chose a number between 0 an %d. Good luck! Use `guess number XX`", maxNumber)).Return("")
+		actual = commands.Run(message)
 		assert.Equal(t, true, actual)
 		assert.Equal(t, 1, len(gameCommand.games))
 
-		game := gameCommand.games[event.User]
+		game := gameCommand.games[message.User]
 		assert.True(t, game.randomNumber >= 0)
 		assert.True(t, game.randomNumber <= maxNumber)
 		assert.Equal(t, 0, game.tries)
 
 		// start the game again -> error
-		event = slack.MessageEvent{}
-		event.Text = "start number guesser"
-		slackClient.On("Reply", event, "There is already a game :smile: use `guess number XX` instead")
-		actual = commands.Run(event)
+		message = msg.Message{}
+		message.Text = "start number guesser"
+		slackClient.On("SendMessage", message, "There is already a game :smile: use `guess number XX` instead").Return("")
+		actual = commands.Run(message)
 		assert.Equal(t, true, actual)
 		assert.Equal(t, 1, len(gameCommand.games))
 	})

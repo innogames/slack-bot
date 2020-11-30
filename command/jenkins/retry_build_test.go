@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/sirupsen/logrus"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -33,30 +33,30 @@ func TestJenkinsRetry(t *testing.T) {
 	command.AddCommand(newRetryCommand(jenkins, &slackClient, cfg, logger))
 
 	t.Run("Test invalid command", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "retry"
+		message := msg.Message{}
+		message.Text = "retry"
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, false, actual)
 	})
 
 	t.Run("Retry not existing job", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "retry job NotExisting #3"
+		message := msg.Message{}
+		message.Text = "retry job NotExisting #3"
 
-		slackClient.On("ReplyError", event, fmt.Errorf("job *NotExisting* is not whitelisted")).Return(true)
-		actual := command.Run(event)
+		slackClient.On("ReplyError", message, fmt.Errorf("job *NotExisting* is not whitelisted")).Return(true)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("Retry not existing job", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "retry job TestJob #3"
+		message := msg.Message{}
+		message.Text = "retry job TestJob #3"
 
-		slackClient.On("Reply", event, "Job *TestJob* does not exist")
+		slackClient.On("SendMessage", message, "Job *TestJob* does not exist").Return("")
 
 		jenkins.On("GetJob", "TestJob").Return(nil, fmt.Errorf(""))
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 }

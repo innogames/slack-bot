@@ -3,9 +3,9 @@ package pullrequest
 import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/sirupsen/logrus"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -20,10 +20,10 @@ func TestBitbucket(t *testing.T) {
 	command.AddCommand(cmd)
 
 	t.Run("invalid command", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "quatsch"
+		message := msg.Message{}
+		message.Text = "quatsch"
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, false, actual)
 	})
 }

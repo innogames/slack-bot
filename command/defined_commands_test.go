@@ -7,7 +7,6 @@ import (
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/sirupsen/logrus"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -32,10 +31,10 @@ func TestInvalidMacro(t *testing.T) {
 	command.AddCommand(NewCommands(slackClient, cfg, logger))
 
 	t.Run("invalid command", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "start foo"
+		message := msg.Message{}
+		message.Text = "start foo"
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, false, actual)
 	})
 }
@@ -60,19 +59,19 @@ func TestMacro(t *testing.T) {
 	command.AddCommand(NewCommands(slackClient, cfg, logger))
 
 	t.Run("invalid macro", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "commandHelp quatsch"
+		message := msg.Message{}
+		message.Text = "commandHelp quatsch"
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, false, actual)
 	})
 
 	t.Run("test util", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "start test"
+		message := msg.Message{}
+		message.Text = "start test"
 
 		assert.Empty(t, client.InternalMessages)
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 		assert.NotEmpty(t, client.InternalMessages)
 

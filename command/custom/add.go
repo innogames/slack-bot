@@ -3,19 +3,19 @@ package custom
 import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/slack-go/slack"
+	"github.com/innogames/slack-bot/bot/msg"
 )
 
-func (c command) Add(match matcher.Result, event slack.MessageEvent) {
+func (c command) Add(match matcher.Result, message msg.Message) {
 	alias := match.GetString("alias")
 	command := match.GetString("command")
 
-	list := loadList(event)
+	list := loadList(message)
 	list[alias] = command
-	storeList(event, list)
+	storeList(message, list)
 
-	c.slackClient.Reply(
-		event,
+	c.slackClient.SendMessage(
+		message,
 		fmt.Sprintf("Added command: `%s`. Just use `%s` in future.", command, alias),
 	)
 }

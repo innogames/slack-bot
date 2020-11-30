@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/sirupsen/logrus"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
@@ -49,90 +49,90 @@ func TestJenkinsTrigger(t *testing.T) {
 	})
 
 	t.Run("Trigger not existing job", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "trigger job NotExisting"
+		message := msg.Message{}
+		message.Text = "trigger job NotExisting"
 
-		slackClient.On("Reply", event, "Sorry, job *NotExisting* is not startable. Possible jobs: \n - *Prefix/Test* \n - *TestJob* \n - *TestJobWithTrigger* \n - *TestJobWithoutTrigger*")
-		actual := command.Run(event)
+		slackClient.On("SendMessage", message, "Sorry, job *NotExisting* is not startable. Possible jobs: \n - *Prefix/Test* \n - *TestJob* \n - *TestJobWithTrigger* \n - *TestJobWithoutTrigger*").Return("")
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("Not enough parameters", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "trigger job TestJob"
+		message := msg.Message{}
+		message.Text = "trigger job TestJob"
 
-		slackClient.On("ReplyError", event, fmt.Errorf("sorry, you have to pass 1 parameters (PARAM1)"))
-		actual := command.Run(event)
+		slackClient.On("ReplyError", message, fmt.Errorf("sorry, you have to pass 1 parameters (PARAM1)")).Return("")
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("matched trigger, but not all parameters provided", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "start test job"
+		message := msg.Message{}
+		message.Text = "start test job"
 
-		slackClient.On("ReplyError", event, fmt.Errorf("sorry, you have to pass 1 parameters (PARAM1)"))
-		actual := command.Run(event)
+		slackClient.On("ReplyError", message, fmt.Errorf("sorry, you have to pass 1 parameters (PARAM1)")).Return("")
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("matched prefixed trigger, but not all parameters provided", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "trigger job Prefix/Test"
+		message := msg.Message{}
+		message.Text = "trigger job Prefix/Test"
 
-		slackClient.On("ReplyError", event, fmt.Errorf("sorry, you have to pass 1 parameters (PARAM1)"))
-		actual := command.Run(event)
+		slackClient.On("ReplyError", message, fmt.Errorf("sorry, you have to pass 1 parameters (PARAM1)")).Return("")
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("generic trigger", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "trigger job TestJob foo"
+		message := msg.Message{}
+		message.Text = "trigger job TestJob foo"
 
 		slackClient.On(
 			"AddReaction",
 			"coffee",
-			slack.NewRefToMessage(event.Channel, event.Timestamp),
+			message,
 		)
 
 		slackClient.On(
 			"ReplyError",
-			event,
+			message,
 			mock.Anything,
 		)
 
 		jenkinsClient.On("GetJob", "TestJob").Return(nil, errors.New("404"))
-		actual := command.Run(event)
+		actual := command.Run(message)
 
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("custom trigger", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "just do it"
+		message := msg.Message{}
+		message.Text = "just do it"
 
 		slackClient.On(
 			"AddReaction",
 			"coffee",
-			slack.NewRefToMessage(event.Channel, event.Timestamp),
+			message,
 		)
 
 		slackClient.On(
 			"ReplyError",
-			event,
+			message,
 			mock.Anything,
 		)
 
 		jenkinsClient.On("GetJob", "TestJobWithTrigger").Return(nil, errors.New("404"))
-		actual := command.Run(event)
+		actual := command.Run(message)
 
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("No trigger found...do nothing", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "start foo job"
+		message := msg.Message{}
+		message.Text = "start foo job"
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, false, actual)
 	})
 }

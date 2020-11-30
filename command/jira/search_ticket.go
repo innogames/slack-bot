@@ -6,6 +6,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/slack-go/slack"
 	"net/url"
@@ -45,19 +46,19 @@ func (c *jiraCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *jiraCommand) Run(match matcher.Result, event slack.MessageEvent) {
+func (c *jiraCommand) Run(match matcher.Result, message msg.Message) {
 	eventText := match.GetString("text")
 	ticketNumber := c.getTicketNumber(eventText)
 	action := match.GetString("action")
 
 	if ticketNumber != "" {
-		issue, response, err := c.jira.Issue.Get(ticketNumber, nil)
-		if response == nil || response.StatusCode > 400 {
-			c.slackClient.Reply(event, err.Error())
+		issue, _, err := c.jira.Issue.Get(ticketNumber, nil)
+		if err != nil {
+			c.slackClient.SendMessage(message, err.Error())
 			return
 		}
 
-		c.sendTicket(event, issue, action)
+		c.sendTicket(message, issue, action)
 		return
 	}
 
@@ -75,7 +76,7 @@ func (c *jiraCommand) Run(match matcher.Result, event slack.MessageEvent) {
 		jql = fmt.Sprintf("project = %s AND text ~ '%s' ORDER BY priority DESC", defaultProject, eventText)
 	}
 
-	c.jqlList(event, jql)
+	c.jqlList(message, jql)
 }
 
 // "1234" -> PROJ-1234
@@ -91,32 +92,29 @@ func (c *jiraCommand) getTicketNumber(eventText string) string {
 	return ticketNumber
 }
 
-func (c *jiraCommand) sendTicket(event slack.MessageEvent, issue *jira.Issue, format string) {
+func (c *jiraCommand) sendTicket(ref msg.Ref, issue *jira.Issue, format string) {
 	if format == FormatLink {
 		text := fmt.Sprintf("<%s|%s: %s>", getTicketURL(c.config, *issue), issue.Key, issue.Fields.Summary)
-		c.slackClient.Reply(event, text)
+		c.slackClient.SendMessage(ref, text)
 		return
 	}
 
-	var fields []slack.AttachmentField
-	// ineff?!
-	fields = append(
-		fields,
-		slack.AttachmentField{
+	fields := []slack.AttachmentField{
+		{
 			Title: "Name",
 			Value: fmt.Sprintf("%s: %s", getFormattedURL(c.config, *issue), issue.Fields.Summary),
 		},
-		slack.AttachmentField{
+		{
 			Title: "Priority",
 			Value: c.getField("Priority", issue.Fields.Priority.Name),
 			Short: true,
 		},
-		slack.AttachmentField{
+		{
 			Title: "Type",
 			Value: c.getField("Type", issue.Fields.Type.Name),
 			Short: true,
 		},
-	)
+	}
 
 	if issue.Fields.Assignee != nil {
 		fields = append(fields, slack.AttachmentField{
@@ -174,7 +172,7 @@ func (c *jiraCommand) sendTicket(event slack.MessageEvent, issue *jira.Issue, fo
 		},
 	}
 
-	c.slackClient.SendMessage(event, "", slack.MsgOptionAttachments(attachment))
+	c.slackClient.SendMessage(ref, "", slack.MsgOptionAttachments(attachment))
 }
 
 // get the name of the field and the mapped icon (if configured)
@@ -191,17 +189,17 @@ func (c *jiraCommand) getField(fieldType string, name string) string {
 	return name
 }
 
-func (c *jiraCommand) jqlList(event slack.MessageEvent, jql string) {
+func (c *jiraCommand) jqlList(message msg.Message, jql string) {
 	search := &url.URL{Path: jql}
 
 	tickets, _, err := c.jira.Issue.Search(jql, nil)
 	if err != nil {
-		c.slackClient.Reply(event, err.Error())
+		c.slackClient.SendMessage(message, err.Error())
 		return
 	}
 
 	if len(tickets) == 1 {
-		c.sendTicket(event, &tickets[0], FormatDefault)
+		c.sendTicket(message, &tickets[0], FormatDefault)
 		return
 	}
 
@@ -228,7 +226,7 @@ func (c *jiraCommand) jqlList(event slack.MessageEvent, jql string) {
 		client.GetSlackLink("Search in Jira", searchLink),
 	)
 
-	c.slackClient.SendMessage(event, text, slack.MsgOptionAttachments(attachment))
+	c.slackClient.SendMessage(message, text, slack.MsgOptionAttachments(attachment))
 }
 
 func (c *jiraCommand) GetHelp() []bot.Help {

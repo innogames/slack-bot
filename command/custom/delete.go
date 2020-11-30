@@ -3,15 +3,15 @@ package custom
 import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/slack-go/slack"
+	msg "github.com/innogames/slack-bot/bot/msg"
 )
 
-func (c command) Delete(match matcher.Result, event slack.MessageEvent) {
+func (c command) Delete(match matcher.Result, message msg.Message) {
 	alias := match.GetString("alias")
 
-	list := loadList(event)
+	list := loadList(message)
 	delete(list, alias)
-	storeList(event, list)
+	storeList(message, list)
 
-	c.slackClient.Reply(event, fmt.Sprintf("Okay, I deleted command: `%s`", alias))
+	c.slackClient.SendMessage(message, fmt.Sprintf("Okay, I deleted command: `%s`", alias))
 }

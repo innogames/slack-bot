@@ -6,6 +6,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/pkg/errors"
 	"github.com/slack-go/slack"
@@ -37,7 +38,7 @@ func (c *command) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *command) GetWeather(match matcher.Result, event slack.MessageEvent) {
+func (c *command) GetWeather(match matcher.Result, message msg.Message) {
 	location := match.GetString("location")
 	if location == "" {
 		location = c.cfg.Location
@@ -53,12 +54,12 @@ func (c *command) GetWeather(match matcher.Result, event slack.MessageEvent) {
 
 	response, err := http.Get(apiURL)
 	if err != nil {
-		c.slackClient.ReplyError(event, errors.Wrap(err, "Api call returned an err"))
+		c.slackClient.ReplyError(message, errors.Wrap(err, "Api call returned an err"))
 		return
 	}
 
 	if response.StatusCode >= 300 {
-		c.slackClient.Reply(event, fmt.Sprintf("Api call returned an err: %d", response.StatusCode))
+		c.slackClient.SendMessage(message, fmt.Sprintf("Api call returned an err: %d", response.StatusCode))
 		return
 	}
 
@@ -66,7 +67,7 @@ func (c *command) GetWeather(match matcher.Result, event slack.MessageEvent) {
 	err = json.NewDecoder(response.Body).Decode(&record)
 	response.Body.Close()
 	if err != nil {
-		c.slackClient.ReplyError(event, err)
+		c.slackClient.ReplyError(message, err)
 		return
 	}
 
@@ -116,7 +117,7 @@ func (c *command) GetWeather(match matcher.Result, event slack.MessageEvent) {
 		sections = append(sections, slack.NewSectionBlock(nil, textBlocks, nil))
 	}
 
-	c.slackClient.SendMessage(event, "", slack.MsgOptionBlocks(sections...))
+	c.slackClient.SendMessage(message, "", slack.MsgOptionBlocks(sections...))
 }
 
 func timestampToTime(timestamp int) string {

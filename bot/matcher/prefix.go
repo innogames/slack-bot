@@ -1,8 +1,8 @@
 package matcher
 
 import (
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
-	"github.com/slack-go/slack"
 	"strings"
 )
 
@@ -23,11 +23,11 @@ type prefixMatcher struct {
 	run           Runner
 }
 
-func (m prefixMatcher) Match(event slack.MessageEvent) (Runner, Result) {
+func (m prefixMatcher) Match(message msg.Message) (Runner, Result) {
 	var match MapResult
 
-	if strings.HasPrefix(strings.ToLower(event.Text), m.loweredPrefix) {
-		suffix := event.Text[len(m.loweredPrefix):]
+	if strings.HasPrefix(strings.ToLower(message.Text), m.loweredPrefix) {
+		suffix := message.Text[len(m.loweredPrefix):]
 		// avoid matching "randomness" if prefix is "random"
 		if len(suffix) > 0 && suffix[0] != ' ' {
 			return nil, match

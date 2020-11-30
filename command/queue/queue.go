@@ -3,10 +3,8 @@ package queue
 import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/storage"
-	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/sirupsen/logrus"
-	"github.com/slack-go/slack"
 	"strings"
 	"sync"
 )
@@ -18,7 +16,7 @@ const (
 )
 
 var logger *logrus.Logger
-var runningCommands = map[string]slack.MessageEvent{}
+var runningCommands = map[string]msg.Message{}
 var mu sync.RWMutex
 
 // AddRunningCommand registers a long running command, e.g. a running Jenkins job or watching a pull request
@@ -27,26 +25,27 @@ var mu sync.RWMutex
 // - when the server got restarted, the fallbackCommand gets executed
 // todo add a kill chan to kill long running command via command
 // todo improve locking
-func AddRunningCommand(event slack.MessageEvent, fallbackCommand string) chan bool {
+func AddRunningCommand(message msg.Message, fallbackCommand string) chan bool {
 	var queueKey string
 
 	if fallbackCommand != "" {
-		event.Text = fallbackCommand
+		message.Text = fallbackCommand
 
-		queueKey = strings.ReplaceAll(event.Timestamp, ".", "") + "-" + util.GetFullEventKey(event)
-		storage.Write(storageKey, queueKey, event)
+		// add timestamp to the key to have a fix sorting by time
+		queueKey = strings.ReplaceAll(message.Timestamp, ".", "") + "-" + message.GetUniqueKey()
+		storage.Write(storageKey, queueKey, message)
 	}
 
 	if logger != nil {
-		logger.Infof("add a blocking process: %s", event.Text)
+		logger.Infof("add a blocking process: %s", message.GetText())
 	}
 
-	key := getKey(event)
+	key := getKey(message)
 
 	mu.Lock()
 	defer mu.Unlock()
 
-	runningCommands[key] = event
+	runningCommands[key] = message
 
 	finished := make(chan bool, 1)
 
@@ -69,8 +68,8 @@ func AddRunningCommand(event slack.MessageEvent, fallbackCommand string) chan bo
 }
 
 // IsBlocked checks if there is a blocking command registered for this user/channel
-func IsBlocked(event slack.MessageEvent) bool {
-	_, ok := runningCommands[getKey(event)]
+func IsBlocked(ref msg.Ref) bool {
+	_, ok := runningCommands[getKey(ref)]
 
 	return ok
 }
@@ -83,7 +82,7 @@ func CountCurrentJobs() int {
 func executeFallbackCommand(logger *logrus.Logger) {
 	keys, _ := storage.GetKeys(storageKey)
 
-	var event slack.MessageEvent
+	var event msg.Message
 	for _, key := range keys {
 		if err := storage.Read(storageKey, key, &event); err != nil {
 			logger.Errorf("[Queue] Not unmarshalable: %s", err)
@@ -91,14 +90,12 @@ func executeFallbackCommand(logger *logrus.Logger) {
 		}
 
 		logger.Infof("[Queue] Booted! I'll trigger this command now: `%s`", event.Text)
-		client.InternalMessages <- msg.FromSlackEvent(event)
+		client.InternalMessages <- event
 	}
 
-	if err := storage.DeleteCollection(storageKey); err != nil {
-		logger.Infof("[Queue] Can't delete event: %s, %s", event.Text, err)
-	}
+	storage.DeleteCollection(storageKey)
 }
 
-func getKey(event slack.MessageEvent) string {
-	return event.User + event.Channel
+func getKey(ref msg.Ref) string {
+	return ref.GetUser() + ref.GetChannel()
 }

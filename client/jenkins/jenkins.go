@@ -8,7 +8,6 @@ import (
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 )
 
 const (
@@ -61,7 +60,7 @@ func WatchBuild(build *gojenkins.Build) <-chan JobResult {
 	return resultChan
 }
 
-func processHooks(commands []string, event slack.MessageEvent, params map[string]string) {
+func processHooks(commands []string, ref msg.Ref, params map[string]string) {
 	for _, command := range commands {
 		temp, err := util.CompileTemplate(command)
 		if err != nil {
@@ -69,8 +68,6 @@ func processHooks(commands []string, event slack.MessageEvent, params map[string
 			continue
 		}
 		text, _ := util.EvalTemplate(temp, params)
-
-		event.Text = text
-		client.InternalMessages <- msg.FromSlackEvent(event)
+		client.InternalMessages <- ref.WithText(text)
 	}
 }

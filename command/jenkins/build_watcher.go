@@ -2,16 +2,16 @@ package jenkins
 
 import (
 	"fmt"
-	"time"
-
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
 	"github.com/innogames/slack-bot/command/queue"
 	"github.com/slack-go/slack"
+	"time"
 )
 
 type buildWatcherCommand struct {
@@ -32,38 +32,37 @@ func (c *buildWatcherCommand) IsEnabled() bool {
 	return c.jenkins != nil
 }
 
-func (c *buildWatcherCommand) Run(match matcher.Result, event slack.MessageEvent) {
+func (c *buildWatcherCommand) Run(match matcher.Result, message msg.Message) {
 	jobName := match.GetString("job")
 	buildNumber := match.GetInt("build")
 
 	job, err := c.jenkins.GetJob(jobName)
 	if err != nil {
-		c.slackClient.Reply(event, fmt.Sprintf("Job *%s* does not exist", jobName))
+		c.slackClient.SendMessage(message, fmt.Sprintf("Job *%s* does not exist", jobName))
 		return
 	}
 
 	build, err := getBuild(job, buildNumber)
 	if err != nil {
-		c.slackClient.ReplyError(event, err)
+		c.slackClient.ReplyError(message, err)
 		return
 	}
 
 	if !build.Raw.Building {
-		c.slackClient.Reply(event, fmt.Sprintf("No job for *%s* is running right now", jobName))
+		c.slackClient.SendMessage(message, fmt.Sprintf("No job for *%s* is running right now", jobName))
 		return
 	}
 
-	msg := fmt.Sprintf(
+	text := fmt.Sprintf(
 		"Okay, I'll inform you when the job %s #%s is done",
 		jobName,
 		build.Info().ID,
 	)
-	attachment := jenkins.GetAttachment(build, msg)
-	msgTimestamp := c.slackClient.SendMessage(event, "", attachment)
-	newMsgRef := slack.NewRefToMessage(event.Channel, msgTimestamp)
+	attachment := jenkins.GetAttachment(build, text)
+	msgTimestamp := c.slackClient.SendMessage(message, "", attachment)
 
 	done := queue.AddRunningCommand(
-		event,
+		message,
 		fmt.Sprintf("inform job %s #%d", jobName, build.GetBuildNumber()),
 	)
 	go func() {
@@ -71,23 +70,23 @@ func (c *buildWatcherCommand) Run(match matcher.Result, event slack.MessageEvent
 		done <- true
 
 		c.slackClient.SendMessage(
-			event,
+			message,
 			"",
 			slack.MsgOptionUpdate(msgTimestamp),
-			jenkins.GetAttachment(build, msg),
+			jenkins.GetAttachment(build, text),
 		)
 
-		c.slackClient.RemoveReaction(jenkins.IconRunning, newMsgRef)
+		c.slackClient.RemoveReaction(jenkins.IconRunning, message)
 		if build.IsGood() {
-			c.slackClient.AddReaction(jenkins.IconSuccess, newMsgRef)
+			c.slackClient.AddReaction(jenkins.IconSuccess, message)
 		} else {
-			c.slackClient.AddReaction(jenkins.IconFailed, newMsgRef)
+			c.slackClient.AddReaction(jenkins.IconFailed, message)
 		}
 
 		duration := time.Duration(build.GetDuration()) * time.Millisecond
-		c.slackClient.Reply(event, fmt.Sprintf(
+		c.slackClient.SendMessage(message, fmt.Sprintf(
 			"<@%s> *%s*: %s #%s: %s in %s",
-			event.User,
+			message.User,
 			build.GetResult(),
 			jobName,
 			build.Info().ID,

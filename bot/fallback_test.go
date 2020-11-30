@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"github.com/innogames/slack-bot/bot/msg"
 	"testing"
 
 	"github.com/innogames/slack-bot/bot/matcher"
@@ -54,16 +55,16 @@ func TestFallback(t *testing.T) {
 	bot.commands = commands
 
 	t.Run("getBestMatchingHelp", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "delay"
+		message := msg.Message{}
+		message.Text = "delay"
 
 		actual := getBestMatchingHelp(bot, "reply")
 		assert.Equal(t, "delay", actual.Command)
 	})
 
 	t.Run("getBestMatchingHelpWithoutAlternative", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "djasiodsadUFBUẞFif"
+		message := msg.Message{}
+		message.Text = "djasiodsadUFBUẞFif"
 
 		actual := getBestMatchingHelp(bot, "reply")
 		assert.Equal(t, "delay", actual.Command)

@@ -5,8 +5,8 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 	"os"
 	"strings"
 )
@@ -34,14 +34,14 @@ func (c *botLogCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *botLogCommand) Run(match matcher.Result, event slack.MessageEvent) {
+func (c *botLogCommand) Run(match matcher.Result, message msg.Message) {
 	log := c.readFile(c.cfg.Logger.File, logChars)
 	parts := strings.SplitN(string(log), "\n", 2)
 	if len(parts) <= 1 {
-		c.slackClient.Reply(event, "No logs so far")
+		c.slackClient.SendMessage(message, "No logs so far")
 		return
 	}
-	c.slackClient.Reply(event, fmt.Sprintf("The most recent messages:\n```%s```", parts[1]))
+	c.slackClient.SendMessage(message, fmt.Sprintf("The most recent messages:\n```%s```", parts[1]))
 }
 
 func (c *botLogCommand) GetHelp() []bot.Help {

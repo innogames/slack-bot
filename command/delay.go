@@ -9,7 +9,6 @@ import (
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
-	"github.com/slack-go/slack"
 	"sync"
 	"time"
 )
@@ -32,21 +31,20 @@ func (c *delayCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *delayCommand) Delay(match matcher.Result, event slack.MessageEvent) {
+func (c *delayCommand) Delay(match matcher.Result, message msg.Message) {
 	delay, err := util.ParseDuration(match.GetString("delay"))
 	if err != nil {
-		c.slackClient.Reply(event, "Invalid duration: "+err.Error())
+		c.slackClient.SendMessage(message, "Invalid duration: "+err.Error())
 		return
 	}
 
 	quietMode := match.GetString("quiet") != ""
 	command := match.GetString("command")
-
 	timer := time.NewTimer(delay)
 	c.timers = append(c.timers, timer)
 
 	if !quietMode {
-		c.slackClient.Reply(event, fmt.Sprintf(
+		c.slackClient.SendMessage(message, fmt.Sprintf(
 			"I queued the command `%s` for %s. Use `stop timer %d` to stop the timer",
 			command,
 			delay,
@@ -54,19 +52,17 @@ func (c *delayCommand) Delay(match matcher.Result, event slack.MessageEvent) {
 		))
 	}
 
-	done := queue.AddRunningCommand(event, "")
+	done := queue.AddRunningCommand(message, "")
 
 	go func() {
 		<-timer.C // todo abort here when it was aborted + more random stop key
 		done <- true
 
-		newMessage := event
-		newMessage.Text = command
-		client.InternalMessages <- msg.FromSlackEvent(newMessage)
+		client.InternalMessages <- message.WithText(command)
 	}()
 }
 
-func (c *delayCommand) Stop(match matcher.Result, event slack.MessageEvent) {
+func (c *delayCommand) Stop(match matcher.Result, message msg.Message) {
 	// avoid racing conditions when it's used multiple times in parallel
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -75,9 +71,9 @@ func (c *delayCommand) Stop(match matcher.Result, event slack.MessageEvent) {
 	if timerNr < len(c.timers) && c.timers[timerNr] != nil {
 		c.timers[timerNr].Stop()
 		c.timers[timerNr] = nil
-		c.slackClient.Reply(event, "Stopped timer!")
+		c.slackClient.SendMessage(message, "Stopped timer!")
 	} else {
-		c.slackClient.ReplyError(event, errors.New("invalid timer"))
+		c.slackClient.ReplyError(message, errors.New("invalid timer"))
 	}
 }
 
