@@ -5,11 +5,11 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
 	"github.com/sirupsen/logrus"
-	"github.com/slack-go/slack"
 	"regexp"
 	"sort"
 	"strings"
@@ -60,19 +60,20 @@ func (c *triggerCommand) GetMatcher() matcher.Matcher {
 }
 
 // e.g. triggered by "trigger job DeployBranch master de3"
-func (c *triggerCommand) GenericCall(match matcher.Result, event slack.MessageEvent) {
+func (c *triggerCommand) GenericCall(match matcher.Result, message msg.Message) {
 	jobName := match.GetString("job")
 	if _, ok := c.jobs[jobName]; !ok {
 		if len(c.jobs) == 0 {
-			c.slackClient.Reply(event, "no job defined in config->jira->jobs")
+			c.slackClient.SendMessage(message, "no job defined in config->jira->jobs")
 			return
 		}
-		message := fmt.Sprintf(
+
+		text := fmt.Sprintf(
 			"Sorry, job *%s* is not startable. Possible jobs: \n - *%s*",
 			jobName,
 			strings.Join(c.getAllowedJobNames(), "* \n - *"),
 		)
-		c.slackClient.Reply(event, message)
+		c.slackClient.SendMessage(message, text)
 		return
 	}
 
@@ -82,42 +83,42 @@ func (c *triggerCommand) GenericCall(match matcher.Result, event slack.MessageEv
 	finalParameters := make(jenkins.Parameters)
 	err := jenkins.ParseParameters(jobConfig.config, parameterString, finalParameters)
 	if err != nil {
-		c.slackClient.ReplyError(event, err)
+		c.slackClient.ReplyError(message, err)
 		return
 	}
 
-	err = jenkins.TriggerJenkinsJob(jobConfig.config, jobName, finalParameters, c.slackClient, c.jenkins, event, c.logger)
+	err = jenkins.TriggerJenkinsJob(jobConfig.config, jobName, finalParameters, c.slackClient, c.jenkins, message, c.logger)
 	if err != nil {
-		c.slackClient.ReplyError(event, err)
+		c.slackClient.ReplyError(message, err)
 		return
 	}
 }
 
 // check trigger defined in Jenkins.Jobs.*.Trigger
-func (c *triggerCommand) ConfigTrigger(event slack.MessageEvent) bool {
+func (c *triggerCommand) ConfigTrigger(ref msg.Ref, text string) bool {
 	// start jobs via trigger condition
 	for jobName, jobConfig := range c.jobs {
 		if jobConfig.trigger == nil {
 			continue
 		}
 
-		match := jobConfig.trigger.FindStringSubmatch(event.Text)
+		match := jobConfig.trigger.FindStringSubmatch(text)
 		if len(match) == 0 {
 			continue
 		}
 
-		parameters := jobConfig.trigger.ReplaceAllString(event.Text, "")
+		parameters := jobConfig.trigger.ReplaceAllString(text, "")
 		jobParams := util.RegexpResultToParams(jobConfig.trigger, match)
 
 		err := jenkins.ParseParameters(jobConfig.config, parameters, jobParams)
 		if err != nil {
-			c.slackClient.ReplyError(event, err)
+			c.slackClient.ReplyError(ref, err)
 			return true
 		}
 
-		err = jenkins.TriggerJenkinsJob(jobConfig.config, jobName, jobParams, c.slackClient, c.jenkins, event, c.logger)
+		err = jenkins.TriggerJenkinsJob(jobConfig.config, jobName, jobParams, c.slackClient, c.jenkins, ref.WithText(text), c.logger)
 		if err != nil {
-			c.slackClient.ReplyError(event, err)
+			c.slackClient.ReplyError(ref, err)
 		}
 
 		return true

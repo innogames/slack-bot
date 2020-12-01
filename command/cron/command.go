@@ -6,10 +6,8 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
-	"github.com/sirupsen/logrus"
-	"github.com/slack-go/slack"
-
 	cronLib "github.com/robfig/cron/v3"
+	"github.com/sirupsen/logrus"
 )
 
 // NewCronCommand registers cron which are configurable in the yaml config
@@ -56,11 +54,11 @@ func (c *command) getCallback(cron config.Cron) func() {
 				continue
 			}
 
-			newMessage := slack.MessageEvent{}
+			newMessage := msg.Message{}
 			newMessage.User = "cron"
 			newMessage.Channel, _ = client.GetChannel(cron.Channel)
 			newMessage.Text = text
-			client.InternalMessages <- msg.FromSlackEvent(newMessage)
+			client.InternalMessages <- newMessage
 		}
 	}
 }

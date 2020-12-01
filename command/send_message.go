@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 )
 
 // NewSendMessageCommand is able to send a message to any user/channel
@@ -21,23 +21,23 @@ func (c *sendMessageCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewRegexpMatcher("send message( to)? (?P<fullChannel><(?P<type>[#@])(?P<receiver>\\w+)(?i:|[^>]*)?>) (?P<text>.*)", c.SendMessage)
 }
 
-func (c *sendMessageCommand) SendMessage(match matcher.Result, event slack.MessageEvent) {
+func (c *sendMessageCommand) SendMessage(match matcher.Result, message msg.Message) {
 	text := match.GetString("text")
-	if event.User != "" {
-		text = fmt.Sprintf("Text from <@%s>: %s", event.User, text)
+	if message.GetUser() != "" {
+		text = fmt.Sprintf("Text from <@%s>: %s", message.User, text)
 	}
 
 	if match.GetString("type") == "#" {
 		// send to channel
-		newEvent := slack.MessageEvent{}
+		newEvent := msg.Message{}
 		newEvent.Channel = match.GetString("receiver")
-		c.slackClient.Reply(newEvent, text)
+		c.slackClient.SendMessage(newEvent, text)
 	} else {
 		c.slackClient.SendToUser(match.GetString("receiver"), text)
 	}
 
-	c.slackClient.Reply(
-		event,
+	c.slackClient.SendMessage(
+		message,
 		fmt.Sprintf("I'll send `%s` to %s", match.GetString("text"), match.GetString("fullChannel")),
 	)
 }

@@ -3,6 +3,7 @@ package command
 import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/slack-go/slack"
 )
@@ -23,23 +24,23 @@ func (c *replyCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *replyCommand) Reply(match matcher.Result, event slack.MessageEvent) {
+func (c *replyCommand) Reply(match matcher.Result, message msg.Message) {
 	text := match.MatchedString()
 	if text == "" {
 		return
 	}
 
-	c.slackClient.Reply(event, text)
+	c.slackClient.SendMessage(message, text)
 }
 
 // comment in (new) thread
-func (c *replyCommand) CommentInNewThread(match matcher.Result, event slack.MessageEvent) {
+func (c *replyCommand) CommentInNewThread(match matcher.Result, message msg.Message) {
 	text := match.MatchedString()
 	if text == "" {
 		return
 	}
 
-	c.slackClient.SendMessage(event, text, slack.MsgOptionTS(event.Timestamp))
+	c.slackClient.SendMessage(message, text, slack.MsgOptionTS(message.GetTimestamp()))
 }
 
 func (c *replyCommand) GetHelp() []bot.Help {

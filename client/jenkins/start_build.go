@@ -2,6 +2,7 @@ package jenkins
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/msg"
 	"sync"
 	"time"
 
@@ -20,23 +21,22 @@ var mu sync.Mutex
 // TriggerJenkinsJob starts a new build with given parameters
 // it will return when the job was started successfully
 // in the background it will watch the current build state and will update the state in the original slack message
-func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[string]string, slackClient client.SlackClient, jenkins Client, event slack.MessageEvent, logger *logrus.Logger) error {
-	logger.Infof("%s started started job %s: %s", event.User, jobName, jobParams)
-	_, jobParams[slackUserParameter] = client.GetUser(event.User)
+func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[string]string, slackClient client.SlackClient, jenkins Client, message msg.Message, logger *logrus.Logger) error {
+	logger.Infof("%s started started job %s: %s", message.GetUser(), jobName, jobParams)
+	_, jobParams[slackUserParameter] = client.GetUser(message.GetUser())
 
-	processHooks(cfg.OnStart, event, jobParams)
-	msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
-	slackClient.AddReaction(iconPending, msgRef)
+	processHooks(cfg.OnStart, message, jobParams)
+	slackClient.AddReaction(iconPending, message)
 
 	build, err := startJob(jenkins, jobName, jobParams, logger)
 	if err != nil {
 		return errors.Wrapf(err, "Job *%s* could not start job", jobName)
 	}
 
-	slackClient.RemoveReaction(iconPending, msgRef)
+	slackClient.RemoveReaction(iconPending, message)
 
 	estimatedDuration := time.Duration(build.Raw.EstimatedDuration) * time.Millisecond
-	msg := fmt.Sprintf(
+	text := fmt.Sprintf(
 		"Job %s started (#%d - estimated: %s)",
 		build.Job.GetName(),
 		build.GetBuildNumber(),
@@ -45,13 +45,13 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 
 	// send main response (with parameters)
 	msgTimestamp := slackClient.SendMessage(
-		event,
+		message,
 		"",
-		GetAttachment(build, msg),
+		GetAttachment(build, text),
 	)
 
 	done := queue.AddRunningCommand(
-		event,
+		message,
 		fmt.Sprintf("inform job %s #%d", jobName, build.GetBuildNumber()),
 	)
 	go func() {
@@ -67,16 +67,16 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 		))
 
 		slackClient.SendMessage(
-			event,
+			message,
 			"",
 			slack.MsgOptionUpdate(msgTimestamp),
 			attachment,
 		)
 
 		duration := time.Duration(build.GetDuration()) * time.Millisecond
-		msg = fmt.Sprintf(
+		text = fmt.Sprintf(
 			"<@%s> *%s:* %s #%d took %s: <%s|Build> <%sconsole/|Console>",
-			event.User,
+			message.GetUser(),
 			build.GetResult(),
 			jobName,
 			build.GetBuildNumber(),
@@ -85,18 +85,18 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 			build.GetUrl(),
 		)
 		if build.IsGood() {
-			slackClient.Reply(event, msg)
-			processHooks(cfg.OnSuccess, event, jobParams)
+			slackClient.SendMessage(message, text)
+			processHooks(cfg.OnSuccess, message, jobParams)
 		} else {
 			// failed/aborted build
-			msg += fmt.Sprintf("\nRetry the build by using `retry build %s #%d`", jobName, build.GetBuildNumber())
+			text += fmt.Sprintf("\nRetry the build by using `retry build %s #%d`", jobName, build.GetBuildNumber())
 
 			slackClient.SendMessage(
-				event,
-				msg,
+				message,
+				text,
 				slack.MsgOptionTS(msgTimestamp),
 			)
-			processHooks(cfg.OnFailure, event, jobParams)
+			processHooks(cfg.OnFailure, message, jobParams)
 		}
 	}()
 

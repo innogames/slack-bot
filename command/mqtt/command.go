@@ -6,8 +6,8 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 )
 
 // NewMqttCommand is able to read/write data to a mqtt topic
@@ -43,47 +43,47 @@ func (c *mqttCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *mqttCommand) Unsubscribe(match matcher.Result, event slack.MessageEvent) {
+func (c *mqttCommand) Unsubscribe(match matcher.Result, message msg.Message) {
 	topic := match.GetString("topic")
 
 	token := c.mqtt.Unsubscribe(topic)
 	token.Wait()
 
 	if token.Error() != nil {
-		c.slackClient.ReplyError(event, token.Error())
+		c.slackClient.ReplyError(message, token.Error())
 		return
 	}
 
-	c.slackClient.Reply(event, fmt.Sprintf("Subscribed to '%s'", topic))
+	c.slackClient.SendMessage(message, fmt.Sprintf("Subscribed to '%s'", topic))
 }
 
-func (c *mqttCommand) Subscribe(match matcher.Result, event slack.MessageEvent) {
+func (c *mqttCommand) Subscribe(match matcher.Result, message msg.Message) {
 	topic := match.GetString("topic")
 
-	token := c.mqtt.Subscribe(topic, 1, func(_ mqtt_poho.Client, message mqtt_poho.Message) {
-		c.slackClient.Reply(event, fmt.Sprintf("New message in `%s`: '%s'", topic, message.Payload()))
+	token := c.mqtt.Subscribe(topic, 1, func(_ mqtt_poho.Client, mqttMessage mqtt_poho.Message) {
+		c.slackClient.SendMessage(message, fmt.Sprintf("New message in `%s`: '%s'", topic, mqttMessage.Payload()))
 	})
 	token.Wait()
 	if token.Error() != nil {
-		c.slackClient.ReplyError(event, token.Error())
+		c.slackClient.ReplyError(message, token.Error())
 		return
 	}
 
-	c.slackClient.Reply(event, fmt.Sprintf("Subscribed to '%s'", topic))
+	c.slackClient.SendMessage(message, fmt.Sprintf("Subscribed to '%s'", topic))
 }
 
-func (c *mqttCommand) Publish(match matcher.Result, event slack.MessageEvent) {
+func (c *mqttCommand) Publish(match matcher.Result, message msg.Message) {
 	topic := match.GetString("topic")
 	value := match.GetString("value")
 
 	token := c.mqtt.Publish(topic, 1, false, value)
 	token.Wait()
 	if token.Error() != nil {
-		c.slackClient.ReplyError(event, token.Error())
+		c.slackClient.ReplyError(message, token.Error())
 		return
 	}
 
-	c.slackClient.Reply(event, fmt.Sprintf("Publish '%s' to '%s'", value, topic))
+	c.slackClient.SendMessage(message, fmt.Sprintf("Publish '%s' to '%s'", value, topic))
 }
 
 func (c *mqttCommand) GetHelp() []bot.Help {

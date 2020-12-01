@@ -2,6 +2,7 @@ package jenkins
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/msg"
 	"testing"
 
 	"github.com/bndr/gojenkins"
@@ -9,7 +10,6 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client/jenkins"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -22,28 +22,28 @@ func TestNodes(t *testing.T) {
 	command.AddCommand(newNodesCommand(jenkins, slackClient))
 
 	t.Run("Test invalid command", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "nodes"
+		message := msg.Message{}
+		message.Text = "nodes"
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, false, actual)
 	})
 
 	t.Run("Fetch with error", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "jenkins nodes"
+		message := msg.Message{}
+		message.Text = "jenkins nodes"
 
 		jenkins.On("GetAllNodes").Return(nil, fmt.Errorf("an error occurred"))
-		slackClient.On("ReplyError", event, fmt.Errorf("an error occurred")).Return(true)
-		actual := command.Run(event)
+		slackClient.On("ReplyError", message, fmt.Errorf("an error occurred")).Return(true)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("Fetch nodes", func(t *testing.T) {
-		jenkins := &mocks.Client{}
+		jenkinsClient := &mocks.Client{}
 
 		command := bot.Commands{}
-		command.AddCommand(newNodesCommand(jenkins, slackClient))
+		command.AddCommand(newNodesCommand(jenkinsClient, slackClient))
 
 		nodes := []*gojenkins.Node{
 			{
@@ -60,12 +60,12 @@ func TestNodes(t *testing.T) {
 			},
 		}
 
-		event := slack.MessageEvent{}
-		event.Text = "jenkins nodes"
+		message := msg.Message{}
+		message.Text = "jenkins nodes"
 
-		jenkins.On("GetAllNodes").Return(nodes, nil)
-		slackClient.On("Reply", event, "*2 Nodes*\n- *Node 1* - status: :check_mark: - executors: 0\n- *Node 2* - status: :red_circle: - executors: 0\n")
-		actual := command.Run(event)
+		jenkinsClient.On("GetAllNodes").Return(nodes, nil)
+		slackClient.On("SendMessage", message, "*2 Nodes*\n- *Node 1* - status: :check_mark: - executors: 0\n- *Node 2* - status: :red_circle: - executors: 0\n").Return("")
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 }
@@ -83,11 +83,11 @@ func TestRealNodes(t *testing.T) {
 		command := bot.Commands{}
 		command.AddCommand(newNodesCommand(client, slackClient))
 
-		event := slack.MessageEvent{}
-		event.Text = "jenkins nodes"
+		message := msg.Message{}
+		message.Text = "jenkins nodes"
 
-		slackClient.On("Reply", event, mock.Anything)
-		actual := command.Run(event)
+		slackClient.On("SendMessage", message, mock.Anything).Return("")
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 }

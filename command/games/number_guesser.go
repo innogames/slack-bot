@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 	"math/rand"
 )
 
@@ -37,9 +37,9 @@ func (c *numberGuesserCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *numberGuesserCommand) Start(match matcher.Result, event slack.MessageEvent) {
-	if _, ok := c.games[event.User]; ok {
-		c.slackClient.Reply(event, "There is already a game :smile: use `guess number XX` instead")
+func (c *numberGuesserCommand) Start(match matcher.Result, message msg.Message) {
+	if _, ok := c.games[message.GetUser()]; ok {
+		c.slackClient.SendMessage(message, "There is already a game :smile: use `guess number XX` instead")
 		return
 	}
 
@@ -48,15 +48,15 @@ func (c *numberGuesserCommand) Start(match matcher.Result, event slack.MessageEv
 		randomNumber: randomNumber,
 		tries:        0,
 	}
-	c.games[event.User] = game
+	c.games[message.GetUser()] = game
 
-	c.slackClient.Reply(event, fmt.Sprintf("I chose a number between 0 an %d. Good luck! Use `guess number XX`", maxNumber))
+	c.slackClient.SendMessage(message, fmt.Sprintf("I chose a number between 0 an %d. Good luck! Use `guess number XX`", maxNumber))
 }
 
-func (c *numberGuesserCommand) Guess(match matcher.Result, event slack.MessageEvent) {
-	currentGame, ok := c.games[event.User]
+func (c *numberGuesserCommand) Guess(match matcher.Result, message msg.Message) {
+	currentGame, ok := c.games[message.GetUser()]
 	if !ok {
-		c.slackClient.Reply(event, "There is no game running. Use `start number guesser`")
+		c.slackClient.SendMessage(message, "There is no game running. Use `start number guesser`")
 		return
 	}
 
@@ -64,20 +64,20 @@ func (c *numberGuesserCommand) Guess(match matcher.Result, event slack.MessageEv
 	currentGame.tries++
 
 	if guess == currentGame.randomNumber {
-		c.slackClient.Reply(event, fmt.Sprintf("Wow! you got it in %d tries :beers:", currentGame.tries))
-		delete(c.games, event.User)
+		c.slackClient.SendMessage(message, fmt.Sprintf("Wow! you got it in %d tries :beers:", currentGame.tries))
+		delete(c.games, message.GetUser())
 		return
 	}
 	if currentGame.tries >= maxTries {
-		c.slackClient.Reply(event, "Too many tries already...game over!")
-		delete(c.games, event.User)
+		c.slackClient.SendMessage(message, "Too many tries already...game over!")
+		delete(c.games, message.GetUser())
 		return
 	}
 
 	if guess < currentGame.randomNumber {
-		c.slackClient.Reply(event, "Higher :arrow_up_small:")
+		c.slackClient.SendMessage(message, "Higher :arrow_up_small:")
 	} else {
-		c.slackClient.Reply(event, "Lower :arrow_down_small:")
+		c.slackClient.SendMessage(message, "Lower :arrow_down_small:")
 	}
 }
 

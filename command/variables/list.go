@@ -2,15 +2,15 @@ package variables
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/msg"
 
 	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/slack-go/slack"
 )
 
-func (c *command) List(match matcher.Result, event slack.MessageEvent) {
-	list := loadList(event.User)
+func (c *command) List(match matcher.Result, message msg.Message) {
+	list := loadList(message.GetUser())
 	if len(list) == 0 {
-		c.slackClient.Reply(event, "No variables define yet. Use `add variable 'defaultServer' 'beta'`")
+		c.slackClient.SendMessage(message, "No variables define yet. Use `add variable 'defaultServer' 'beta'`")
 		return
 	}
 
@@ -19,5 +19,5 @@ func (c *command) List(match matcher.Result, event slack.MessageEvent) {
 		responseText += fmt.Sprintf("\n - %s: `%s`", name, value)
 	}
 
-	c.slackClient.Reply(event, responseText)
+	c.slackClient.SendMessage(message, responseText)
 }

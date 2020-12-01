@@ -3,8 +3,8 @@ package admin
 import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"strings"
@@ -24,23 +24,23 @@ func TestStatsLog(t *testing.T) {
 	command.AddCommand(statsCommand)
 
 	t.Run("invalid command", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "stats"
+		message := msg.Message{}
+		message.Text = "stats"
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, false, actual)
 	})
 
 	t.Run("display bot statsType", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "bot stats"
-		event.User = "UADMIN"
+		message := msg.Message{}
+		message.Text = "bot stats"
+		message.User = "UADMIN"
 
-		slackClient.On("Reply", event, mock.MatchedBy(func(text string) bool {
+		slackClient.On("SendMessage", message, mock.MatchedBy(func(text string) bool {
 			return strings.HasPrefix(text, "Here are some current stats:")
-		}))
+		})).Return("")
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 }

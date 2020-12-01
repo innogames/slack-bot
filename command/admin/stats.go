@@ -5,11 +5,11 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/stats"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
-	"github.com/slack-go/slack"
 	"runtime"
 	"strings"
 	"time"
@@ -36,12 +36,12 @@ func (c *statsCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *statsCommand) Stats(match matcher.Result, event slack.MessageEvent) {
+func (c *statsCommand) Stats(match matcher.Result, message msg.Message) {
 	result := statsResult{}
 	result.WriteString("Here are some current stats:\n")
 
 	c.collectStats(&result)
-	c.slackClient.Reply(event, result.String())
+	c.slackClient.SendMessage(message, result.String())
 }
 
 func (c *statsCommand) collectStats(result *statsResult) {

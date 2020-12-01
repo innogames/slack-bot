@@ -2,13 +2,13 @@ package jira
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/msg"
 
 	"github.com/andygrunwald/go-jira"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 )
 
 // newCommentCommand adds a comment to the given ticket
@@ -30,16 +30,16 @@ func (c *commentCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewRegexpMatcher(`add comment to ticket (?P<ticketId>(\w+)-(\d+)) (?P<comment>.+)`, c.AddComment)
 }
 
-func (c *commentCommand) AddComment(match matcher.Result, event slack.MessageEvent) {
+func (c *commentCommand) AddComment(match matcher.Result, message msg.Message) {
 	ticketID := match.GetString("ticketID")
 	issue, _, err := c.jira.Issue.Get(ticketID, nil)
 
 	if err != nil {
-		c.slackClient.ReplyError(event, err)
+		c.slackClient.ReplyError(message, err)
 		return
 	}
 
-	_, userName := client.GetUser(event.User)
+	_, userName := client.GetUser(message.GetUser())
 
 	comment := fmt.Sprintf(
 		"%s: %s",
@@ -50,12 +50,11 @@ func (c *commentCommand) AddComment(match matcher.Result, event slack.MessageEve
 		Body: comment,
 	})
 	if err != nil {
-		c.slackClient.ReplyError(event, err)
+		c.slackClient.ReplyError(message, err)
 		return
 	}
 
-	msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
-	c.slackClient.AddReaction("white_check_mark", msgRef)
+	c.slackClient.AddReaction("white_check_mark", message)
 }
 
 func (c *commentCommand) GetHelp() []bot.Help {

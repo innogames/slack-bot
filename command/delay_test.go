@@ -20,20 +20,20 @@ func TestDelay(t *testing.T) {
 	command.AddCommand(NewDelayCommand(&slackClient))
 
 	t.Run("Invalid command", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "I have a delay"
+		message := msg.Message{}
+		message.Text = "I have a delay"
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, false, actual)
 		assert.Empty(t, client.InternalMessages)
 	})
 
 	t.Run("Invalid timer", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "delay h1 my command"
+		message := msg.Message{}
+		message.Text = "delay h1 my command"
 
-		slackClient.On("Reply", event, "Invalid duration: time: invalid duration \"h1\"")
-		actual := command.Run(event)
+		slackClient.On("SendMessage", message, "Invalid duration: time: invalid duration \"h1\"").Return("")
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 		assert.Empty(t, client.InternalMessages)
 	})
@@ -42,11 +42,11 @@ func TestDelay(t *testing.T) {
 		command := bot.Commands{}
 		command.AddCommand(NewDelayCommand(&slackClient))
 
-		event := slack.MessageEvent{}
-		event.Text = "delay 20ms my command"
+		message := msg.Message{}
+		message.Text = "delay 20ms my command"
 
-		slackClient.On("Reply", event, "I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer")
-		actual := command.Run(event)
+		slackClient.On("SendMessage", message, "I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer").Return("")
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 		assert.Empty(t, client.InternalMessages)
 
@@ -54,23 +54,21 @@ func TestDelay(t *testing.T) {
 		assert.NotEmpty(t, client.InternalMessages)
 
 		handledEvent := <-client.InternalMessages
-		expectedEvent := slack.MessageEvent{
-			Msg: slack.Msg{
-				Text: "my command",
-			},
+		expectedEvent := msg.Message{
+			Text: "my command",
 		}
 
-		assert.Equal(t, handledEvent, msg.FromSlackEvent(expectedEvent))
+		assert.Equal(t, handledEvent, expectedEvent)
 	})
 
 	t.Run("Test quiet option", func(t *testing.T) {
 		command := bot.Commands{}
 		command.AddCommand(NewDelayCommand(&slackClient))
 
-		event := slack.MessageEvent{}
-		event.Text = "delay 20ms quiet my command"
+		message := msg.Message{}
+		message.Text = "delay 20ms quiet my command"
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 		assert.Empty(t, client.InternalMessages)
 
@@ -91,26 +89,26 @@ func TestDelay(t *testing.T) {
 		command := bot.Commands{}
 		command.AddCommand(NewDelayCommand(&slackClient))
 
-		event := slack.MessageEvent{}
-		event.Text = "delay 20ms my command"
+		message := msg.Message{}
+		message.Text = "delay 20ms my command"
 
-		slackClient.On("Reply", event, "I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer")
-		actual := command.Run(event)
+		slackClient.On("SendMessage", message, "I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer").Return("")
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 		assert.Empty(t, client.InternalMessages)
 
-		event.Text = "stop timer 0"
-		slackClient.On("Reply", event, "Stopped timer!")
-		actual = command.Run(event)
+		message.Text = "stop timer 0"
+		slackClient.On("SendMessage", message, "Stopped timer!").Return("")
+		actual = command.Run(message)
 		assert.Equal(t, true, actual)
 
 		time.Sleep(time.Millisecond * 30)
 		assert.Empty(t, client.InternalMessages)
 
 		// now try to stop an invalid timer
-		event.Text = "stop timer 5"
-		slackClient.On("ReplyError", event, fmt.Errorf("invalid timer")).Return("")
-		actual = command.Run(event)
+		message.Text = "stop timer 5"
+		slackClient.On("ReplyError", message, fmt.Errorf("invalid timer"))
+		actual = command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 }

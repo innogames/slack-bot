@@ -6,9 +6,9 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
-	"github.com/slack-go/slack"
 	"time"
 )
 
@@ -31,43 +31,43 @@ func (c *watchCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewRegexpMatcher(`watch ticket (?P<ticketId>(\w+)-(\d+))`, c.Run)
 }
 
-func (c *watchCommand) Run(match matcher.Result, event slack.MessageEvent) {
+func (c *watchCommand) Run(match matcher.Result, message msg.Message) {
 	ticketID := match.GetString("ticketId")
 	issue, _, err := c.jira.Issue.Get(ticketID, nil)
 
 	if err != nil {
-		c.slackClient.Reply(event, err.Error())
+		c.slackClient.SendMessage(message, err.Error())
 		return
 	}
 
-	go c.watchTicket(event, issue)
+	go c.watchTicket(message, issue)
 
 	// add button to link
 	c.slackClient.SendMessage(
-		event,
+		message,
 		fmt.Sprintf("I'll inform you about changes of ticket %s", ticketID),
 	)
 }
 
-func (c *watchCommand) watchTicket(event slack.MessageEvent, issue *jira.Issue) {
+func (c *watchCommand) watchTicket(message msg.Message, issue *jira.Issue) {
 	lastStatus := issue.Fields.Status.Name
 	ticker := time.NewTicker(time.Minute)
 
 	defer ticker.Stop()
 
-	done := queue.AddRunningCommand(event, event.Text)
+	done := queue.AddRunningCommand(message, message.Text)
 	for range ticker.C {
 		issue, resp, err := c.jira.Issue.Get(issue.ID, nil)
 		if err != nil {
 			done <- true
-			c.slackClient.ReplyError(event, err)
+			c.slackClient.ReplyError(message, err)
 			return
 		}
 		resp.Body.Close()
 		newStatus := issue.Fields.Status.Name
 
 		if newStatus != lastStatus {
-			c.slackClient.Reply(event, fmt.Sprintf(
+			c.slackClient.SendMessage(message, fmt.Sprintf(
 				"%s %s: status changed from *%s* to *%s*",
 				getFormattedURL(c.config, *issue),
 				issue.Fields.Summary,

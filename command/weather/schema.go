@@ -1,10 +1,5 @@
 package weather
 
-type City struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
-
 type Coord struct {
 	Lon float64 `json:"lon"`
 	Lat float64 `json:"lat"`
@@ -55,17 +50,4 @@ type CurrentWeatherResponse struct {
 	Dt      int       `json:"dt"`
 	ID      int       `json:"id"`
 	Name    string    `json:"name"`
-}
-
-type ForecastResponse struct {
-	City    `json:"city"`
-	Coord   `json:"coord"`
-	Country string `json:"country"`
-	List    []struct {
-		Dt      int `json:"dt"`
-		Main    `json:"main"`
-		Weather `json:"weather"`
-		Clouds  `json:"clouds"`
-		Wind    `json:"wind"`
-	} `json:"list"`
 }

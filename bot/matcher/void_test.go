@@ -1,7 +1,7 @@
 package matcher
 
 import (
-	"github.com/slack-go/slack"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -10,9 +10,9 @@ func TestVoid(t *testing.T) {
 	t.Run("Match void", func(t *testing.T) {
 		subject := NewVoidMatcher()
 
-		event := slack.MessageEvent{}
-		event.Text = "foo"
-		run, match := subject.Match(event)
+		message := msg.Message{}
+		message.Text = "foo"
+		run, match := subject.Match(message)
 		assert.False(t, match.Matched())
 		assert.Nil(t, run)
 	})

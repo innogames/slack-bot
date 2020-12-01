@@ -4,6 +4,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/slack-go/slack"
 )
@@ -22,15 +23,15 @@ func (c *addButtonCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewRegexpMatcher("add button \"(?P<name>.*)\" \"(?P<command>.*)\"", c.AddLink)
 }
 
-func (c *addButtonCommand) AddLink(match matcher.Result, event slack.MessageEvent) {
+func (c *addButtonCommand) AddLink(match matcher.Result, message msg.Message) {
 	name := match.GetString("name")
 	command := match.GetString("command")
 
 	blocks := []slack.Block{
-		client.GetInteraction(event, name, command),
+		client.GetInteraction(message, name, command),
 	}
 
-	c.slackClient.SendMessage(event, "", slack.MsgOptionBlocks(blocks...))
+	c.slackClient.SendMessage(message, "", slack.MsgOptionBlocks(blocks...))
 }
 
 // IsEnabled checks if the http server is enabled to receive slack interactions

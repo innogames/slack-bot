@@ -27,7 +27,6 @@ func main() {
 	flag.Parse()
 
 	cfg := config.Config{}
-
 	ctx, _ := context.WithCancel(context.Background())
 	wg := &sync.WaitGroup{}
 
@@ -72,11 +71,11 @@ func startCli(ctx context.Context, wg *sync.WaitGroup, input io.Reader, output i
 
 			color.Blue.Printf(">>>> %s\n", strings.TrimSuffix(text, "\n"))
 
-			message := msg.Message{
-				Text:    text,
-				Channel: tester.TestChannel,
-				User:    "cli",
-			}
+			message := msg.Message{}
+			message.Text = text
+			message.Channel = tester.TestChannel
+			message.User = "cli"
+
 			client.InternalMessages <- message
 		}
 	}

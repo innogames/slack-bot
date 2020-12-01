@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
-	"github.com/slack-go/slack"
 )
 
 const (
@@ -32,10 +32,10 @@ func (c *nodesCommand) IsEnabled() bool {
 	return c.jenkins != nil
 }
 
-func (c *nodesCommand) Run(match matcher.Result, event slack.MessageEvent) {
+func (c *nodesCommand) Run(match matcher.Result, message msg.Message) {
 	nodes, err := c.jenkins.GetAllNodes()
 	if err != nil {
-		c.slackClient.ReplyError(event, err)
+		c.slackClient.ReplyError(message, err)
 		return
 	}
 
@@ -58,7 +58,7 @@ func (c *nodesCommand) Run(match matcher.Result, event slack.MessageEvent) {
 		)
 	}
 
-	c.slackClient.Reply(event, text)
+	c.slackClient.SendMessage(message, text)
 }
 
 func (c *nodesCommand) GetHelp() []bot.Help {

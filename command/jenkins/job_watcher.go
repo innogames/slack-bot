@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
 	"github.com/sirupsen/logrus"
-	"github.com/slack-go/slack"
 )
 
 const (
@@ -40,22 +40,22 @@ func (c *watcherCommand) IsEnabled() bool {
 	return c.jenkins != nil
 }
 
-func (c *watcherCommand) Run(match matcher.Result, event slack.MessageEvent) {
+func (c *watcherCommand) Run(match matcher.Result, message msg.Message) {
 	action := match.GetString("action")
 	jobName := match.GetString("job")
 	if action == actionWatch {
 		stop := make(chan bool, 1)
-		c.stopper[jobName+event.User] = stop
+		c.stopper[jobName+message.GetUser()] = stop
 		builds, err := jenkins.WatchJob(c.jenkins, jobName, stop)
 		if err != nil {
-			c.slackClient.ReplyError(event, err)
+			c.slackClient.ReplyError(message, err)
 			return
 		}
-		c.slackClient.Reply(event, fmt.Sprintf("Okay, I'll watch %s\nUnwatch via `unwatch %s`", jobName, jobName))
+		c.slackClient.SendMessage(message, fmt.Sprintf("Okay, I'll watch %s\nUnwatch via `unwatch %s`", jobName, jobName))
 
 		go func() {
 			for build := range builds {
-				c.slackClient.Reply(event, fmt.Sprintf(
+				c.slackClient.SendMessage(message, fmt.Sprintf(
 					"*%s*: %s #%d: %s",
 					build.GetResult(),
 					jobName,
@@ -67,10 +67,10 @@ func (c *watcherCommand) Run(match matcher.Result, event slack.MessageEvent) {
 	}
 
 	if action == actionUnwatch {
-		if stop, ok := c.stopper[jobName+event.User]; ok {
+		if stop, ok := c.stopper[jobName+message.User]; ok {
 			stop <- true
 		}
-		c.slackClient.Reply(event, fmt.Sprintf("Okay, you just unwatched %s", jobName))
+		c.slackClient.SendMessage(message, fmt.Sprintf("Okay, you just unwatched %s", jobName))
 	}
 }
 

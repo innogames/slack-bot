@@ -1,8 +1,8 @@
 package variables
 
 import (
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/storage"
-	"github.com/slack-go/slack"
 )
 
 const storeKey = "user_variables"
@@ -17,6 +17,6 @@ func loadList(userID string) list {
 	return list
 }
 
-func storeList(event slack.MessageEvent, list list) {
-	storage.Write(storeKey, event.User, list)
+func storeList(ref msg.Ref, list list) {
+	storage.Write(storeKey, ref.GetUser(), list)
 }

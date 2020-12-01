@@ -1,7 +1,7 @@
 package matcher
 
 import (
-	"github.com/slack-go/slack"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -29,9 +29,9 @@ func TestText(t *testing.T) {
 		for _, testCase := range matchTest {
 			subject := NewTextMatcher(testCase.prefix, testRunner)
 
-			event := slack.MessageEvent{}
-			event.Text = testCase.input
-			run, match := subject.Match(event)
+			message := msg.Message{}
+			message.Text = testCase.input
+			run, match := subject.Match(message)
 			if testCase.expected {
 				assert.NotNil(t, run, testCase.input)
 				assert.Equal(t, testCase.match, match.MatchedString())
@@ -50,22 +50,22 @@ func BenchmarkTextMatcher(b *testing.B) {
 	var result Result
 
 	b.Run("loweredText: no match", func(b *testing.B) {
-		event := slack.MessageEvent{}
-		event.Text = "i am not the loweredText"
+		message := msg.Message{}
+		message.Text = "i am not the loweredText"
 
 		for i := 0; i < b.N; i++ {
-			run, result = textMatcher.Match(event)
+			run, result = textMatcher.Match(message)
 		}
 		assert.Nil(b, run)
 		assert.Equal(b, false, result.Matched())
 	})
 
 	b.Run("loweredText: match", func(b *testing.B) {
-		event := slack.MessageEvent{}
-		event.Text = "i am the loweredText"
+		message := msg.Message{}
+		message.Text = "i am the loweredText"
 
 		for i := 0; i < b.N; i++ {
-			run, result = textMatcher.Match(event)
+			run, result = textMatcher.Match(message)
 		}
 		assert.NotNil(b, run)
 		assert.Equal(b, true, result.Matched())

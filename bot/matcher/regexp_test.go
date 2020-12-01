@@ -1,12 +1,12 @@
 package matcher
 
 import (
-	"github.com/slack-go/slack"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-var testRunner = func(match Result, event slack.MessageEvent) {}
+var testRunner = func(match Result, message msg.Message) {}
 
 func TestRegexp(t *testing.T) {
 	var matchTest = []struct {
@@ -28,9 +28,9 @@ func TestRegexp(t *testing.T) {
 		for _, testCase := range matchTest {
 			subject := NewRegexpMatcher(testCase.regexp, testRunner)
 
-			event := slack.MessageEvent{}
-			event.Text = testCase.input
-			run, match := subject.Match(event)
+			message := msg.Message{}
+			message.Text = testCase.input
+			run, match := subject.Match(message)
 			if testCase.expected {
 				assert.NotNil(t, run, testCase.input)
 				assert.Equal(t, testCase.input, match.MatchedString())
@@ -43,10 +43,10 @@ func TestRegexp(t *testing.T) {
 
 	t.Run("Get number", func(t *testing.T) {
 		subject := NewRegexpMatcher("test (?P<number>\\d+)", testRunner)
+		message := msg.Message{}
+		message.Text = "test 12"
 
-		event := slack.MessageEvent{}
-		event.Text = "test 12"
-		run, match := subject.Match(event)
+		run, match := subject.Match(message)
 		assert.NotNil(t, run)
 		assert.Equal(t, "test 12", match.MatchedString())
 		assert.Equal(t, "12", match.GetString("number"))
@@ -62,11 +62,11 @@ func BenchmarkRegexpMatcher(b *testing.B) {
 	b.Run("no match", func(b *testing.B) {
 		matcher := NewRegexpMatcher("trigger (?P<text>.*)", testRunner)
 
-		event := slack.MessageEvent{}
-		event.Text = "triggermenot"
+		message := msg.Message{}
+		message.Text = "triggermenot"
 
 		for i := 0; i < b.N; i++ {
-			run, result = matcher.Match(event)
+			run, result = matcher.Match(message)
 		}
 		assert.Nil(b, run)
 		assert.Equal(b, false, result.Matched())
@@ -75,11 +75,11 @@ func BenchmarkRegexpMatcher(b *testing.B) {
 	b.Run("match", func(b *testing.B) {
 		matcher := NewRegexpMatcher("trigger (?P<text>.*)", testRunner)
 
-		event := slack.MessageEvent{}
-		event.Text = "trigger me"
+		message := msg.Message{}
+		message.Text = "trigger me"
 
 		for i := 0; i < b.N; i++ {
-			run, result = matcher.Match(event)
+			run, result = matcher.Match(message)
 		}
 		assert.NotNil(b, run)
 		assert.Equal(b, true, result.Matched())

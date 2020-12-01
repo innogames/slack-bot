@@ -3,8 +3,8 @@ package jenkins
 import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -17,20 +17,20 @@ func TestBuildWatcher(t *testing.T) {
 	command.AddCommand(newBuildWatcherCommand(jenkins, &slackClient))
 
 	t.Run("Test invalid command", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "notify me not"
+		message := msg.Message{}
+		message.Text = "notify me not"
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, false, actual)
 	})
 
 	t.Run("build notifier with invalid job", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "notify build TestJob"
+		message := msg.Message{}
+		message.Text = "notify build TestJob"
 
 		jenkins.On("GetJob", "TestJob").Return(nil, fmt.Errorf(""))
-		slackClient.On("Reply", event, "Job *TestJob* does not exist")
-		actual := command.Run(event)
+		slackClient.On("SendMessage", message, "Job *TestJob* does not exist").Return("")
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 

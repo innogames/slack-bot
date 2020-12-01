@@ -4,6 +4,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/pkg/errors"
@@ -43,30 +44,30 @@ func TestPullRequest(t *testing.T) {
 	t.Run("invalid command", func(t *testing.T) {
 		commands, _ := initTest(slackClient)
 
-		event := slack.MessageEvent{}
-		event.Text = "quatsch"
+		message := msg.Message{}
+		message.Text = "quatsch"
 
-		actual := commands.Run(event)
+		actual := commands.Run(message)
 		assert.Equal(t, false, actual)
 	})
 
 	t.Run("PR not found", func(t *testing.T) {
 		commands, fetcher := initTest(slackClient)
 
-		event := slack.MessageEvent{}
+		message := msg.Message{}
 		fetcher.err = errors.New("PR not found")
-		event.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
+		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
-		slackClient.On("ReplyError", event, fetcher.err)
+		slackClient.On("ReplyError", message, fetcher.err)
 
-		actual := commands.Run(event)
+		actual := commands.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("PR got merged", func(t *testing.T) {
 		commands, fetcher := initTest(slackClient)
 
-		event := slack.MessageEvent{}
+		message := msg.Message{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
 			declined:  false,
@@ -74,17 +75,17 @@ func TestPullRequest(t *testing.T) {
 			approvers: []string{"test"},
 			inReview:  false,
 		}
-		event.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
+		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
-		msgRef := slack.NewRefToMessage(event.Channel, event.Timestamp)
+		msgRef := slack.NewRefToMessage(message.Channel, message.Timestamp)
 		slackClient.
 			On("GetReactions", msgRef, slack.NewGetReactionsParameters()).Return(nil, nil)
 
-		slackClient.On("RemoveReaction", iconInReview, slack.NewRefToMessage(event.Channel, event.Timestamp))
-		slackClient.On("AddReaction", iconApproved, slack.NewRefToMessage(event.Channel, event.Timestamp))
-		slackClient.On("AddReaction", iconMerged, slack.NewRefToMessage(event.Channel, event.Timestamp))
+		slackClient.On("RemoveReaction", iconInReview, message)
+		slackClient.On("AddReaction", iconApproved, message)
+		slackClient.On("AddReaction", iconMerged, message)
 
-		actual := commands.Run(event)
+		actual := commands.Run(message)
 		assert.Equal(t, true, actual)
 		time.Sleep(time.Millisecond * 10) // todo channel
 	})
@@ -92,7 +93,7 @@ func TestPullRequest(t *testing.T) {
 	t.Run("PR got declined", func(t *testing.T) {
 		commands, fetcher := initTest(slackClient)
 
-		event := slack.MessageEvent{}
+		message := msg.Message{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
 			declined:  true,
@@ -100,13 +101,13 @@ func TestPullRequest(t *testing.T) {
 			approvers: []string{},
 			inReview:  false,
 		}
-		event.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
+		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
-		slackClient.On("RemoveReaction", iconInReview, slack.NewRefToMessage(event.Channel, event.Timestamp))
-		slackClient.On("RemoveReaction", iconApproved, slack.NewRefToMessage(event.Channel, event.Timestamp))
-		slackClient.On("AddReaction", iconDeclined, slack.NewRefToMessage(event.Channel, event.Timestamp))
+		slackClient.On("RemoveReaction", iconInReview, message)
+		slackClient.On("RemoveReaction", iconApproved, message)
+		slackClient.On("AddReaction", iconDeclined, message)
 
-		actual := commands.Run(event)
+		actual := commands.Run(message)
 		assert.Equal(t, true, actual)
 		time.Sleep(time.Millisecond * 10) // todo channel
 	})
@@ -114,7 +115,7 @@ func TestPullRequest(t *testing.T) {
 	t.Run("PR got approvers", func(t *testing.T) {
 		commands, fetcher := initTest(slackClient)
 
-		event := slack.MessageEvent{}
+		message := msg.Message{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
 			declined:  false,
@@ -122,13 +123,13 @@ func TestPullRequest(t *testing.T) {
 			approvers: []string{"test"},
 			inReview:  false,
 		}
-		event.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
+		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
-		slackClient.On("RemoveReaction", iconInReview, slack.NewRefToMessage(event.Channel, event.Timestamp))
-		slackClient.On("RemoveReaction", iconDeclined, slack.NewRefToMessage(event.Channel, event.Timestamp))
-		slackClient.On("AddReaction", iconApproved, slack.NewRefToMessage(event.Channel, event.Timestamp))
+		slackClient.On("RemoveReaction", iconInReview, message)
+		slackClient.On("RemoveReaction", iconDeclined, message)
+		slackClient.On("AddReaction", iconApproved, message)
 
-		actual := commands.Run(event)
+		actual := commands.Run(message)
 		assert.Equal(t, true, actual)
 		time.Sleep(time.Millisecond * 10) // todo channel
 	})
@@ -136,7 +137,7 @@ func TestPullRequest(t *testing.T) {
 	t.Run("PR in reiew", func(t *testing.T) {
 		commands, fetcher := initTest(slackClient)
 
-		event := slack.MessageEvent{}
+		message := msg.Message{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
 			declined:  false,
@@ -144,11 +145,11 @@ func TestPullRequest(t *testing.T) {
 			approvers: []string{},
 			inReview:  true,
 		}
-		event.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
+		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
-		slackClient.On("AddReaction", iconInReview, slack.NewRefToMessage(event.Channel, event.Timestamp))
+		slackClient.On("AddReaction", iconInReview, message)
 
-		actual := commands.Run(event)
+		actual := commands.Run(message)
 		assert.Equal(t, true, actual)
 		time.Sleep(time.Millisecond * 10) // todo channel
 	})

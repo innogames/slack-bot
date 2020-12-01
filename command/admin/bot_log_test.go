@@ -3,8 +3,8 @@ package admin
 import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -25,21 +25,21 @@ func TestBotLog(t *testing.T) {
 	command.AddCommand(botLog)
 
 	t.Run("invalid command", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "log log log"
+		message := msg.Message{}
+		message.Text = "log log log"
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, false, actual)
 	})
 
 	t.Run("display log without history", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "bot log"
-		event.User = "UADMIN"
+		message := msg.Message{}
+		message.Text = "bot log"
+		message.User = "UADMIN"
 
-		slackClient.On("Reply", event, "No logs so far")
+		slackClient.On("SendMessage", message, "No logs so far").Return("")
 
-		actual := command.Run(event)
+		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 }

@@ -2,8 +2,8 @@ package variables
 
 import (
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -15,49 +15,49 @@ func TestCustomCommands(t *testing.T) {
 	commands.AddCommand(variablesCommand)
 
 	t.Run("Invalid command", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.User = "user1"
-		event.Text = "notify me not"
+		message := msg.Message{}
+		message.User = "user1"
+		message.Text = "notify me not"
 
-		actual := commands.Run(event)
+		actual := commands.Run(message)
 		assert.Equal(t, false, actual)
 	})
 
 	t.Run("List empty variables", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "list variables"
-		event.User = "user1"
-		slackClient.On("Reply", event, "No variables define yet. Use `add variable 'defaultServer' 'beta'`").Return("")
-		actual := commands.Run(event)
+		message := msg.Message{}
+		message.Text = "list variables"
+		message.User = "user1"
+		slackClient.On("SendMessage", message, "No variables define yet. Use `add variable 'defaultServer' 'beta'`").Return("")
+		actual := commands.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("Add a variable with invalid syntax", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.User = "user1"
-		event.Text = "add variable name"
-		actual := commands.Run(event)
+		message := msg.Message{}
+		message.User = "user1"
+		message.Text = "add variable name"
+		actual := commands.Run(message)
 		assert.Equal(t, false, actual)
 	})
 
 	t.Run("Add valid variable", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.User = "user1"
-		event.Text = "add variable 'myKey' 'myValue'"
+		message := msg.Message{}
+		message.User = "user1"
+		message.Text = "add variable 'myKey' 'myValue'"
 
-		slackClient.On("Reply", event, "Added variable: `myKey` = `myValue`.").Return("")
-		actual := commands.Run(event)
+		slackClient.On("SendMessage", message, "Added variable: `myKey` = `myValue`.").Return("")
+		actual := commands.Run(message)
 
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("List commands should list new variable", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.User = "user1"
-		event.Text = "list variables"
+		message := msg.Message{}
+		message.User = "user1"
+		message.Text = "list variables"
 
-		slackClient.On("Reply", event, "You defined 1 variables:\n - myKey: `myValue`")
-		actual := commands.Run(event)
+		slackClient.On("SendMessage", message, "You defined 1 variables:\n - myKey: `myValue`").Return("")
+		actual := commands.Run(message)
 
 		assert.Equal(t, true, actual)
 	})
@@ -84,23 +84,23 @@ func TestCustomCommands(t *testing.T) {
 	})
 
 	t.Run("Delete variable with invalid syntax", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "delete variable"
-		event.User = "user1"
+		message := msg.Message{}
+		message.Text = "delete variable"
+		message.User = "user1"
 
-		actual := commands.Run(event)
+		actual := commands.Run(message)
 
 		assert.Equal(t, false, actual)
 	})
 
 	t.Run("Delete variable", func(t *testing.T) {
-		event := slack.MessageEvent{}
-		event.Text = "delete variable myKey"
-		event.User = "user1"
+		message := msg.Message{}
+		message.Text = "delete variable myKey"
+		message.User = "user1"
 
-		slackClient.On("Reply", event, "Okay, I deleted variable: `myKey`")
+		slackClient.On("SendMessage", message, "Okay, I deleted variable: `myKey`").Return("")
 
-		actual := commands.Run(event)
+		actual := commands.Run(message)
 
 		assert.Equal(t, true, actual)
 	})

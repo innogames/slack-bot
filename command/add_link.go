@@ -3,6 +3,7 @@ package command
 import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/slack-go/slack"
 )
@@ -20,7 +21,7 @@ func (c *addLinkCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewRegexpMatcher("add link (?P<name>.*) <(?P<link>https:.*)>", c.AddLink)
 }
 
-func (c *addLinkCommand) AddLink(match matcher.Result, event slack.MessageEvent) {
+func (c *addLinkCommand) AddLink(match matcher.Result, message msg.Message) {
 	name := match.GetString("name")
 	link := match.GetString("link")
 
@@ -30,7 +31,7 @@ func (c *addLinkCommand) AddLink(match matcher.Result, event slack.MessageEvent)
 		},
 	}
 
-	c.slackClient.SendMessage(event, "", slack.MsgOptionAttachments(attachment))
+	c.slackClient.SendMessage(message, "", slack.MsgOptionAttachments(attachment))
 }
 
 func (c *addLinkCommand) GetHelp() []bot.Help {

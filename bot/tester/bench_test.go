@@ -48,10 +48,10 @@ func BenchmarkHandle(b *testing.B) {
 	//	defer bot.DisconnectRTM()
 	defer fakeSlack.Stop()
 
-	event := slack.MessageEvent{}
-	event.User = "U123"
+	message := msg.Message{}
+	message.User = "U123"
 	event.Channel = "C1234"
-	event.Text = "<@" + botID + "> reply test"
+	message.Text = "<@" + botID + "> reply test"
 
 	for i := 0; i < b.N; i++ {
 		bot.handleMessage(event)

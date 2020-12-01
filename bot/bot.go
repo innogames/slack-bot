@@ -261,13 +261,10 @@ func (b *Bot) handleMessage(message msg.Message, fromUserContext bool) {
 
 	stats.IncreaseOne(stats.TotalCommands)
 
-	// temporary code to support old message.MessageEvent - the new way would be msg.Message only
-	event := message.ToSlackEvent()
-
 	_, existing := b.allowedUsers[message.User]
 	if !existing && fromUserContext && b.config.Slack.TestEndpointURL == "" {
 		logger.Errorf("user %s is not allowed to execute message (missing in 'allowed_users' section): %s", message.User, message.Text)
-		b.slackClient.Reply(event, fmt.Sprintf(
+		b.slackClient.SendMessage(message, fmt.Sprintf(
 			"Sorry, you are not whitelisted yet. Please ask a slack-bot admin to get access: %s",
 			strings.Join(b.config.AdminUsers, ", "),
 		))
@@ -275,10 +272,10 @@ func (b *Bot) handleMessage(message msg.Message, fromUserContext bool) {
 		return
 	}
 
-	if !b.commands.Run(event) {
+	if !b.commands.Run(message) {
 		logger.Infof("Unknown command: %s", message.Text)
 		stats.IncreaseOne(stats.UnknownCommands)
-		b.sendFallbackMessage(event)
+		b.sendFallbackMessage(message)
 	}
 
 	logger.

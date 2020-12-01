@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
-	"github.com/slack-go/slack"
 	"strings"
 	"time"
 )
@@ -14,12 +14,12 @@ func (c *command) GetMatcher() matcher.Matcher {
 	return matcher.NewTextMatcher("list crons", c.ListCrons)
 }
 
-func (c *command) ListCrons(match matcher.Result, event slack.MessageEvent) {
-	message := fmt.Sprintf("*%d crons:*\n", len(c.cfg))
+func (c *command) ListCrons(match matcher.Result, message msg.Message) {
+	text := fmt.Sprintf("*%d crons:*\n", len(c.cfg))
 
 	now := time.Now()
 	for i, entry := range c.cron.Entries() {
-		message += fmt.Sprintf(
+		text += fmt.Sprintf(
 			" - `%s`, next in %s (`%s`)\n",
 			c.cfg[i].Schedule,
 			util.FormatDuration(entry.Next.Sub(now)),
@@ -27,7 +27,7 @@ func (c *command) ListCrons(match matcher.Result, event slack.MessageEvent) {
 		)
 	}
 
-	c.slackClient.Reply(event, message)
+	c.slackClient.SendMessage(message, text)
 }
 
 func (c *command) GetHelp() []bot.Help {

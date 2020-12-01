@@ -94,17 +94,20 @@ func (s *Server) interactionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	action := payload.ActionCallback.BlockActions[0]
-	var event slack.MessageEvent
-	err = storage.Read("interactions", action.Value, &event)
+
+	var messsage msg.Message
+
+	err = storage.Read("interactions", action.Value, &messsage)
 	if err != nil {
 		// already performed action -> do nothing
 		w.WriteHeader(200)
 		return
 	}
 	storage.Delete("interactions", action.Value)
-	event.User = payload.User.ID
 
-	client.InternalMessages <- msg.FromSlackEvent(event)
+	messsage.User = payload.User.ID
+
+	client.InternalMessages <- messsage
 
 	newMessage := getChangedMessage(payload.Message, action.Value)
 	w.WriteHeader(http.StatusOK)
@@ -114,7 +117,7 @@ func (s *Server) interactionHandler(w http.ResponseWriter, r *http.Request) {
 	response.Text = fmt.Sprintf("<@%s> performed action at %s", payload.User.Name, time.Now())
 
 	s.slackClient.SendMessage(
-		event,
+		messsage,
 		newMessage.Text,
 		slack.MsgOptionUpdate(newMessage.Timestamp),
 		slack.MsgOptionAttachments(newMessage.Attachments...),

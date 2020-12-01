@@ -1,17 +1,5 @@
 package config
 
-type UserList []string
-
-func (l UserList) Contains(userID string) bool {
-	for _, adminID := range l {
-		if adminID == userID {
-			return true
-		}
-	}
-
-	return false
-}
-
 // Config contains the full config structure of this bot
 type Config struct {
 	Slack       Slack     `mapstructure:"slack"`
@@ -81,6 +69,7 @@ func (c Server) IsEnabled() bool {
 	return c.Listen != "" && c.SigningSecret != ""
 }
 
+// Logger configuration to define log target or log levels
 type Logger struct {
 	Level string `mapstructure:"level"`
 	File  string `mapstructure:"file"`
@@ -125,4 +114,16 @@ type Bitbucket struct {
 
 func (c *Bitbucket) IsEnabled() bool {
 	return c.Host != ""
+}
+
+type UserList []string
+
+func (l UserList) Contains(userID string) bool {
+	for _, adminID := range l {
+		if adminID == userID {
+			return true
+		}
+	}
+
+	return false
 }

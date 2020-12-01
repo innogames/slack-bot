@@ -7,25 +7,23 @@ import (
 	"strings"
 
 	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 	"github.com/texttheater/golang-levenshtein/levenshtein"
 )
 
 const minDistance = 4
 
 // try to find the best matching commands based on command name and examples
-func (b *Bot) sendFallbackMessage(event slack.MessageEvent) {
-	bestMatching := getBestMatchingHelp(b, event.Text)
+func (b *Bot) sendFallbackMessage(message msg.Message) {
+	bestMatching := getBestMatchingHelp(b, message.Text)
 
 	if bestMatching.Command == "" {
-		b.slackClient.Reply(event, "Oops! Command `"+event.Text+"` not found...try `help`.")
+		b.slackClient.SendMessage(message, "Oops! Command `"+message.Text+"` not found...try `help`.")
 		return
 	}
 
-	b.slackClient.SendMessage(event, "Command `"+event.Text+"` not found...do you mean *"+bestMatching.Command+"* command?")
+	b.slackClient.SendMessage(message, "Command `"+message.Text+"` not found...do you mean *"+bestMatching.Command+"* command?")
 
-	event.Text = fmt.Sprintf("help %s", bestMatching.Command)
-	client.InternalMessages <- msg.FromSlackEvent(event)
+	client.InternalMessages <- message.WithText(fmt.Sprintf("help %s", bestMatching.Command))
 }
 
 // find the best matching command bases on the given strings...using levenstein to fetch the best one

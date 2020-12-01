@@ -4,6 +4,7 @@ import (
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestMessage(t *testing.T) {
@@ -18,35 +19,57 @@ func TestMessage(t *testing.T) {
 		actual := FromSlackEvent(event)
 
 		expected := Message{
-			Text:            "foo",
-			User:            "U123",
-			Timestamp:       "12344",
-			InternalMessage: false,
+			Text: "foo",
+			MessageRef: MessageRef{
+				User:            "U123",
+				Timestamp:       "12344",
+				InternalMessage: false,
+			},
 		}
 
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, false, actual.IsInternalMessage())
 	})
 
-	t.Run("Message to Slack event", func(t *testing.T) {
-		message := Message{
-			Text:            "foo",
-			User:            "U123",
-			Timestamp:       "12344",
-			InternalMessage: true,
-		}
-		assert.Equal(t, true, message.IsInternalMessage())
+	t.Run("Get message time", func(t *testing.T) {
+		msg := Message{}
+		msg.Timestamp = "1355517523.000005"
 
-		expected := slack.MessageEvent{
-			Msg: slack.Msg{
-				Text:      "foo",
-				Timestamp: "12344",
-				User:      "U123",
-				SubType:   typeInternal,
+		time.Local, _ = time.LoadLocation("Europe/Berlin")
+
+		actual := msg.GetTime()
+
+		expected := "2012-12-14T21:38:43+01:00"
+		assert.Equal(t, expected, actual.Format(time.RFC3339))
+	})
+
+	t.Run("Get Key", func(t *testing.T) {
+		message := Message{
+			Text: "foo",
+			MessageRef: MessageRef{
+				Channel:         "chan",
+				User:            "U123",
+				Timestamp:       "12344",
+				InternalMessage: true,
 			},
 		}
-		actual := message.ToSlackEvent()
+		assert.Equal(t, "U123-chan", message.GetUniqueKey())
+	})
 
-		assert.Equal(t, expected, actual)
+	t.Run("Get MessageRef", func(t *testing.T) {
+		message := Message{
+			Text: "foo",
+			MessageRef: MessageRef{
+				Channel:         "chan",
+				User:            "U123",
+				Timestamp:       "12344.111",
+				InternalMessage: true,
+			},
+		}
+		expected := slack.ItemRef{
+			Channel:   "chan",
+			Timestamp: "12344.111",
+		}
+		assert.Equal(t, expected, message.GetMessageRef())
 	})
 }

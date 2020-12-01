@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 	"io"
 	"sort"
 	"strings"
@@ -46,12 +46,12 @@ func (t *helpCommand) GetHelp() []bot.Help {
 }
 
 // ShowAll command entries and group them by "category"
-func (t *helpCommand) ShowAll(match matcher.Result, event slack.MessageEvent) {
+func (t *helpCommand) ShowAll(match matcher.Result, message msg.Message) {
 	t.once.Do(t.prebuildHelp)
 
 	var text strings.Builder
 
-	text.WriteString("Hello <@" + event.User + ">, I’m your friendly slack-bot. You want me to show you around? :smile: \n")
+	text.WriteString("Hello <@" + message.User + ">, I’m your friendly slack-bot. You want me to show you around? :smile: \n")
 	text.WriteString("I currently listen to the following commands:\n")
 
 	var lastCategory = bot.Category{}
@@ -74,7 +74,7 @@ func (t *helpCommand) ShowAll(match matcher.Result, event slack.MessageEvent) {
 	}
 
 	text.WriteString("With *help <command>* I can provide you with more details!")
-	t.slackClient.Reply(event, text.String())
+	t.slackClient.SendMessage(message, text.String())
 }
 
 func (t *helpCommand) printCategoryHeader(commandHelp bot.Help, text io.StringWriter) {
@@ -92,7 +92,7 @@ func (t *helpCommand) printCategoryHeader(commandHelp bot.Help, text io.StringWr
 }
 
 // ShowSingleCommand prints details of a specific command
-func (t *helpCommand) ShowSingleCommand(match matcher.Result, event slack.MessageEvent) {
+func (t *helpCommand) ShowSingleCommand(match matcher.Result, message msg.Message) {
 	// compile help only once
 	t.once.Do(t.prebuildHelp)
 
@@ -100,7 +100,7 @@ func (t *helpCommand) ShowSingleCommand(match matcher.Result, event slack.Messag
 
 	commandHelp, ok := t.commandHelp[command]
 	if !ok {
-		t.slackClient.Reply(event, fmt.Sprintf("Invalid command: `%s`", command))
+		t.slackClient.SendMessage(message, fmt.Sprintf("Invalid command: `%s`", command))
 		return
 	}
 
@@ -116,7 +116,7 @@ func (t *helpCommand) ShowSingleCommand(match matcher.Result, event slack.Messag
 		}
 	}
 
-	t.slackClient.Reply(event, text)
+	t.slackClient.SendMessage(message, text)
 }
 
 // generate the list of all commands only once and sort them by category/name
