@@ -1,24 +1,21 @@
 package command
 
 import (
-	"github.com/innogames/slack-bot/bot/msg"
-	"testing"
-
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 func TestHelp(t *testing.T) {
 	cfg := config.Config{}
 	cfg.Jenkins.Host = "bitbucket.example.com"
-	logger := logrus.New()
 	slackClient := &mocks.SlackClient{}
 
-	commands := GetCommands(slackClient, cfg, logger)
+	commands := GetCommands(slackClient, cfg)
 
 	help := bot.Commands{}
 	help.AddCommand(NewHelpCommand(slackClient, commands))

@@ -7,7 +7,6 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 	"text/template"
 )
@@ -16,7 +15,7 @@ type githubFetcher struct {
 	client *github.Client
 }
 
-func newGithubCommand(slackClient client.SlackClient, cfg config.Config, logger *logrus.Logger) bot.Command {
+func newGithubCommand(slackClient client.SlackClient, cfg config.Config) bot.Command {
 	if cfg.Github.AccessToken == "" {
 		return nil
 	}
@@ -30,7 +29,6 @@ func newGithubCommand(slackClient client.SlackClient, cfg config.Config, logger 
 	return command{
 		cfg.PullRequest,
 		slackClient,
-		logger,
 		&githubFetcher{githubClient},
 		"(?s).*https://github.com/(?P<project>.+)/(?P<repo>.+)/pull/(?P<number>\\d+).*",
 	}

@@ -8,7 +8,7 @@ import (
 
 func TestJira(t *testing.T) {
 	t.Run("no credentials", func(t *testing.T) {
-		cfg := config.Jira{
+		cfg := &config.Jira{
 			Host: "https://jira.example.com",
 		}
 		client, err := GetJiraClient(cfg)
@@ -18,7 +18,7 @@ func TestJira(t *testing.T) {
 	})
 
 	t.Run("with credentials", func(t *testing.T) {
-		cfg := config.Jira{
+		cfg := &config.Jira{
 			Host:     "https://jira.example.com",
 			Username: "foo",
 			Password: "bar",

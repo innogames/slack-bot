@@ -24,8 +24,8 @@ func GetBitbucketClient(cfg config.Bitbucket) (*bitbucket.DefaultApiService, err
 		ctx = context.WithValue(ctx, bitbucket.ContextBasicAuth, basicAuth)
 	}
 
-	config := bitbucket.NewConfiguration(cfg.Host + "/rest")
-	bitbucketClient := bitbucket.NewAPIClient(ctx, config)
+	bitbucketConfig := bitbucket.NewConfiguration(cfg.Host + "/rest")
+	bitbucketClient := bitbucket.NewAPIClient(ctx, bitbucketConfig)
 
 	return bitbucketClient.DefaultApi, nil
 }

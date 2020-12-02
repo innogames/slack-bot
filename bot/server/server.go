@@ -12,13 +12,12 @@ import (
 )
 
 // NewServer is used to receive slack interactions
-func NewServer(cfg config.Server, logger *log.Logger, slackClient *client.Slack, allowedUsers map[string]string) *Server {
-	return &Server{cfg: cfg, logger: logger, slackClient: slackClient, allowedUsers: allowedUsers}
+func NewServer(cfg config.Server, slackClient *client.Slack, allowedUsers map[string]string) *Server {
+	return &Server{cfg: cfg, slackClient: slackClient, allowedUsers: allowedUsers}
 }
 
 type Server struct {
 	cfg          config.Server
-	logger       *log.Logger
 	server       *http.Server
 	slackClient  *client.Slack
 	allowedUsers map[string]string
@@ -37,11 +36,11 @@ func (s *Server) StartServer() {
 		Addr: s.cfg.Listen,
 	}
 
-	s.logger.Infof("Started Server on %s", s.cfg.Listen)
+	log.Infof("Started Server on %s", s.cfg.Listen)
 
 	err := s.server.ListenAndServe()
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
-		s.logger.Fatal(err)
+		log.Fatal(err)
 	}
 }
 

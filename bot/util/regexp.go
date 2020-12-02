@@ -9,13 +9,13 @@ import (
 const FullMatch = "match"
 
 // RegexpResultToParams converts a regexp result into a simple string map...kind of deprecated
-func RegexpResultToParams(regexp *regexp.Regexp, match []string) map[string]string {
+func RegexpResultToParams(re *regexp.Regexp, match []string) map[string]string {
 	params := make(map[string]string, len(match))
 	if match == nil {
 		return params
 	}
 
-	for i, name := range regexp.SubexpNames() {
+	for i, name := range re.SubexpNames() {
 		if i == 0 || len(match) < i {
 			// store the full match as well
 			name = FullMatch

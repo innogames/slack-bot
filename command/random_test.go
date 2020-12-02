@@ -12,10 +12,11 @@ import (
 func TestRandom(t *testing.T) {
 	slackClient := mocks.SlackClient{}
 
-	command := bot.Commands{}
-	command.AddCommand(NewRandomCommand(&slackClient))
+	randomCommand := NewRandomCommand(&slackClient).(*randomCommand)
+	randomCommand.random.Seed(1) // we want always the same random
 
-	rand.Seed(1) // we want always the same random
+	command := bot.Commands{}
+	command.AddCommand(randomCommand)
 
 	t.Run("invalid command", func(t *testing.T) {
 		message := msg.Message{}
@@ -49,10 +50,10 @@ func TestRandom(t *testing.T) {
 		rand.Seed(1) // we want always the same random
 
 		message := msg.Message{}
-		message.Text = "random 1 2 3"
+		message.Text = "random 4 5 6"
 
 		// seed was chosen to pick the "3" every time
-		slackClient.On("SendMessage", message, "3").Return("")
+		slackClient.On("SendMessage", message, "4").Return("")
 
 		actual := command.Run(message)
 		assert.Equal(t, true, actual)

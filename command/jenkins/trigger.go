@@ -9,17 +9,16 @@ import (
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
-	"github.com/sirupsen/logrus"
 	"regexp"
 	"sort"
 	"strings"
 )
 
+// command to trigger/start jenkins jobs
 type triggerCommand struct {
 	jenkins     jenkins.Client
 	slackClient client.SlackClient
 	jobs        map[string]triggerCommandData
-	logger      *logrus.Logger
 }
 
 type triggerCommandData struct {
@@ -33,7 +32,6 @@ func newTriggerCommand(
 	jenkinsClient jenkins.Client,
 	slackClient client.SlackClient,
 	jobs config.JenkinsJobs,
-	logger *logrus.Logger,
 ) bot.Command {
 	trigger := make(map[string]triggerCommandData, len(jobs))
 
@@ -45,7 +43,7 @@ func newTriggerCommand(
 		}
 	}
 
-	return &triggerCommand{jenkinsClient, slackClient, trigger, logger}
+	return &triggerCommand{jenkinsClient, slackClient, trigger}
 }
 
 func (c *triggerCommand) IsEnabled() bool {
@@ -87,7 +85,7 @@ func (c *triggerCommand) GenericCall(match matcher.Result, message msg.Message) 
 		return
 	}
 
-	err = jenkins.TriggerJenkinsJob(jobConfig.config, jobName, finalParameters, c.slackClient, c.jenkins, message, c.logger)
+	err = jenkins.TriggerJenkinsJob(jobConfig.config, jobName, finalParameters, c.slackClient, c.jenkins, message)
 	if err != nil {
 		c.slackClient.ReplyError(message, err)
 		return
@@ -116,7 +114,7 @@ func (c *triggerCommand) ConfigTrigger(ref msg.Ref, text string) bool {
 			return true
 		}
 
-		err = jenkins.TriggerJenkinsJob(jobConfig.config, jobName, jobParams, c.slackClient, c.jenkins, ref.WithText(text), c.logger)
+		err = jenkins.TriggerJenkinsJob(jobConfig.config, jobName, jobParams, c.slackClient, c.jenkins, ref.WithText(text))
 		if err != nil {
 			c.slackClient.ReplyError(ref, err)
 		}
@@ -161,6 +159,7 @@ func (c *triggerCommand) GetHelp() []bot.Help {
 	return help
 }
 
+// todo once()
 func (c *triggerCommand) getAllowedJobNames() []string {
 	jobNames := make([]string, 0, len(c.jobs))
 	for jobName := range c.jobs {

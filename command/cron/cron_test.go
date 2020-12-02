@@ -5,7 +5,6 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"strings"
@@ -15,7 +14,6 @@ import (
 func TestCron(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 
-	logger := logrus.New()
 	crons := []config.Cron{
 		{
 			Channel:  "#dev",
@@ -26,7 +24,7 @@ func TestCron(t *testing.T) {
 			},
 		},
 	}
-	command := NewCronCommand(slackClient, logger, crons)
+	command := NewCronCommand(slackClient, crons)
 	commands := bot.Commands{}
 	commands.AddCommand(command)
 

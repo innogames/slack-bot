@@ -8,7 +8,6 @@ import (
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -31,10 +30,9 @@ func (t *testFetcher) getHelp() []bot.Help {
 func TestGetCommands(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	cfg := config.Config{}
-	logger := logrus.New()
 
 	// as we pass a empty config, no PR fetcher is able to register -> 0 valid commands
-	commands := GetCommands(slackClient, cfg, logger)
+	commands := GetCommands(slackClient, cfg)
 	assert.Equal(t, 0, commands.Count())
 }
 
@@ -159,12 +157,10 @@ func TestPullRequest(t *testing.T) {
 func initTest(slackClient client.SlackClient) (bot.Commands, *testFetcher) {
 	fetcher := &testFetcher{}
 	commands := bot.Commands{}
-	logger := logrus.New()
 
 	cmd := &command{
 		config.PullRequest{},
 		slackClient,
-		logger,
 		fetcher,
 		".*/projects/(?P<project>.+)/repos/(?P<repo>.+)/pull-requests/(?P<number>\\d+).*",
 	}

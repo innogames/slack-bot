@@ -4,7 +4,6 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
-	"github.com/sirupsen/logrus"
 )
 
 var category = bot.Category{
@@ -14,13 +13,13 @@ var category = bot.Category{
 }
 
 // GetCommands returns a list of all available PR watcher (gitlab, github, bitbucket etc) based on the current config
-func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logrus.Logger) bot.Commands {
+func GetCommands(slackClient client.SlackClient, cfg config.Config) bot.Commands {
 	commands := bot.Commands{}
 
 	commands.AddCommand(
-		newGitlabCommand(slackClient, cfg, logger),
-		newGithubCommand(slackClient, cfg, logger),
-		newBitbucketCommand(slackClient, cfg, logger),
+		newGitlabCommand(slackClient, cfg),
+		newGithubCommand(slackClient, cfg),
+		newBitbucketCommand(slackClient, cfg),
 	)
 
 	return commands

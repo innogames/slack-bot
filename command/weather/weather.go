@@ -103,7 +103,7 @@ func (c *command) GetWeather(match matcher.Result, message msg.Message) {
 	)
 	headerSection := slack.NewSectionBlock(headerText, nil, nil)
 
-	var sections []slack.Block
+	sections := make([]slack.Block, 0, len(fields)+1)
 	sections = append(sections, headerSection)
 
 	for _, element := range fields {

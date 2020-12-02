@@ -2,23 +2,31 @@ package vcs
 
 import (
 	"github.com/innogames/slack-bot/bot/config"
-	"github.com/sirupsen/logrus"
-	"github.com/sirupsen/logrus/hooks/test"
+	"github.com/innogames/slack-bot/bot/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestInitBranchWatcher(t *testing.T) {
-	cfg := config.Config{}
-	logger := logrus.New()
+	cfg := &config.Config{}
 
-	abort := InitBranchWatcher(cfg, logger)
-	abort <- true
+	branches = []string{
+		"release/3.12.23",
+	}
+
+	assert.Len(t, GetBranches(), 1)
+
+	ctx := util.NewServerContext()
+	go InitBranchWatcher(cfg, ctx)
+	time.Sleep(time.Millisecond * 10)
+	ctx.StopTheWorld()
+
+	// as a nullFetcher is used -> should be empty now
+	assert.Len(t, GetBranches(), 0)
 }
 
 func TestGetMatchingBranches(t *testing.T) {
-	logger, _ = test.NewNullLogger()
-
 	branches = []string{
 		"master",
 		"feature/PROJ-1234-do-something",
@@ -41,7 +49,7 @@ func TestGetMatchingBranches(t *testing.T) {
 
 	t.Run("Not unique", func(t *testing.T) {
 		actual, err := GetMatchingBranch("PROJ-1234")
-		assert.Equal(t, "multiple branches found: feature/PROJ-1234-do-something, feature/PROJ-1234-do-something-hotfix", err.Error())
+		assert.EqualError(t, err, "multiple branches found: feature/PROJ-1234-do-something, feature/PROJ-1234-do-something-hotfix")
 		assert.Equal(t, "", actual)
 	})
 

@@ -6,7 +6,6 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
-	"github.com/sirupsen/logrus"
 	"regexp"
 	"text/template"
 )
@@ -15,7 +14,7 @@ type bitbucketFetcher struct {
 	bitbucketClient *bitbucket.DefaultApiService
 }
 
-func newBitbucketCommand(slackClient client.SlackClient, cfg config.Config, logger *logrus.Logger) bot.Command {
+func newBitbucketCommand(slackClient client.SlackClient, cfg config.Config) bot.Command {
 	if !cfg.Bitbucket.IsEnabled() {
 		return nil
 	}
@@ -25,7 +24,6 @@ func newBitbucketCommand(slackClient client.SlackClient, cfg config.Config, logg
 	return command{
 		cfg.PullRequest,
 		slackClient,
-		logger,
 		&bitbucketFetcher{bitbucketClient},
 		"(?s).*" + regexp.QuoteMeta(cfg.Bitbucket.Host) + "/projects/(?P<project>.+)/repos/(?P<repo>.+)/pull-requests/(?P<number>\\d+).*",
 	}

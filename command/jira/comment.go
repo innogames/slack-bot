@@ -12,14 +12,14 @@ import (
 )
 
 // newCommentCommand adds a comment to the given ticket
-func newCommentCommand(jira *jira.Client, slackClient client.SlackClient, config config.Jira) bot.Command {
-	return &commentCommand{jira, slackClient, config}
+func newCommentCommand(jiraClient *jira.Client, slackClient client.SlackClient, config *config.Jira) bot.Command {
+	return &commentCommand{jiraClient, slackClient, config}
 }
 
 type commentCommand struct {
 	jira        *jira.Client
 	slackClient client.SlackClient
-	config      config.Jira
+	config      *config.Jira
 }
 
 func (c *commentCommand) IsEnabled() bool {

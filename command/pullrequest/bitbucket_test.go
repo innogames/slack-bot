@@ -5,7 +5,6 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -13,10 +12,9 @@ import (
 func TestBitbucket(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	cfg := config.Config{}
-	logger := logrus.New()
 
 	command := bot.Commands{}
-	cmd := newBitbucketCommand(slackClient, cfg, logger)
+	cmd := newBitbucketCommand(slackClient, cfg)
 	command.AddCommand(cmd)
 
 	t.Run("invalid command", func(t *testing.T) {

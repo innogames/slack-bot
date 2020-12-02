@@ -19,7 +19,7 @@ import (
 type jiraCommand struct {
 	jira        *jira.Client
 	slackClient client.SlackClient
-	config      config.Jira
+	config      *config.Jira
 }
 
 const (
@@ -31,8 +31,8 @@ const (
 var ticketRe = regexp.MustCompile(`^(\w+)-(\d+)$`)
 
 // newJiraCommand search for a Jira ticket id or a JQL
-func newJiraCommand(jira *jira.Client, slackClient client.SlackClient, config config.Jira) bot.Command {
-	return &jiraCommand{jira, slackClient, config}
+func newJiraCommand(jiraClient *jira.Client, slackClient client.SlackClient, config *config.Jira) bot.Command {
+	return &jiraCommand{jiraClient, slackClient, config}
 }
 
 func (c *jiraCommand) IsEnabled() bool {

@@ -16,10 +16,10 @@ import (
 
 func TestNodes(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
-	jenkins := &mocks.Client{}
+	jenkinsClient := &mocks.Client{}
 
 	command := bot.Commands{}
-	command.AddCommand(newNodesCommand(jenkins, slackClient))
+	command.AddCommand(newNodesCommand(jenkinsClient, slackClient))
 
 	t.Run("Test invalid command", func(t *testing.T) {
 		message := msg.Message{}
@@ -33,7 +33,7 @@ func TestNodes(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "jenkins nodes"
 
-		jenkins.On("GetAllNodes").Return(nil, fmt.Errorf("an error occurred"))
+		jenkinsClient.On("GetAllNodes").Return(nil, fmt.Errorf("an error occurred"))
 		slackClient.On("ReplyError", message, fmt.Errorf("an error occurred")).Return(true)
 		actual := command.Run(message)
 		assert.Equal(t, true, actual)

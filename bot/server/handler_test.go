@@ -1,13 +1,11 @@
 package server
 
 import (
+	"github.com/innogames/slack-bot/bot/config"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
-
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/sirupsen/logrus/hooks/test"
 )
 
 func TestHealthCheckHandler(t *testing.T) {
@@ -30,9 +28,7 @@ func TestHealthCheckHandler(t *testing.T) {
 
 // todo catching just some flows yet!
 func TestHandler(t *testing.T) {
-	logger, _ := test.NewNullLogger()
 	server := Server{}
-	server.logger = logger
 	server.cfg = config.Server{
 		Listen:        "0.0.0.0:80",
 		SigningSecret: "iamsecret",

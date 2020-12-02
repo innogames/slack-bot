@@ -2,12 +2,12 @@
 This slack bot improves the workflow of development teams. Especially with focus on Jenkins and Jira integration.
 
 [![Actions Status](https://github.com/innogames/slack-bot/workflows/Test/badge.svg)](https://github.com/innogames/slack-bot/actions)
-[![GoDoc](https://godoc.org/github.com/innogames/slack-bot?status.svg)](https://godoc.org/github.com/innogames/slack-bot)
+[![PkgGoDev](https://pkg.go.dev/badge/innogames/slack-bot)](https://pkg.go.dev/innogames/slack-bot)
 [![Go Report Card](https://goreportcard.com/badge/github.com/innogames/slack-bot)](https://goreportcard.com/report/github.com/innogames/slack-bot)
 [![Release](https://img.shields.io/github/release/innogames/slack-bot.svg)](https://github.com/innogames/slack-bot/releases)
 [![codecov](https://codecov.io/gh/innogames/slack-bot/branch/master/graph/badge.svg)](https://codecov.io/gh/innogames/slack-bot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[Docker](https://hub.docker.com/r/brainexe/slack-bot)
+[![Docker](https://img.shields.io/docker/pulls/brainexe/slack-bot.svg)](https://hub.docker.com/r/brainexe/slack-bot)
 
 # Installation
 **Create Classic Slack App:**
@@ -212,7 +212,8 @@ open_weather:
 ```
 
 ## Custom command
-Every user is able to define own command aliases. This is a handy feature to avoid tying the same command every day.
+Every user is able to define own command aliases. 
+This is a handy feature to avoid tying the same command every day.
 
 **Commands**
 - `list commands`
@@ -247,14 +248,14 @@ commands:
 With `retry` or `repeat` your last executed command will be re-executed. -> Useful when a failed Jenkins job got fixed.
 
 ## Delay
-A small command which might be useful in combination with `macro` command or as hook for jenkins jobs.
+A small command which might be useful in combination with `command` command or as hook for jenkins jobs.
 
 Example command: `delay 10m trigger job DeployWorldwide`
 
 As reply you'll get a command to stop the queued job (like `stop timer 123456`). As everyone can send the command, the command can be used to announce a deployment and in doubt, the execution can still be stopped by everyone.
 
 ## Reply / send message
-`reply` and `send message` are also small commands which are useful in combination with `macro` or jenkins hooks.
+`reply` and `send message` are also small commands which are useful in combination with `command` or jenkins hooks.
 
 **Examples:**
 - `send message to #backend The job failed :panic:`
@@ -286,19 +287,21 @@ docker-compose up --build
 ```
 
 # Configuration
-The configuration is managed via simple yaml files which are storing the credentials for the external services and the custom commands etc.
+The configuration is managed via simple .yaml files which are storing the credentials for the external services and the custom commands etc.
+
 It's supported to split up the configuration into multiple files.
 
 **Possible structure:**
 - `secret.yaml` containing the credentials for the external services (slack, jenkins) - can be managed by puppet/ansible etc.
 - `jenkins.yaml` configuration of jenkins job and their parameters etc
-- `project-X.yaml` custom commands (aka macros) for a specific team
+- `project-X.yaml` custom commands for a specific team
 - `project-Y.yaml`
 
 To load the config files, use `go run cmd/bot/main.go -config /path/to/config/*.yaml` which merged all configs together.
 
 ## Slack
 To run this bot, you need a "bot token" for your slack application. 
+
 [Take a look here](https://api.slack.com/docs/token-types#bot) how to get one.
 
 ## Jenkins
@@ -367,23 +370,10 @@ Then you can use `deploy bugfix-1234 to test` to start the jenkins job.
 The `onsuccess` is a hook which will be executed when a job ist started via this bot. 
 In addition `onsuccess` and `onerror` is also available...e.g. to send custom error messages.
 
-### MQTT
-MQTT is a simple publish-subscribe messaging protocol, based on TCP/IP.
-
-**Example config**
-```
-mqtt:
-  host: tcp://localhost:1883
-``` 
-
-**Commands**
-```
-- mqtt subscribe temperature
-- mqtt publish temperature 1.22
-- mqtt unsubscribe temperature
-```
 
 ### Cron
+It's possible to define periodical commands via crons, using the [robfig/cron library](github.com/robfig/cron).
+
 **Example config**
 ```
 crons:
@@ -413,9 +403,10 @@ If no config is provided, there is no automated branch lookup and the "branch" p
 - `bot` contains the code classes of the bot: connection to slack, user management, command matching
 - `cmd` entry points aka main.go for the bot and the CLI test tool
 - `command` real command implementing the bot.Command interface
+- `client` communication interfaces for Slack, Jenkins, Jira etc...
 
 ## Create a new (native) command
-If you need a new command, which is not implementable with a "macro" command, you have to write to write go code.
+If you need a new command, which is not implementable with a "command" command, you have to write to write go code.
 - create a new file within the "commands/" directory or one submodule of it
 - create a new struct which fulfills the bot.Command interface. The service.SlackClient might be needed as dependency
 - GetMatcher() needs to provide the information which command text is matching our command

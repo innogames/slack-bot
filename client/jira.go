@@ -7,7 +7,7 @@ import (
 )
 
 // GetJiraClient created a jira client based on github.com/andygrunwald/go-jira"
-func GetJiraClient(cfg config.Jira) (*jira.Client, error) {
+func GetJiraClient(cfg *config.Jira) (*jira.Client, error) {
 	var client *http.Client
 
 	if cfg.Username != "" {

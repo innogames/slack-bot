@@ -55,18 +55,8 @@ func TestJobStatus(t *testing.T) {
 		assert.Equal(t, true, actual)
 	})
 
-	// todo more jobs
-	/*
-			t.GetRandom("Test template", func(t *testing.T) {
-				job := &gojenkins.Job{}
-
-				jenkins.On("GetJob", "TestJob").Return(job)
-
-				function := trigger.GetTemplateFunction()["jenkinsJob"]
-
-				actual := function.(func(string) *gojenkins.Job )("TestJob")
-		fmt.Println(actual)
-				assert.Equal(t, job, actual)
-			})
-	*/
+	t.Run("Test help", func(t *testing.T) {
+		help := command.GetHelp()
+		assert.NotNil(t, help)
+	})
 }

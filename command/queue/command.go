@@ -6,26 +6,22 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"time"
 )
 
 // NewQueueCommand is able to execute a command when another blocking process is done
 // e.g. have a running jenkins job and using "then reply done!" to get a information later
-func NewQueueCommand(slackClient client.SlackClient, log *logrus.Logger) bot.Command {
-	logger = log
-
-	executeFallbackCommand(logger)
+func NewQueueCommand(slackClient client.SlackClient) bot.Command {
+	executeFallbackCommand()
 
 	return &command{
 		slackClient,
-		logger,
 	}
 }
 
 type command struct {
 	slackClient client.SlackClient
-	logger      *logrus.Logger
 }
 
 func (c *command) GetMatcher() matcher.Matcher {
@@ -65,7 +61,7 @@ func (c *command) Run(match matcher.Result, message msg.Message) {
 			// trigger new command
 			client.InternalMessages <- message.WithText(command)
 
-			c.logger.Infof("[Queue] Blocking command is over, eval newMessage: %s", command)
+			log.Infof("[Queue] Blocking command is over, eval newMessage: %s", command)
 			return
 		}
 	}()

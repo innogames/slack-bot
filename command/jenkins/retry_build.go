@@ -8,14 +8,12 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
-	"github.com/sirupsen/logrus"
 )
 
 type retryCommand struct {
 	jenkins     jenkins.Client
 	slackClient client.SlackClient
 	jobs        config.JenkinsJobs
-	logger      *logrus.Logger
 }
 
 // newRetryCommand initialize a new command to trigger for whitelisted jenkins job
@@ -23,9 +21,8 @@ func newRetryCommand(
 	jenkinsClient jenkins.Client,
 	slackClient client.SlackClient,
 	jobs config.JenkinsJobs,
-	logger *logrus.Logger,
 ) bot.Command {
-	return &retryCommand{jenkinsClient, slackClient, jobs, logger}
+	return &retryCommand{jenkinsClient, slackClient, jobs}
 }
 
 func (c *retryCommand) GetMatcher() matcher.Matcher {
@@ -61,7 +58,7 @@ func (c *retryCommand) Run(match matcher.Result, message msg.Message) {
 		parameters[param.Name] = param.Value
 	}
 
-	err = jenkins.TriggerJenkinsJob(c.jobs[jobName], jobName, parameters, c.slackClient, c.jenkins, message, c.logger)
+	err = jenkins.TriggerJenkinsJob(c.jobs[jobName], jobName, parameters, c.slackClient, c.jenkins, message)
 	if err != nil {
 		c.slackClient.ReplyError(message, err)
 	}

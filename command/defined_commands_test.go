@@ -6,14 +6,12 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestInvalidMacro(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
-	logger := logrus.New()
 
 	client.InternalMessages = make(chan msg.Message, 2)
 	cfg := []config.Command{
@@ -28,7 +26,7 @@ func TestInvalidMacro(t *testing.T) {
 	}
 
 	command := bot.Commands{}
-	command.AddCommand(NewCommands(slackClient, cfg, logger))
+	command.AddCommand(NewCommands(slackClient, cfg))
 
 	t.Run("invalid command", func(t *testing.T) {
 		message := msg.Message{}
@@ -40,8 +38,6 @@ func TestInvalidMacro(t *testing.T) {
 }
 
 func TestMacro(t *testing.T) {
-	logger := logrus.New()
-
 	slackClient := &mocks.SlackClient{}
 	client.InternalMessages = make(chan msg.Message, 2)
 	cfg := []config.Command{
@@ -56,7 +52,7 @@ func TestMacro(t *testing.T) {
 	}
 
 	command := bot.Commands{}
-	command.AddCommand(NewCommands(slackClient, cfg, logger))
+	command.AddCommand(NewCommands(slackClient, cfg))
 
 	t.Run("invalid macro", func(t *testing.T) {
 		message := msg.Message{}

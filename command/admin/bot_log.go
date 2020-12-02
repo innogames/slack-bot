@@ -41,6 +41,7 @@ func (c *botLogCommand) Run(match matcher.Result, message msg.Message) {
 		c.slackClient.SendMessage(message, "No logs so far")
 		return
 	}
+
 	c.slackClient.SendMessage(message, fmt.Sprintf("The most recent messages:\n```%s```", parts[1]))
 }
 

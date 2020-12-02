@@ -11,13 +11,12 @@ type bitbucket struct {
 }
 
 // LoadBranches will load the branches from a stash/bitbucket server
-func (f *bitbucket) LoadBranches() ([]string, error) {
-	var branchNames []string
-
+func (f *bitbucket) LoadBranches() (branchNames []string, err error) {
 	branchesRaw, err := f.client.GetBranches(f.cfg.Project, f.cfg.Repository, nil)
 	if err != nil {
-		return branchNames, err
+		return
 	}
+
 	branchesRaw.Body.Close()
 
 	branches, err := bitbucketApi.GetBranchesResponse(branchesRaw)
@@ -30,5 +29,5 @@ func (f *bitbucket) LoadBranches() ([]string, error) {
 		branchNames = append(branchNames, branch.DisplayID)
 	}
 
-	return branchNames, nil
+	return
 }

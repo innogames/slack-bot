@@ -15,7 +15,7 @@ func TestCommentJira(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 
 	// todo fake http client
-	cfg := config.Jira{
+	cfg := &config.Jira{
 		Host:    "https://issues.apache.org/jira/",
 		Project: "ZOOKEEPER",
 	}

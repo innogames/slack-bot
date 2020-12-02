@@ -10,22 +10,20 @@ import (
 	"github.com/innogames/slack-bot/command/games"
 	"github.com/innogames/slack-bot/command/jenkins"
 	"github.com/innogames/slack-bot/command/jira"
-	"github.com/innogames/slack-bot/command/mqtt"
 	"github.com/innogames/slack-bot/command/pullrequest"
 	"github.com/innogames/slack-bot/command/queue"
 	"github.com/innogames/slack-bot/command/variables"
 	"github.com/innogames/slack-bot/command/weather"
-	"github.com/sirupsen/logrus"
 )
 
 // GetCommands returns the list of default command which are available
-func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logrus.Logger) *bot.Commands {
+func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Commands {
 	commands := &bot.Commands{}
 	commands.AddCommand(
 		// needs to be the first commands to store all executed commands
 		NewRetryCommand(slackClient),
 
-		NewCommands(slackClient, cfg.Commands, logger),
+		NewCommands(slackClient, cfg.Commands),
 		NewReplyCommand(slackClient),
 		NewAddLinkCommand(slackClient),
 		NewAddButtonCommand(slackClient, cfg.Server),
@@ -40,11 +38,9 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logr
 
 		weather.NewWeatherCommand(slackClient, cfg.OpenWeather),
 
-		mqtt.NewMqttCommand(slackClient, cfg.Mqtt),
+		cron.NewCronCommand(slackClient, cfg.Crons),
 
-		cron.NewCronCommand(slackClient, logger, cfg.Crons),
-
-		queue.NewQueueCommand(slackClient, logger),
+		queue.NewQueueCommand(slackClient),
 		queue.NewListCommand(slackClient),
 
 		custom.GetCommand(slackClient),
@@ -55,13 +51,13 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config, logger *logr
 	commands.Merge(games.GetCommands(slackClient))
 
 	// jira
-	commands.Merge(jira.GetCommands(cfg.Jira, slackClient, logger))
+	commands.Merge(jira.GetCommands(&cfg.Jira, slackClient))
 
 	// jenkins
-	commands.Merge(jenkins.GetCommands(cfg.Jenkins, slackClient, logger))
+	commands.Merge(jenkins.GetCommands(cfg.Jenkins, slackClient))
 
 	// pull-request
-	commands.Merge(pullrequest.GetCommands(slackClient, cfg, logger))
+	commands.Merge(pullrequest.GetCommands(slackClient, cfg))
 
 	return commands
 }

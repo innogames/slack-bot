@@ -5,7 +5,6 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
-	"github.com/sirupsen/logrus"
 	"github.com/xanzy/go-gitlab"
 	"regexp"
 	"strings"
@@ -16,7 +15,7 @@ type gitlabFetcher struct {
 	client *gitlab.Client
 }
 
-func newGitlabCommand(slackClient client.SlackClient, cfg config.Config, logger *logrus.Logger) bot.Command {
+func newGitlabCommand(slackClient client.SlackClient, cfg config.Config) bot.Command {
 	if cfg.Gitlab.AccessToken == "" && cfg.Gitlab.Host == "" {
 		return nil
 	}
@@ -30,7 +29,6 @@ func newGitlabCommand(slackClient client.SlackClient, cfg config.Config, logger 
 	return command{
 		cfg.PullRequest,
 		slackClient,
-		logger,
 		&gitlabFetcher{gitlabClient},
 		"(?s).*" + regexp.QuoteMeta(cfg.Gitlab.Host) + "/(?P<repo>.+/.+)/merge_requests/(?P<number>\\d+).*",
 	}
