@@ -40,10 +40,10 @@ func convertMarkdown(content string) string {
 	return content
 }
 
-func getFormattedURL(cfg config.Jira, issue jira.Issue) string {
+func getFormattedURL(cfg *config.Jira, issue jira.Issue) string {
 	return fmt.Sprintf("<%s|%s>", getTicketURL(cfg, issue), issue.Key)
 }
 
-func getTicketURL(cfg config.Jira, issue jira.Issue) string {
+func getTicketURL(cfg *config.Jira, issue jira.Issue) string {
 	return fmt.Sprintf("%sbrowse/%s", cfg.Host, issue.Key)
 }

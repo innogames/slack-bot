@@ -50,12 +50,16 @@ func InitBranchWatcher(config *config.Config, ctx *util.ServerContext) {
 	}
 }
 
+func GetBranches() []string {
+	return branches
+}
+
 // GetMatchingBranch does a fuzzy search on all loaded branches. If there are multiple matching branches, it fails.
 func GetMatchingBranch(input string) (string, error) {
 	var foundBranches []string
 
 	loweredInput := strings.ToLower(input)
-	for _, branch := range branches {
+	for _, branch := range GetBranches() {
 		loweredBranch := strings.ToLower(branch)
 		if loweredBranch == loweredInput {
 			return input, nil

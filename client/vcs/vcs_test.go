@@ -10,9 +10,18 @@ import (
 func TestInitBranchWatcher(t *testing.T) {
 	cfg := &config.Config{}
 
+	branches = []string{
+		"release/3.12.23",
+	}
+
+	assert.Len(t, GetBranches(), 1)
+
 	ctx := util.NewServerContext()
 	go InitBranchWatcher(cfg, ctx)
 	ctx.StopTheWorld()
+
+	// as a nullFetcher is used -> should be empty now
+	assert.Len(t, GetBranches(), 0)
 }
 
 func TestGetMatchingBranches(t *testing.T) {
@@ -38,7 +47,7 @@ func TestGetMatchingBranches(t *testing.T) {
 
 	t.Run("Not unique", func(t *testing.T) {
 		actual, err := GetMatchingBranch("PROJ-1234")
-		assert.Equal(t, "multiple branches found: feature/PROJ-1234-do-something, feature/PROJ-1234-do-something-hotfix", err.Error())
+		assert.EqualError(t, err, "multiple branches found: feature/PROJ-1234-do-something, feature/PROJ-1234-do-something-hotfix")
 		assert.Equal(t, "", actual)
 	})
 

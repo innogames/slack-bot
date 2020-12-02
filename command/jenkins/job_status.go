@@ -55,6 +55,7 @@ func (c *statusCommand) Run(match matcher.Result, message msg.Message) {
 	}
 
 	var text string
+
 	if action == actionEnable {
 		_, err = job.Enable()
 		text = fmt.Sprintf("Job *%s* is enabled now", jobName)

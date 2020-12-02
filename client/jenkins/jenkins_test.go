@@ -6,6 +6,13 @@ import (
 	"testing"
 )
 
+func TestGetClient(t *testing.T) {
+	cfg := config.Jenkins{}
+	jenkinsClient, err := GetClient(cfg)
+	assert.Nil(t, err)
+	assert.Nil(t, jenkinsClient)
+}
+
 func TestJenkinsNoParameters(t *testing.T) {
 	jobConfig := config.JobConfig{}
 

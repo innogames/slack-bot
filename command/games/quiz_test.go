@@ -21,6 +21,7 @@ func TestQuiz(t *testing.T) {
 		file, _ := ioutil.ReadFile("./quiz_example.json")
 		w.Write(file)
 	}))
+
 	defer ts.Close()
 
 	command := NewQuizCommand(slackClient).(*quizCommand)

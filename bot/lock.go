@@ -4,6 +4,8 @@ import "sync"
 
 var globalLock sync.Mutex
 
+// get and hold a mutex for each requested user.
+// the user-lock it's locked by default
 func (b *Bot) getUserLock(userID string) *sync.Mutex {
 	var userLock *sync.Mutex
 
@@ -13,9 +15,9 @@ func (b *Bot) getUserLock(userID string) *sync.Mutex {
 		userLock = &sync.Mutex{}
 		b.userLocks[userID] = userLock
 	}
-	globalLock.Unlock()
 
 	userLock.Lock()
+	globalLock.Unlock()
 
 	return userLock
 }

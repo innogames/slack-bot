@@ -14,6 +14,7 @@ import (
 	"strings"
 )
 
+// command to trigger/start jenkins jobs
 type triggerCommand struct {
 	jenkins     jenkins.Client
 	slackClient client.SlackClient
@@ -158,6 +159,7 @@ func (c *triggerCommand) GetHelp() []bot.Help {
 	return help
 }
 
+// todo once()
 func (c *triggerCommand) getAllowedJobNames() []string {
 	jobNames := make([]string, 0, len(c.jobs))
 	for jobName := range c.jobs {

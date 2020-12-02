@@ -8,7 +8,7 @@ import (
 )
 
 // GetCommands will return a list of available Jira commands...if the config is set!
-func GetCommands(cfg config.Jira, slackClient client.SlackClient) bot.Commands {
+func GetCommands(cfg *config.Jira, slackClient client.SlackClient) bot.Commands {
 	var commands bot.Commands
 
 	if !cfg.IsEnabled() {

@@ -128,7 +128,7 @@ func (b *Bot) loadChannels() (map[string]string, error) {
 // DisconnectRTM will do a clean shutdown and kills all connections
 func (b *Bot) DisconnectRTM() error {
 	if b.server != nil {
-		b.server.Stop()
+		return b.server.Stop()
 	}
 
 	if b.slackClient.RTM != nil {
@@ -195,7 +195,9 @@ func (b *Bot) HandleMessages(ctx *util.ServerContext) {
 			message.InternalMessage = true
 			go b.handleMessage(message, false)
 		case <-ctx.Done():
-			b.DisconnectRTM()
+			if err := b.DisconnectRTM(); err != nil {
+				log.Error(err)
+			}
 			return
 		}
 	}

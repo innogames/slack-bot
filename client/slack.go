@@ -205,7 +205,9 @@ func GetInteraction(ref msg.Ref, text string, command string, args ...string) *s
 	id := util.RandString(32)
 
 	message := ref.WithText(command)
-	storage.Write("interactions", id, message)
+	if err := storage.Write("interactions", id, message); err != nil {
+		log.Warn(err)
+	}
 
 	buttonText := slack.NewTextBlockObject("plain_text", text, true, false)
 	button := slack.NewButtonBlockElement("id", id, buttonText)
