@@ -5,6 +5,7 @@ import (
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestInitBranchWatcher(t *testing.T) {
@@ -18,6 +19,7 @@ func TestInitBranchWatcher(t *testing.T) {
 
 	ctx := util.NewServerContext()
 	go InitBranchWatcher(cfg, ctx)
+	time.Sleep(time.Millisecond * 10)
 	ctx.StopTheWorld()
 
 	// as a nullFetcher is used -> should be empty now

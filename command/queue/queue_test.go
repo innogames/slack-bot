@@ -105,7 +105,7 @@ func TestQueue(t *testing.T) {
 		assert.Equal(t, true, actual)
 
 		done <- true
-		time.Sleep(time.Millisecond * 300)
+		time.Sleep(time.Millisecond * 400)
 
 		assert.NotEmpty(t, client.InternalMessages)
 
