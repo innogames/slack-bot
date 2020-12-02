@@ -14,8 +14,6 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command"
-	"github.com/sirupsen/logrus"
-	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slacktest"
 )
@@ -25,18 +23,16 @@ const TestChannel = "#dev"
 const botID = "W12345"
 
 // StartBot will start this bot against the fake slack instance
-func StartBot(cfg config.Config, logger *logrus.Logger) *bot.Bot {
-	slackClient := client.GetSlackClient(cfg.Slack, logger)
+func StartBot(cfg config.Config) *bot.Bot {
+	slackClient := client.GetSlackClient(cfg.Slack)
 
 	commands := command.GetCommands(
 		slackClient,
 		cfg,
-		logger,
 	)
 	realBot := bot.NewBot(
 		cfg,
 		slackClient,
-		logger,
 		commands,
 	)
 
@@ -73,13 +69,18 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 				Members: []slack.User{},
 			}
 			bytes, _ := json.Marshal(users)
-			_, _ = w.Write(bytes)
+			w.Write(bytes)
 		})
 		c.Handle("/chat.postMessage", func(w http.ResponseWriter, r *http.Request) {
 			payload, _ := ioutil.ReadAll(r.Body)
 			query, _ := url.ParseQuery(string(payload))
 			text := query.Get("text")
 			fmt.Fprintf(output, formatSlackMessage(text)+"\n")
+
+			response := slack.Message{}
+			response.Text = text
+			bytes, _ := json.Marshal(response)
+			w.Write(bytes)
 		})
 		c.Handle("/reactions.add", func(w http.ResponseWriter, r *http.Request) {
 			payload, _ := ioutil.ReadAll(r.Body)
@@ -99,13 +100,6 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 	}
 
 	return fakeSlack
-}
-
-// GetNullLogger will just ignore all logs
-func GetNullLogger() *logrus.Logger {
-	logger, _ := test.NewNullLogger()
-
-	return logger
 }
 
 func checkError(err error) {

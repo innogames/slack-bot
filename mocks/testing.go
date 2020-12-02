@@ -11,7 +11,7 @@ import (
 )
 
 // AssertSlackJSON is a test helper to assert full slack attachments
-func AssertSlackJSON(t *testing.T, slackClient *SlackClient, message msg.Message, expected url.Values) {
+func AssertSlackJSON(t *testing.T, slackClient *SlackClient, message msg.Ref, expected url.Values) {
 	slackClient.On("SendMessage", message, "", mock.MatchedBy(func(option slack.MsgOption) bool {
 		_, values, _ := slack.UnsafeApplyMsgOptions(
 			"token",

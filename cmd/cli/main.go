@@ -2,47 +2,35 @@ package main
 
 import (
 	"bufio"
-	"context"
 	"flag"
+	"github.com/gookit/color"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/innogames/slack-bot/bot/storage"
+	"github.com/innogames/slack-bot/bot/tester"
+	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"io"
 	"os"
 	"strings"
-	"sync"
-
-	"github.com/gookit/color"
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/storage"
-	"github.com/innogames/slack-bot/bot/tester"
-	"github.com/sirupsen/logrus"
 )
 
 // starts a interactive shell to communicate with a mocked slack server and execute real commands
 func main() {
 	var verbose bool
 
-	flag.BoolVar(&verbose, "v", false, "-v to use verbose logging")
+	// todo add path to config + verbose flag
 	flag.Parse()
-
 	cfg := config.Config{}
-	ctx, _ := context.WithCancel(context.Background())
-	wg := &sync.WaitGroup{}
 
-	startCli(ctx, wg, os.Stdin, os.Stdout, cfg, verbose)
+	ctx := util.NewServerContext()
+
+	startCli(ctx, os.Stdin, os.Stdout, cfg, verbose)
 }
 
-func startCli(ctx context.Context, wg *sync.WaitGroup, input io.Reader, output io.Writer, cfg config.Config, verbose bool) {
-	wg.Add(1)
-	defer wg.Done()
-
-	var logger *logrus.Logger
-	if verbose {
-		logger = bot.GetLogger(cfg.Logger)
-	} else {
-		logger = tester.GetNullLogger()
-	}
+func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg config.Config, verbose bool) {
+	ctx.RegisterChild()
+	defer ctx.ChildDone()
 
 	// set an empty storage -> just store data in Ram
 	storage.InitStorage("")
@@ -51,8 +39,8 @@ func startCli(ctx context.Context, wg *sync.WaitGroup, input io.Reader, output i
 	fakeSlack := tester.StartFakeSlack(&cfg, output)
 	defer fakeSlack.Stop()
 
-	realBot := tester.StartBot(cfg, logger)
-	go realBot.HandleMessages(ctx, wg)
+	realBot := tester.StartBot(cfg)
+	go realBot.HandleMessages(ctx)
 
 	color.SetOutput(output)
 	color.Red.Print("Type in your command:\n")

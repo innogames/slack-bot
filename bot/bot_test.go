@@ -5,7 +5,6 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
-	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -17,12 +16,10 @@ func TestBot(t *testing.T) {
 	rawSlackClient := &slack.Client{}
 	slackClient := &client.Slack{Client: rawSlackClient, RTM: rawSlackClient.NewRTM()}
 
-	logger, _ := test.NewNullLogger()
-
 	commands := &Commands{}
 	commands.AddCommand(testCommand2{})
 
-	bot := NewBot(cfg, slackClient, logger, commands)
+	bot := NewBot(cfg, slackClient, commands)
 	bot.auth = &slack.AuthTestResponse{
 		UserID: "BOT",
 	}

@@ -7,7 +7,6 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -16,11 +15,10 @@ const (
 )
 
 // newJobWatcherCommand initialize a new command to watch for any jenkins job
-func newJobWatcherCommand(jenkinsClient jenkins.Client, slackClient client.SlackClient, logger *logrus.Logger) bot.Command {
+func newJobWatcherCommand(jenkinsClient jenkins.Client, slackClient client.SlackClient) bot.Command {
 	return &watcherCommand{
 		jenkinsClient,
 		slackClient,
-		logger,
 		make(map[string]chan bool),
 	}
 }
@@ -28,7 +26,6 @@ func newJobWatcherCommand(jenkinsClient jenkins.Client, slackClient client.Slack
 type watcherCommand struct {
 	jenkins     jenkins.Client
 	slackClient client.SlackClient
-	logger      *logrus.Logger
 	stopper     map[string]chan bool
 }
 

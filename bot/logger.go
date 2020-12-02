@@ -1,32 +1,30 @@
 package bot
 
 import (
-	"github.com/innogames/slack-bot/bot/msg"
-	"os"
-
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/rifflock/lfshook"
 	log "github.com/sirupsen/logrus"
+	"os"
 )
 
-// GetLogger provides logger instance for the given config
-func GetLogger(cfg config.Logger) *log.Logger {
-	level, _ := log.ParseLevel(cfg.Level)
+// InitLogger provides logger instance for the given config
+func InitLogger(cfg config.Logger) {
+	level, err := log.ParseLevel(cfg.Level)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	log.SetOutput(os.Stdout)
 	log.SetLevel(level)
 
-	logger := log.New()
-
 	if cfg.File != "" {
-		logger.AddHook(lfshook.NewHook(
+		log.AddHook(lfshook.NewHook(
 			cfg.File,
 			&log.TextFormatter{},
 		))
 	}
-
-	return logger
 }
 
 // get a log.Entry with some user related fields
@@ -40,7 +38,7 @@ func (b *Bot) getUserBasedLogger(ref msg.Ref) *log.Entry {
 		_, channel = client.GetChannel(ref.GetChannel())
 	}
 
-	return b.logger.
+	return log.
 		WithField("channel", channel).
 		WithField("user", username)
 }

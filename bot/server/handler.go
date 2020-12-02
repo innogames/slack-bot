@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/innogames/slack-bot/bot/msg"
-	"io/ioutil"
-	"net/http"
-	"time"
-
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/client"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
+	"io/ioutil"
+	"net/http"
+	"time"
 )
 
 // todo: this whole file is WIP and not ready for production yet - just use the RTM api for a stable API
@@ -55,6 +55,7 @@ func (s *Server) eventHandler(w http.ResponseWriter, r *http.Request) {
 			s.error(w, e, http.StatusInternalServerError)
 			return
 		}
+
 		w.Header().Set("Content-Type", "text")
 		w.Write([]byte(r.Challenge))
 		return
@@ -95,9 +96,9 @@ func (s *Server) interactionHandler(w http.ResponseWriter, r *http.Request) {
 
 	action := payload.ActionCallback.BlockActions[0]
 
-	var messsage msg.Message
+	var message msg.Message
 
-	err = storage.Read("interactions", action.Value, &messsage)
+	err = storage.Read("interactions", action.Value, &message)
 	if err != nil {
 		// already performed action -> do nothing
 		w.WriteHeader(200)
@@ -105,9 +106,9 @@ func (s *Server) interactionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	storage.Delete("interactions", action.Value)
 
-	messsage.User = payload.User.ID
+	message.User = payload.User.ID
 
-	client.InternalMessages <- messsage
+	client.InternalMessages <- message
 
 	newMessage := getChangedMessage(payload.Message, action.Value)
 	w.WriteHeader(http.StatusOK)
@@ -117,7 +118,7 @@ func (s *Server) interactionHandler(w http.ResponseWriter, r *http.Request) {
 	response.Text = fmt.Sprintf("<@%s> performed action at %s", payload.User.Name, time.Now())
 
 	s.slackClient.SendMessage(
-		messsage,
+		message,
 		newMessage.Text,
 		slack.MsgOptionUpdate(newMessage.Timestamp),
 		slack.MsgOptionAttachments(newMessage.Attachments...),
@@ -143,7 +144,7 @@ func (s *Server) verifyRequest(w http.ResponseWriter, r *http.Request, body []by
 }
 
 func (s *Server) error(w http.ResponseWriter, err error, status int) {
-	s.logger.Errorf(err.Error())
+	log.Errorf(err.Error())
 	w.WriteHeader(status)
 	w.Write([]byte(err.Error()))
 }

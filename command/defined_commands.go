@@ -8,14 +8,13 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
-	"github.com/sirupsen/logrus"
 	"regexp"
 	"strings"
 )
 
 // NewCommands defines custom commands by defining a trigger (regexp) and a list of commands which should be executed
 // it also supports placeholders by {{ .param }} using the regexp group name
-func NewCommands(slackClient client.SlackClient, macros []config.Command, logger *logrus.Logger) bot.Command {
+func NewCommands(slackClient client.SlackClient, macros []config.Command) bot.Command {
 	commands := make([]command, len(macros))
 
 	for i, macro := range macros {

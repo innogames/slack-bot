@@ -2,19 +2,18 @@ package vcs
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
+	log "github.com/sirupsen/logrus"
 	"strings"
 	"time"
-
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/sirupsen/logrus"
 )
 
 const branchFetchInterval = time.Minute * 2
 
 // cached list of branch names
 var branches []string
-var logger *logrus.Logger
 
 // BranchFetcher loads a list of all available branch names in a repository
 type BranchFetcher interface {
@@ -22,31 +21,33 @@ type BranchFetcher interface {
 }
 
 // InitBranchWatcher will load the current branches each X from the configured VCS -> e.g. used for branch lookup for Jenkins parameters
-func InitBranchWatcher(config config.Config, log *logrus.Logger) chan bool {
-	logger = log
-	quit := make(chan bool, 1)
+func InitBranchWatcher(config *config.Config, ctx *util.ServerContext) {
+	ctx.RegisterChild()
+	defer ctx.ChildDone()
+
+	var err error
+	fetcher := createBranchFetcher(config)
+
+	// load branch list using startup
+	branches, err = fetcher.LoadBranches()
+	if err != nil {
+		log.Error(err)
+	}
 
 	ticker := time.NewTicker(branchFetchInterval)
-	go func() {
-		defer ticker.Stop()
+	defer ticker.Stop()
 
-		fetcher := createBranchFetcher(config)
-		var err error
-
-		for {
-			select {
-			case <-ticker.C:
-				branches, err = fetcher.LoadBranches()
-				if err != nil {
-					logger.Error(err)
-				}
-			case <-quit:
-				return
+	for {
+		select {
+		case <-ticker.C:
+			branches, err = fetcher.LoadBranches()
+			if err != nil {
+				log.Error(err)
 			}
+		case <-ctx.Done():
+			return
 		}
-	}()
-
-	return quit
+	}
 }
 
 // GetMatchingBranch does a fuzzy search on all loaded branches. If there are multiple matching branches, it fails.
@@ -69,18 +70,18 @@ func GetMatchingBranch(input string) (string, error) {
 		return foundBranches[0], nil
 	}
 
-	logger.Errorf("Branch not found: %s. We have %d known branches", input, len(branches))
+	log.Errorf("Branch not found: %s. We have %d known branches", input, len(branches))
 
 	// branch not found in local list, but maybe it was created recently -> let's try it if jenkins accept it
 	return input, nil
 }
 
-func createBranchFetcher(cfg config.Config) BranchFetcher {
+func createBranchFetcher(cfg *config.Config) BranchFetcher {
 	switch cfg.BranchLookup.Type {
 	case "stash", "bitbucket":
 		bitbucketClient, err := client.GetBitbucketClient(cfg.Bitbucket)
 		if err != nil {
-			logger.Errorf("Cannot init Bitbucket client: %s", err)
+			log.Errorf("Cannot init Bitbucket client: %s", err)
 		}
 
 		return &bitbucket{bitbucketClient, cfg.Bitbucket}

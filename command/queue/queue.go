@@ -4,7 +4,7 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/client"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"strings"
 	"sync"
 )
@@ -15,7 +15,6 @@ const (
 	storageKey = "fallback_queue"
 )
 
-var logger *logrus.Logger
 var runningCommands = map[string]msg.Message{}
 var mu sync.RWMutex
 
@@ -36,9 +35,7 @@ func AddRunningCommand(message msg.Message, fallbackCommand string) chan bool {
 		storage.Write(storageKey, queueKey, message)
 	}
 
-	if logger != nil {
-		logger.Infof("add a blocking process: %s", message.GetText())
-	}
+	log.Infof("add a blocking process: %s", message.GetText())
 
 	key := getKey(message)
 
@@ -79,17 +76,17 @@ func CountCurrentJobs() int {
 	return len(runningCommands)
 }
 
-func executeFallbackCommand(logger *logrus.Logger) {
+func executeFallbackCommand() {
 	keys, _ := storage.GetKeys(storageKey)
 
 	var event msg.Message
 	for _, key := range keys {
 		if err := storage.Read(storageKey, key, &event); err != nil {
-			logger.Errorf("[Queue] Not unmarshalable: %s", err)
+			log.Errorf("[Queue] Not unmarshalable: %s", err)
 			continue
 		}
 
-		logger.Infof("[Queue] Booted! I'll trigger this command now: `%s`", event.Text)
+		log.Infof("[Queue] Booted! I'll trigger this command now: `%s`", event.Text)
 		client.InternalMessages <- event
 	}
 

@@ -9,7 +9,7 @@ import (
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"net"
 	"time"
@@ -45,7 +45,6 @@ type fetcher interface {
 type command struct {
 	cfg         config.PullRequest
 	slackClient client.SlackClient
-	logger      *logrus.Logger
 	fetcher     fetcher
 	regexp      string
 }
@@ -55,9 +54,9 @@ type pullRequest struct {
 	declined    bool
 	merged      bool
 	closed      bool
-	approvers   []string
 	inReview    bool
 	buildStatus buildStatus
+	approvers   []string
 }
 
 func (c command) GetMatcher() matcher.Matcher {
@@ -215,7 +214,7 @@ func (c command) getApproveIcons(approvers []string) map[string]bool {
 		if icon, ok := c.cfg.CustomApproveReaction[approver]; ok {
 			icons[icon] = true
 		} else {
-			c.logger.Infof("not mapped approver: %s", approver)
+			log.Infof("not mapped approver: %s", approver)
 		}
 	}
 

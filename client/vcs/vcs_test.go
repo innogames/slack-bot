@@ -2,23 +2,20 @@ package vcs
 
 import (
 	"github.com/innogames/slack-bot/bot/config"
-	"github.com/sirupsen/logrus"
-	"github.com/sirupsen/logrus/hooks/test"
+	"github.com/innogames/slack-bot/bot/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestInitBranchWatcher(t *testing.T) {
-	cfg := config.Config{}
-	logger := logrus.New()
+	cfg := &config.Config{}
 
-	abort := InitBranchWatcher(cfg, logger)
-	abort <- true
+	ctx := util.NewServerContext()
+	go InitBranchWatcher(cfg, ctx)
+	ctx.StopTheWorld()
 }
 
 func TestGetMatchingBranches(t *testing.T) {
-	logger, _ = test.NewNullLogger()
-
 	branches = []string{
 		"master",
 		"feature/PROJ-1234-do-something",

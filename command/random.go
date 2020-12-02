@@ -8,15 +8,19 @@ import (
 	"math/rand"
 	"strings"
 	"text/template"
+	"time"
 )
 
 // NewRandomCommand will reply a random entry
 func NewRandomCommand(slackClient client.SlackClient) bot.Command {
-	return &randomCommand{slackClient}
+	random := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	return &randomCommand{slackClient, random}
 }
 
 type randomCommand struct {
 	slackClient client.SlackClient
+	random      *rand.Rand
 }
 
 func (c *randomCommand) GetMatcher() matcher.Matcher {
@@ -31,18 +35,18 @@ func (c *randomCommand) GetRandom(match matcher.Result, message msg.Message) {
 	}
 	options := strings.Split(optionsString, " ")
 
-	randomOption := pickRandom(options)
+	randomOption := c.pickRandom(options)
 
 	c.slackClient.SendMessage(message, randomOption)
 }
 
-func pickRandom(list []string) string {
-	return list[rand.Intn(len(list))]
+func (c *randomCommand) pickRandom(list []string) string {
+	return list[c.random.Intn(len(list))]
 }
 
 func (c *randomCommand) GetTemplateFunction() template.FuncMap {
 	return template.FuncMap{
-		"random": pickRandom,
+		"random": c.pickRandom,
 	}
 }
 

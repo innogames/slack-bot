@@ -6,7 +6,6 @@ require (
 	github.com/alicebob/miniredis/v2 v2.14.1
 	github.com/andygrunwald/go-jira v1.13.0
 	github.com/bndr/gojenkins v1.0.1
-	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gfleury/go-bitbucket-v1 v0.0.0-20200810125852-15f2a16ca820

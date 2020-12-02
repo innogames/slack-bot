@@ -15,9 +15,7 @@ func formatSlackMessage(msg string) string {
 		return color.Bold.Sprintf(strings.Trim(part, "*"))
 	})
 
-	msg = emojiRe.ReplaceAllStringFunc(msg, func(emoji string) string {
-		return getEmoji(emoji)
-	})
+	msg = emojiRe.ReplaceAllStringFunc(msg, getEmoji)
 
 	return msg
 }

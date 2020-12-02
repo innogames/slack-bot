@@ -5,7 +5,6 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -13,10 +12,9 @@ import (
 func TestJenkinsWatcher(t *testing.T) {
 	slackClient := mocks.SlackClient{}
 	jenkins := &mocks.Client{}
-	logger := logrus.New()
 
 	command := bot.Commands{}
-	command.AddCommand(newJobWatcherCommand(jenkins, &slackClient, logger))
+	command.AddCommand(newJobWatcherCommand(jenkins, &slackClient))
 
 	t.Run("Test watch invalid job", func(t *testing.T) {
 		message := msg.Message{}

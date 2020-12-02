@@ -10,7 +10,6 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -23,10 +22,8 @@ func TestQueue(t *testing.T) {
 	message := msg.Message{}
 	message.User = "testUser1"
 
-	logger, _ := test.NewNullLogger()
-
 	command := bot.Commands{}
-	command.AddCommand(NewQueueCommand(slackClient, logger))
+	command.AddCommand(NewQueueCommand(slackClient))
 	command.AddCommand(NewListCommand(slackClient))
 
 	t.Run("Invalid command", func(t *testing.T) {

@@ -7,27 +7,27 @@ import (
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	cronLib "github.com/robfig/cron/v3"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 // NewCronCommand registers cron which are configurable in the yaml config
-func NewCronCommand(slackClient client.SlackClient, logger *logrus.Logger, crons []config.Cron) bot.Command {
+func NewCronCommand(slackClient client.SlackClient, crons []config.Cron) bot.Command {
 	if len(crons) == 0 {
 		return nil
 	}
 
 	cron := cronLib.New()
-	cmd := &command{slackClient, crons, cron, logger}
+	cmd := &command{slackClient, crons, cron}
 
 	for _, cronCommand := range crons {
 		_, err := cron.AddFunc(cronCommand.Schedule, cmd.getCallback(cronCommand))
 		if err != nil {
-			logger.Error(err)
+			log.Error(err)
 		}
 	}
 
 	cron.Start()
-	logger.Infof("Initialized %d crons", len(crons))
+	log.Infof("Initialized %d crons", len(crons))
 
 	return cmd
 }
@@ -36,7 +36,6 @@ type command struct {
 	slackClient client.SlackClient
 	cfg         []config.Cron
 	cron        *cronLib.Cron
-	logger      *logrus.Logger
 }
 
 func (c *command) getCallback(cron config.Cron) func() {
@@ -45,12 +44,12 @@ func (c *command) getCallback(cron config.Cron) func() {
 		for _, commandTemplate := range cron.Commands {
 			command, err := util.CompileTemplate(commandTemplate)
 			if err != nil {
-				c.logger.Error(err)
+				log.Error(err)
 				continue
 			}
 			text, err := util.EvalTemplate(command, util.Parameters{})
 			if err != nil {
-				c.logger.Error(err)
+				log.Error(err)
 				continue
 			}
 

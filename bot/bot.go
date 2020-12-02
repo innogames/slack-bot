@@ -1,22 +1,20 @@
 package bot
 
 import (
-	"context"
 	"fmt"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/stats"
-	"regexp"
-	"strings"
-	"sync"
-	"time"
-
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/server"
+	"github.com/innogames/slack-bot/bot/stats"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
+	"regexp"
+	"strings"
+	"sync"
+	"time"
 )
 
 var linkRegexp = regexp.MustCompile(`<\S+?\|(.*?)>`)
@@ -26,11 +24,10 @@ var cleanMessage = strings.NewReplacer(
 )
 
 // NewBot created main Bot struct which holds the slack connection and dispatch messages to commands
-func NewBot(cfg config.Config, slackClient *client.Slack, logger *log.Logger, commands *Commands) *Bot {
+func NewBot(cfg config.Config, slackClient *client.Slack, commands *Commands) *Bot {
 	return &Bot{
 		config:       cfg,
 		slackClient:  slackClient,
-		logger:       logger,
 		commands:     commands,
 		allowedUsers: map[string]string{},
 		userLocks:    map[string]*sync.Mutex{},
@@ -40,7 +37,6 @@ func NewBot(cfg config.Config, slackClient *client.Slack, logger *log.Logger, co
 type Bot struct {
 	config       config.Config
 	slackClient  *client.Slack
-	logger       *log.Logger
 	auth         *slack.AuthTestResponse
 	commands     *Commands
 	server       *server.Server
@@ -54,7 +50,7 @@ func (b *Bot) Init() (err error) {
 		return errors.New("no slack.token provided in config")
 	}
 
-	b.logger.Info("Connecting to slack...")
+	log.Info("Connecting to slack...")
 	b.auth, err = b.slackClient.AuthTest()
 	if err != nil {
 		return errors.Wrap(err, "auth error")
@@ -78,19 +74,19 @@ func (b *Bot) Init() (err error) {
 			}
 		}
 
-		b.logger.Infof("Auto joined channels: %s", strings.Join(b.config.Slack.AutoJoinChannels, ", "))
+		log.Infof("Auto joined channels: %s", strings.Join(b.config.Slack.AutoJoinChannels, ", "))
 	}
 
 	if b.config.Server.IsEnabled() {
-		b.server = server.NewServer(b.config.Server, b.logger, b.slackClient, b.allowedUsers)
+		b.server = server.NewServer(b.config.Server, b.slackClient, b.allowedUsers)
 		go b.server.StartServer()
 	}
 
 	go b.slackClient.RTM.ManageConnection()
 
-	b.logger.Infof("Loaded %d allowed users and %d channels", len(b.allowedUsers), len(client.Channels))
-	b.logger.Infof("Bot user: %s with ID %s on workspace %s", b.auth.User, b.auth.UserID, b.auth.URL)
-	b.logger.Infof("Initialized %d commands", b.commands.Count())
+	log.Infof("Loaded %d allowed users and %d channels", len(b.allowedUsers), len(client.Channels))
+	log.Infof("Bot user: %s with ID %s on workspace %s", b.auth.User, b.auth.UserID, b.auth.URL)
+	log.Infof("Initialized %d commands", b.commands.Count())
 
 	return nil
 }
@@ -173,9 +169,9 @@ func (b *Bot) loadSlackData() error {
 }
 
 // HandleMessages is blocking method to handle new incoming events
-func (b *Bot) HandleMessages(ctx context.Context, wg *sync.WaitGroup) {
-	wg.Add(1)
-	defer wg.Done()
+func (b *Bot) HandleMessages(ctx *util.ServerContext) {
+	ctx.RegisterChild()
+	defer ctx.ChildDone()
 
 	for {
 		select {
@@ -183,15 +179,15 @@ func (b *Bot) HandleMessages(ctx context.Context, wg *sync.WaitGroup) {
 			// message received from user
 			switch message := event.Data.(type) {
 			case *slack.HelloEvent:
-				b.logger.Info("Hello, the RTM connection is ready!")
+				log.Info("Hello, the RTM connection is ready!")
 			case *slack.MessageEvent:
 				if b.canHandleMessage(message) {
 					go b.handleMessage(msg.FromSlackEvent(*message), true)
 				}
 			case *slack.RTMError, *slack.UnmarshallingErrorEvent, *slack.RateLimitEvent, *slack.ConnectionErrorEvent:
-				b.logger.Error(event)
+				log.Error(event)
 			case *slack.LatencyReport:
-				b.logger.Debugf("Current latency: %v\n", message.Value)
+				log.Debugf("Current latency: %v\n", message.Value)
 			}
 		case message := <-client.InternalMessages:
 			// e.g. triggered by "delay" or "macro" command. They are still executed in original event context

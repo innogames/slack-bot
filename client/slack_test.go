@@ -4,19 +4,16 @@ import (
 	"testing"
 
 	"github.com/innogames/slack-bot/bot/config"
-	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetSlackClient(t *testing.T) {
-	logger, _ := test.NewNullLogger()
-
 	cfg := config.Slack{
 		TestEndpointURL: "http://slack.example.com/",
 		Debug:           true,
 	}
 
-	client := GetSlackClient(cfg, logger)
+	client := GetSlackClient(cfg)
 
 	_, _, err := client.RTM.ConnectRTM()
 	assert.Contains(t, err.Error(), "slack.example.com")

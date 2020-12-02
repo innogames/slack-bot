@@ -2,18 +2,17 @@ package jenkins
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot/bot/msg"
-	"sync"
-	"time"
-
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
+	"sync"
+	"time"
 )
 
 var mu sync.Mutex
@@ -21,14 +20,14 @@ var mu sync.Mutex
 // TriggerJenkinsJob starts a new build with given parameters
 // it will return when the job was started successfully
 // in the background it will watch the current build state and will update the state in the original slack message
-func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[string]string, slackClient client.SlackClient, jenkins Client, message msg.Message, logger *logrus.Logger) error {
-	logger.Infof("%s started started job %s: %s", message.GetUser(), jobName, jobParams)
+func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[string]string, slackClient client.SlackClient, jenkins Client, message msg.Message) error {
+	log.Infof("%s started started job %s: %s", message.GetUser(), jobName, jobParams)
 	_, jobParams[slackUserParameter] = client.GetUser(message.GetUser())
 
 	processHooks(cfg.OnStart, message, jobParams)
 	slackClient.AddReaction(iconPending, message)
 
-	build, err := startJob(jenkins, jobName, jobParams, logger)
+	build, err := startJob(jenkins, jobName, jobParams)
 	if err != nil {
 		return errors.Wrapf(err, "Job *%s* could not start job", jobName)
 	}
@@ -104,7 +103,7 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 }
 
 // startJob starts a job and waits until job is not queued anymore
-func startJob(jenkins Client, jobName string, jobParams map[string]string, logger *logrus.Logger) (*gojenkins.Build, error) {
+func startJob(jenkins Client, jobName string, jobParams map[string]string) (*gojenkins.Build, error) {
 	// avoid nasty racing conditions when two people are starting the same job
 	mu.Lock()
 	defer mu.Unlock()
@@ -136,7 +135,7 @@ func startJob(jenkins Client, jobName string, jobParams map[string]string, logge
 		}
 	}
 
-	logger.
+	log.
 		WithField("job", jobName).
 		Infof("Queued job %s #%d", jobName, newBuildID)
 

@@ -11,7 +11,7 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/bot/util"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 )
 
@@ -28,13 +28,13 @@ var Users map[string]string
 var Channels map[string]string
 
 // GetSlackClient establishes a RTM connection to the slack server
-func GetSlackClient(cfg config.Slack, logger *logrus.Logger) *Slack {
+func GetSlackClient(cfg config.Slack) *Slack {
 	options := make([]slack.Option, 0)
 	if cfg.TestEndpointURL != "" {
 		options = append(options, slack.OptionAPIURL(cfg.TestEndpointURL))
 	}
 
-	// todo add slack.OptionLog() and proxy to logger
+	// todo add slack.OptionLog() and proxy to log
 	if cfg.Debug {
 		options = append(options, slack.OptionDebug(true))
 	}
@@ -42,7 +42,7 @@ func GetSlackClient(cfg config.Slack, logger *logrus.Logger) *Slack {
 	rawClient := slack.New(cfg.Token, options...)
 	rtm := rawClient.NewRTM()
 
-	return &Slack{Client: rawClient, RTM: rtm, logger: logger, config: cfg}
+	return &Slack{Client: rawClient, RTM: rtm, config: cfg}
 }
 
 type SlackClient interface {
@@ -63,20 +63,19 @@ type Slack struct {
 	*slack.Client
 	RTM    *slack.RTM
 	config config.Slack
-	logger *logrus.Logger
 }
 
 func (s *Slack) AddReaction(name string, ref msg.Ref) {
 	err := s.Client.AddReaction(name, slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp()))
 	if err != nil {
-		s.logger.Warn(errors.Wrap(err, "Error while adding reaction"))
+		log.Warn(errors.Wrap(err, "Error while adding reaction"))
 	}
 }
 
 func (s *Slack) RemoveReaction(name string, ref msg.Ref) {
 	err := s.Client.RemoveReaction(name, slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp()))
 	if err != nil {
-		s.logger.Warn(errors.Wrap(err, "Error while removing reaction"))
+		log.Warn(errors.Wrap(err, "Error while removing reaction"))
 	}
 }
 
@@ -104,7 +103,7 @@ func (s *Slack) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption
 	)
 
 	if err != nil {
-		s.logger.
+		log.
 			WithField("user", ref.GetUser()).
 			Errorf(err.Error())
 	}
@@ -113,7 +112,7 @@ func (s *Slack) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption
 }
 
 func (s *Slack) ReplyError(ref msg.Ref, err error) {
-	s.logger.WithError(err).Warnf("Error while sending reply")
+	log.WithError(err).Warnf("Error while sending reply")
 	s.SendMessage(ref, err.Error())
 
 	if s.config.ErrorChannel != "" {
@@ -139,7 +138,7 @@ func (s *Slack) SendToUser(user string, text string) {
 
 	channel, _, _, err := s.Client.OpenConversation(options)
 	if err != nil {
-		s.logger.WithError(err).Errorf("Cannot open channel")
+		log.WithError(err).Errorf("Cannot open channel")
 	}
 
 	message := msg.Message{}

@@ -1,7 +1,6 @@
 
 slack:
   token: # use xoxb-1234567-secret
-  #useRTM: true # only supported in old apps with RTM support
 
   # auto_join_channels:
   # - fancy-channel

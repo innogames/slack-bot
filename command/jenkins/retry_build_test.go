@@ -6,7 +6,6 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -14,7 +13,6 @@ import (
 func TestJenkinsRetry(t *testing.T) {
 	slackClient := mocks.SlackClient{}
 	jenkins := &mocks.Client{}
-	logger := logrus.New()
 	cfg := config.JenkinsJobs{
 		"TestJob": {
 			Parameters: []config.JobParameter{
@@ -30,7 +28,7 @@ func TestJenkinsRetry(t *testing.T) {
 	}
 
 	command := bot.Commands{}
-	command.AddCommand(newRetryCommand(jenkins, &slackClient, cfg, logger))
+	command.AddCommand(newRetryCommand(jenkins, &slackClient, cfg))
 
 	t.Run("Test invalid command", func(t *testing.T) {
 		message := msg.Message{}

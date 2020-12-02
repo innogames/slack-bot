@@ -18,7 +18,7 @@ type sendMessageCommand struct {
 }
 
 func (c *sendMessageCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher("send message( to)? (?P<fullChannel><(?P<type>[#@])(?P<receiver>\\w+)(?i:|[^>]*)?>) (?P<text>.*)", c.SendMessage)
+	return matcher.NewRegexpMatcher(`send message( to)? (?P<fullChannel><(?P<type>[#@])(?P<receiver>\w+)(?i:|[^>]*)?>) (?P<text>.*)`, c.SendMessage)
 }
 
 func (c *sendMessageCommand) SendMessage(match matcher.Result, message msg.Message) {
