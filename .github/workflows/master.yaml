@@ -38,5 +38,5 @@ jobs:
     steps:
       - name: Goreportcard
         uses: creekorful/goreportcard-action@v1.0
-      - name: Update godocs
-        uses: andrewslotin/go-proxy-pull-action@master
+#      - name: Update godocs
+#        uses: andrewslotin/go-proxy-pull-action@master
