@@ -5,14 +5,13 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestJenkinsRetry(t *testing.T) {
-	slackClient := mocks.SlackClient{}
-	jenkins := &mocks.Client{}
+	slackClient, jenkinsClient, base := getTestJenkinsCommand()
+
 	cfg := config.JenkinsJobs{
 		"TestJob": {
 			Parameters: []config.JobParameter{
@@ -28,7 +27,7 @@ func TestJenkinsRetry(t *testing.T) {
 	}
 
 	command := bot.Commands{}
-	command.AddCommand(newRetryCommand(jenkins, &slackClient, cfg))
+	command.AddCommand(newRetryCommand(base, cfg))
 
 	t.Run("Test invalid command", func(t *testing.T) {
 		message := msg.Message{}
@@ -53,7 +52,7 @@ func TestJenkinsRetry(t *testing.T) {
 
 		slackClient.On("SendMessage", message, "Job *TestJob* does not exist").Return("")
 
-		jenkins.On("GetJob", "TestJob").Return(nil, fmt.Errorf(""))
+		jenkinsClient.On("GetJob", "TestJob").Return(nil, fmt.Errorf(""))
 		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})

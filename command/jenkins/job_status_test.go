@@ -5,14 +5,12 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestJobStatus(t *testing.T) {
-	slackClient := mocks.SlackClient{}
-	jenkins := &mocks.Client{}
+	slackClient, jenkins, base := getTestJenkinsCommand()
 
 	cfg := config.JenkinsJobs{
 		"TestJob": {
@@ -23,7 +21,7 @@ func TestJobStatus(t *testing.T) {
 		},
 	}
 
-	trigger := newStatusCommand(jenkins, &slackClient, cfg)
+	trigger := newStatusCommand(base, cfg)
 
 	command := bot.Commands{}
 	command.AddCommand(trigger)

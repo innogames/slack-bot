@@ -5,7 +5,6 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
 )
 
@@ -15,26 +14,20 @@ const (
 )
 
 // newJobWatcherCommand initialize a new command to watch for any jenkins job
-func newJobWatcherCommand(jenkinsClient jenkins.Client, slackClient client.SlackClient) bot.Command {
+func newJobWatcherCommand(base jenkinsCommand) bot.Command {
 	return &watcherCommand{
-		jenkinsClient,
-		slackClient,
+		base,
 		make(map[string]chan bool),
 	}
 }
 
 type watcherCommand struct {
-	jenkins     jenkins.Client
-	slackClient client.SlackClient
-	stopper     map[string]chan bool
+	jenkinsCommand
+	stopper map[string]chan bool
 }
 
 func (c *watcherCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewRegexpMatcher(`(?P<action>watch|unwatch) (?P<job>[\w\-_]+)`, c.Run)
-}
-
-func (c *watcherCommand) IsEnabled() bool {
-	return c.jenkins != nil
 }
 
 func (c *watcherCommand) Run(match matcher.Result, message msg.Message) {
@@ -45,14 +38,15 @@ func (c *watcherCommand) Run(match matcher.Result, message msg.Message) {
 		c.stopper[jobName+message.GetUser()] = stop
 		builds, err := jenkins.WatchJob(c.jenkins, jobName, stop)
 		if err != nil {
-			c.slackClient.ReplyError(message, err)
+			c.ReplyError(message, err)
 			return
 		}
-		c.slackClient.SendMessage(message, fmt.Sprintf("Okay, I'll watch %s\nUnwatch via `unwatch %s`", jobName, jobName))
+
+		c.SendMessage(message, fmt.Sprintf("Okay, I'll watch %s\nUnwatch via `unwatch %s`", jobName, jobName))
 
 		go func() {
 			for build := range builds {
-				c.slackClient.SendMessage(message, fmt.Sprintf(
+				c.SendMessage(message, fmt.Sprintf(
 					"*%s*: %s #%d: %s",
 					build.GetResult(),
 					jobName,
@@ -67,7 +61,8 @@ func (c *watcherCommand) Run(match matcher.Result, message msg.Message) {
 		if stop, ok := c.stopper[jobName+message.User]; ok {
 			stop <- true
 		}
-		c.slackClient.SendMessage(message, fmt.Sprintf("Okay, you just unwatched %s", jobName))
+
+		c.SendMessage(message, fmt.Sprintf("Okay, you just unwatched %s", jobName))
 	}
 }
 

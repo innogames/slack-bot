@@ -5,8 +5,6 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
-	"github.com/innogames/slack-bot/client/jenkins"
 )
 
 const (
@@ -15,13 +13,12 @@ const (
 )
 
 type nodesCommand struct {
-	jenkins     jenkins.Client
-	slackClient client.SlackClient
+	jenkinsCommand
 }
 
 // newNodesCommand lists all Jenkins nodes/slaves and the current number of running executors
-func newNodesCommand(jenkinsClient jenkins.Client, slackClient client.SlackClient) bot.Command {
-	return &nodesCommand{jenkinsClient, slackClient}
+func newNodesCommand(base jenkinsCommand) bot.Command {
+	return &nodesCommand{base}
 }
 
 func (c *nodesCommand) GetMatcher() matcher.Matcher {
@@ -35,7 +32,7 @@ func (c *nodesCommand) IsEnabled() bool {
 func (c *nodesCommand) Run(match matcher.Result, message msg.Message) {
 	nodes, err := c.jenkins.GetAllNodes()
 	if err != nil {
-		c.slackClient.ReplyError(message, err)
+		c.ReplyError(message, err)
 		return
 	}
 
@@ -58,7 +55,7 @@ func (c *nodesCommand) Run(match matcher.Result, message msg.Message) {
 		)
 	}
 
-	c.slackClient.SendMessage(message, text)
+	c.SendMessage(message, text)
 }
 
 func (c *nodesCommand) GetHelp() []bot.Help {

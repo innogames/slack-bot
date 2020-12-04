@@ -6,23 +6,20 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
 )
 
 type retryCommand struct {
-	jenkins     jenkins.Client
-	slackClient client.SlackClient
-	jobs        config.JenkinsJobs
+	jenkinsCommand
+	jobs config.JenkinsJobs
 }
 
 // newRetryCommand initialize a new command to trigger for whitelisted jenkins job
 func newRetryCommand(
-	jenkinsClient jenkins.Client,
-	slackClient client.SlackClient,
+	base jenkinsCommand,
 	jobs config.JenkinsJobs,
 ) bot.Command {
-	return &retryCommand{jenkinsClient, slackClient, jobs}
+	return &retryCommand{base, jobs}
 }
 
 func (c *retryCommand) GetMatcher() matcher.Matcher {
@@ -36,20 +33,20 @@ func (c *retryCommand) IsEnabled() bool {
 func (c *retryCommand) Run(match matcher.Result, message msg.Message) {
 	jobName := match.GetString("job")
 	if _, ok := c.jobs[jobName]; !ok {
-		c.slackClient.ReplyError(message, fmt.Errorf("job *%s* is not whitelisted", jobName))
+		c.ReplyError(message, fmt.Errorf("job *%s* is not whitelisted", jobName))
 		return
 	}
 
 	job, err := c.jenkins.GetJob(jobName)
 	if err != nil {
-		c.slackClient.SendMessage(message, fmt.Sprintf("Job *%s* does not exist", jobName))
+		c.SendMessage(message, fmt.Sprintf("Job *%s* does not exist", jobName))
 		return
 	}
 
 	buildNumber := match.GetInt("build")
 	build, err := getBuild(job, buildNumber)
 	if err != nil {
-		c.slackClient.ReplyError(message, fmt.Errorf("given build *%s #%d* does not exist: %s", jobName, buildNumber, err.Error()))
+		c.ReplyError(message, fmt.Errorf("given build *%s #%d* does not exist: %s", jobName, buildNumber, err.Error()))
 		return
 	}
 
@@ -58,9 +55,9 @@ func (c *retryCommand) Run(match matcher.Result, message msg.Message) {
 		parameters[param.Name] = param.Value
 	}
 
-	err = jenkins.TriggerJenkinsJob(c.jobs[jobName], jobName, parameters, c.slackClient, c.jenkins, message)
+	err = jenkins.TriggerJenkinsJob(c.jobs[jobName], jobName, parameters, c.SlackClient, c.jenkins, message)
 	if err != nil {
-		c.slackClient.ReplyError(message, err)
+		c.ReplyError(message, err)
 	}
 }
 
