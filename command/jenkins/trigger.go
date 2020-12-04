@@ -7,7 +7,6 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
-	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/jenkins"
 	"regexp"
 	"sort"
@@ -16,9 +15,8 @@ import (
 
 // command to trigger/start jenkins jobs
 type triggerCommand struct {
-	jenkins     jenkins.Client
-	slackClient client.SlackClient
-	jobs        map[string]triggerCommandData
+	jenkinsCommand
+	jobs map[string]triggerCommandData
 }
 
 type triggerCommandData struct {
@@ -29,8 +27,7 @@ type triggerCommandData struct {
 
 // newTriggerCommand initialize a new command to trigger for whitelisted jenkins job
 func newTriggerCommand(
-	jenkinsClient jenkins.Client,
-	slackClient client.SlackClient,
+	base jenkinsCommand,
 	jobs config.JenkinsJobs,
 ) bot.Command {
 	trigger := make(map[string]triggerCommandData, len(jobs))
@@ -43,11 +40,7 @@ func newTriggerCommand(
 		}
 	}
 
-	return &triggerCommand{jenkinsClient, slackClient, trigger}
-}
-
-func (c *triggerCommand) IsEnabled() bool {
-	return c.jenkins != nil
+	return &triggerCommand{base, trigger}
 }
 
 func (c *triggerCommand) GetMatcher() matcher.Matcher {
@@ -62,7 +55,7 @@ func (c *triggerCommand) GenericCall(match matcher.Result, message msg.Message) 
 	jobName := match.GetString("job")
 	if _, ok := c.jobs[jobName]; !ok {
 		if len(c.jobs) == 0 {
-			c.slackClient.SendMessage(message, "no job defined in config->jira->jobs")
+			c.SendMessage(message, "no job defined in config->jira->jobs")
 			return
 		}
 
@@ -71,7 +64,7 @@ func (c *triggerCommand) GenericCall(match matcher.Result, message msg.Message) 
 			jobName,
 			strings.Join(c.getAllowedJobNames(), "* \n - *"),
 		)
-		c.slackClient.SendMessage(message, text)
+		c.SendMessage(message, text)
 		return
 	}
 
@@ -81,13 +74,13 @@ func (c *triggerCommand) GenericCall(match matcher.Result, message msg.Message) 
 	finalParameters := make(jenkins.Parameters)
 	err := jenkins.ParseParameters(jobConfig.config, parameterString, finalParameters)
 	if err != nil {
-		c.slackClient.ReplyError(message, err)
+		c.ReplyError(message, err)
 		return
 	}
 
-	err = jenkins.TriggerJenkinsJob(jobConfig.config, jobName, finalParameters, c.slackClient, c.jenkins, message)
+	err = jenkins.TriggerJenkinsJob(jobConfig.config, jobName, finalParameters, c.SlackClient, c.jenkins, message)
 	if err != nil {
-		c.slackClient.ReplyError(message, err)
+		c.ReplyError(message, err)
 		return
 	}
 }
@@ -110,13 +103,13 @@ func (c *triggerCommand) ConfigTrigger(ref msg.Ref, text string) bool {
 
 		err := jenkins.ParseParameters(jobConfig.config, parameters, jobParams)
 		if err != nil {
-			c.slackClient.ReplyError(ref, err)
+			c.ReplyError(ref, err)
 			return true
 		}
 
-		err = jenkins.TriggerJenkinsJob(jobConfig.config, jobName, jobParams, c.slackClient, c.jenkins, ref.WithText(text))
+		err = jenkins.TriggerJenkinsJob(jobConfig.config, jobName, jobParams, c.SlackClient, c.jenkins, ref.WithText(text))
 		if err != nil {
-			c.slackClient.ReplyError(ref, err)
+			c.ReplyError(ref, err)
 		}
 
 		return true

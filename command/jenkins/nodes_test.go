@@ -15,11 +15,10 @@ import (
 )
 
 func TestNodes(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
-	jenkinsClient := &mocks.Client{}
+	slackClient, jenkinsClient, base := getTestJenkinsCommand()
 
 	command := bot.Commands{}
-	command.AddCommand(newNodesCommand(jenkinsClient, slackClient))
+	command.AddCommand(newNodesCommand(base))
 
 	t.Run("Test invalid command", func(t *testing.T) {
 		message := msg.Message{}
@@ -43,7 +42,7 @@ func TestNodes(t *testing.T) {
 		jenkinsClient := &mocks.Client{}
 
 		command := bot.Commands{}
-		command.AddCommand(newNodesCommand(jenkinsClient, slackClient))
+		command.AddCommand(newNodesCommand(base))
 
 		nodes := []*gojenkins.Node{
 			{
@@ -70,8 +69,9 @@ func TestNodes(t *testing.T) {
 	})
 }
 
+// call a real jenkins server and check if the response is okay
 func TestRealNodes(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient, _, base := getTestJenkinsCommand()
 
 	t.Run("Fetch real nodes", func(t *testing.T) {
 		cfg := config.Jenkins{
@@ -80,8 +80,9 @@ func TestRealNodes(t *testing.T) {
 		client, err := jenkins.GetClient(cfg)
 		assert.Nil(t, err)
 
+		base.jenkins = client
 		command := bot.Commands{}
-		command.AddCommand(newNodesCommand(client, slackClient))
+		command.AddCommand(newNodesCommand(base))
 
 		message := msg.Message{}
 		message.Text = "jenkins nodes"

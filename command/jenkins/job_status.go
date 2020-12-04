@@ -7,8 +7,6 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
-	"github.com/innogames/slack-bot/client/jenkins"
 	"text/template"
 )
 
@@ -17,14 +15,13 @@ const (
 )
 
 type statusCommand struct {
-	jenkins     jenkins.Client
-	slackClient client.SlackClient
-	jobs        config.JenkinsJobs
+	jenkinsCommand
+	jobs config.JenkinsJobs
 }
 
 // newStatusCommand is able to enable/disable (whitelisted) Jenkins jobs
-func newStatusCommand(jenkinsClient jenkins.Client, slackClient client.SlackClient, jobs config.JenkinsJobs) bot.Command {
-	return &statusCommand{jenkinsClient, slackClient, jobs}
+func newStatusCommand(base jenkinsCommand, jobs config.JenkinsJobs) bot.Command {
+	return &statusCommand{base, jobs}
 }
 
 func (c statusCommand) GetMatcher() matcher.Matcher {
@@ -44,13 +41,13 @@ func (c *statusCommand) Run(match matcher.Result, message msg.Message) {
 			"Sorry, job *%s* is not whitelisted",
 			jobName,
 		)
-		c.slackClient.SendMessage(message, text)
+		c.SendMessage(message, text)
 		return
 	}
 
 	job, err := c.jenkins.GetJob(jobName)
 	if err != nil {
-		c.slackClient.ReplyError(message, err)
+		c.ReplyError(message, err)
 		return
 	}
 
@@ -65,11 +62,11 @@ func (c *statusCommand) Run(match matcher.Result, message msg.Message) {
 	}
 
 	if err != nil {
-		c.slackClient.ReplyError(message, err)
+		c.ReplyError(message, err)
 		return
 	}
 
-	c.slackClient.SendMessage(message, text)
+	c.SendMessage(message, text)
 }
 
 func (c *statusCommand) GetTemplateFunction() template.FuncMap {

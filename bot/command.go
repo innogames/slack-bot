@@ -4,6 +4,7 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
+	"github.com/innogames/slack-bot/client"
 	"sync"
 )
 
@@ -12,6 +13,11 @@ var lock sync.Mutex
 // Command is the main command struct which needs to provide the matcher and the actual executed action
 type Command interface {
 	GetMatcher() matcher.Matcher
+}
+
+// base struct which is handy for all commands, as a direct Slack communication is possible
+type BaseCommand struct {
+	client.SlackClient
 }
 
 // Conditional checks if the command should be activated. E.g. is dependencies are not present or it's disabled in the config

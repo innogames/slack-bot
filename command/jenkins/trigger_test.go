@@ -6,15 +6,14 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
 func TestJenkinsTrigger(t *testing.T) {
-	slackClient := mocks.SlackClient{}
-	jenkinsClient := &mocks.Client{}
+	slackClient, jenkinsClient, base := getTestJenkinsCommand()
+
 	cfg := config.JenkinsJobs{
 		"TestJob": {
 			Parameters: []config.JobParameter{
@@ -36,7 +35,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		},
 	}
 
-	trigger := newTriggerCommand(jenkinsClient, &slackClient, cfg)
+	trigger := newTriggerCommand(base, cfg)
 
 	command := bot.Commands{}
 	command.AddCommand(trigger)
