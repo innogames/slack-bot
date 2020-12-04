@@ -83,5 +83,6 @@ func BenchmarkRegexpMatcher(b *testing.B) {
 		}
 		assert.NotNil(b, run)
 		assert.Equal(b, true, result.Matched())
+		assert.Equal(b, "trigger me", result.MatchedString())
 	})
 }

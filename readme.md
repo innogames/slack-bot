@@ -18,10 +18,10 @@ This slack bot improves the workflow of development teams. Especially with focus
 - Back to "Install app" tab, the "Bot User OAuth Access Token" is visible (starts with "xoxb-"). You need this one in the config.yaml in slack->token.
 
 **Quick steps:** (just use the bot via Docker)
-- install Docker incl. docker-compose
+- [install Docker incl. docker-compose](https://docs.docker.com/get-docker/)
 - clone this repo or at least fetch the docker-compose.yaml
 - create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
-- allow your user id or name in the "allowed_users:" section of the config.yaml
+- add your Slack user id or user name in the "allowed_users:" section of the config.yaml
 - `docker-compose up`
 
 **Advanced** (when planning working on the bot core)

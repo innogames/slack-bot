@@ -5,6 +5,7 @@ package jenkins
 import (
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/client"
 )
 
 // Client is a interface of gojenkins.Jenkins
@@ -21,7 +22,7 @@ func GetClient(cfg config.Jenkins) (*gojenkins.Jenkins, error) {
 	}
 
 	jenkinsClient := gojenkins.CreateJenkins(
-		nil,
+		client.HTTPClient,
 		cfg.Host,
 		cfg.Username,
 		cfg.Password,

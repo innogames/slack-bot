@@ -6,7 +6,6 @@ type Config struct {
 	Server      Server    `mapstructure:"server"`
 	Jenkins     Jenkins   `mapstructure:"jenkins"`
 	Jira        Jira      `mapstructure:"jira"`
-	Mqtt        Mqtt      `mapstructure:"mqtt"`
 	StoragePath string    `mapstructure:"storage_path"`
 	Bitbucket   Bitbucket `mapstructure:"bitbucket"`
 	Github      struct {

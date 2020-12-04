@@ -131,8 +131,7 @@ func (c *triggerCommand) GetHelp() []bot.Help {
 		"trigger job DevBackendApiDbCheck master parameter2",
 	}
 
-	var help []bot.Help
-
+	help := make([]bot.Help, 0, len(c.jobs))
 	for jobName, jobConfig := range c.jobs {
 		examples = append(examples, fmt.Sprintf("trigger job %s", jobName))
 

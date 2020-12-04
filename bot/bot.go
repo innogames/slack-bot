@@ -105,7 +105,7 @@ func (b *Bot) loadChannels() (map[string]string, error) {
 
 	for {
 		options := &slack.GetConversationsParameters{
-			Limit:           1,
+			Limit:           1000,
 			Cursor:          cursor,
 			ExcludeArchived: "true",
 		}

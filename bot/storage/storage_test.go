@@ -47,6 +47,10 @@ func testStorage(t *testing.T, storage Storage) {
 	assert.Nil(t, err)
 	assert.Equal(t, map[int]float32{12: 5.5}, mapValue)
 
+	// expected unmarshall error when accessing wrong data
+	err = storage.Read(collection, "test-int", &mapValue)
+	assert.EqualError(t, err, "json: cannot unmarshal number into Go value of type map[int]float32")
+
 	// delete
 	err = storage.Delete(collection, "test-string")
 	assert.Nil(t, err)
@@ -101,5 +105,20 @@ func TestStorage(t *testing.T) {
 		SetStorage(fileStorage)
 		assert.NoError(t, err)
 		assert.Equal(t, fileStorage, getStorage())
+	})
+
+	t.Run("Validate keys", func(t *testing.T) {
+		err := Write("../test", "foo", "")
+		assert.EqualError(t, err, "invalid Storage key: ../test")
+
+		err = Delete("../test", "foo")
+		assert.EqualError(t, err, "invalid Storage key: ../test")
+
+		err = DeleteCollection("../test")
+		assert.EqualError(t, err, "invalid Storage key: ../test")
+
+		var i int
+		err = Read("../test", "dd", &i)
+		assert.EqualError(t, err, "invalid Storage key: ../test")
 	})
 }
