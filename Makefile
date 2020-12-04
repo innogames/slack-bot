@@ -1,5 +1,5 @@
 
-.PHONY: clean docker-build test test-coverage test-bench mocks run dep
+.PHONY: clean docker-build test test-coverage test-bench mocks run dep lint
 
 all: clean dep test build/slack-bot
 
@@ -18,6 +18,9 @@ clean:
 
 dep:
 	go mod vendor
+
+lint:
+	golangci-lint run
 
 docker-build:
 	docker build . --force-rm -t brainexe/slack-bot:latest

@@ -43,7 +43,6 @@ linters:
     - unused
     - varcheck
     - whitespace
-    - wsl
 
 issues:
   new: true

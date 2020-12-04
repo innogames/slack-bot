@@ -19,10 +19,10 @@ type Ref interface {
 
 // MessageRef is holds meta information for an message, like author, creation date or channel
 type MessageRef struct {
-	Channel         string
-	User            string
-	Timestamp       string
-	Thread          string
+	Channel         string `json:"channel,omitempty"`
+	User            string `json:"user,omitempty"`
+	Timestamp       string `json:"ts,omitempty"`
+	Thread          string `json:"thread_ts,omitempty"`
 	InternalMessage bool
 }
 

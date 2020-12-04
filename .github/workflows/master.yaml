@@ -32,11 +32,17 @@ jobs:
         with:
           push: false
           tags: innogames/slack-bot:latest
-  reports-docs:
-    name: Update Reports and Docs
+  reports_docs:
+    name: Update Reports, Code coverage report and docs
     runs-on: ubuntu-latest
     steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Goreportcard
         uses: creekorful/goreportcard-action@v1.0
-#      - name: Update godocs
-#        uses: andrewslotin/go-proxy-pull-action@master
+      - name: Test
+        run: make test-coverage
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v1

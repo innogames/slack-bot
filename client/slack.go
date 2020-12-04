@@ -29,7 +29,10 @@ var Channels map[string]string
 
 // GetSlackClient establishes a RTM connection to the slack server
 func GetSlackClient(cfg config.Slack) *Slack {
-	options := make([]slack.Option, 0)
+	options := []slack.Option{
+		slack.OptionHTTPClient(HTTPClient),
+	}
+
 	if cfg.TestEndpointURL != "" {
 		options = append(options, slack.OptionAPIURL(cfg.TestEndpointURL))
 	}
@@ -52,30 +55,32 @@ type SlackClient interface {
 	// SendMessage is the extended version of Reply and accepts any slack.MsgOption
 	SendMessage(ref msg.Ref, text string, options ...slack.MsgOption) string
 
+	// send a message to a user, using "@username or @U12334"
 	SendToUser(user string, text string)
 
-	RemoveReaction(name string, ref msg.Ref)
-	AddReaction(name string, ref msg.Ref)
+	RemoveReaction(reaction string, ref msg.Ref)
+	AddReaction(reaction string, ref msg.Ref)
 	GetReactions(item slack.ItemRef, params slack.GetReactionsParameters) ([]slack.ItemReaction, error)
 }
 
+// wrapper to the Slack client which also holds the RTM connection (optional) and all needed config
 type Slack struct {
 	*slack.Client
 	RTM    *slack.RTM
 	config config.Slack
 }
 
-func (s *Slack) AddReaction(name string, ref msg.Ref) {
-	err := s.Client.AddReaction(name, slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp()))
+func (s *Slack) AddReaction(reaction string, ref msg.Ref) {
+	err := s.Client.AddReaction(reaction, slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp()))
 	if err != nil {
-		log.Warn(errors.Wrap(err, "Error while adding reaction"))
+		log.Warn(errors.Wrapf(err, "Error while adding reaction: %s - %+v", reaction, ref))
 	}
 }
 
-func (s *Slack) RemoveReaction(name string, ref msg.Ref) {
-	err := s.Client.RemoveReaction(name, slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp()))
+func (s *Slack) RemoveReaction(reaction string, ref msg.Ref) {
+	err := s.Client.RemoveReaction(reaction, slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp()))
 	if err != nil {
-		log.Warn(errors.Wrap(err, "Error while removing reaction"))
+		log.Warn(errors.Wrapf(err, "Error while removing reaction %s", reaction))
 	}
 }
 

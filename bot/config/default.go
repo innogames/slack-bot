@@ -3,7 +3,8 @@ package config
 var defaultConfig = Config{
 	StoragePath: "./storage/",
 	Logger: Logger{
-		File: "./bot.log",
+		File:  "./bot.log",
+		Level: "info",
 	},
 	Server: Server{
 		Listen: ":8765",

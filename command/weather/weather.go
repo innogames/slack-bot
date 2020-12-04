@@ -10,7 +10,6 @@ import (
 	"github.com/innogames/slack-bot/client"
 	"github.com/pkg/errors"
 	"github.com/slack-go/slack"
-	"net/http"
 	"net/url"
 	"time"
 )
@@ -34,7 +33,7 @@ type command struct {
 func (c *command) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewTextMatcher("weather", c.GetWeather),
-		matcher.NewRegexpMatcher("weather in (?P<location>\\w\\s+)", c.GetWeather),
+		matcher.NewRegexpMatcher(`weather in (?P<location>\w\s+)`, c.GetWeather),
 	)
 }
 
@@ -52,11 +51,12 @@ func (c *command) GetWeather(match matcher.Result, message msg.Message) {
 		c.cfg.Apikey,
 	)
 
-	response, err := http.Get(apiURL)
+	response, err := client.HTTPClient.Get(apiURL)
 	if err != nil {
 		c.slackClient.ReplyError(message, errors.Wrap(err, "Api call returned an err"))
 		return
 	}
+	defer response.Body.Close()
 
 	if response.StatusCode >= 300 {
 		c.slackClient.SendMessage(message, fmt.Sprintf("Api call returned an err: %d", response.StatusCode))
@@ -65,7 +65,6 @@ func (c *command) GetWeather(match matcher.Result, message msg.Message) {
 
 	var record CurrentWeatherResponse
 	err = json.NewDecoder(response.Body).Decode(&record)
-	response.Body.Close()
 	if err != nil {
 		c.slackClient.ReplyError(message, err)
 		return
@@ -135,6 +134,7 @@ func (c *command) GetHelp() []bot.Help {
 			Description: "returns the current weather information",
 			Examples: []string{
 				"weather",
+				"weather in Berlin",
 			},
 		},
 	}

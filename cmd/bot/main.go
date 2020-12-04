@@ -16,13 +16,14 @@ import (
 	"github.com/innogames/slack-bot/command"
 	log "github.com/sirupsen/logrus"
 	// comment in to profile live socket server via "/debug/pprof". e.g.:
+	// attention: enable the server: section in the config!
 	// https://golang.org/doc/diagnostics.html
-	// curl localhost:8080/debug/pprof/heap\?debug=1 | less
-	// curl localhost:8080/debug/pprof/allocs\?debug=1 | less
-	// curl localhost:8080/debug/pprof/goroutine\?debug=1 | less
-	// curl localhost:8080/debug/pprof/profile\?seconds=30 > /tmp/pprof.trace #
-	// curl localhost:8080/debug/pprof/trace\?seconds=30 > /tmp/trace.trace #
-	_ "net/http/pprof"
+	// curl localhost:4390/debug/pprof/heap\?debug=1 | less
+	// curl localhost:4390/debug/pprof/allocs\?debug=1 | less
+	// curl localhost:4390/debug/pprof/goroutine\?debug=1 | less
+	// curl localhost:4390/debug/pprof/profile\?seconds=30 > /tmp/pprof.trace #
+	// curl localhost:4390/debug/pprof/trace\?seconds=30 > /tmp/trace.trace #
+	// _ "net/http/pprof"
 )
 
 // main entry point for the bot application. Listens on incoming slack messages and handles them
@@ -32,9 +33,7 @@ func main() {
 	flag.Parse()
 
 	cfg, err := config.Load(*configFile)
-	if err != nil {
-		checkError(err)
-	}
+	checkError(err)
 
 	if *verbose {
 		cfg.Logger.Level = "debug"

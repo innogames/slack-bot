@@ -12,20 +12,20 @@ import (
 )
 
 // NewServer is used to receive slack interactions
-func NewServer(cfg config.Server, slackClient *client.Slack, allowedUsers map[string]string) *Server {
-	return &Server{cfg: cfg, slackClient: slackClient, allowedUsers: allowedUsers}
+func NewServer(cfg config.Server, slackClient client.SlackClient) *Server {
+	return &Server{cfg: cfg, slackClient: slackClient}
 }
 
 type Server struct {
-	cfg          config.Server
-	server       *http.Server
-	slackClient  *client.Slack
-	allowedUsers map[string]string
+	cfg         config.Server
+	server      *http.Server
+	slackClient client.SlackClient
 }
 
 // StartServer to receive slack interactions or events via event-api
 // https://api.slack.com/messaging/interactivity
 // https://api.slack.com/events-api
+// todo pass ctx here to shutdown property
 func (s *Server) StartServer() {
 	http.HandleFunc("/", s.indexHandler)
 	http.HandleFunc("/health", s.healthCheckHandler)

@@ -54,6 +54,18 @@ func TestFallback(t *testing.T) {
 	)
 	bot.commands = commands
 
+	t.Run("sendFallbackMessage", func(t *testing.T) {
+		message := msg.Message{}
+		message.Text = "delay"
+
+		bot.sendFallbackMessage(message)
+
+		assert.Len(t, client.InternalMessages, 1)
+		actual := <-client.InternalMessages
+
+		assert.Equal(t, "help delay", actual.GetText())
+	})
+
 	t.Run("getBestMatchingHelp", func(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "delay"

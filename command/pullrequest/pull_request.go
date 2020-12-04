@@ -93,9 +93,11 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 
 	for {
 		pr, err = c.fetcher.getPullRequest(match)
+
+		// something failed while loading the PR data...retry if it was temporary, else quit watching
 		if err != nil {
 			if nerr, ok := err.(net.Error); ok && nerr.Temporary() {
-				time.Sleep(minCheckInterval)
+				time.Sleep(maxCheckInterval)
 				continue
 			}
 

@@ -1,0 +1,3 @@
+ignore:
+  - "mocks/"
+  - "cmd/bot/main.go"

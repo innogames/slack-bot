@@ -121,7 +121,7 @@ func (t *helpCommand) ShowSingleCommand(match matcher.Result, message msg.Messag
 
 // generate the list of all commands only once and sort them by category/name
 func (t *helpCommand) prebuildHelp() {
-	var allCommands []bot.Help
+	allCommands := make([]bot.Help, 0)
 	commandMap := map[string]bot.Help{}
 
 	for _, commandHelp := range t.commands.GetHelp() {
