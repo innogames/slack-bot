@@ -13,7 +13,6 @@ func GetBitbucketClient(cfg config.Bitbucket) (*bitbucket.DefaultApiService, err
 		return nil, errors.New("bitbucket: No host given")
 	}
 
-	// todo add proper configurable timeout
 	ctx := context.Background()
 
 	if cfg.APIKey != "" {

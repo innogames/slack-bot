@@ -79,15 +79,6 @@ func (s *Server) interactionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, ok := s.allowedUsers[payload.User.ID]; !ok {
-		s.error(
-			w,
-			errors.Wrap(err, fmt.Sprintf("%s tried to perform an interaction which is not whitelisted", payload.User.Name)),
-			http.StatusInternalServerError,
-		)
-		return
-	}
-
 	if len(payload.ActionCallback.BlockActions) == 0 {
 		// no valid action defined
 		w.WriteHeader(http.StatusOK)
@@ -144,7 +135,7 @@ func (s *Server) verifyRequest(w http.ResponseWriter, r *http.Request, body []by
 }
 
 func (s *Server) error(w http.ResponseWriter, err error, status int) {
-	log.Errorf(err.Error())
+	log.Error(err)
 	w.WriteHeader(status)
 	w.Write([]byte(err.Error()))
 }

@@ -29,7 +29,10 @@ var Channels map[string]string
 
 // GetSlackClient establishes a RTM connection to the slack server
 func GetSlackClient(cfg config.Slack) *Slack {
-	options := make([]slack.Option, 0)
+	options := []slack.Option{
+		slack.OptionHTTPClient(HTTPClient),
+	}
+
 	if cfg.TestEndpointURL != "" {
 		options = append(options, slack.OptionAPIURL(cfg.TestEndpointURL))
 	}

@@ -78,7 +78,7 @@ func (b *Bot) Init() (err error) {
 	}
 
 	if b.config.Server.IsEnabled() {
-		b.server = server.NewServer(b.config.Server, b.slackClient, b.allowedUsers)
+		b.server = server.NewServer(b.config.Server, b.slackClient)
 		go b.server.StartServer()
 	}
 
@@ -187,7 +187,7 @@ func (b *Bot) HandleMessages(ctx *util.ServerContext) {
 			case *slack.RTMError, *slack.UnmarshallingErrorEvent, *slack.RateLimitEvent, *slack.ConnectionErrorEvent:
 				log.Error(event)
 			case *slack.LatencyReport:
-				log.Debugf("Current latency: %v\n", message.Value)
+				log.Debugf("Current latency: %v", message.Value)
 			}
 		case message := <-client.InternalMessages:
 			// e.g. triggered by "delay" or "macro" command. They are still executed in original event context
