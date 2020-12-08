@@ -27,7 +27,7 @@ func TestStartBuild(t *testing.T) {
 
 		err := TriggerJenkinsJob(cfg, jobName, params, slackClient, client, message)
 
-		assert.Equal(t, "Job *TestJob* could not start job: 404", err.Error())
+		assert.EqualError(t, err, "Job *TestJob* could not start job: 404")
 	})
 }
 
@@ -42,6 +42,6 @@ func TestGetAttachment(t *testing.T) {
 	actual := getAttachment(jenkinsBuild, message)
 	jsonResponse, _ := json.Marshal(actual)
 
-	expected := "{\"color\":\"#CCCCCC\",\"title\":\"myMessage\",\"title_link\":\"https://jenkins.example.com/build/\",\"text\":\"\",\"actions\":[{\"name\":\"\",\"text\":\"Build :black_circle_for_record:\",\"style\":\"default\",\"type\":\"button\",\"url\":\"https://jenkins.example.com/build/\"},{\"name\":\"\",\"text\":\"Console :page_with_curl:\",\"style\":\"default\",\"type\":\"button\",\"url\":\"https://jenkins.example.com/build/console\"},{\"name\":\"\",\"text\":\"Rebuild :arrows_counterclockwise:\",\"style\":\"default\",\"type\":\"button\",\"url\":\"https://jenkins.example.com/build/rebuild/parameterized\"}],\"blocks\":null}"
+	expected := `{"color":"#CCCCCC","title":"myMessage","title_link":"https://jenkins.example.com/build/","actions":[{"name":"","text":"Build :black_circle_for_record:","style":"default","type":"button","url":"https://jenkins.example.com/build/"},{"name":"","text":"Console :page_with_curl:","style":"default","type":"button","url":"https://jenkins.example.com/build/console"},{"name":"","text":"Rebuild :arrows_counterclockwise:","style":"default","type":"button","url":"https://jenkins.example.com/build/rebuild/parameterized"}],"blocks":null}`
 	assert.Equal(t, expected, string(jsonResponse))
 }

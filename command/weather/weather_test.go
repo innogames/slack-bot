@@ -47,17 +47,17 @@ func TestWeather(t *testing.T) {
 		message.Text = "weather"
 
 		expected := url.Values{}
-		expected.Add("blocks", "["+
-			"{\"type\":\"section\",\"text\":"+
-			"{\"type\":\"mrkdwn\",\"text\":\"*Weather information for: Hamburg :flag-DE:* :cloud:\"}},"+
-			"{\"type\":\"section\",\"fields\":[{\"type\":\"mrkdwn\",\"text\":\"*:thermometer: TEMPERATURE:*  *Current:* 288C°\"},"+
-			"{\"type\":\"mrkdwn\",\"text\":\":arrow_down_small: *Min:* 286C°\\t\\t:arrow_up_small: *Max:* 290C°\"}]},"+
-			"{\"type\":\"section\",\"fields\":[{\"type\":\"mrkdwn\",\"text\":\"*:wind_blowing_face: WIND:*  *Speed:*  4m/s\"},"+
-			"{\"type\":\"mrkdwn\",\"text\":\":arrow_right: *Direction:* 210°\"}]},"+
-			"{\"type\":\"section\",\"fields\":[{\"type\":\"mrkdwn\",\"text\":\"*:sweat_drops: RAIN:*  *Humidity:* 87%\"},"+
-			"{\"type\":\"mrkdwn\",\"text\":\"*:cloud: Clouds:* 75%\"}]},"+
-			"{\"type\":\"section\",\"fields\":[{\"type\":\"mrkdwn\",\"text\":\"*:city_sunrise: Sunrise:* 07:57 :clock7:\"},"+
-			"{\"type\":\"mrkdwn\",\"text\":\"*:night_with_stars: Sunset:* 18:11 :clock11: \"}]}]",
+		expected.Add("blocks", `[`+
+			`{"type":"section","text":`+
+			`{"type":"mrkdwn","text":"*Weather information for: Hamburg :flag-DE:* :cloud:"}},`+
+			`{"type":"section","fields":[{"type":"mrkdwn","text":"*:thermometer: TEMPERATURE:*  *Current:* 288C°"},`+
+			`{"type":"mrkdwn","text":":arrow_down_small: *Min:* 286C°\t\t:arrow_up_small: *Max:* 290C°"}]},`+
+			`{"type":"section","fields":[{"type":"mrkdwn","text":"*:wind_blowing_face: WIND:*  *Speed:*  4m/s"},`+
+			`{"type":"mrkdwn","text":":arrow_right: *Direction:* 210°"}]},`+
+			`{"type":"section","fields":[{"type":"mrkdwn","text":"*:sweat_drops: RAIN:*  *Humidity:* 87%"},`+
+			`{"type":"mrkdwn","text":"*:cloud: Clouds:* 75%"}]},`+
+			`{"type":"section","fields":[{"type":"mrkdwn","text":"*:city_sunrise: Sunrise:* 07:57 :clock7:"},`+
+			`{"type":"mrkdwn","text":"*:night_with_stars: Sunset:* 18:11 :clock11: "}]}]`,
 		)
 
 		mocks.AssertSlackJSON(t, slackClient, message, expected)

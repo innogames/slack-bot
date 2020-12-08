@@ -49,7 +49,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "trigger job NotExisting"
 
-		slackClient.On("SendMessage", message, "Sorry, job *NotExisting* is not startable. Possible jobs: \n - *Prefix/Test* \n - *TestJob* \n - *TestJobWithTrigger* \n - *TestJobWithoutTrigger*").Return("")
+		slackClient.On("SendMessage", message, "Sorry, job *NotExisting* is not startable. Possible jobs: \n - *Prefix/Test* \n - *TestJob* \n - *TestJobWithTrigger* \n - *TestJobWithoutTrigger*").Once().Return("")
 		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})

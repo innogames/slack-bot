@@ -56,4 +56,9 @@ func TestJenkinsRetry(t *testing.T) {
 		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
+
+	t.Run("Test help", func(t *testing.T) {
+		help := command.GetHelp()
+		assert.Equal(t, 1, len(help))
+	})
 }

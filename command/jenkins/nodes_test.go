@@ -9,7 +9,6 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client/jenkins"
-	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -32,15 +31,13 @@ func TestNodes(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "jenkins nodes"
 
-		jenkinsClient.On("GetAllNodes").Return(nil, fmt.Errorf("an error occurred"))
+		jenkinsClient.On("GetAllNodes").Return(nil, fmt.Errorf("an error occurred")).Once()
 		slackClient.On("ReplyError", message, fmt.Errorf("an error occurred")).Return(true)
 		actual := command.Run(message)
 		assert.Equal(t, true, actual)
 	})
 
 	t.Run("Fetch nodes", func(t *testing.T) {
-		jenkinsClient := &mocks.Client{}
-
 		command := bot.Commands{}
 		command.AddCommand(newNodesCommand(base))
 
@@ -62,7 +59,7 @@ func TestNodes(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "jenkins nodes"
 
-		jenkinsClient.On("GetAllNodes").Return(nodes, nil)
+		jenkinsClient.On("GetAllNodes").Return(nodes, nil).Once()
 		slackClient.On("SendMessage", message, "*2 Nodes*\n- *Node 1* - status: :check_mark: - executors: 0\n- *Node 2* - status: :red_circle: - executors: 0\n").Return("")
 		actual := command.Run(message)
 		assert.Equal(t, true, actual)

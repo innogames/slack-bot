@@ -29,7 +29,7 @@ func TestAddLink(t *testing.T) {
 		message.Text = "add link google <https://google.com>"
 
 		expected := url.Values{}
-		expected.Add("attachments", "[{\"text\":\"\",\"actions\":[{\"name\":\"\",\"text\":\"google\",\"style\":\"default\",\"type\":\"button\",\"url\":\"https://google.com\"}],\"blocks\":null}]")
+		expected.Add("attachments", `[{"actions":[{"name":"","text":"google","style":"default","type":"button","url":"https://google.com"}],"blocks":null}]`)
 		mocks.AssertSlackJSON(t, slackClient, message, expected)
 
 		actual := command.Run(message)
