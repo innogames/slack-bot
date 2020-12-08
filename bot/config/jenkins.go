@@ -1,7 +1,6 @@
 package config
 
-// JenkinsJobs is the list of all (whitelisted) Jenkins jobs
-type JenkinsJobs map[string]JobConfig
+import "sort"
 
 // Jenkins is the main Jenkins config, including credentials and the whitelisted jobs
 type Jenkins struct {
@@ -30,4 +29,18 @@ type JobParameter struct {
 	Name    string
 	Default string
 	Type    string
+}
+
+// JenkinsJobs is the list of all (whitelisted) Jenkins jobs
+type JenkinsJobs map[string]JobConfig
+
+// get all defined job names, sorted by name
+func (j JenkinsJobs) GetSortedNames() []string {
+	jobNames := make([]string, 0, len(j))
+	for jobName := range j {
+		jobNames = append(jobNames, jobName)
+	}
+	sort.Strings(jobNames)
+
+	return jobNames
 }

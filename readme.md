@@ -2,7 +2,7 @@
 This slack bot improves the workflow of development teams. Especially with focus on Jenkins and Jira integration.
 
 [![Actions Status](https://github.com/innogames/slack-bot/workflows/Test/badge.svg)](https://github.com/innogames/slack-bot/actions)
-[![PkgGoDev](https://pkg.go.dev/badge/innogames/slack-bot)](https://pkg.go.dev/innogames/slack-bot)
+[![PkgGoDev](https://pkg.go.dev/badge/innogames/slack-bot)](https://pkg.go.dev/github.com/innogames/slack-bot/)
 [![Go Report Card](https://goreportcard.com/badge/github.com/innogames/slack-bot)](https://goreportcard.com/report/github.com/innogames/slack-bot)
 [![Release](https://img.shields.io/github/release/innogames/slack-bot.svg)](https://github.com/innogames/slack-bot/releases)
 [![codecov](https://codecov.io/gh/innogames/slack-bot/branch/master/graph/badge.svg)](https://codecov.io/gh/innogames/slack-bot)

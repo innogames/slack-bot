@@ -9,7 +9,6 @@ import (
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client/jenkins"
 	"regexp"
-	"sort"
 	"strings"
 )
 
@@ -17,6 +16,7 @@ import (
 type triggerCommand struct {
 	jenkinsCommand
 	jobs map[string]triggerCommandData
+	cfg  config.JenkinsJobs
 }
 
 type triggerCommandData struct {
@@ -40,7 +40,7 @@ func newTriggerCommand(
 		}
 	}
 
-	return &triggerCommand{base, trigger}
+	return &triggerCommand{base, trigger, jobs}
 }
 
 func (c *triggerCommand) GetMatcher() matcher.Matcher {
@@ -62,7 +62,7 @@ func (c *triggerCommand) GenericCall(match matcher.Result, message msg.Message) 
 		text := fmt.Sprintf(
 			"Sorry, job *%s* is not startable. Possible jobs: \n - *%s*",
 			jobName,
-			strings.Join(c.getAllowedJobNames(), "* \n - *"),
+			strings.Join(c.cfg.GetSortedNames(), "* \n - *"),
 		)
 		c.SendMessage(message, text)
 		return
@@ -149,15 +149,4 @@ func (c *triggerCommand) GetHelp() []bot.Help {
 	})
 
 	return help
-}
-
-// todo once()
-func (c *triggerCommand) getAllowedJobNames() []string {
-	jobNames := make([]string, 0, len(c.jobs))
-	for jobName := range c.jobs {
-		jobNames = append(jobNames, jobName)
-	}
-	sort.Strings(jobNames)
-
-	return jobNames
 }
