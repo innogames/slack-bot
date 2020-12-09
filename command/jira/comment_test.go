@@ -30,7 +30,7 @@ func TestCommentJira(t *testing.T) {
 		message.Text = "quatsch"
 
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("comment on not existing ticket", func(t *testing.T) {
@@ -40,6 +40,6 @@ func TestCommentJira(t *testing.T) {
 		slackClient.On("ReplyError", message, mock.Anything)
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 }

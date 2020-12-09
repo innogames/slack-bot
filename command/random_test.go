@@ -10,9 +10,10 @@ import (
 )
 
 func TestRandom(t *testing.T) {
-	slackClient := mocks.SlackClient{}
+	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
 
-	randomCommand := NewRandomCommand(&slackClient).(*randomCommand)
+	randomCommand := NewRandomCommand(base).(*randomCommand)
 	randomCommand.random.Seed(1) // we want always the same random
 
 	command := bot.Commands{}
@@ -23,7 +24,7 @@ func TestRandom(t *testing.T) {
 		message.Text = "randomness"
 
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("no options should not match", func(t *testing.T) {
@@ -33,7 +34,7 @@ func TestRandom(t *testing.T) {
 		slackClient.On("SendMessage", message, "You have to pass more arguments").Return("")
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("pick random with one entry", func(t *testing.T) {
@@ -43,7 +44,7 @@ func TestRandom(t *testing.T) {
 		slackClient.On("SendMessage", message, "1").Return("")
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("pick random entry", func(t *testing.T) {
@@ -56,6 +57,6 @@ func TestRandom(t *testing.T) {
 		slackClient.On("SendMessage", message, "4").Return("")
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 }

@@ -26,8 +26,7 @@ func TestHealthCheckHandler(t *testing.T) {
 	}
 }
 
-// todo catching just some flows yet!
-func TestHandler(t *testing.T) {
+func TestInteraction(t *testing.T) {
 	server := Server{}
 	server.cfg = config.Server{
 		Listen:        "0.0.0.0:80",
@@ -36,17 +35,20 @@ func TestHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	body := strings.NewReader("...")
-	req, _ := http.NewRequest("GET", "/interactions", body)
-	req.Header.Set("X-Slack-Signature", "v0=a2114d57b48eac39b9ad189dd8316235a7b4a8d21a10bd27519666489c69b503")
-	req.Header.Set("X-Slack-Request-Timestamp", "1531420618")
-	handler := http.HandlerFunc(server.interactionHandler)
-	handler.ServeHTTP(rr, req)
+	t.Run("Test expired interaction", func(t *testing.T) {
+		body := strings.NewReader("...")
+		req, _ := http.NewRequest("GET", "/interactions", body)
+		req.Header.Set("X-Slack-Signature", "v0=a2114d57b48eac39b9ad189dd8316235a7b4a8d21a10bd27519666489c69b503")
+		req.Header.Set("X-Slack-Request-Timestamp", "1531420618")
+		handler := http.HandlerFunc(server.interactionHandler)
+		handler.ServeHTTP(rr, req)
 
-	// Check timestamp too old
-	expected := "timestamp is too old"
-	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v",
-			rr.Body.String(), expected)
-	}
+		// Check timestamp too old
+		expected := "timestamp is too old"
+		if rr.Body.String() != expected {
+			t.Errorf("handler returned unexpected body: got %v want %v",
+				rr.Body.String(), expected)
+		}
+	})
+
 }

@@ -17,17 +17,17 @@ import (
 const defaultAPIURL = "https://api.openweathermap.org/data/2.5/weather"
 
 // NewWeatherCommand is using OpenWeatherMap to display current weather and the forecast
-func NewWeatherCommand(slackClient client.SlackClient, cfg config.OpenWeather) bot.Command {
+func NewWeatherCommand(base bot.BaseCommand, cfg config.OpenWeather) bot.Command {
 	if cfg.URL == "" {
 		cfg.URL = defaultAPIURL
 	}
 
-	return &command{slackClient, cfg}
+	return &command{base, cfg}
 }
 
 type command struct {
-	slackClient client.SlackClient
-	cfg         config.OpenWeather
+	bot.BaseCommand
+	cfg config.OpenWeather
 }
 
 func (c *command) GetMatcher() matcher.Matcher {
@@ -53,20 +53,20 @@ func (c *command) GetWeather(match matcher.Result, message msg.Message) {
 
 	response, err := client.HTTPClient.Get(apiURL)
 	if err != nil {
-		c.slackClient.ReplyError(message, errors.Wrap(err, "Api call returned an err"))
+		c.ReplyError(message, errors.Wrap(err, "Api call returned an err"))
 		return
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode >= 300 {
-		c.slackClient.SendMessage(message, fmt.Sprintf("Api call returned an err: %d", response.StatusCode))
+		c.SendMessage(message, fmt.Sprintf("Api call returned an err: %d", response.StatusCode))
 		return
 	}
 
 	var record CurrentWeatherResponse
 	err = json.NewDecoder(response.Body).Decode(&record)
 	if err != nil {
-		c.slackClient.ReplyError(message, err)
+		c.ReplyError(message, err)
 		return
 	}
 
@@ -116,7 +116,7 @@ func (c *command) GetWeather(match matcher.Result, message msg.Message) {
 		sections = append(sections, slack.NewSectionBlock(nil, textBlocks, nil))
 	}
 
-	c.slackClient.SendMessage(message, "", slack.MsgOptionBlocks(sections...))
+	c.SendMessage(message, "", slack.MsgOptionBlocks(sections...))
 }
 
 func timestampToTime(timestamp int) string {

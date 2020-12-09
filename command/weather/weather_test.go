@@ -16,11 +16,13 @@ import (
 
 func TestWeather(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
 
 	// set default timezone
 	time.Local, _ = time.LoadLocation("Europe/Berlin")
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// todo(matze) use file object directly
 		file, _ := ioutil.ReadFile("./dump_current_weather.json")
 		w.Write(file)
 	}))
@@ -32,14 +34,14 @@ func TestWeather(t *testing.T) {
 	cfg.URL = ts.URL
 
 	command := bot.Commands{}
-	command.AddCommand(NewWeatherCommand(slackClient, cfg))
+	command.AddCommand(NewWeatherCommand(base, cfg))
 
 	t.Run("Send invalid command", func(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "I hate the current weather..."
 
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("Fetch default weather", func(t *testing.T) {
@@ -63,7 +65,7 @@ func TestWeather(t *testing.T) {
 		mocks.AssertSlackJSON(t, slackClient, message, expected)
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Test help", func(t *testing.T) {

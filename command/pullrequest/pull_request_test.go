@@ -29,10 +29,12 @@ func (t *testFetcher) getHelp() []bot.Help {
 
 func TestGetCommands(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
+
 	cfg := config.Config{}
 
 	// as we pass a empty config, no PR fetcher is able to register -> 0 valid commands
-	commands := GetCommands(slackClient, cfg)
+	commands := GetCommands(base, cfg)
 	assert.Equal(t, 0, commands.Count())
 }
 
@@ -46,7 +48,7 @@ func TestPullRequest(t *testing.T) {
 		message.Text = "quatsch"
 
 		actual := commands.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("PR not found", func(t *testing.T) {
@@ -59,7 +61,7 @@ func TestPullRequest(t *testing.T) {
 		slackClient.On("ReplyError", message, fetcher.err)
 
 		actual := commands.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("PR got merged", func(t *testing.T) {
@@ -84,7 +86,7 @@ func TestPullRequest(t *testing.T) {
 		slackClient.On("AddReaction", iconMerged, message)
 
 		actual := commands.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		time.Sleep(time.Millisecond * 10) // todo channel
 	})
 
@@ -106,7 +108,7 @@ func TestPullRequest(t *testing.T) {
 		slackClient.On("AddReaction", iconDeclined, message)
 
 		actual := commands.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		time.Sleep(time.Millisecond * 10) // todo channel
 	})
 
@@ -128,7 +130,7 @@ func TestPullRequest(t *testing.T) {
 		slackClient.On("AddReaction", iconApproved, message)
 
 		actual := commands.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		time.Sleep(time.Millisecond * 10) // todo channel
 	})
 
@@ -148,7 +150,7 @@ func TestPullRequest(t *testing.T) {
 		slackClient.On("AddReaction", iconInReview, message)
 
 		actual := commands.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		time.Sleep(time.Millisecond * 10) // todo channel
 	})
 }
@@ -157,10 +159,11 @@ func TestPullRequest(t *testing.T) {
 func initTest(slackClient client.SlackClient) (bot.Commands, *testFetcher) {
 	fetcher := &testFetcher{}
 	commands := bot.Commands{}
+	base := bot.BaseCommand{SlackClient: slackClient}
 
 	cmd := &command{
+		base,
 		config.PullRequest{},
-		slackClient,
 		fetcher,
 		".*/projects/(?P<project>.+)/repos/(?P<repo>.+)/pull-requests/(?P<number>\\d+).*",
 	}

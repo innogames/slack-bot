@@ -22,7 +22,7 @@ func TestJenkinsWatcher(t *testing.T) {
 		slackClient.On("ReplyError", message, fmt.Errorf("404"))
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Test unwatch", func(t *testing.T) {
@@ -32,7 +32,7 @@ func TestJenkinsWatcher(t *testing.T) {
 		slackClient.On("SendMessage", message, "Okay, you just unwatched TestJob").Return("")
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Test help", func(t *testing.T) {

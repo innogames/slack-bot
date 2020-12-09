@@ -28,7 +28,7 @@ func TestWatchJira(t *testing.T) {
 		message.Text = "quatsch"
 
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("watch not existing ticket", func(t *testing.T) {
@@ -38,6 +38,6 @@ func TestWatchJira(t *testing.T) {
 		slackClient.On("SendMessage", message, "Issue Does Not Exist: request failed. Please analyze the request body for more details. Status code: 404").Return("")
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 }

@@ -94,13 +94,14 @@ func validateKey(keys ...string) error {
 }
 
 func getStorage() Storage {
-	// todo(matze) this was added avoid concurrent newStorage() calls...should not cause issues anymore?!
+	if currentStorage != nil {
+		return currentStorage
+	}
+
 	mu.Lock()
 	defer mu.Unlock()
 
-	if currentStorage == nil {
-		currentStorage = newMemoryStorage()
-	}
+	currentStorage = newMemoryStorage()
 
 	return currentStorage
 }

@@ -21,7 +21,7 @@ func TestAll(t *testing.T) {
 
 	input.Write([]byte("reply it works\n"))
 
-	go startCli(ctx, input, output, cfg, false)
+	go startCli(ctx, input, output, cfg)
 	time.Sleep(time.Millisecond * 200)
 
 	ctx.StopTheWorld()

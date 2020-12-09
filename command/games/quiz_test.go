@@ -14,6 +14,7 @@ import (
 
 func TestQuiz(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
 
 	// mock test data
 	rand.Seed(2)
@@ -24,7 +25,7 @@ func TestQuiz(t *testing.T) {
 
 	defer ts.Close()
 
-	command := NewQuizCommand(slackClient).(*quizCommand)
+	command := NewQuizCommand(base).(*quizCommand)
 	command.apiURL = ts.URL
 	commands := bot.Commands{}
 	commands.AddCommand(command)
@@ -42,14 +43,14 @@ func TestQuiz(t *testing.T) {
 				":interrobang: Hint type `answer {number}` to send your answer :interrobang:",
 		).Return("")
 		actual := commands.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 
 		// wrong answer
 		message = msg.Message{}
 		message.Text = "answer 4"
 		slackClient.On("SendMessage", message, "incorrect. try again").Return("")
 		actual = commands.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 
 		// correct answer
 		message = msg.Message{}
@@ -63,6 +64,6 @@ func TestQuiz(t *testing.T) {
 		).Return("")
 		slackClient.On("SendMessage", message, "correct").Return("")
 		actual = commands.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 }

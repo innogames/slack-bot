@@ -11,13 +11,13 @@ import (
 )
 
 // NewCronCommand registers cron which are configurable in the yaml config
-func NewCronCommand(slackClient client.SlackClient, crons []config.Cron) bot.Command {
+func NewCronCommand(base bot.BaseCommand, crons []config.Cron) bot.Command {
 	if len(crons) == 0 {
 		return nil
 	}
 
 	cron := cronLib.New()
-	cmd := &command{slackClient, crons, cron}
+	cmd := &command{base, crons, cron}
 
 	for _, cronCommand := range crons {
 		_, err := cron.AddFunc(cronCommand.Schedule, cmd.getCallback(cronCommand))
@@ -33,9 +33,9 @@ func NewCronCommand(slackClient client.SlackClient, crons []config.Cron) bot.Com
 }
 
 type command struct {
-	slackClient client.SlackClient
-	cfg         []config.Cron
-	cron        *cronLib.Cron
+	bot.BaseCommand
+	cfg  []config.Cron
+	cron *cronLib.Cron
 }
 
 func (c *command) getCallback(cron config.Cron) func() {

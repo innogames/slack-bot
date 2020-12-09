@@ -1,5 +1,3 @@
-run:
-  issues-exit-code: 1
 
 linters-settings:
   gocritic:

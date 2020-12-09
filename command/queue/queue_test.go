@@ -18,18 +18,19 @@ import (
 func TestQueue(t *testing.T) {
 	client.InternalMessages = make(chan msg.Message, 2)
 	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
 
 	message := msg.Message{}
 	message.User = "testUser1"
 
 	command := bot.Commands{}
-	command.AddCommand(NewQueueCommand(slackClient))
-	command.AddCommand(NewListCommand(slackClient))
+	command.AddCommand(NewQueueCommand(base))
+	command.AddCommand(NewListCommand(base))
 
 	t.Run("Invalid command", func(t *testing.T) {
 		message := msg.Message{}
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 		assert.Empty(t, client.InternalMessages)
 	})
 
@@ -39,7 +40,7 @@ func TestQueue(t *testing.T) {
 
 		slackClient.On("ReplyError", message, fmt.Errorf("you have to call this command when another long running command is already running")).Return(true)
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		assert.Empty(t, client.InternalMessages)
 	})
 
@@ -56,7 +57,7 @@ func TestQueue(t *testing.T) {
 
 		slackClient.On("ReplyError", message, fmt.Errorf("you have to call this command when another long running command is already running")).Return(true)
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		assert.Empty(t, client.InternalMessages)
 	})
 
@@ -72,7 +73,7 @@ func TestQueue(t *testing.T) {
 		slackClient.On("RemoveReaction", waitIcon, message)
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		assert.Empty(t, client.InternalMessages)
 
 		// list queue
@@ -87,14 +88,14 @@ func TestQueue(t *testing.T) {
 			nil,
 		)
 		actual = command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 
 		// list queue for current channel
 		message.Text = "list queue in channel"
 		slackClient.On("SendMessage", mock.Anything, "1 queued commands", mock.Anything).Return("")
 
 		actual = command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 
 		// list queue for other channel
 		message.Text = "list queue in channel"
@@ -102,7 +103,7 @@ func TestQueue(t *testing.T) {
 		slackClient.On("SendMessage", mock.Anything, "0 queued commands", mock.Anything).Return("")
 
 		actual = command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 
 		done <- true
 		time.Sleep(time.Millisecond * 400)

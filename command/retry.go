@@ -16,14 +16,14 @@ var repeatRegexp = util.CompileRegexp("(retry|repeat)")
 
 // NewRetryCommand store the history of the commands of the user sent to the bot in a local storage
 // With "retry" the most recent command of the channel will be repeated
-func NewRetryCommand(slackClient client.SlackClient) bot.Command {
+func NewRetryCommand(base bot.BaseCommand) bot.Command {
 	return &retryCommand{
-		slackClient,
+		base,
 	}
 }
 
 type retryCommand struct {
-	slackClient client.SlackClient
+	bot.BaseCommand
 }
 
 func (c *retryCommand) GetMatcher() matcher.Matcher {
@@ -45,11 +45,11 @@ func (c *retryCommand) Execute(ref msg.Ref, text string) bool {
 	var lastCommand string
 	storage.Read(storageKey, key, &lastCommand)
 	if lastCommand != "" {
-		c.slackClient.SendMessage(ref, fmt.Sprintf("Executing command: %s", lastCommand))
+		c.SendMessage(ref, fmt.Sprintf("Executing command: %s", lastCommand))
 
 		client.InternalMessages <- ref.WithText(lastCommand)
 	} else {
-		c.slackClient.SendMessage(ref, "Sorry, no history found.")
+		c.SendMessage(ref, "Sorry, no history found.")
 	}
 
 	return true

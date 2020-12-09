@@ -4,16 +4,15 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
 )
 
 // NewReactionCommand simply adds a reaction to the current message...used in "commands" and other internal commands
-func NewReactionCommand(slackClient client.SlackClient) bot.Command {
-	return &reactionCommand{slackClient}
+func NewReactionCommand(base bot.BaseCommand) bot.Command {
+	return &reactionCommand{base}
 }
 
 type reactionCommand struct {
-	slackClient client.SlackClient
+	bot.BaseCommand
 }
 
 func (c *reactionCommand) GetMatcher() matcher.Matcher {
@@ -25,12 +24,12 @@ func (c *reactionCommand) GetMatcher() matcher.Matcher {
 
 func (c *reactionCommand) Add(match matcher.Result, message msg.Message) {
 	reaction := match.GetString("reaction")
-	c.slackClient.AddReaction(reaction, message)
+	c.AddReaction(reaction, message)
 }
 
 func (c *reactionCommand) Remove(match matcher.Result, message msg.Message) {
 	reaction := match.GetString("reaction")
-	c.slackClient.RemoveReaction(reaction, message)
+	c.RemoveReaction(reaction, message)
 }
 
 func (c *reactionCommand) GetHelp() []bot.Help {

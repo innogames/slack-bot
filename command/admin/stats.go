@@ -8,7 +8,6 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/stats"
 	"github.com/innogames/slack-bot/bot/util"
-	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
 	"runtime"
 	"strings"
@@ -19,19 +18,19 @@ import (
 var startTime = time.Now()
 
 // NewStatsCommand shows a bunch of runtime statistics of the bot (admin-only)
-func NewStatsCommand(slackClient client.SlackClient, cfg config.Config) bot.Command {
-	return &statsCommand{slackClient, cfg}
+func NewStatsCommand(base bot.BaseCommand, cfg config.Config) bot.Command {
+	return &statsCommand{base, cfg}
 }
 
 type statsCommand struct {
-	slackClient client.SlackClient
-	cfg         config.Config
+	bot.BaseCommand
+	cfg config.Config
 }
 
 func (c *statsCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewAdminMatcher(
 		c.cfg.AdminUsers,
-		c.slackClient,
+		c.SlackClient,
 		matcher.NewTextMatcher("bot stats", c.Stats),
 	)
 }
@@ -41,7 +40,7 @@ func (c *statsCommand) Stats(match matcher.Result, message msg.Message) {
 	result.WriteString("Here are some current stats:\n")
 
 	c.collectStats(&result)
-	c.slackClient.SendMessage(message, result.String())
+	c.SendMessage(message, result.String())
 }
 
 func (c *statsCommand) collectStats(result *statsResult) {

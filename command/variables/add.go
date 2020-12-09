@@ -15,7 +15,7 @@ func (c *command) Add(match matcher.Result, message msg.Message) {
 	list[name] = value
 	storeList(message, list)
 
-	c.slackClient.SendMessage(
+	c.SendMessage(
 		message,
 		fmt.Sprintf("Added variable: `%s` = `%s`.", name, value),
 	)

@@ -9,7 +9,7 @@ type Config struct {
 	StoragePath string    `mapstructure:"storage_path"`
 	Bitbucket   Bitbucket `mapstructure:"bitbucket"`
 	Github      struct {
-		AccessToken string
+		AccessToken string `mapstructure:"access_token"`
 	}
 	Gitlab struct {
 		AccessToken string
@@ -48,16 +48,11 @@ type Slack struct {
 	AutoJoinChannels []string `mapstructure:"auto_join_channels,flow"`
 	ErrorChannel     string   `mapstructure:"error_channel"`
 
-	Debug bool `mapstructure:"debug"`
-
-	// use websocket RTM connection.
-	// this is NOT possible anymore for new apps!
-	UseRTM      bool `mapstructure:"use_rtm"`
+	Debug       bool `mapstructure:"debug"`
 	UseEventAPI bool `mapstructure:"use_event_api"`
 
 	// only used for integration tests
-	TestEndpointURL   string `mapstructure:"-"`
-	VerificationToken string `mapstructure:"-"`
+	TestEndpointURL string `mapstructure:"-"`
 }
 
 type Server struct {
@@ -83,17 +78,6 @@ type Command struct {
 	Category    string
 	Commands    []string
 	Examples    []string
-}
-
-// Mqtt is a optional MQTT client to publish and subscribe values from the defined broker
-type Mqtt struct {
-	Host     string `mapstructure:"host"`
-	Username string `mapstructure:"username"`
-	Password string `mapstructure:"password"`
-}
-
-func (c Mqtt) IsEnabled() bool {
-	return c.Host != ""
 }
 
 // PullRequest special configuration to change the pull request behavior

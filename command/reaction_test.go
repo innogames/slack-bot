@@ -9,8 +9,10 @@ import (
 )
 
 func TestReaction(t *testing.T) {
-	slackClient := mocks.SlackClient{}
-	reaction := NewReactionCommand(&slackClient)
+	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
+
+	reaction := NewReactionCommand(base)
 
 	command := bot.Commands{}
 	command.AddCommand(reaction)
@@ -20,7 +22,7 @@ func TestReaction(t *testing.T) {
 		message.Text = "i need a reaction"
 
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("add reaction", func(t *testing.T) {
@@ -31,7 +33,7 @@ func TestReaction(t *testing.T) {
 
 		slackClient.On("AddReaction", "test", message)
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("remove reaction", func(t *testing.T) {
@@ -42,6 +44,6 @@ func TestReaction(t *testing.T) {
 
 		slackClient.On("RemoveReaction", "test", message)
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 }

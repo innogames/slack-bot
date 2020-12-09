@@ -17,18 +17,22 @@ import (
 
 // starts a interactive shell to communicate with a mocked slack server and execute real commands
 func main() {
-	var verbose bool
+	verbose := flag.Bool("verbose", false, "More verbose output")
 
-	// todo add path to config + verbose flag
+	// todo add path to config
 	flag.Parse()
+
 	cfg := config.Config{}
+	if *verbose {
+		cfg.Logger.Level = "debug"
+	}
 
 	ctx := util.NewServerContext()
 
-	startCli(ctx, os.Stdin, os.Stdout, cfg, verbose)
+	startCli(ctx, os.Stdin, os.Stdout, cfg)
 }
 
-func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg config.Config, verbose bool) {
+func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg config.Config) {
 	ctx.RegisterChild()
 	defer ctx.ChildDone()
 
@@ -40,7 +44,7 @@ func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg co
 	defer fakeSlack.Stop()
 
 	realBot := tester.StartBot(cfg)
-	go realBot.HandleMessages(ctx)
+	go realBot.ListenForMessages(ctx)
 
 	color.SetOutput(output)
 	color.Red.Print("Type in your command:\n")

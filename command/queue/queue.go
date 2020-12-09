@@ -4,6 +4,7 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/client"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"strings"
 	"sync"
@@ -24,7 +25,7 @@ var mu sync.RWMutex
 // - when the server got restarted, the fallbackCommand gets executed
 // todo add a kill chan to kill long running command via command
 // todo improve locking
-func AddRunningCommand(message msg.Message, fallbackCommand string) chan bool {
+func AddRunningCommand(message msg.Message, fallbackCommand string) chan<- bool {
 	var queueKey string
 
 	if fallbackCommand != "" {
@@ -32,12 +33,15 @@ func AddRunningCommand(message msg.Message, fallbackCommand string) chan bool {
 
 		// add timestamp to the key to have a fix sorting by time
 		queueKey = strings.ReplaceAll(message.Timestamp, ".", "") + "-" + message.GetUniqueKey()
-		storage.Write(storageKey, queueKey, message)
+		err := storage.Write(storageKey, queueKey, message)
+		if err != nil {
+			log.Error(errors.Wrap(err, "error while storing queue entry"))
+		}
 	}
 
 	log.Infof("add a blocking process: %s", message.GetText())
 
-	key := getKey(message)
+	key := message.GetUniqueKey()
 
 	mu.Lock()
 	defer mu.Unlock()
@@ -57,7 +61,9 @@ func AddRunningCommand(message msg.Message, fallbackCommand string) chan bool {
 		mu.Unlock()
 
 		if queueKey != "" {
-			storage.Delete(storageKey, queueKey)
+			if err := storage.Delete(storageKey, queueKey); err != nil {
+				log.Error(errors.Wrapf(err, "error while deleting processed queue entry %s", key))
+			}
 		}
 	}()
 
@@ -66,13 +72,16 @@ func AddRunningCommand(message msg.Message, fallbackCommand string) chan bool {
 
 // IsBlocked checks if there is a blocking command registered for this user/channel
 func IsBlocked(ref msg.Ref) bool {
-	_, ok := runningCommands[getKey(ref)]
+	_, ok := runningCommands[ref.GetUniqueKey()]
 
 	return ok
 }
 
 // CountCurrentJobs will return the number of current pending/queued jobs
 func CountCurrentJobs() int {
+	mu.RLock()
+	defer mu.RUnlock()
+
 	return len(runningCommands)
 }
 
@@ -91,8 +100,4 @@ func executeFallbackCommand() {
 	}
 
 	storage.DeleteCollection(storageKey)
-}
-
-func getKey(ref msg.Ref) string {
-	return ref.GetUser() + ref.GetChannel()
 }

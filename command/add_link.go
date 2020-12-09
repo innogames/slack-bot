@@ -9,12 +9,12 @@ import (
 )
 
 // NewAddLinkCommand is more or less internal command to add a link button to the posted message
-func NewAddLinkCommand(slackClient client.SlackClient) bot.Command {
-	return &addLinkCommand{slackClient}
+func NewAddLinkCommand(base bot.BaseCommand) bot.Command {
+	return &addLinkCommand{base}
 }
 
 type addLinkCommand struct {
-	slackClient client.SlackClient
+	bot.BaseCommand
 }
 
 func (c *addLinkCommand) GetMatcher() matcher.Matcher {
@@ -31,7 +31,7 @@ func (c *addLinkCommand) AddLink(match matcher.Result, message msg.Message) {
 		},
 	}
 
-	c.slackClient.SendMessage(message, "", slack.MsgOptionAttachments(attachment))
+	c.SendMessage(message, "", slack.MsgOptionAttachments(attachment))
 }
 
 func (c *addLinkCommand) GetHelp() []bot.Help {

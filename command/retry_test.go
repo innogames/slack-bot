@@ -11,10 +11,11 @@ import (
 
 func TestRetry(t *testing.T) {
 	client.InternalMessages = make(chan msg.Message, 2)
-	slackClient := mocks.SlackClient{}
+	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
 
 	retry := bot.Commands{}
-	retry.AddCommand(NewRetryCommand(&slackClient))
+	retry.AddCommand(NewRetryCommand(base))
 
 	t.Run("Ignore internal messages", func(t *testing.T) {
 		message := msg.Message{}
@@ -23,7 +24,7 @@ func TestRetry(t *testing.T) {
 		message.InternalMessage = true
 
 		actual := retry.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 		assert.Empty(t, client.InternalMessages)
 	})
 
@@ -34,7 +35,7 @@ func TestRetry(t *testing.T) {
 		message.Text = "retry"
 		slackClient.On("SendMessage", message, "Sorry, no history found.").Return("")
 		actual := retry.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		assert.Empty(t, client.InternalMessages)
 
 		// send any other command
@@ -42,7 +43,7 @@ func TestRetry(t *testing.T) {
 		message.User = "testUser1"
 		message.Text = "magic command"
 		actual = retry.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 		assert.Empty(t, client.InternalMessages)
 
 		// retry -> "magic command"
@@ -51,7 +52,7 @@ func TestRetry(t *testing.T) {
 		message2.Text = "retry"
 		slackClient.On("SendMessage", message2, "Executing command: magic command").Return("")
 		actual = retry.Run(message2)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		assert.NotEmpty(t, client.InternalMessages)
 
 		handledEvent := <-client.InternalMessages
@@ -65,7 +66,7 @@ func TestRetry(t *testing.T) {
 
 		actual := retry.Run(message)
 
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 		assert.Empty(t, client.InternalMessages)
 
 		message2 := msg.Message{}
@@ -76,7 +77,7 @@ func TestRetry(t *testing.T) {
 
 		actual = retry.Run(message2)
 
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		assert.Empty(t, client.InternalMessages)
 	})
 }

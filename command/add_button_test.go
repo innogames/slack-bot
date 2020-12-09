@@ -14,13 +14,14 @@ import (
 
 func TestAddButton(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
 
 	cfg := config.Server{}
 	cfg.Listen = "0.0.0.0:1234"
 	cfg.SigningSecret = "iamsecret"
 
 	command := bot.Commands{}
-	command.AddCommand(NewAddButtonCommand(slackClient, cfg))
+	command.AddCommand(NewAddButtonCommand(base, cfg))
 
 	t.Run("add link", func(t *testing.T) {
 		message := msg.Message{}
@@ -29,7 +30,7 @@ func TestAddButton(t *testing.T) {
 		slackClient.On("SendMessage", message, "", mock.Anything).Return("")
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 
 		storedKeys, err := storage.GetKeys("interactions")
 		assert.Nil(t, err)

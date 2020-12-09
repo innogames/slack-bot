@@ -86,6 +86,7 @@ func createBranchFetcher(cfg *config.Config) BranchFetcher {
 		bitbucketClient, err := client.GetBitbucketClient(cfg.Bitbucket)
 		if err != nil {
 			log.Errorf("Cannot init Bitbucket client: %s", err)
+			return null{}
 		}
 
 		return &bitbucket{bitbucketClient, cfg.Bitbucket}

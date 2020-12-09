@@ -51,7 +51,7 @@ func TestJenkinsTrigger(t *testing.T) {
 
 		slackClient.On("SendMessage", message, "Sorry, job *NotExisting* is not startable. Possible jobs: \n - *Prefix/Test* \n - *TestJob* \n - *TestJobWithTrigger* \n - *TestJobWithoutTrigger*").Once().Return("")
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Not enough parameters", func(t *testing.T) {
@@ -60,7 +60,7 @@ func TestJenkinsTrigger(t *testing.T) {
 
 		slackClient.On("ReplyError", message, fmt.Errorf("sorry, you have to pass 1 parameters (PARAM1)")).Return("")
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("matched trigger, but not all parameters provided", func(t *testing.T) {
@@ -69,7 +69,7 @@ func TestJenkinsTrigger(t *testing.T) {
 
 		slackClient.On("ReplyError", message, fmt.Errorf("sorry, you have to pass 1 parameters (PARAM1)")).Return("")
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("matched prefixed trigger, but not all parameters provided", func(t *testing.T) {
@@ -78,7 +78,7 @@ func TestJenkinsTrigger(t *testing.T) {
 
 		slackClient.On("ReplyError", message, fmt.Errorf("sorry, you have to pass 1 parameters (PARAM1)")).Return("")
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("generic trigger", func(t *testing.T) {
@@ -100,7 +100,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		jenkinsClient.On("GetJob", "TestJob").Return(nil, errors.New("404"))
 		actual := command.Run(message)
 
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("custom trigger", func(t *testing.T) {
@@ -122,7 +122,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		jenkinsClient.On("GetJob", "TestJobWithTrigger").Return(nil, errors.New("404"))
 		actual := command.Run(message)
 
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("No trigger found...do nothing", func(t *testing.T) {
@@ -130,6 +130,6 @@ func TestJenkinsTrigger(t *testing.T) {
 		message.Text = "start foo job"
 
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 }

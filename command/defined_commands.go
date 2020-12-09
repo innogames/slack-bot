@@ -14,7 +14,7 @@ import (
 
 // NewCommands defines custom commands by defining a trigger (regexp) and a list of commands which should be executed
 // it also supports placeholders by {{ .param }} using the regexp group name
-func NewCommands(slackClient client.SlackClient, macros []config.Command) bot.Command {
+func NewCommands(base bot.BaseCommand, macros []config.Command) bot.Command {
 	commands := make([]command, len(macros))
 
 	for i, macro := range macros {
@@ -25,13 +25,13 @@ func NewCommands(slackClient client.SlackClient, macros []config.Command) bot.Co
 	}
 
 	return &macroCommand{
-		slackClient,
+		base,
 		commands,
 	}
 }
 
 type macroCommand struct {
-	slackClient client.SlackClient
+	bot.BaseCommand
 
 	// precompiled regexp and list of commands
 	commands []command
@@ -61,7 +61,7 @@ func (c *macroCommand) Execute(ref msg.Ref, text string) bool {
 			command, err := util.CompileTemplate(commandText)
 			if err != nil {
 				fmt.Printf("cannot parse command %s: %s\n", commandText, err.Error())
-				c.slackClient.ReplyError(ref, err)
+				c.ReplyError(ref, err)
 
 				continue
 			}
@@ -69,7 +69,7 @@ func (c *macroCommand) Execute(ref msg.Ref, text string) bool {
 			text, err := util.EvalTemplate(command, params)
 			if err != nil {
 				fmt.Printf("cannot executing command %s: %s\n", commandText, err.Error())
-				c.slackClient.ReplyError(ref, err)
+				c.ReplyError(ref, err)
 
 				continue
 			}

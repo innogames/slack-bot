@@ -27,7 +27,7 @@ func (c *command) ListCrons(match matcher.Result, message msg.Message) {
 		)
 	}
 
-	c.slackClient.SendMessage(message, text)
+	c.SendMessage(message, text)
 }
 
 func (c *command) GetHelp() []bot.Help {

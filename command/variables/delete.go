@@ -13,5 +13,5 @@ func (c *command) Delete(match matcher.Result, message msg.Message) {
 	delete(list, name)
 	storeList(message, list)
 
-	c.slackClient.SendMessage(message, fmt.Sprintf("Okay, I deleted variable: `%s`", name))
+	c.SendMessage(message, fmt.Sprintf("Okay, I deleted variable: `%s`", name))
 }

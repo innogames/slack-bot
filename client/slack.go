@@ -43,7 +43,11 @@ func GetSlackClient(cfg config.Slack) *Slack {
 	}
 
 	rawClient := slack.New(cfg.Token, options...)
-	rtm := rawClient.NewRTM()
+
+	var rtm *slack.RTM
+	if !cfg.UseEventAPI {
+		rtm = rawClient.NewRTM()
+	}
 
 	return &Slack{Client: rawClient, RTM: rtm, config: cfg}
 }

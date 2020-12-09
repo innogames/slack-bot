@@ -2,6 +2,9 @@
 slack:
   token: # use xoxb-1234567-secret
 
+  # WIP config to enable the event-API from slack (replaces RTM communication)
+  #use_event_api: true
+
   # auto_join_channels:
   # - fancy-channel
 

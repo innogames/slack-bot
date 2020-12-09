@@ -57,7 +57,7 @@ func BenchmarkTextMatcher(b *testing.B) {
 			run, result = textMatcher.Match(message)
 		}
 		assert.Nil(b, run)
-		assert.Equal(b, false, result.Matched())
+		assert.False(b, result.Matched())
 	})
 
 	b.Run("loweredText: match", func(b *testing.B) {
@@ -68,6 +68,6 @@ func BenchmarkTextMatcher(b *testing.B) {
 			run, result = textMatcher.Match(message)
 		}
 		assert.NotNil(b, run)
-		assert.Equal(b, true, result.Matched())
+		assert.True(b, result.Matched())
 	})
 }

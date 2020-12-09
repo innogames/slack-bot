@@ -24,7 +24,7 @@ func TestNodes(t *testing.T) {
 		message.Text = "nodes"
 
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("Fetch with error", func(t *testing.T) {
@@ -34,7 +34,7 @@ func TestNodes(t *testing.T) {
 		jenkinsClient.On("GetAllNodes").Return(nil, fmt.Errorf("an error occurred")).Once()
 		slackClient.On("ReplyError", message, fmt.Errorf("an error occurred")).Return(true)
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Fetch nodes", func(t *testing.T) {
@@ -62,7 +62,7 @@ func TestNodes(t *testing.T) {
 		jenkinsClient.On("GetAllNodes").Return(nodes, nil).Once()
 		slackClient.On("SendMessage", message, "*2 Nodes*\n- *Node 1* - status: :check_mark: - executors: 0\n- *Node 2* - status: :red_circle: - executors: 0\n").Return("")
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Test help", func(t *testing.T) {
@@ -91,6 +91,6 @@ func TestRealNodes(t *testing.T) {
 
 		slackClient.On("SendMessage", message, mock.Anything).Return("")
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 }

@@ -11,7 +11,9 @@ import (
 
 func TestReply(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
-	reply := NewReplyCommand(slackClient)
+	base := bot.BaseCommand{SlackClient: slackClient}
+
+	reply := NewReplyCommand(base)
 
 	command := bot.Commands{}
 	command.AddCommand(reply)
@@ -27,7 +29,7 @@ func TestReply(t *testing.T) {
 			message.Text = text
 
 			actual := command.Run(message)
-			assert.Equal(t, false, actual)
+			assert.False(t, actual)
 		}
 	})
 
@@ -36,7 +38,7 @@ func TestReply(t *testing.T) {
 		message.Text = "reply"
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("simple reply", func(t *testing.T) {
@@ -45,7 +47,7 @@ func TestReply(t *testing.T) {
 
 		slackClient.On("SendMessage", message, "Test").Return("")
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("simple reply case sensitive", func(t *testing.T) {
@@ -54,7 +56,7 @@ func TestReply(t *testing.T) {
 
 		slackClient.On("SendMessage", message, "Test").Return("")
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("comment without text", func(t *testing.T) {
@@ -62,7 +64,7 @@ func TestReply(t *testing.T) {
 		message.Text = "comment"
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("comment", func(t *testing.T) {
@@ -72,6 +74,6 @@ func TestReply(t *testing.T) {
 
 		slackClient.On("SendMessage", message, "test", mock.AnythingOfType("slack.MsgOption")).Return("")
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 }

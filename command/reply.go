@@ -4,17 +4,16 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
 	"github.com/slack-go/slack"
 )
 
 // NewReplyCommand is a command to reply a message in current thread/channel
-func NewReplyCommand(slackClient client.SlackClient) bot.Command {
-	return &replyCommand{slackClient}
+func NewReplyCommand(base bot.BaseCommand) bot.Command {
+	return &replyCommand{base}
 }
 
 type replyCommand struct {
-	slackClient client.SlackClient
+	bot.BaseCommand
 }
 
 func (c *replyCommand) GetMatcher() matcher.Matcher {
@@ -30,7 +29,7 @@ func (c *replyCommand) Reply(match matcher.Result, message msg.Message) {
 		return
 	}
 
-	c.slackClient.SendMessage(message, text)
+	c.SendMessage(message, text)
 }
 
 // comment in (new) thread
@@ -40,7 +39,7 @@ func (c *replyCommand) CommentInNewThread(match matcher.Result, message msg.Mess
 		return
 	}
 
-	c.slackClient.SendMessage(message, text, slack.MsgOptionTS(message.GetTimestamp()))
+	c.SendMessage(message, text, slack.MsgOptionTS(message.GetTimestamp()))
 }
 
 func (c *replyCommand) GetHelp() []bot.Help {

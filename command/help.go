@@ -5,7 +5,6 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
 	"io"
 	"sort"
 	"strings"
@@ -13,8 +12,8 @@ import (
 )
 
 // NewHelpCommand provides information about all registered commands with description and examples
-func NewHelpCommand(slackClient client.SlackClient, commands *bot.Commands) bot.Command {
-	return &helpCommand{slackClient: slackClient, commands: commands}
+func NewHelpCommand(base bot.BaseCommand, commands *bot.Commands) bot.Command {
+	return &helpCommand{BaseCommand: base, commands: commands}
 }
 
 func (t *helpCommand) GetMatcher() matcher.Matcher {
@@ -25,7 +24,7 @@ func (t *helpCommand) GetMatcher() matcher.Matcher {
 }
 
 type helpCommand struct {
-	slackClient    client.SlackClient
+	bot.BaseCommand
 	commands       *bot.Commands
 	sortedCommands []bot.Help
 	commandHelp    map[string]bot.Help
@@ -74,7 +73,7 @@ func (t *helpCommand) ShowAll(match matcher.Result, message msg.Message) {
 	}
 
 	text.WriteString("With *help <command>* I can provide you with more details!")
-	t.slackClient.SendMessage(message, text.String())
+	t.SendMessage(message, text.String())
 }
 
 func (t *helpCommand) printCategoryHeader(commandHelp bot.Help, text io.StringWriter) {
@@ -100,7 +99,7 @@ func (t *helpCommand) ShowSingleCommand(match matcher.Result, message msg.Messag
 
 	commandHelp, ok := t.commandHelp[command]
 	if !ok {
-		t.slackClient.SendMessage(message, fmt.Sprintf("Invalid command: `%s`", command))
+		t.SendMessage(message, fmt.Sprintf("Invalid command: `%s`", command))
 		return
 	}
 
@@ -116,7 +115,7 @@ func (t *helpCommand) ShowSingleCommand(match matcher.Result, message msg.Messag
 		}
 	}
 
-	t.slackClient.SendMessage(message, text)
+	t.SendMessage(message, text)
 }
 
 // generate the list of all commands only once and sort them by category/name

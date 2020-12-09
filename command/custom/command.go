@@ -3,12 +3,11 @@ package custom
 import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/client"
 )
 
 // GetCommand returns a set of all custom commands
-func GetCommand(slackClient client.SlackClient) bot.Command {
-	return command{slackClient}
+func GetCommand(base bot.BaseCommand) bot.Command {
+	return command{base}
 }
 
 var category = bot.Category{
@@ -18,7 +17,7 @@ var category = bot.Category{
 }
 
 type command struct {
-	slackClient client.SlackClient
+	bot.BaseCommand
 }
 
 func (c command) GetMatcher() matcher.Matcher {
@@ -30,6 +29,7 @@ func (c command) GetMatcher() matcher.Matcher {
 	)
 }
 
+// todo separate commands + separate help entries!
 func (c command) GetHelp() []bot.Help {
 	return []bot.Help{
 		{

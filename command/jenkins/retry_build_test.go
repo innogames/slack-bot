@@ -34,7 +34,7 @@ func TestJenkinsRetry(t *testing.T) {
 		message.Text = "retry"
 
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("Retry not existing job", func(t *testing.T) {
@@ -43,7 +43,7 @@ func TestJenkinsRetry(t *testing.T) {
 
 		slackClient.On("ReplyError", message, fmt.Errorf("job *NotExisting* is not whitelisted")).Return(true)
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Retry not existing job", func(t *testing.T) {
@@ -54,7 +54,7 @@ func TestJenkinsRetry(t *testing.T) {
 
 		jenkinsClient.On("GetJob", "TestJob").Return(nil, fmt.Errorf(""))
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Test help", func(t *testing.T) {

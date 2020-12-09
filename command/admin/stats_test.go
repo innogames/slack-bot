@@ -12,13 +12,15 @@ import (
 )
 
 func TestStatsLog(t *testing.T) {
-	slackClient := mocks.SlackClient{}
+	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
+
 	cfg := config.Config{}
 	cfg.AdminUsers = []string{
 		"UADMIN",
 	}
 
-	statsCommand := NewStatsCommand(&slackClient, cfg)
+	statsCommand := NewStatsCommand(base, cfg)
 
 	command := bot.Commands{}
 	command.AddCommand(statsCommand)
@@ -28,7 +30,7 @@ func TestStatsLog(t *testing.T) {
 		message.Text = "stats"
 
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("display bot statsType", func(t *testing.T) {
@@ -41,6 +43,6 @@ func TestStatsLog(t *testing.T) {
 		})).Return("")
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 }

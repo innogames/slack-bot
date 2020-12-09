@@ -4,7 +4,6 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
 	"math/rand"
 	"strings"
 	"text/template"
@@ -12,15 +11,15 @@ import (
 )
 
 // NewRandomCommand will reply a random entry
-func NewRandomCommand(slackClient client.SlackClient) bot.Command {
+func NewRandomCommand(base bot.BaseCommand) bot.Command {
 	random := rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	return &randomCommand{slackClient, random}
+	return &randomCommand{base, random}
 }
 
 type randomCommand struct {
-	slackClient client.SlackClient
-	random      *rand.Rand
+	bot.BaseCommand
+	random *rand.Rand
 }
 
 func (c *randomCommand) GetMatcher() matcher.Matcher {
@@ -30,14 +29,14 @@ func (c *randomCommand) GetMatcher() matcher.Matcher {
 func (c *randomCommand) GetRandom(match matcher.Result, message msg.Message) {
 	optionsString := match.MatchedString()
 	if optionsString == "" {
-		c.slackClient.SendMessage(message, "You have to pass more arguments")
+		c.SendMessage(message, "You have to pass more arguments")
 		return
 	}
 	options := strings.Split(optionsString, " ")
 
 	randomOption := c.pickRandom(options)
 
-	c.slackClient.SendMessage(message, randomOption)
+	c.SendMessage(message, randomOption)
 }
 
 func (c *randomCommand) pickRandom(list []string) string {
