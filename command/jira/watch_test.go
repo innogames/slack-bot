@@ -40,4 +40,9 @@ func TestWatchJira(t *testing.T) {
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
+
+	t.Run("Test help", func(t *testing.T) {
+		help := command.GetHelp()
+		assert.Equal(t, 1, len(help))
+	})
 }

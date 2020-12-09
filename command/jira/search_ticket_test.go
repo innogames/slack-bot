@@ -4,6 +4,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
@@ -74,6 +75,31 @@ func TestJiraSearch(t *testing.T) {
 		slackClient.On("SendMessage", message, "Field 'FOO' does not exist or this field cannot be viewed by anonymous users.: request failed. Please analyze the request body for more details. Status code: 400").Return("")
 		actual := command.Run(message)
 		assert.True(t, actual)
+	})
+
+	t.Run("Render template with jiraTicket()", func(t *testing.T) {
+		tpl, err := util.CompileTemplate(`{{$ticket := jiraTicket "ZOOKEEPER-3455"}}ID: {{$ticket.ID}} Key: {{$ticket.Key}}`)
+		assert.Nil(t, err)
+
+		res, err := util.EvalTemplate(tpl, util.Parameters{})
+		assert.Nil(t, err)
+
+		assert.Equal(t, "ID: 13242741 Key: ZOOKEEPER-3455", res)
+	})
+
+	t.Run("Render template with jiraTicketUrl()", func(t *testing.T) {
+		tpl, err := util.CompileTemplate(`{{ jiraTicketUrl "ZOOKEEPER-3455"}}`)
+		assert.Nil(t, err)
+
+		res, err := util.EvalTemplate(tpl, util.Parameters{})
+		assert.Nil(t, err)
+
+		assert.Equal(t, "https://issues.apache.org/jira/browse/ZOOKEEPER-3455", res)
+	})
+
+	t.Run("Test help", func(t *testing.T) {
+		help := command.GetHelp()
+		assert.Equal(t, 1, len(help))
 	})
 }
 
