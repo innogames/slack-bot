@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// Load loads config yaml file(s) inside a directory or a single .yaml file
+// Load all yaml config from a directory or a single .yaml file
 func Load(configFile string) (Config, error) {
 	v := viper.NewWithOptions(viper.KeyDelimiter("#"), viper.KeyPreserveCase())
 
@@ -23,7 +23,10 @@ func Load(configFile string) (Config, error) {
 
 	// workaround to take all keys from struct available
 	defaultYaml, _ := yaml.Marshal(defaultConfig)
-	v.ReadConfig(bytes.NewBuffer(defaultYaml))
+	err := v.ReadConfig(bytes.NewBuffer(defaultYaml))
+	if err != nil {
+		return cfg, err
+	}
 
 	fileInfo, err := os.Stat(configFile)
 	if err != nil {

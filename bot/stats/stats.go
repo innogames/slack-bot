@@ -2,6 +2,8 @@ package stats
 
 import (
 	"github.com/innogames/slack-bot/bot/storage"
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"sync"
 )
 
@@ -31,7 +33,9 @@ func Increase(key string, count uint) {
 
 	value += count
 
-	storage.Write(collection, key, value)
+	if err := storage.Write(collection, key, value); err != nil {
+		log.Warn(errors.Wrap(err, "error while increasing stats"))
+	}
 }
 
 // Get the counter value of of type

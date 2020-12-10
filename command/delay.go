@@ -14,14 +14,14 @@ import (
 )
 
 // NewDelayCommand delays the command execution by the given time
-func NewDelayCommand(slackClient client.SlackClient) bot.Command {
-	return &delayCommand{slackClient: slackClient, timers: make([]*time.Timer, 0)}
+func NewDelayCommand(base bot.BaseCommand) bot.Command {
+	return &delayCommand{BaseCommand: base, timers: make([]*time.Timer, 0)}
 }
 
 type delayCommand struct {
-	slackClient client.SlackClient
-	timers      []*time.Timer
-	mu          sync.Mutex
+	bot.BaseCommand
+	timers []*time.Timer
+	mu     sync.Mutex
 }
 
 func (c *delayCommand) GetMatcher() matcher.Matcher {
@@ -34,17 +34,21 @@ func (c *delayCommand) GetMatcher() matcher.Matcher {
 func (c *delayCommand) Delay(match matcher.Result, message msg.Message) {
 	delay, err := util.ParseDuration(match.GetString("delay"))
 	if err != nil {
-		c.slackClient.SendMessage(message, "Invalid duration: "+err.Error())
+		c.SendMessage(message, "Invalid duration: "+err.Error())
 		return
 	}
 
 	quietMode := match.GetString("quiet") != ""
 	command := match.GetString("command")
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	timer := time.NewTimer(delay)
 	c.timers = append(c.timers, timer)
 
 	if !quietMode {
-		c.slackClient.SendMessage(message, fmt.Sprintf(
+		c.SendMessage(message, fmt.Sprintf(
 			"I queued the command `%s` for %s. Use `stop timer %d` to stop the timer",
 			command,
 			delay,
@@ -71,9 +75,9 @@ func (c *delayCommand) Stop(match matcher.Result, message msg.Message) {
 	if timerNr < len(c.timers) && c.timers[timerNr] != nil {
 		c.timers[timerNr].Stop()
 		c.timers[timerNr] = nil
-		c.slackClient.SendMessage(message, "Stopped timer!")
+		c.SendMessage(message, "Stopped timer!")
 	} else {
-		c.slackClient.ReplyError(message, errors.New("invalid timer"))
+		c.ReplyError(message, errors.New("invalid timer"))
 	}
 }
 

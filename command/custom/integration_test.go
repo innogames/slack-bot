@@ -11,8 +11,10 @@ import (
 
 func TestCustomCommands(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
+
 	commands := bot.Commands{}
-	commands.AddCommand(GetCommand(slackClient))
+	commands.AddCommand(GetCommand(base))
 
 	t.Run("Invalid commands", func(t *testing.T) {
 		message := msg.Message{}
@@ -20,7 +22,7 @@ func TestCustomCommands(t *testing.T) {
 		message.Text = "notify me not"
 
 		actual := commands.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("List empty commands", func(t *testing.T) {
@@ -29,7 +31,7 @@ func TestCustomCommands(t *testing.T) {
 		message.User = "user1"
 		slackClient.On("SendMessage", message, "No commands define yet. Use `add command 'your alias' 'command to execute'`").Return("")
 		actual := commands.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Add a command with invalid syntax", func(t *testing.T) {
@@ -37,7 +39,7 @@ func TestCustomCommands(t *testing.T) {
 		message.User = "user1"
 		message.Text = "add command alias 1 command 2"
 		actual := commands.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("Add valid command", func(t *testing.T) {
@@ -48,7 +50,7 @@ func TestCustomCommands(t *testing.T) {
 		slackClient.On("SendMessage", message, "Added command: `reply 1`. Just use `alias 1` in future.").Return("")
 		actual := commands.Run(message)
 
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("List commands should list new command", func(t *testing.T) {
@@ -59,7 +61,7 @@ func TestCustomCommands(t *testing.T) {
 		slackClient.On("SendMessage", message, "You defined 1 commands:\n - alias 1: `reply 1`").Return("")
 		actual := commands.Run(message)
 
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("GetRandom any command do nothing", func(t *testing.T) {
@@ -67,7 +69,7 @@ func TestCustomCommands(t *testing.T) {
 		message.User = "user1"
 		message.Text = "any command"
 		actual := commands.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("GetRandom 'alias 1'", func(t *testing.T) {
@@ -79,7 +81,7 @@ func TestCustomCommands(t *testing.T) {
 
 		assert.Empty(t, client.InternalMessages)
 		actual := commands.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		assert.Len(t, client.InternalMessages, 1)
 
 		message = msg.Message{}
@@ -97,7 +99,7 @@ func TestCustomCommands(t *testing.T) {
 
 		actual := commands.Run(message)
 
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("Delete command", func(t *testing.T) {
@@ -109,6 +111,6 @@ func TestCustomCommands(t *testing.T) {
 
 		actual := commands.Run(message)
 
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 }

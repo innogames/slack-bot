@@ -12,6 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"net"
+	"text/template"
 	"time"
 )
 
@@ -43,14 +44,14 @@ type fetcher interface {
 }
 
 type command struct {
-	cfg         config.PullRequest
-	slackClient client.SlackClient
-	fetcher     fetcher
-	regexp      string
+	bot.BaseCommand
+	cfg     config.PullRequest
+	fetcher fetcher
+	regexp  string
 }
 
 type pullRequest struct {
-	name        string
+	Name        string
 	declined    bool
 	merged      bool
 	closed      bool
@@ -67,7 +68,7 @@ func (c command) Execute(match matcher.Result, message msg.Message) {
 	_, err := c.fetcher.getPullRequest(match)
 
 	if err != nil {
-		c.slackClient.ReplyError(message, err)
+		c.ReplyError(message, err)
 		return
 	}
 
@@ -104,11 +105,11 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 			connectionErrors++
 			if connectionErrors > maxConnectionErrors {
 				// reply error in new thread
-				c.slackClient.ReplyError(
+				c.ReplyError(
 					message,
 					errors.Wrapf(err, "Error while fetching PR data %d times in a row", connectionErrors),
 				)
-				c.slackClient.AddReaction(iconError, message)
+				c.AddReaction(iconError, message)
 				return
 			}
 			continue
@@ -173,7 +174,7 @@ func (c command) processBuildStatus(pr pullRequest, currentReactions map[string]
 // get the current reactions in the given message which got created by this bot user
 func (c command) getOwnReactions(msgRef slack.ItemRef) map[string]bool {
 	currentReactions := make(map[string]bool)
-	reactions, _ := c.slackClient.GetReactions(msgRef, slack.NewGetReactionsParameters())
+	reactions, _ := c.GetReactions(msgRef, slack.NewGetReactionsParameters())
 
 	for _, reaction := range reactions {
 		for _, user := range reaction.Users {
@@ -194,7 +195,7 @@ func (c command) removeReaction(currentReactions map[string]bool, icon string, m
 	}
 
 	delete(currentReactions, icon)
-	c.slackClient.RemoveReaction(icon, message)
+	c.RemoveReaction(icon, message)
 }
 
 func (c *command) addReaction(currentReactions map[string]bool, icon string, message msg.Message) {
@@ -205,7 +206,7 @@ func (c *command) addReaction(currentReactions map[string]bool, icon string, mes
 
 	currentReactions[icon] = true
 
-	c.slackClient.AddReaction(icon, message)
+	c.AddReaction(icon, message)
 }
 
 // generates a map of all icons for the given approvers list. If there is no special mapping, it returns the default icon
@@ -226,6 +227,14 @@ func (c command) getApproveIcons(approvers []string) map[string]bool {
 	}
 
 	return icons
+}
+
+func (c command) GetTemplateFunction() template.FuncMap {
+	if functions, ok := c.fetcher.(util.TemplateFunctionProvider); ok {
+		return functions.GetTemplateFunction()
+	}
+
+	return template.FuncMap{}
 }
 
 func (c command) GetHelp() []bot.Help {

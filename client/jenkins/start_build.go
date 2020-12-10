@@ -27,7 +27,7 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 	processHooks(cfg.OnStart, message, jobParams)
 	slackClient.AddReaction(iconPending, message)
 
-	build, err := startJob(jenkins, jobName, jobParams)
+	build, err := startJob(cfg, jenkins, jobName, jobParams)
 	if err != nil {
 		return errors.Wrapf(err, "Job *%s* could not start job", jobName)
 	}
@@ -103,10 +103,10 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 }
 
 // startJob starts a job and waits until job is not queued anymore
-func startJob(jenkins Client, jobName string, jobParams map[string]string) (*gojenkins.Build, error) {
+func startJob(cfg config.JobConfig, jenkins Client, jobName string, jobParams map[string]string) (*gojenkins.Build, error) {
 	// avoid nasty racing conditions when two people are starting the same job
-	mu.Lock()
-	defer mu.Unlock()
+	cfg.Lock.Lock()
+	defer cfg.Lock.Unlock()
 
 	job, err := jenkins.GetJob(jobName)
 	if err != nil {

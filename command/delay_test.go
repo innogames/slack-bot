@@ -5,6 +5,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
+	"github.com/innogames/slack-bot/command/queue"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
@@ -14,17 +15,18 @@ import (
 
 func TestDelay(t *testing.T) {
 	client.InternalMessages = make(chan msg.Message, 2)
-	slackClient := mocks.SlackClient{}
+	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
 
 	command := bot.Commands{}
-	command.AddCommand(NewDelayCommand(&slackClient))
+	command.AddCommand(NewDelayCommand(base))
 
 	t.Run("Invalid command", func(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "I have a delay"
 
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 		assert.Empty(t, client.InternalMessages)
 	})
 
@@ -32,23 +34,26 @@ func TestDelay(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "delay h1 my command"
 
-		slackClient.On("SendMessage", message, "Invalid duration: time: invalid duration \"h1\"").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "Invalid duration: time: invalid duration \"h1\"")
+
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		assert.Empty(t, client.InternalMessages)
 	})
 
 	t.Run("Test timer passed", func(t *testing.T) {
 		command := bot.Commands{}
-		command.AddCommand(NewDelayCommand(&slackClient))
+		command.AddCommand(NewDelayCommand(base))
 
 		message := msg.Message{}
 		message.Text = "delay 20ms my command"
 
-		slackClient.On("SendMessage", message, "I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer")
+
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		assert.Empty(t, client.InternalMessages)
+		assert.Equal(t, 1, queue.CountCurrentJobs())
 
 		time.Sleep(time.Millisecond * 250)
 		assert.NotEmpty(t, client.InternalMessages)
@@ -59,17 +64,18 @@ func TestDelay(t *testing.T) {
 		}
 
 		assert.Equal(t, handledEvent, expectedEvent)
+		assert.Equal(t, 0, queue.CountCurrentJobs())
 	})
 
 	t.Run("Test quiet option", func(t *testing.T) {
 		command := bot.Commands{}
-		command.AddCommand(NewDelayCommand(&slackClient))
+		command.AddCommand(NewDelayCommand(base))
 
 		message := msg.Message{}
 		message.Text = "delay 20ms quiet my command"
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		assert.Empty(t, client.InternalMessages)
 
 		time.Sleep(time.Millisecond * 100)
@@ -83,24 +89,26 @@ func TestDelay(t *testing.T) {
 		}
 
 		assert.Equal(t, handledEvent, msg.FromSlackEvent(expectedEvent))
+		assert.Equal(t, 0, queue.CountCurrentJobs())
 	})
 
 	t.Run("Test stop", func(t *testing.T) {
 		command := bot.Commands{}
-		command.AddCommand(NewDelayCommand(&slackClient))
+		command.AddCommand(NewDelayCommand(base))
 
 		message := msg.Message{}
 		message.Text = "delay 20ms my command"
 
-		slackClient.On("SendMessage", message, "I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer")
+
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		assert.Empty(t, client.InternalMessages)
 
 		message.Text = "stop timer 0"
 		slackClient.On("SendMessage", message, "Stopped timer!").Return("")
 		actual = command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 
 		time.Sleep(time.Millisecond * 30)
 		assert.Empty(t, client.InternalMessages)
@@ -109,6 +117,6 @@ func TestDelay(t *testing.T) {
 		message.Text = "stop timer 5"
 		slackClient.On("ReplyError", message, fmt.Errorf("invalid timer"))
 		actual = command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 }

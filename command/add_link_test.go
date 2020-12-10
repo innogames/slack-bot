@@ -12,16 +12,17 @@ import (
 
 func TestAddLink(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
 
 	command := bot.Commands{}
-	command.AddCommand(NewAddLinkCommand(slackClient))
+	command.AddCommand(NewAddLinkCommand(base))
 
 	t.Run("invalid command", func(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "add a link"
 
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("add link", func(t *testing.T) {
@@ -33,6 +34,6 @@ func TestAddLink(t *testing.T) {
 		mocks.AssertSlackJSON(t, slackClient, message, expected)
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 }

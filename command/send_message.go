@@ -5,16 +5,15 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
 )
 
 // NewSendMessageCommand is able to send a message to any user/channel
-func NewSendMessageCommand(slackClient client.SlackClient) bot.Command {
-	return &sendMessageCommand{slackClient}
+func NewSendMessageCommand(base bot.BaseCommand) bot.Command {
+	return &sendMessageCommand{base}
 }
 
 type sendMessageCommand struct {
-	slackClient client.SlackClient
+	bot.BaseCommand
 }
 
 func (c *sendMessageCommand) GetMatcher() matcher.Matcher {
@@ -31,12 +30,12 @@ func (c *sendMessageCommand) SendMessage(match matcher.Result, message msg.Messa
 		// send to channel
 		newEvent := msg.Message{}
 		newEvent.Channel = match.GetString("receiver")
-		c.slackClient.SendMessage(newEvent, text)
+		c.SlackClient.SendMessage(newEvent, text)
 	} else {
-		c.slackClient.SendToUser(match.GetString("receiver"), text)
+		c.SendToUser(match.GetString("receiver"), text)
 	}
 
-	c.slackClient.SendMessage(
+	c.SlackClient.SendMessage(
 		message,
 		fmt.Sprintf("I'll send `%s` to %s", match.GetString("text"), match.GetString("fullChannel")),
 	)

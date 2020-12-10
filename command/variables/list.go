@@ -10,7 +10,7 @@ import (
 func (c *command) List(match matcher.Result, message msg.Message) {
 	list := loadList(message.GetUser())
 	if len(list) == 0 {
-		c.slackClient.SendMessage(message, "No variables define yet. Use `add variable 'defaultServer' 'beta'`")
+		c.SendMessage(message, "No variables define yet. Use `add variable 'defaultServer' 'beta'`")
 		return
 	}
 
@@ -19,5 +19,5 @@ func (c *command) List(match matcher.Result, message msg.Message) {
 		responseText += fmt.Sprintf("\n - %s: `%s`", name, value)
 	}
 
-	c.slackClient.SendMessage(message, responseText)
+	c.SendMessage(message, responseText)
 }

@@ -12,14 +12,16 @@ import (
 func TestBotLog(t *testing.T) {
 	testFile := "test.log"
 
-	slackClient := mocks.SlackClient{}
+	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
+
 	cfg := config.Config{}
 	cfg.Logger.File = testFile
 	cfg.AdminUsers = []string{
 		"UADMIN",
 	}
 
-	botLog := NewBotLogCommand(&slackClient, cfg)
+	botLog := NewBotLogCommand(base, cfg)
 
 	command := bot.Commands{}
 	command.AddCommand(botLog)
@@ -29,7 +31,7 @@ func TestBotLog(t *testing.T) {
 		message.Text = "log log log"
 
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("display log without history", func(t *testing.T) {
@@ -40,6 +42,6 @@ func TestBotLog(t *testing.T) {
 		slackClient.On("SendMessage", message, "No logs so far").Return("")
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 }

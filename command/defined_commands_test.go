@@ -12,6 +12,7 @@ import (
 
 func TestInvalidMacro(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
 
 	client.InternalMessages = make(chan msg.Message, 2)
 	cfg := []config.Command{
@@ -26,19 +27,26 @@ func TestInvalidMacro(t *testing.T) {
 	}
 
 	command := bot.Commands{}
-	command.AddCommand(NewCommands(slackClient, cfg))
+	command.AddCommand(NewCommands(base, cfg))
 
 	t.Run("invalid command", func(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "start foo"
 
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
+	})
+
+	t.Run("Test help", func(t *testing.T) {
+		help := command.GetHelp()
+		assert.Equal(t, 1, len(help))
 	})
 }
 
 func TestMacro(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
+
 	client.InternalMessages = make(chan msg.Message, 2)
 	cfg := []config.Command{
 		{
@@ -52,14 +60,14 @@ func TestMacro(t *testing.T) {
 	}
 
 	command := bot.Commands{}
-	command.AddCommand(NewCommands(slackClient, cfg))
+	command.AddCommand(NewCommands(base, cfg))
 
 	t.Run("invalid macro", func(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "commandHelp quatsch"
 
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("test util", func(t *testing.T) {
@@ -68,7 +76,7 @@ func TestMacro(t *testing.T) {
 
 		assert.Empty(t, client.InternalMessages)
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 		assert.NotEmpty(t, client.InternalMessages)
 
 		handledEvent := <-client.InternalMessages

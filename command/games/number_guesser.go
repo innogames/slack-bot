@@ -5,7 +5,6 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
 	"math/rand"
 )
 
@@ -21,13 +20,13 @@ type game struct {
 type runningGames map[string]*game
 
 type numberGuesserCommand struct {
-	slackClient client.SlackClient
-	games       runningGames
+	bot.BaseCommand
+	games runningGames
 }
 
 // NewNumberGuesserCommand is a very small game to guess a random number
-func NewNumberGuesserCommand(slackClient client.SlackClient) bot.Command {
-	return &numberGuesserCommand{slackClient, runningGames{}}
+func NewNumberGuesserCommand(base bot.BaseCommand) bot.Command {
+	return &numberGuesserCommand{base, runningGames{}}
 }
 
 func (c *numberGuesserCommand) GetMatcher() matcher.Matcher {
@@ -39,7 +38,7 @@ func (c *numberGuesserCommand) GetMatcher() matcher.Matcher {
 
 func (c *numberGuesserCommand) Start(match matcher.Result, message msg.Message) {
 	if _, ok := c.games[message.GetUser()]; ok {
-		c.slackClient.SendMessage(message, "There is already a game :smile: use `guess number XX` instead")
+		c.SendMessage(message, "There is already a game :smile: use `guess number XX` instead")
 		return
 	}
 
@@ -50,13 +49,13 @@ func (c *numberGuesserCommand) Start(match matcher.Result, message msg.Message) 
 	}
 	c.games[message.GetUser()] = game
 
-	c.slackClient.SendMessage(message, fmt.Sprintf("I chose a number between 0 an %d. Good luck! Use `guess number XX`", maxNumber))
+	c.SendMessage(message, fmt.Sprintf("I chose a number between 0 an %d. Good luck! Use `guess number XX`", maxNumber))
 }
 
 func (c *numberGuesserCommand) Guess(match matcher.Result, message msg.Message) {
 	currentGame, ok := c.games[message.GetUser()]
 	if !ok {
-		c.slackClient.SendMessage(message, "There is no game running. Use `start number guesser`")
+		c.SendMessage(message, "There is no game running. Use `start number guesser`")
 		return
 	}
 
@@ -64,20 +63,20 @@ func (c *numberGuesserCommand) Guess(match matcher.Result, message msg.Message) 
 	currentGame.tries++
 
 	if guess == currentGame.randomNumber {
-		c.slackClient.SendMessage(message, fmt.Sprintf("Wow! you got it in %d tries :beers:", currentGame.tries))
+		c.SendMessage(message, fmt.Sprintf("Wow! you got it in %d tries :beers:", currentGame.tries))
 		delete(c.games, message.GetUser())
 		return
 	}
 	if currentGame.tries >= maxTries {
-		c.slackClient.SendMessage(message, "Too many tries already...game over!")
+		c.SendMessage(message, "Too many tries already...game over!")
 		delete(c.games, message.GetUser())
 		return
 	}
 
 	if guess < currentGame.randomNumber {
-		c.slackClient.SendMessage(message, "Higher :arrow_up_small:")
+		c.SendMessage(message, "Higher :arrow_up_small:")
 	} else {
-		c.slackClient.SendMessage(message, "Lower :arrow_down_small:")
+		c.SendMessage(message, "Lower :arrow_down_small:")
 	}
 }
 

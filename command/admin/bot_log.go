@@ -6,7 +6,6 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
 	"os"
 	"strings"
 )
@@ -14,22 +13,22 @@ import (
 const logChars = 4000
 
 // NewBotLogCommand prints the recent bot.log as slack command
-func NewBotLogCommand(slackClient client.SlackClient, cfg config.Config) bot.Command {
+func NewBotLogCommand(base bot.BaseCommand, cfg config.Config) bot.Command {
 	return &botLogCommand{
-		slackClient,
+		base,
 		cfg,
 	}
 }
 
 type botLogCommand struct {
-	slackClient client.SlackClient
-	cfg         config.Config
+	bot.BaseCommand
+	cfg config.Config
 }
 
 func (c *botLogCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewAdminMatcher(
 		c.cfg.AdminUsers,
-		c.slackClient,
+		c.SlackClient,
 		matcher.NewTextMatcher("bot log", c.Run),
 	)
 }
@@ -38,11 +37,11 @@ func (c *botLogCommand) Run(match matcher.Result, message msg.Message) {
 	log := c.readFile(c.cfg.Logger.File, logChars)
 	parts := strings.SplitN(string(log), "\n", 2)
 	if len(parts) <= 1 {
-		c.slackClient.SendMessage(message, "No logs so far")
+		c.SendMessage(message, "No logs so far")
 		return
 	}
 
-	c.slackClient.SendMessage(message, fmt.Sprintf("The most recent messages:\n```%s```", parts[1]))
+	c.SendMessage(message, fmt.Sprintf("The most recent messages:\n```%s```", parts[1]))
 }
 
 func (c *botLogCommand) GetHelp() []bot.Help {

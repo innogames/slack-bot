@@ -20,17 +20,18 @@ func getTestJenkinsCommand() (*mocks.SlackClient, *mocks.Client, jenkinsCommand)
 
 func TestGetCommands(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
 
 	t.Run("Jenkins is not active", func(t *testing.T) {
 		cfg := config.Jenkins{}
-		commands := GetCommands(cfg, slackClient)
+		commands := GetCommands(cfg, base)
 		assert.Equal(t, 0, commands.Count())
 	})
 
 	t.Run("Jenkins is active", func(t *testing.T) {
 		cfg := config.Jenkins{}
 		cfg.Host = "http://ci.jenkins-ci.org"
-		commands := GetCommands(cfg, slackClient)
+		commands := GetCommands(cfg, base)
 		assert.Equal(t, 7, commands.Count())
 	})
 }

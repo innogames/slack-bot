@@ -63,7 +63,7 @@ func main() {
 	checkError(err)
 
 	// start main loop!
-	go b.HandleMessages(ctx)
+	go b.ListenForMessages(ctx)
 
 	var stopChan = make(chan os.Signal, 2)
 

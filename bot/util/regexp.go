@@ -6,6 +6,7 @@ import (
 )
 
 // FullMatch is the key of the "Result" which contains the initial full string of the matching process
+// todo remove this old shitty magic...
 const FullMatch = "match"
 
 // RegexpResultToParams converts a regexp result into a simple string map...kind of deprecated

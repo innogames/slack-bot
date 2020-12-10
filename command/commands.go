@@ -18,46 +18,48 @@ import (
 
 // GetCommands returns the list of default command which are available
 func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Commands {
+	base := bot.BaseCommand{SlackClient: slackClient}
+
 	commands := &bot.Commands{}
 	commands.AddCommand(
 		// needs to be the first commands to store all executed commands
-		NewRetryCommand(slackClient),
+		NewRetryCommand(base),
 
-		NewCommands(slackClient, cfg.Commands),
-		NewReplyCommand(slackClient),
-		NewAddLinkCommand(slackClient),
-		NewAddButtonCommand(slackClient, cfg.Server),
-		NewReactionCommand(slackClient),
-		NewSendMessageCommand(slackClient),
-		NewDelayCommand(slackClient),
-		NewRandomCommand(slackClient),
-		NewHelpCommand(slackClient, commands),
+		NewCommands(base, cfg.Commands),
+		NewReplyCommand(base),
+		NewAddLinkCommand(base),
+		NewAddButtonCommand(base, cfg.Server),
+		NewReactionCommand(base),
+		NewSendMessageCommand(base),
+		NewDelayCommand(base),
+		NewRandomCommand(base),
+		NewHelpCommand(base, commands),
 
-		admin.NewBotLogCommand(slackClient, cfg),
-		admin.NewStatsCommand(slackClient, cfg),
+		admin.NewBotLogCommand(base, cfg),
+		admin.NewStatsCommand(base, cfg),
 
-		weather.NewWeatherCommand(slackClient, cfg.OpenWeather),
+		weather.NewWeatherCommand(base, cfg.OpenWeather),
 
-		cron.NewCronCommand(slackClient, cfg.Crons),
+		cron.NewCronCommand(base, cfg.Crons),
 
-		queue.NewQueueCommand(slackClient),
-		queue.NewListCommand(slackClient),
+		queue.NewQueueCommand(base),
+		queue.NewListCommand(base),
 
-		custom.GetCommand(slackClient),
-		variables.GetCommand(slackClient),
+		custom.GetCommand(base),
+		variables.GetCommand(base),
 	)
 
 	// games
-	commands.Merge(games.GetCommands(slackClient))
+	commands.Merge(games.GetCommands(base))
 
 	// jira
 	commands.Merge(jira.GetCommands(&cfg.Jira, slackClient))
 
 	// jenkins
-	commands.Merge(jenkins.GetCommands(cfg.Jenkins, slackClient))
+	commands.Merge(jenkins.GetCommands(cfg.Jenkins, base))
 
 	// pull-request
-	commands.Merge(pullrequest.GetCommands(slackClient, cfg))
+	commands.Merge(pullrequest.GetCommands(base, cfg))
 
 	return commands
 }

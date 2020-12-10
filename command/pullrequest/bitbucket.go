@@ -6,6 +6,8 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"regexp"
 	"text/template"
 )
@@ -14,16 +16,20 @@ type bitbucketFetcher struct {
 	bitbucketClient *bitbucket.DefaultApiService
 }
 
-func newBitbucketCommand(slackClient client.SlackClient, cfg config.Config) bot.Command {
+func newBitbucketCommand(base bot.BaseCommand, cfg config.Config) bot.Command {
 	if !cfg.Bitbucket.IsEnabled() {
 		return nil
 	}
 
-	bitbucketClient, _ := client.GetBitbucketClient(cfg.Bitbucket)
+	bitbucketClient, err := client.GetBitbucketClient(cfg.Bitbucket)
+	if err != nil {
+		log.Error(errors.Wrap(err, "error while initializing bitbucket client"))
+		return nil
+	}
 
 	return command{
+		base,
 		cfg.PullRequest,
-		slackClient,
 		&bitbucketFetcher{bitbucketClient},
 		"(?s).*" + regexp.QuoteMeta(cfg.Bitbucket.Host) + "/projects/(?P<project>.+)/repos/(?P<repo>.+)/pull-requests/(?P<number>\\d+).*",
 	}
@@ -53,7 +59,7 @@ func (c *bitbucketFetcher) getPullRequest(match matcher.Result) (pullRequest, er
 	}
 
 	pr = pullRequest{
-		name:        rawPullRequest.Title,
+		Name:        rawPullRequest.Title,
 		merged:      rawPullRequest.State == "MERGED",
 		declined:    rawPullRequest.State == "DECLINED",
 		approvers:   approvers,

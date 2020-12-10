@@ -19,7 +19,7 @@ func TestBuildWatcher(t *testing.T) {
 		message.Text = "notify me not"
 
 		actual := command.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("build notifier with invalid job", func(t *testing.T) {
@@ -29,7 +29,7 @@ func TestBuildWatcher(t *testing.T) {
 		jenkins.On("GetJob", "TestJob").Return(nil, fmt.Errorf(""))
 		slackClient.On("SendMessage", message, "Job *TestJob* does not exist").Return("")
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("help", func(t *testing.T) {

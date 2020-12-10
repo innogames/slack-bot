@@ -24,8 +24,8 @@ func newStatusCommand(base jenkinsCommand, jobs config.JenkinsJobs) bot.Command 
 	return &statusCommand{base, jobs}
 }
 
-func (c statusCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher("(?P<action>enable|disable) job (?P<job>[\\w\\-_]+)", c.Run)
+func (c *statusCommand) GetMatcher() matcher.Matcher {
+	return matcher.NewRegexpMatcher(`(?P<action>enable|disable) job (?P<job>[\w\-_]+)`, c.Run)
 }
 
 func (c *statusCommand) IsEnabled() bool {

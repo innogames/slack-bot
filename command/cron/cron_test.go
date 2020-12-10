@@ -13,6 +13,7 @@ import (
 
 func TestCron(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
 
 	crons := []config.Cron{
 		{
@@ -24,7 +25,7 @@ func TestCron(t *testing.T) {
 			},
 		},
 	}
-	command := NewCronCommand(slackClient, crons)
+	command := NewCronCommand(base, crons)
 	commands := bot.Commands{}
 	commands.AddCommand(command)
 
@@ -35,7 +36,7 @@ func TestCron(t *testing.T) {
 			return strings.HasPrefix(input, "*1 crons:*\n - `0 0 * * *`, next in")
 		})).Return("")
 		actual := commands.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Test help", func(t *testing.T) {

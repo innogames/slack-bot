@@ -3,16 +3,15 @@ package variables
 import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/client"
 )
 
 // GetCommand returns a set of all commands to manage user specific variables
-func GetCommand(slackClient client.SlackClient) bot.Command {
-	return command{slackClient}
+func GetCommand(base bot.BaseCommand) bot.Command {
+	return command{base}
 }
 
 type command struct {
-	slackClient client.SlackClient
+	bot.BaseCommand
 }
 
 func (c command) GetMatcher() matcher.Matcher {

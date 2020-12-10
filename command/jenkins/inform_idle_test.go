@@ -46,7 +46,7 @@ func TestInformIdle(t *testing.T) {
 		slackClient.On("AddReaction", doneReaction, message)
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 
 		// wait until watcher is ready
 		time.Sleep(time.Millisecond * 100)
@@ -66,7 +66,7 @@ func TestInformIdle(t *testing.T) {
 		slackClient.On("SendMessage", message, "There are no jobs running right now!").Return("")
 
 		actual := command.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Test help", func(t *testing.T) {
@@ -92,8 +92,8 @@ func getNodeWithExecutors(running int, idle int) *gojenkins.Node {
 			currentExecutable{12},
 		})
 	}
-	executorJson, _ := json.Marshal(executors)
-	json.Unmarshal(executorJson, &node.Raw.Executors)
+	executorJSON, _ := json.Marshal(executors)
+	json.Unmarshal(executorJSON, &node.Raw.Executors)
 
 	return node
 }

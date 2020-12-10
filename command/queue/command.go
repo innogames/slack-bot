@@ -12,16 +12,16 @@ import (
 
 // NewQueueCommand is able to execute a command when another blocking process is done
 // e.g. have a running jenkins job and using "then reply done!" to get a information later
-func NewQueueCommand(slackClient client.SlackClient) bot.Command {
+func NewQueueCommand(base bot.BaseCommand) bot.Command {
 	executeFallbackCommand()
 
 	return &command{
-		slackClient,
+		base,
 	}
 }
 
 type command struct {
-	slackClient client.SlackClient
+	bot.BaseCommand
 }
 
 func (c *command) GetMatcher() matcher.Matcher {
@@ -30,7 +30,7 @@ func (c *command) GetMatcher() matcher.Matcher {
 
 func (c *command) Run(match matcher.Result, message msg.Message) {
 	if !IsBlocked(message) {
-		c.slackClient.ReplyError(
+		c.ReplyError(
 			message,
 			fmt.Errorf("you have to call this command when another long running command is already running"),
 		)
@@ -38,9 +38,9 @@ func (c *command) Run(match matcher.Result, message msg.Message) {
 	}
 
 	command := match.GetString("command")
-	c.slackClient.AddReaction(waitIcon, message)
+	c.AddReaction(waitIcon, message)
 
-	key := getKey(message)
+	key := message.GetUniqueKey()
 
 	go func() {
 		// todo avoid polling here by another chan etc
@@ -56,7 +56,7 @@ func (c *command) Run(match matcher.Result, message msg.Message) {
 				continue
 			}
 			mu.RUnlock()
-			c.slackClient.AddReaction(doneIcon, message)
+			c.AddReaction(doneIcon, message)
 
 			// trigger new command
 			client.InternalMessages <- message.WithText(command)

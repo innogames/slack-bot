@@ -10,13 +10,13 @@ import (
 )
 
 // NewAddButtonCommand is more or less internal command to add a link button to the posted message
-func NewAddButtonCommand(slackClient client.SlackClient, cfg config.Server) bot.Command {
-	return &addButtonCommand{slackClient, cfg}
+func NewAddButtonCommand(base bot.BaseCommand, cfg config.Server) bot.Command {
+	return &addButtonCommand{base, cfg}
 }
 
 type addButtonCommand struct {
-	slackClient client.SlackClient
-	cfg         config.Server
+	bot.BaseCommand
+	cfg config.Server
 }
 
 func (c *addButtonCommand) GetMatcher() matcher.Matcher {
@@ -31,7 +31,7 @@ func (c *addButtonCommand) AddLink(match matcher.Result, message msg.Message) {
 		client.GetInteraction(message, name, command),
 	}
 
-	c.slackClient.SendMessage(message, "", slack.MsgOptionBlocks(blocks...))
+	c.SendMessage(message, "", slack.MsgOptionBlocks(blocks...))
 }
 
 // IsEnabled checks if the http server is enabled to receive slack interactions

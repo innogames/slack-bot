@@ -78,11 +78,13 @@ func (b *Bot) Init() (err error) {
 	}
 
 	if b.config.Server.IsEnabled() {
-		b.server = server.NewServer(b.config.Server, b.slackClient)
+		b.server = server.NewServer(b.config.Server, b.slackClient, b.HandleMessage)
 		go b.server.StartServer()
 	}
 
-	go b.slackClient.RTM.ManageConnection()
+	if b.slackClient.RTM != nil {
+		go b.slackClient.RTM.ManageConnection()
+	}
 
 	log.Infof("Loaded %d allowed users and %d channels", len(b.allowedUsers), len(client.Channels))
 	log.Infof("Bot user: %s with ID %s on workspace %s", b.auth.User, b.auth.UserID, b.auth.URL)
@@ -168,22 +170,26 @@ func (b *Bot) loadSlackData() error {
 	return nil
 }
 
-// HandleMessages is blocking method to handle new incoming events
-func (b *Bot) HandleMessages(ctx *util.ServerContext) {
+// ListenForMessages is blocking method to handle new incoming events
+func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
 	ctx.RegisterChild()
 	defer ctx.ChildDone()
 
+	// only listen for
+	var rtmChan chan slack.RTMEvent
+	if b.slackClient.RTM != nil {
+		rtmChan = b.slackClient.RTM.IncomingEvents
+	}
+
 	for {
 		select {
-		case event := <-b.slackClient.RTM.IncomingEvents:
+		case event := <-rtmChan:
 			// message received from user
 			switch message := event.Data.(type) {
 			case *slack.HelloEvent:
 				log.Info("Hello, the RTM connection is ready!")
 			case *slack.MessageEvent:
-				if b.canHandleMessage(message) {
-					go b.handleMessage(msg.FromSlackEvent(*message), true)
-				}
+				b.HandleMessage(message)
 			case *slack.RTMError, *slack.UnmarshallingErrorEvent, *slack.RateLimitEvent, *slack.ConnectionErrorEvent:
 				log.Error(event)
 			case *slack.LatencyReport:
@@ -200,6 +206,16 @@ func (b *Bot) HandleMessages(ctx *util.ServerContext) {
 			}
 			return
 		}
+	}
+}
+
+// entry point for incoming slack messages:
+// - checks if the message is relevant (direct message to bot or mentioned via @bot)
+// - is the user allowed to interact with the bot?
+// - find the matching command and execute it
+func (b *Bot) HandleMessage(message *slack.MessageEvent) {
+	if b.canHandleMessage(message) {
+		go b.handleMessage(msg.FromSlackEvent(*message), true)
 	}
 }
 

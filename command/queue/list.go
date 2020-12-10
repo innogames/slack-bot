@@ -14,15 +14,15 @@ import (
 )
 
 type listCommand struct {
-	slackClient client.SlackClient
+	bot.BaseCommand
 }
 
 type filterFunc func(msg.Message) bool
 
 // NewListCommand prints the list of all queued commands (blocking commands like running Jenkins jobs)
-func NewListCommand(slackClient client.SlackClient) bot.Command {
+func NewListCommand(base bot.BaseCommand) bot.Command {
 	return &listCommand{
-		slackClient,
+		base,
 	}
 }
 
@@ -87,7 +87,7 @@ func (c *listCommand) listQueue(message msg.Message, filter filterFunc) {
 
 	response := fmt.Sprintf("%d queued commands", count)
 
-	c.slackClient.SendMessage(message, response, slack.MsgOptionAttachments(attachments...))
+	c.SendMessage(message, response, slack.MsgOptionAttachments(attachments...))
 }
 
 // get attachment color for a given message time
@@ -106,7 +106,7 @@ func getColor(timeAgo time.Duration) string {
 func (c *listCommand) getReactions(ref msg.Ref) string {
 	formattedReactions := ""
 	msgRef := slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp())
-	reactions, _ := c.slackClient.GetReactions(msgRef, slack.NewGetReactionsParameters())
+	reactions, _ := c.GetReactions(msgRef, slack.NewGetReactionsParameters())
 
 	for _, reaction := range reactions {
 		formattedReactions += ":" + reaction.Name + ":"

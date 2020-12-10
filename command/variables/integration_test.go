@@ -10,8 +10,10 @@ import (
 
 func TestCustomCommands(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
+
 	commands := bot.Commands{}
-	variablesCommand := GetCommand(slackClient).(command)
+	variablesCommand := GetCommand(base).(command)
 	commands.AddCommand(variablesCommand)
 
 	t.Run("Invalid command", func(t *testing.T) {
@@ -20,16 +22,18 @@ func TestCustomCommands(t *testing.T) {
 		message.Text = "notify me not"
 
 		actual := commands.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("List empty variables", func(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "list variables"
 		message.User = "user1"
-		slackClient.On("SendMessage", message, "No variables define yet. Use `add variable 'defaultServer' 'beta'`").Return("")
+
+		mocks.AssertSlackMessage(slackClient, message, "No variables define yet. Use `add variable 'defaultServer' 'beta'`")
+
 		actual := commands.Run(message)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Add a variable with invalid syntax", func(t *testing.T) {
@@ -37,7 +41,7 @@ func TestCustomCommands(t *testing.T) {
 		message.User = "user1"
 		message.Text = "add variable name"
 		actual := commands.Run(message)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("Add valid variable", func(t *testing.T) {
@@ -45,10 +49,11 @@ func TestCustomCommands(t *testing.T) {
 		message.User = "user1"
 		message.Text = "add variable 'myKey' 'myValue'"
 
-		slackClient.On("SendMessage", message, "Added variable: `myKey` = `myValue`.").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "Added variable: `myKey` = `myValue`.")
+
 		actual := commands.Run(message)
 
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("List commands should list new variable", func(t *testing.T) {
@@ -59,7 +64,7 @@ func TestCustomCommands(t *testing.T) {
 		slackClient.On("SendMessage", message, "You defined 1 variables:\n - myKey: `myValue`").Return("")
 		actual := commands.Run(message)
 
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Template with unknown user", func(t *testing.T) {
@@ -90,7 +95,7 @@ func TestCustomCommands(t *testing.T) {
 
 		actual := commands.Run(message)
 
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("Delete variable", func(t *testing.T) {
@@ -102,6 +107,6 @@ func TestCustomCommands(t *testing.T) {
 
 		actual := commands.Run(message)
 
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 }

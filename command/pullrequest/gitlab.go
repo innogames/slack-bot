@@ -4,7 +4,6 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/client"
 	"github.com/xanzy/go-gitlab"
 	"regexp"
 	"strings"
@@ -15,7 +14,7 @@ type gitlabFetcher struct {
 	client *gitlab.Client
 }
 
-func newGitlabCommand(slackClient client.SlackClient, cfg config.Config) bot.Command {
+func newGitlabCommand(base bot.BaseCommand, cfg config.Config) bot.Command {
 	if cfg.Gitlab.AccessToken == "" && cfg.Gitlab.Host == "" {
 		return nil
 	}
@@ -27,8 +26,8 @@ func newGitlabCommand(slackClient client.SlackClient, cfg config.Config) bot.Com
 	}
 
 	return command{
+		base,
 		cfg.PullRequest,
-		slackClient,
 		&gitlabFetcher{gitlabClient},
 		"(?s).*" + regexp.QuoteMeta(cfg.Gitlab.Host) + "/(?P<repo>.+/.+)/merge_requests/(?P<number>\\d+).*",
 	}
@@ -52,7 +51,7 @@ func (c *gitlabFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 	resp.Body.Close()
 
 	pr = pullRequest{
-		name:      rawPullRequest.Title,
+		Name:      rawPullRequest.Title,
 		merged:    rawPullRequest.State == "merged" || rawPullRequest.State == "closed",
 		declined:  false,
 		approvers: c.getApprovers(rawPullRequest, prNumber),

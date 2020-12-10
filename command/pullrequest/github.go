@@ -6,7 +6,6 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/client"
 	"golang.org/x/oauth2"
 	"text/template"
 )
@@ -15,7 +14,7 @@ type githubFetcher struct {
 	client *github.Client
 }
 
-func newGithubCommand(slackClient client.SlackClient, cfg config.Config) bot.Command {
+func newGithubCommand(base bot.BaseCommand, cfg config.Config) bot.Command {
 	if cfg.Github.AccessToken == "" {
 		return nil
 	}
@@ -27,8 +26,8 @@ func newGithubCommand(slackClient client.SlackClient, cfg config.Config) bot.Com
 	githubClient := github.NewClient(oauthClient)
 
 	return command{
+		base,
 		cfg.PullRequest,
-		slackClient,
 		&githubFetcher{githubClient},
 		"(?s).*https://github.com/(?P<project>.+)/(?P<repo>.+)/pull/(?P<number>\\d+).*",
 	}
@@ -70,7 +69,7 @@ func (c *githubFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 	}
 
 	pr = pullRequest{
-		name:      rawPullRequest.GetTitle(),
+		Name:      rawPullRequest.GetTitle(),
 		merged:    rawPullRequest.GetMerged(),
 		closed:    *rawPullRequest.State == "closed",
 		declined:  false,

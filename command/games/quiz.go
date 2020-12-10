@@ -18,14 +18,14 @@ import (
 const maxQuestions = 50 // api limit is 50
 const apiURL = "https://opentdb.com/api.php"
 
-func NewQuizCommand(slackClient client.SlackClient) bot.Command {
-	return &quizCommand{slackClient: slackClient, apiURL: apiURL}
+func NewQuizCommand(base bot.BaseCommand) bot.Command {
+	return &quizCommand{base, Quiz{}, apiURL}
 }
 
 type quizCommand struct {
-	slackClient client.SlackClient
-	quiz        Quiz
-	apiURL      string
+	bot.BaseCommand
+	quiz   Quiz
+	apiURL string
 }
 
 type question struct {
@@ -47,7 +47,8 @@ type Quiz struct {
 
 func (c *quizCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewRegexpMatcher(`quiz`, c.StartQuiz),
+		matcher.NewTextMatcher(`start quiz`, c.StartQuiz),
+		matcher.NewTextMatcher(`quiz`, c.StartQuiz),
 		matcher.NewRegexpMatcher(`quiz (?P<questions>\d+)`, c.StartQuiz),
 		matcher.NewRegexpMatcher(`answer (?P<answer>[\w\s]+)`, c.Answer),
 	)
@@ -59,13 +60,13 @@ func (c *quizCommand) StartQuiz(match matcher.Result, message msg.Message) {
 		questions = 2
 	}
 	if questions > maxQuestions {
-		c.slackClient.SendMessage(message, fmt.Sprintf("No more than %d questions allowed", maxQuestions))
+		c.SendMessage(message, fmt.Sprintf("No more than %d questions allowed", maxQuestions))
 		return
 	}
 
 	resp, err := client.HTTPClient.Get(fmt.Sprintf("%s?amount=%d", c.apiURL, questions))
 	if err != nil {
-		c.slackClient.ReplyError(message, errors.Wrap(err, "Error while loading Quiz"))
+		c.ReplyError(message, errors.Wrap(err, "Error while loading Quiz"))
 		return
 	}
 	defer resp.Body.Close()
@@ -73,12 +74,12 @@ func (c *quizCommand) StartQuiz(match matcher.Result, message msg.Message) {
 	if resp.StatusCode == http.StatusOK {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			c.slackClient.ReplyError(message, errors.Wrap(err, "Error while loading Quiz"))
+			c.ReplyError(message, errors.Wrap(err, "Error while loading Quiz"))
 			return
 		}
 
 		if err := json.Unmarshal(bodyBytes, &c.quiz); err != nil {
-			c.slackClient.ReplyError(message, errors.Wrap(err, "Error while loading Quiz"))
+			c.ReplyError(message, errors.Wrap(err, "Error while loading Quiz"))
 			return
 		}
 	}
@@ -102,15 +103,15 @@ func (c *quizCommand) Answer(match matcher.Result, message msg.Message) {
 	}
 
 	if c.getCurrentQuestion().CorrectAnswer == answer {
-		c.slackClient.SendMessage(message, "correct")
+		c.SendMessage(message, "correct")
 		c.quiz.currentQuestion++
 		if c.quiz.currentQuestion == len(c.quiz.Questions) {
-			c.slackClient.SendMessage(message, fmt.Sprintf("You finished this quiz with %d Questions. You needed %d answers.", len(c.quiz.Questions), c.quiz.tries))
+			c.SendMessage(message, fmt.Sprintf("You finished this quiz with %d Questions. You needed %d answers.", len(c.quiz.Questions), c.quiz.tries))
 		} else {
 			c.printCurrentQuestion(message)
 		}
 	} else {
-		c.slackClient.SendMessage(message, "incorrect. try again")
+		c.SendMessage(message, "incorrect. try again")
 	}
 }
 
@@ -139,7 +140,7 @@ func (c *quizCommand) printCurrentQuestion(message msg.Message) {
 
 	text += ":interrobang: Hint type `answer {number}` to send your answer :interrobang:"
 
-	c.slackClient.SendMessage(message, text)
+	c.SendMessage(message, text)
 }
 
 func (c *quizCommand) getCurrentQuestion() question {
@@ -157,7 +158,7 @@ func (c *quizCommand) GetHelp() []bot.Help {
 			Description: "small quiz for a nice break",
 			Category:    category,
 			Examples: []string{
-				"quiz",
+				"start quiz",
 				"quiz 10",
 				"answer 2",
 			},

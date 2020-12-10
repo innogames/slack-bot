@@ -63,7 +63,7 @@ func TestIsBotMessage(t *testing.T) {
 		event := &slack.MessageEvent{}
 		event.Text = "random text"
 		actual := bot.canHandleMessage(event)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("Is random message to other user", func(t *testing.T) {
@@ -71,7 +71,7 @@ func TestIsBotMessage(t *testing.T) {
 		event.Text = "<@USER2> random test"
 
 		actual := bot.canHandleMessage(event)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("Is Bot mentioned", func(t *testing.T) {
@@ -80,7 +80,7 @@ func TestIsBotMessage(t *testing.T) {
 		event.Text = "<@BOT> random test"
 
 		actual := bot.canHandleMessage(event)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Pass internal events", func(t *testing.T) {
@@ -89,7 +89,7 @@ func TestIsBotMessage(t *testing.T) {
 		event.Text = "<@BOT> random test"
 
 		actual := bot.canHandleMessage(event)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Is private channel", func(t *testing.T) {
@@ -101,7 +101,7 @@ func TestIsBotMessage(t *testing.T) {
 		}
 		event.Text = "random test"
 		actual := bot.canHandleMessage(event)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("Is random channel", func(t *testing.T) {
@@ -113,7 +113,7 @@ func TestIsBotMessage(t *testing.T) {
 		}
 		event.Text = "random test"
 		actual := bot.canHandleMessage(event)
-		assert.Equal(t, false, actual)
+		assert.False(t, actual)
 	})
 
 	t.Run("Trim", func(t *testing.T) {

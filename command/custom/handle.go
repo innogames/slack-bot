@@ -15,7 +15,7 @@ func (c command) Handle(ref msg.Ref, text string) bool {
 		return false
 	}
 
-	c.slackClient.SendMessage(ref, fmt.Sprintf("executing command: `%s`", commands))
+	c.SendMessage(ref, fmt.Sprintf("executing command: `%s`", commands))
 	for _, command := range strings.Split(commands, ";") {
 		client.InternalMessages <- ref.WithText(command)
 	}
