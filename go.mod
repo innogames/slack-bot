@@ -13,7 +13,7 @@ require (
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/go-test/deep v1.0.7 // indirect
 	github.com/google/go-github v17.0.0+incompatible
-	github.com/gookit/color v1.3.3
+	github.com/gookit/color v1.3.5
 	github.com/hackebrot/go-repr v0.1.0 // indirect
 	github.com/hackebrot/turtle v0.1.0
 	github.com/hashicorp/go-hclog v0.14.1 // indirect
