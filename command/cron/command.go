@@ -38,6 +38,10 @@ type command struct {
 	cron *cronLib.Cron
 }
 
+func (c *command) IsEnabled() bool {
+	return len(c.cfg) > 0
+}
+
 func (c *command) getCallback(cron config.Cron) func() {
 	// todo validate template before execution. but this is tricky as some functions gets registered later on...
 	return func() {
