@@ -34,6 +34,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/texttheater/golang-levenshtein v1.0.1
 	github.com/trivago/tgo v1.0.7 // indirect
+	github.com/vektra/mockery/v2 v2.4.0 // indirect
 	github.com/xanzy/go-gitlab v0.40.1
 	github.com/yuin/gopher-lua v0.0.0-20200603152657-dc2b0ca8b37e // indirect
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b // indirect

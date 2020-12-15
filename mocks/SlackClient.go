@@ -14,9 +14,32 @@ type SlackClient struct {
 	mock.Mock
 }
 
-// AddReaction provides a mock function with given fields: name, ref
-func (_m *SlackClient) AddReaction(name string, ref msg.Ref) {
-	_m.Called(name, ref)
+// AddReaction provides a mock function with given fields: reaction, ref
+func (_m *SlackClient) AddReaction(reaction string, ref msg.Ref) {
+	_m.Called(reaction, ref)
+}
+
+// GetConversationHistory provides a mock function with given fields: _a0
+func (_m *SlackClient) GetConversationHistory(_a0 *slack.GetConversationHistoryParameters) (*slack.GetConversationHistoryResponse, error) {
+	ret := _m.Called(_a0)
+
+	var r0 *slack.GetConversationHistoryResponse
+	if rf, ok := ret.Get(0).(func(*slack.GetConversationHistoryParameters) *slack.GetConversationHistoryResponse); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*slack.GetConversationHistoryResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*slack.GetConversationHistoryParameters) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // GetReactions provides a mock function with given fields: item, params
@@ -42,9 +65,9 @@ func (_m *SlackClient) GetReactions(item slack.ItemRef, params slack.GetReaction
 	return r0, r1
 }
 
-// RemoveReaction provides a mock function with given fields: name, ref
-func (_m *SlackClient) RemoveReaction(name string, ref msg.Ref) {
-	_m.Called(name, ref)
+// RemoveReaction provides a mock function with given fields: reaction, ref
+func (_m *SlackClient) RemoveReaction(reaction string, ref msg.Ref) {
+	_m.Called(reaction, ref)
 }
 
 // ReplyError provides a mock function with given fields: ref, err

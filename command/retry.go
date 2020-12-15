@@ -6,13 +6,11 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/storage"
-	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
+	"github.com/slack-go/slack"
 )
 
 const storageKey = "user_history"
-
-var repeatRegexp = util.CompileRegexp("(retry|repeat)")
 
 // NewRetryCommand store the history of the commands of the user sent to the bot in a local storage
 // With "retry" the most recent command of the channel will be repeated
@@ -27,32 +25,66 @@ type retryCommand struct {
 }
 
 func (c *retryCommand) GetMatcher() matcher.Matcher {
-	return matcher.WildcardMatcher(c.Execute)
+	return matcher.NewGroupMatcher(
+		matcher.NewTextMatcher(`retry`, c.Retry),
+		matcher.NewTextMatcher(`repeat`, c.Retry),
+		matcher.NewRegexpMatcher(`<?https://(.*)slack.com/archives/(?P<channel>\w+)/p(?P<timestamp>\d{16})>?`, c.SlackMessage),
+		matcher.WildcardMatcher(c.Store),
+	)
 }
 
-func (c *retryCommand) Execute(ref msg.Ref, text string) bool {
+// retry the last stored message
+func (c *retryCommand) Retry(match matcher.Result, message msg.Message) {
+	key := message.GetUniqueKey()
+
+	var lastCommand string
+	storage.Read(storageKey, key, &lastCommand)
+	if lastCommand != "" {
+		c.SendMessage(message, fmt.Sprintf("Executing command: %s", lastCommand))
+
+		client.InternalMessages <- message.WithText(lastCommand)
+	} else {
+		c.SendMessage(message, "Sorry, no history found.")
+	}
+}
+
+// store any message in the storage to get repeatable
+func (c *retryCommand) Store(ref msg.Ref, text string) bool {
 	if ref.IsInternalMessage() {
 		return false
 	}
 
 	key := ref.GetUniqueKey()
-	shouldRetry := repeatRegexp.MatchString(text)
-	if !shouldRetry {
-		storage.Write(storageKey, key, text)
-		return false
+	storage.Write(storageKey, key, text)
+
+	return false
+}
+
+// re-execute a slack message
+func (c *retryCommand) SlackMessage(match matcher.Result, message msg.Message) {
+	channel := match.GetString("channel")
+	timestamp := match.GetString("timestamp")
+
+	m, err := c.SlackClient.GetConversationHistory(&slack.GetConversationHistoryParameters{
+		ChannelID: channel,
+		Latest:    timestamp[0:10] + "." + timestamp[10:],
+		Inclusive: true,
+		Limit:     1,
+	})
+	if err != nil {
+		c.ReplyError(message, err)
+		return
 	}
-
-	var lastCommand string
-	storage.Read(storageKey, key, &lastCommand)
-	if lastCommand != "" {
-		c.SendMessage(ref, fmt.Sprintf("Executing command: %s", lastCommand))
-
-		client.InternalMessages <- ref.WithText(lastCommand)
-	} else {
-		c.SendMessage(ref, "Sorry, no history found.")
+	historyMessage := msg.FromSlackEvent(slack.MessageEvent{
+		Msg: m.Messages[0].Msg,
+	})
+	historyMessage.Channel = channel
+	if historyMessage.User != message.User {
+		c.SendMessage(message, "this is not your message")
+		return
 	}
-
-	return true
+	c.AddReaction("white_check_mark", message)
+	client.InternalMessages <- historyMessage
 }
 
 func (c *retryCommand) GetHelp() []bot.Help {

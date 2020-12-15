@@ -46,6 +46,6 @@ func TestEvent(t *testing.T) {
 		handler := http.HandlerFunc(server.eventHandler)
 		handler.ServeHTTP(rr, req)
 
-		assert.Contains(t, rr.Body.String(), "signing signature")
+		assert.Contains(t, rr.Body.String(), "Computed unexpected signature of")
 	})
 }

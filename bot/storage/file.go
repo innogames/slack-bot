@@ -20,7 +20,7 @@ type fileStorage struct {
 	dir string
 }
 
-func (s fileStorage) GetKeys(collection string) ([]string, error) {
+func (s *fileStorage) GetKeys(collection string) ([]string, error) {
 	dir := filepath.Join(s.dir, collection)
 	files, _ := ioutil.ReadDir(dir)
 

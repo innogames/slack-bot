@@ -1,10 +1,12 @@
 package command
 
 import (
+	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
+	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -79,5 +81,81 @@ func TestRetry(t *testing.T) {
 
 		assert.True(t, actual)
 		assert.Empty(t, client.InternalMessages)
+	})
+
+	t.Run("RetryMessage with error", func(t *testing.T) {
+		message := msg.Message{}
+		message.User = "testUser1"
+		message.Channel = "myChan"
+		message.Text = "<https://foe-workshop.slack.com/archives/D0183HUURA9/p1607971366001000>"
+
+		err := fmt.Errorf("bad")
+		slackClient.On("GetConversationHistory", &slack.GetConversationHistoryParameters{ChannelID: "D0183HUURA9", Inclusive: true, Latest: "1607971366.001000", Limit: 1}).Return(nil, err)
+
+		slackClient.On("ReplyError", message, err)
+		actual := retry.Run(message)
+
+		assert.True(t, actual)
+	})
+
+	t.Run("RetryMessage with different user", func(t *testing.T) {
+		message := msg.Message{}
+		message.User = "testUser1"
+		message.Channel = "myChan"
+		message.Text = "<https://foe-workshop.slack.com/archives/D0183HUURA9/p1607971366001000>"
+
+		history := slack.Message{
+			Msg: slack.Msg{
+				Text: "reply foo",
+				User: "bar",
+			},
+		}
+
+		slackClient.On(
+			"GetConversationHistory",
+			&slack.GetConversationHistoryParameters{ChannelID: "D0183HUURA9", Inclusive: true, Latest: "1607971366.001000", Limit: 1},
+		).Return(&slack.GetConversationHistoryResponse{Messages: []slack.Message{history}}, nil)
+
+		mocks.AssertSlackMessage(slackClient, message, "this is not your message")
+		actual := retry.Run(message)
+
+		assert.True(t, actual)
+	})
+
+	t.Run("RetryMessage", func(t *testing.T) {
+		message := msg.Message{}
+		message.User = "testUser1"
+		message.Channel = "myChan"
+		message.Text = "<https://foe-workshop.slack.com/archives/D0183HUURA9/p1607971366001001>"
+
+		history := slack.Message{
+			Msg: slack.Msg{
+				Text: "reply foo",
+				User: "testUser1",
+			},
+		}
+
+		slackClient.On(
+			"GetConversationHistory",
+			&slack.GetConversationHistoryParameters{ChannelID: "D0183HUURA9", Inclusive: true, Latest: "1607971366.001001", Limit: 1},
+		).Return(&slack.GetConversationHistoryResponse{Messages: []slack.Message{history}}, nil)
+		slackClient.On("AddReaction", "white_check_mark", message)
+		mocks.AssertSlackMessage(slackClient, message, "this is not your message")
+
+		actual := retry.Run(message)
+
+		assert.True(t, actual)
+		assert.NotEmpty(t, client.InternalMessages)
+
+		newMessage := <-client.InternalMessages
+
+		expected := msg.Message{
+			MessageRef: msg.MessageRef{
+				Channel: "D0183HUURA9",
+				User:    history.User,
+			},
+			Text: "reply foo",
+		}
+		assert.Equal(t, expected, newMessage)
 	})
 }

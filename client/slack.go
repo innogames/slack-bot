@@ -65,6 +65,8 @@ type SlackClient interface {
 	RemoveReaction(reaction string, ref msg.Ref)
 	AddReaction(reaction string, ref msg.Ref)
 	GetReactions(item slack.ItemRef, params slack.GetReactionsParameters) ([]slack.ItemReaction, error)
+
+	GetConversationHistory(*slack.GetConversationHistoryParameters) (*slack.GetConversationHistoryResponse, error)
 }
 
 // wrapper to the Slack client which also holds the RTM connection (optional) and all needed config
