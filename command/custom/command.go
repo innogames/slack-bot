@@ -29,17 +29,30 @@ func (c command) GetMatcher() matcher.Matcher {
 	)
 }
 
-// todo separate commands + separate help entries!
 func (c command) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "custom commands",
-			Description: "Define command aliases which are just available for you. You can use a `;` to separate single commands",
+			Command:     "list commands",
+			Description: "list all your defined custom commands, which are only available for you",
 			Category:    category,
 			Examples: []string{
 				"`list commands`",
+			},
+		},
+		{
+			Command:     "add command",
+			Description: "add a custom command/alias which is only available for you",
+			Category:    category,
+			Examples: []string{
 				"`add command 'myCommand' as 'trigger job RestoreWorld 7'` -> then just call `myCommand` later",
 				"`add command 'build master' 'trigger job Deploy master ; then trigger job DeployClient master'`",
+			},
+		},
+		{
+			Command:     "delete command",
+			Description: "define a custom alias",
+			Category:    category,
+			Examples: []string{
 				"`delete command 'build master'`",
 			},
 		},

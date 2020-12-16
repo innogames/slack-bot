@@ -43,10 +43,9 @@ type OpenWeather struct {
 
 // Slack contains the credentials and configuration of the Slack client
 type Slack struct {
-	Token            string   `mapstructure:"token"`
-	AllowedGroups    []string `mapstructure:"allowed_groups,flow"`
-	AutoJoinChannels []string `mapstructure:"auto_join_channels,flow"`
-	ErrorChannel     string   `mapstructure:"error_channel"`
+	Token         string   `mapstructure:"token"`
+	AllowedGroups []string `mapstructure:"allowed_groups,flow"`
+	ErrorChannel  string   `mapstructure:"error_channel"`
 
 	Debug       bool `mapstructure:"debug"`
 	UseEventAPI bool `mapstructure:"use_event_api"`

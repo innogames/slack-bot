@@ -66,17 +66,6 @@ func (b *Bot) Init() (err error) {
 		return err
 	}
 
-	if len(b.config.Slack.AutoJoinChannels) > 0 {
-		for _, channel := range b.config.Slack.AutoJoinChannels {
-			_, err := b.slackClient.JoinChannel(channel)
-			if err != nil {
-				return err
-			}
-		}
-
-		log.Infof("Auto joined channels: %s", strings.Join(b.config.Slack.AutoJoinChannels, ", "))
-	}
-
 	if b.config.Server.IsEnabled() {
 		b.server = server.NewServer(b.config.Server, b.slackClient, b.HandleMessage)
 		go b.server.StartServer()
@@ -244,6 +233,7 @@ func (b *Bot) cleanMessage(msg string, fromUserContext bool) string {
 	msg = strings.ReplaceAll(msg, "<@"+b.auth.UserID+">", "")
 	msg = cleanMessage.Replace(msg)
 
+	msg = strings.Trim(msg, "*")
 	msg = strings.TrimSpace(msg)
 
 	// remove links from incoming messages. for internal ones they might be wanted, as they contain valid links with texts

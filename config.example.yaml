@@ -5,9 +5,6 @@ slack:
   # WIP config to enable the event-API from slack (replaces RTM communication)
   #use_event_api: true
 
-  # auto_join_channels:
-  # - fancy-channel
-
 # list of trusted slack users: allows the user-id and the name
 allowed_users:
   - your.name

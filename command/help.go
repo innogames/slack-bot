@@ -62,9 +62,9 @@ func (t *helpCommand) ShowAll(match matcher.Result, message msg.Message) {
 		}
 
 		if commandHelp.HelpURL != "" {
-			text.WriteString(fmt.Sprintf(" - <%s|%s>", commandHelp.HelpURL, commandHelp.Command))
+			text.WriteString(fmt.Sprintf("• <%s|%s>", commandHelp.HelpURL, commandHelp.Command))
 		} else {
-			text.WriteString(fmt.Sprintf("- *%s*", commandHelp.Command))
+			text.WriteString(fmt.Sprintf("• *%s*", commandHelp.Command))
 		}
 		if commandHelp.Description != "" {
 			text.WriteString(fmt.Sprintf(" _(%s)_", commandHelp.Description))
