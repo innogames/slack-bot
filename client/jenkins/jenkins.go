@@ -1,13 +1,12 @@
 package jenkins
 
 import (
-	"fmt"
-	"github.com/innogames/slack-bot/bot/msg"
-	"time"
-
 	"github.com/bndr/gojenkins"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
+	log "github.com/sirupsen/logrus"
+	"time"
 )
 
 const (
@@ -64,7 +63,7 @@ func processHooks(commands []string, ref msg.Ref, params map[string]string) {
 	for _, command := range commands {
 		temp, err := util.CompileTemplate(command)
 		if err != nil {
-			fmt.Println(err)
+			log.Warn(err)
 			continue
 		}
 		text, _ := util.EvalTemplate(temp, params)

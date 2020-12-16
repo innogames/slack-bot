@@ -198,35 +198,40 @@ func (c *jiraCommand) jqlList(message msg.Message, jql string) {
 		return
 	}
 
-	if len(tickets) == 1 {
-		c.sendTicket(message, &tickets[0], FormatDefault)
-		return
-	}
-
-	text := fmt.Sprintf("I found %d matching ticket(s).\n", len(tickets))
+	listText := ""
 	for _, ticket := range tickets {
 		if ticket.Fields == nil {
 			continue
 		}
-		text += fmt.Sprintf(
-			"%s %s%s - %s (%s)",
+		listText += fmt.Sprintf(
+			"%s %s%s - %s (%s - %s)\n",
 			getFormattedURL(c.config, ticket),
 			idToIcon(ticket.Fields.Priority),
 			c.getField("Type", ticket.Fields.Type.Name),
 			ticket.Fields.Summary,
 			ticket.Fields.Status.Name,
-		) + "\n"
+			getAssignee(ticket.Fields.Assignee),
+		)
 	}
 
 	// add button which leads to search
 	searchLink := fmt.Sprintf("%sissues/?jql=%s", c.config.Host, search.String())
 	attachment := slack.Attachment{}
-	attachment.Actions = append(
-		attachment.Actions,
+	attachment.Title = fmt.Sprintf("I found <%s|%d matching ticket(s)>.\n", searchLink, len(tickets))
+	attachment.Text = listText
+	attachment.Actions = []slack.AttachmentAction{
 		client.GetSlackLink("Search in Jira", searchLink),
-	)
+	}
 
-	c.slackClient.SendMessage(message, text, slack.MsgOptionAttachments(attachment))
+	c.slackClient.SendMessage(message, "", slack.MsgOptionAttachments(attachment))
+}
+
+func getAssignee(user *jira.User) string {
+	if user == nil {
+		return "unassigned"
+	}
+
+	return user.Name
 }
 
 func (c *jiraCommand) GetHelp() []bot.Help {
