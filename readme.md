@@ -96,6 +96,11 @@ When a build failed you are able to retry any build by:
 - `retry build NightlyTests` (retries the last build of a job)
 - `retry build NightlyTests #100` (retries given build)
 
+### Nodes
+`jenkins nodes` lists all available Jenkins nodes. The online/offline status and number of executors are visible.
+![Screenshot](./docs/jenkins-nodes.png)
+
+
 ## Pull Requests
 If you just paste a link to a Github/Gitlab/Bitbucket/Stash Pull request, the bot will track the state of the ticket! 
 - When a developer was added as reviewer, it will add a "eyes" reaction to show other devs that someone is already taking a look

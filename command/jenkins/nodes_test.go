@@ -64,8 +64,8 @@ func TestNodes(t *testing.T) {
 
 		jenkinsClient.On("GetAllNodes").Return(nodes, nil).Once()
 		mocks.AssertSlackMessage(slackClient, message, `*<https://jenkins.example.com/computer/|2 Nodes>*
-• *<https://jenkins.example.com/computer/Node 2/|Node 2>* - status: :red_circle: - busy executors: 0/0
 • *<https://jenkins.example.com/computer/Node 1/|Node 1>* - status: :white_check_mark: - busy executors: 0/0
+• *<https://jenkins.example.com/computer/Node 2/|Node 2>* - status: :red_circle: - busy executors: 0/0
 `)
 		actual := command.Run(message)
 		assert.True(t, actual)

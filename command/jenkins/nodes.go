@@ -42,7 +42,7 @@ func (c *nodesCommand) Run(match matcher.Result, message msg.Message) {
 
 	// sort nodes by name
 	sort.Slice(nodes, func(i, j int) bool {
-		return nodes[i].GetName() > nodes[j].GetName()
+		return nodes[i].GetName() < nodes[j].GetName()
 	})
 
 	text := fmt.Sprintf("*<%s/computer/|%d Nodes>*\n", c.cfg.Host, len(nodes))
