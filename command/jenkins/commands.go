@@ -44,7 +44,7 @@ func GetCommands(cfg config.Jenkins, base bot.BaseCommand) bot.Commands {
 		newJobWatcherCommand(jenkinsBase),
 		newBuildWatcherCommand(jenkinsBase),
 		newStatusCommand(jenkinsBase, cfg.Jobs),
-		newNodesCommand(jenkinsBase),
+		newNodesCommand(jenkinsBase, cfg),
 		newRetryCommand(jenkinsBase, cfg.Jobs),
 		newIdleWatcherCommand(jenkinsBase),
 	)

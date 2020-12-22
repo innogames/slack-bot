@@ -38,14 +38,14 @@ func (c *reactionCommand) GetHelp() []bot.Help {
 			Command:     "add reaction",
 			Description: "add a reaction on a message",
 			Examples: []string{
-				"add reaction :check_mark:",
+				"add reaction :white_check_mark:",
 			},
 		},
 		{
 			Command:     "remove reaction",
 			Description: "remove a reaction on a message",
 			Examples: []string{
-				"remove reaction :check_mark:",
+				"remove reaction :white_check_mark:",
 			},
 		},
 	}

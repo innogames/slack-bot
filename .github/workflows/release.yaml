@@ -2,7 +2,9 @@ name: Release
 
 on:
   release:
-    types: [created]
+    types:
+    - released
+    - edited
 
 jobs:
   releases-matrix:
