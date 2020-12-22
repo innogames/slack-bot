@@ -41,7 +41,7 @@ jenkins:
 #  listen: 127.0.0.1:4390
 #  signing_secret: d12345sd943434sdfdsfsif9sif9
 
-# optional Jenkins integration
+# optional Jira integration
 jira:
   #host: https://jira.example.de
   username: readonlyuser

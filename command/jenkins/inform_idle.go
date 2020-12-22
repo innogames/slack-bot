@@ -17,7 +17,7 @@ const (
 	idleCheckInterval = time.Minute * 1
 
 	waitingReaction = "coffee"
-	doneReaction    = "check_mark"
+	doneReaction    = "white_check_mark"
 )
 
 func newIdleWatcherCommand(base jenkinsCommand) bot.Command {

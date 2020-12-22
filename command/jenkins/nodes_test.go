@@ -2,22 +2,25 @@ package jenkins
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot/bot/msg"
-	"testing"
-
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client/jenkins"
+	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"testing"
 )
 
 func TestNodes(t *testing.T) {
 	slackClient, jenkinsClient, base := getTestJenkinsCommand()
 
+	cfg := config.Jenkins{}
+	cfg.Host = "https://jenkins.example.com"
+
 	command := bot.Commands{}
-	command.AddCommand(newNodesCommand(base))
+	command.AddCommand(newNodesCommand(base, cfg))
 
 	t.Run("Test invalid command", func(t *testing.T) {
 		message := msg.Message{}
@@ -39,7 +42,7 @@ func TestNodes(t *testing.T) {
 
 	t.Run("Fetch nodes", func(t *testing.T) {
 		command := bot.Commands{}
-		command.AddCommand(newNodesCommand(base))
+		command.AddCommand(newNodesCommand(base, cfg))
 
 		nodes := []*gojenkins.Node{
 			{
@@ -60,7 +63,10 @@ func TestNodes(t *testing.T) {
 		message.Text = "jenkins nodes"
 
 		jenkinsClient.On("GetAllNodes").Return(nodes, nil).Once()
-		slackClient.On("SendMessage", message, "*2 Nodes*\n- *Node 1* - status: :check_mark: - executors: 0\n- *Node 2* - status: :red_circle: - executors: 0\n").Return("")
+		mocks.AssertSlackMessage(slackClient, message, `*<https://jenkins.example.com/computer/|2 Nodes>*
+• *<https://jenkins.example.com/computer/Node 2/|Node 2>* - status: :red_circle: - busy executors: 0/0
+• *<https://jenkins.example.com/computer/Node 1/|Node 1>* - status: :white_check_mark: - busy executors: 0/0
+`)
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -84,7 +90,7 @@ func TestRealNodes(t *testing.T) {
 
 		base.jenkins = client
 		command := bot.Commands{}
-		command.AddCommand(newNodesCommand(base))
+		command.AddCommand(newNodesCommand(base, cfg))
 
 		message := msg.Message{}
 		message.Text = "jenkins nodes"
