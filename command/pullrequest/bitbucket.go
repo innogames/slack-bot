@@ -9,11 +9,16 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"regexp"
+	"strings"
 	"text/template"
 )
 
 type bitbucketFetcher struct {
 	bitbucketClient *bitbucket.DefaultApiService
+}
+
+var closedPr = pullRequest{
+	Status: prStatusClosed,
 }
 
 func newBitbucketCommand(base bot.BaseCommand, cfg config.Config) bot.Command {
@@ -43,6 +48,11 @@ func (c *bitbucketFetcher) getPullRequest(match matcher.Result) (pullRequest, er
 	number := match.GetInt("number")
 	rawResponse, err := c.bitbucketClient.GetPullRequest(project, repo, number)
 	if err != nil {
+		// handle deleted PR
+		if strings.Contains(err.Error(), "Status: 404") {
+			return closedPr, nil
+		}
+
 		return pr, err
 	}
 
@@ -60,17 +70,31 @@ func (c *bitbucketFetcher) getPullRequest(match matcher.Result) (pullRequest, er
 
 	pr = pullRequest{
 		Name:        rawPullRequest.Title,
-		merged:      rawPullRequest.State == "MERGED",
-		declined:    rawPullRequest.State == "DECLINED",
-		approvers:   approvers,
-		inReview:    len(rawPullRequest.Reviewers) > 0,
-		buildStatus: c.getBuildStatus(rawPullRequest.FromRef.LatestCommit),
+		Status:      c.getStatus(rawPullRequest),
+		BuildStatus: c.getBuildStatus(rawPullRequest.FromRef.LatestCommit),
+		Approvers:   approvers,
 	}
 
 	return pr, nil
 }
 
-// try to extract the current build status from a PR, based on the recent commit
+func (c *bitbucketFetcher) getStatus(pr bitbucket.PullRequest) prStatus {
+	// https://developer.atlassian.com/bitbucket/api/2/reference/resource/repositories/%7Bworkspace%7D/%7Brepo_slug%7D/pullrequests
+	switch pr.State {
+	case "MERGED":
+		return prStatusMerged
+	case "DECLINED", "SUPERSEDED":
+		return prStatusClosed
+	}
+
+	if len(pr.Reviewers) > 0 {
+		return prStatusInReview
+	}
+
+	return prStatusOpen
+}
+
+// try to extract the current build Status from a PR, based on the recent commit
 func (c *bitbucketFetcher) getBuildStatus(lastCommit string) buildStatus {
 	buildStatus := buildStatusUnknown
 	if lastCommit == "" {
