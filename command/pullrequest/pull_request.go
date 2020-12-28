@@ -20,7 +20,7 @@ const (
 	iconInReview        = "eyes"
 	iconApproved        = "white_check_mark"
 	iconMerged          = "twisted_rightwards_arrows"
-	iconDeclined        = "x"
+	iconClosed          = "x"
 	iconBuildFailed     = "fire"
 	iconBuildRunning    = "arrows_counterclockwise"
 	iconError           = "x"
@@ -38,6 +38,15 @@ const (
 	buildStatusRunning
 )
 
+type prStatus uint8
+
+const (
+	prStatusOpen prStatus = iota
+	prStatusInReview
+	prStatusMerged
+	prStatusClosed
+)
+
 type fetcher interface {
 	getPullRequest(match matcher.Result) (pullRequest, error)
 	getHelp() []bot.Help
@@ -51,13 +60,15 @@ type command struct {
 }
 
 type pullRequest struct {
-	Name        string
-	declined    bool
-	merged      bool
-	closed      bool
-	inReview    bool
-	buildStatus buildStatus
-	approvers   []string
+	// title/name of the PR
+	Name   string
+	Status prStatus
+
+	// status of a related CI build
+	BuildStatus buildStatus
+
+	// list of usernames which approved the PR
+	Approvers []string
 }
 
 func (c command) GetMatcher() matcher.Matcher {
@@ -77,11 +88,9 @@ func (c command) Execute(match matcher.Result, message msg.Message) {
 
 func (c command) watch(match matcher.Result, message msg.Message) {
 	msgRef := slack.NewRefToMessage(message.Channel, message.Timestamp)
-
-	hasApproval := false
 	connectionErrors := 0
-
 	done := queue.AddRunningCommand(message, message.Text)
+
 	defer func() {
 		done <- true
 	}()
@@ -116,36 +125,10 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 		}
 		connectionErrors = 0
 
-		// add approved reaction(s)
-		if len(pr.approvers) > 0 {
-			for icon := range c.getApproveIcons(pr.approvers) {
-				c.addReaction(currentReactions, icon, message)
-			}
+		c.setPRReactions(pr, currentReactions, message)
 
-			hasApproval = true
-		}
-
-		// add :eyes: when someone is reviewing the PR but nobody approved it yet
-		if pr.inReview && !hasApproval && !pr.merged {
-			c.addReaction(currentReactions, iconInReview, message)
-		} else {
-			c.removeReaction(currentReactions, iconInReview, message)
-		}
-
-		c.processBuildStatus(pr, currentReactions, message)
-
-		// add merged reaction
-		if pr.merged || pr.closed {
-			c.addReaction(currentReactions, iconMerged, message)
-
-			return
-		}
-
-		// add declined reaction
-		if pr.declined {
-			c.removeReaction(currentReactions, iconApproved, message)
-			c.addReaction(currentReactions, iconDeclined, message)
-
+		// stop watching!
+		if pr.Status == prStatusClosed || pr.Status == prStatusMerged {
 			return
 		}
 
@@ -153,18 +136,49 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 	}
 }
 
-// add reactions based on the build status:
+func (c command) setPRReactions(pr pullRequest, currentReactions map[string]bool, message msg.Ref) {
+	hasApproval := false
+
+	// add approved reaction(s)
+	if len(pr.Approvers) > 0 {
+		for icon := range c.getApproveIcons(pr.Approvers) {
+			c.addReaction(currentReactions, icon, message)
+		}
+
+		hasApproval = true
+	} else {
+		c.removeReaction(currentReactions, iconApproved, message)
+	}
+
+	c.processBuildStatus(pr, currentReactions, message)
+
+	// add :eyes: when someone is reviewing the PR but nobody approved it yet
+	if pr.Status == prStatusInReview && !hasApproval {
+		c.addReaction(currentReactions, iconInReview, message)
+	} else {
+		c.removeReaction(currentReactions, iconInReview, message)
+	}
+
+	if pr.Status == prStatusMerged {
+		c.addReaction(currentReactions, iconMerged, message)
+	} else if pr.Status == prStatusClosed {
+		c.removeReaction(currentReactions, iconApproved, message)
+		c.addReaction(currentReactions, iconClosed, message)
+	}
+}
+
+// add reactions based on the build Status:
 // running: iconBuildRunning
 // failed: iconBuildFailed
-func (c command) processBuildStatus(pr pullRequest, currentReactions map[string]bool, message msg.Message) {
-	// monitor build status
-	if pr.buildStatus == buildStatusFailed {
+func (c command) processBuildStatus(pr pullRequest, currentReactions map[string]bool, message msg.Ref) {
+	// monitor build Status
+	if pr.BuildStatus == buildStatusFailed {
 		c.addReaction(currentReactions, iconBuildFailed, message)
 	} else {
 		c.removeReaction(currentReactions, iconBuildFailed, message)
 	}
 
-	if pr.buildStatus == buildStatusRunning {
+	if pr.BuildStatus == buildStatusRunning {
 		c.addReaction(currentReactions, iconBuildRunning, message)
 	} else {
 		c.removeReaction(currentReactions, iconBuildRunning, message)
@@ -188,7 +202,7 @@ func (c command) getOwnReactions(msgRef slack.ItemRef) map[string]bool {
 	return currentReactions
 }
 
-func (c command) removeReaction(currentReactions map[string]bool, icon string, message msg.Message) {
+func (c command) removeReaction(currentReactions map[string]bool, icon string, message msg.Ref) {
 	if ok := currentReactions[icon]; !ok {
 		// already removed
 		return
@@ -198,7 +212,7 @@ func (c command) removeReaction(currentReactions map[string]bool, icon string, m
 	c.RemoveReaction(icon, message)
 }
 
-func (c *command) addReaction(currentReactions map[string]bool, icon string, message msg.Message) {
+func (c *command) addReaction(currentReactions map[string]bool, icon string, message msg.Ref) {
 	if _, ok := currentReactions[icon]; ok {
 		// already added
 		return
@@ -209,7 +223,7 @@ func (c *command) addReaction(currentReactions map[string]bool, icon string, mes
 	c.AddReaction(icon, message)
 }
 
-// generates a map of all icons for the given approvers list. If there is no special mapping, it returns the default icon
+// generates a map of all icons for the given Approvers list. If there is no special mapping, it returns the default icon
 func (c command) getApproveIcons(approvers []string) map[string]bool {
 	icons := make(map[string]bool)
 

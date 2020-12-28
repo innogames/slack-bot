@@ -50,15 +50,27 @@ func (c *gitlabFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 	}
 	resp.Body.Close()
 
+	// todo add buildStatus!
+
 	pr = pullRequest{
 		Name:      rawPullRequest.Title,
-		merged:    rawPullRequest.State == "merged" || rawPullRequest.State == "closed",
-		declined:  false,
-		approvers: c.getApprovers(rawPullRequest, prNumber),
-		inReview:  false,
+		Approvers: c.getApprovers(rawPullRequest, prNumber),
+		Status:    c.getStatus(rawPullRequest),
 	}
 
 	return pr, nil
+}
+
+func (c *gitlabFetcher) getStatus(pr *gitlab.MergeRequest) prStatus {
+	// https://docs.gitlab.com/ce/api/merge_requests.html
+	switch pr.State {
+	case "merged":
+		return prStatusMerged
+	case "closed", "locked":
+		return prStatusClosed
+	default:
+		return prStatusOpen
+	}
 }
 
 func (c *gitlabFetcher) getApprovers(rawPullRequest *gitlab.MergeRequest, prNumber int) []string {

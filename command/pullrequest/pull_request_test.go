@@ -35,7 +35,7 @@ func TestGetCommands(t *testing.T) {
 
 	// as we pass a empty config, no PR fetcher is able to register -> 0 valid commands
 	commands := GetCommands(base, cfg)
-	assert.Equal(t, 0, commands.Count())
+	assert.Equal(t, 1, commands.Count())
 }
 
 func TestPullRequest(t *testing.T) {
@@ -70,10 +70,8 @@ func TestPullRequest(t *testing.T) {
 		message := msg.Message{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
-			declined:  false,
-			merged:    true,
-			approvers: []string{"test"},
-			inReview:  false,
+			Status:    prStatusMerged,
+			Approvers: []string{"test"},
 		}
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
@@ -96,37 +94,33 @@ func TestPullRequest(t *testing.T) {
 		message := msg.Message{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
-			declined:  true,
-			merged:    false,
-			approvers: []string{},
-			inReview:  false,
+			Status:    prStatusClosed,
+			Approvers: []string{},
 		}
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
 		slackClient.On("RemoveReaction", iconInReview, message)
 		slackClient.On("RemoveReaction", iconApproved, message)
-		slackClient.On("AddReaction", iconDeclined, message)
+		slackClient.On("AddReaction", iconClosed, message)
 
 		actual := commands.Run(message)
 		assert.True(t, actual)
 		time.Sleep(time.Millisecond * 10) // todo channel
 	})
 
-	t.Run("PR got approvers", func(t *testing.T) {
+	t.Run("PR got Approvers", func(t *testing.T) {
 		commands, fetcher := initTest(slackClient)
 
 		message := msg.Message{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
-			declined:  false,
-			merged:    false,
-			approvers: []string{"test"},
-			inReview:  false,
+			Status:    prStatusOpen,
+			Approvers: []string{"test"},
 		}
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
 		slackClient.On("RemoveReaction", iconInReview, message)
-		slackClient.On("RemoveReaction", iconDeclined, message)
+		slackClient.On("RemoveReaction", iconClosed, message)
 		slackClient.On("AddReaction", iconApproved, message)
 
 		actual := commands.Run(message)
@@ -140,10 +134,8 @@ func TestPullRequest(t *testing.T) {
 		message := msg.Message{}
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
-			declined:  false,
-			merged:    false,
-			approvers: []string{},
-			inReview:  true,
+			Status:    prStatusInReview,
+			Approvers: []string{},
 		}
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 

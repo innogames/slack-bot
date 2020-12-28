@@ -52,6 +52,7 @@ func (c *statsCommand) collectStats(result *statsResult) {
 	result.addValue("Unknown Commands", formatStats(stats.UnknownCommands))
 	result.addValue("Unauthorized Commands", formatStats(stats.UnauthorizedCommands))
 	result.addValue("Queued commands", fmt.Sprintf("%d", queue.CountCurrentJobs()))
+	result.addValue("Crons", fmt.Sprintf("%d", len(c.cfg.Crons)))
 
 	result.addNewSection("Server Runtime")
 	result.addValue("Uptime", util.FormatDuration(time.Since(startTime)))
@@ -71,7 +72,7 @@ func (s *statsResult) addNewSection(section string) {
 }
 
 func (s *statsResult) addValue(name string, value string) {
-	s.WriteString(fmt.Sprintf("- %s: %s\n", name, value))
+	s.WriteString(fmt.Sprintf("• %s: %s\n", name, value))
 }
 
 func formatStats(key string) string {
