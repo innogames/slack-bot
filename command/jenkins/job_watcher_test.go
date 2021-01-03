@@ -2,10 +2,11 @@ package jenkins
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestJenkinsWatcher(t *testing.T) {

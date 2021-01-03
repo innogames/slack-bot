@@ -2,9 +2,10 @@ package jira
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/andygrunwald/go-jira"
 	"github.com/innogames/slack-bot/bot/config"
-	"strings"
 )
 
 // replace Jira markdown to valid slack message

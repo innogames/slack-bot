@@ -1,9 +1,10 @@
 package matcher
 
 import (
+	"regexp"
+
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
-	"regexp"
 )
 
 // NewRegexpMatcher matches a command based on a given prefix. 2 additional rules:

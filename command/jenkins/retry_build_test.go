@@ -2,11 +2,12 @@ package jenkins
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestJenkinsRetry(t *testing.T) {

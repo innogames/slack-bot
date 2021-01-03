@@ -1,11 +1,12 @@
 package matcher
 
 import (
+	"testing"
+
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestGroup(t *testing.T) {

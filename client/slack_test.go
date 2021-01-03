@@ -61,6 +61,8 @@ func TestGetSlackLink(t *testing.T) {
 }
 
 func assertIDNameLookup(t *testing.T, identifier string, expectedID string, expectedName string) {
+	t.Helper()
+
 	id, name := GetUser(identifier)
 	assert.Equal(t, expectedName, name)
 	assert.Equal(t, expectedID, id)

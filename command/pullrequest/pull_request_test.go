@@ -1,6 +1,9 @@
 package pullrequest
 
 import (
+	"testing"
+	"time"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
@@ -10,8 +13,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 type testFetcher struct {
@@ -31,7 +32,7 @@ func TestGetCommands(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
-	cfg := config.Config{}
+	cfg := &config.Config{}
 
 	// as we pass a empty config, no PR fetcher is able to register -> 0 valid commands
 	commands := GetCommands(base, cfg)

@@ -3,12 +3,13 @@ package jenkins
 import (
 	"errors"
 	"fmt"
+	"testing"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"testing"
 )
 
 func TestJenkinsTrigger(t *testing.T) {

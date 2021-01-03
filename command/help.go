@@ -2,13 +2,14 @@ package command
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/msg"
 	"io"
 	"sort"
 	"strings"
 	"sync"
+
+	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 )
 
 // NewHelpCommand provides information about all registered commands with description and examples

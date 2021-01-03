@@ -1,17 +1,18 @@
 package weather
 
 import (
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/mocks"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
 	"time"
+
+	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/innogames/slack-bot/mocks"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestWeather(t *testing.T) {

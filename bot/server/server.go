@@ -3,12 +3,12 @@ package server
 import (
 	"context"
 	"errors"
-	"github.com/slack-go/slack"
 	"net/http"
 
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
 	log "github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
 )
 
 // NewServer is used to receive slack interactions

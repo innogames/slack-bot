@@ -2,6 +2,12 @@ package jira
 
 import (
 	"fmt"
+	"net/url"
+	"regexp"
+	"strconv"
+	"strings"
+	"text/template"
+
 	"github.com/andygrunwald/go-jira"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
@@ -9,11 +15,6 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/slack-go/slack"
-	"net/url"
-	"regexp"
-	"strconv"
-	"strings"
-	"text/template"
 )
 
 type jiraCommand struct {
@@ -31,8 +32,8 @@ const (
 var ticketRe = regexp.MustCompile(`^(\w+)-(\d+)$`)
 
 // newJiraCommand search for a Jira ticket id or a JQL
-func newJiraCommand(jiraClient *jira.Client, slackClient client.SlackClient, config *config.Jira) bot.Command {
-	return &jiraCommand{jiraClient, slackClient, config}
+func newJiraCommand(jiraClient *jira.Client, slackClient client.SlackClient, cfg *config.Jira) bot.Command {
+	return &jiraCommand{jiraClient, slackClient, cfg}
 }
 
 func (c *jiraCommand) IsEnabled() bool {

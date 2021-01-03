@@ -2,12 +2,13 @@ package main
 
 import (
 	"bytes"
+	"testing"
+	"time"
+
 	"github.com/gookit/color"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func TestAll(t *testing.T) {

@@ -1,15 +1,16 @@
 package msg
 
 import (
-	"github.com/slack-go/slack"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/slack-go/slack"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMessage(t *testing.T) {
 	t.Run("Slack event to Message", func(t *testing.T) {
-		event := slack.MessageEvent{
+		event := &slack.MessageEvent{
 			Msg: slack.Msg{
 				Text:      "foo",
 				Timestamp: "12344",

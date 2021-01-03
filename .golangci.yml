@@ -1,22 +1,35 @@
 
 linters-settings:
   gocritic:
+    settings:
+      rangeValCopy:
+        sizeThreshold: 200
+      hugeParam:
+        sizeThreshold: 200
     enabled-tags:
       - performance
       - diagnostic
       - style
       - experimental
       - opinionated
+    disabled-checks:
+      - paramTypeCombine
 
 linters:
   enable:
+    - asciicheck
     - bodyclose
     - deadcode
     - depguard
     - dogsled
     - dupl
+    - errorlint
     - exhaustive
+    - exportloopref
+    - forbidigo
+    - gci
     - gochecknoinits
+    - gocritic
     - gocyclo
     - gofmt
     - golint
@@ -26,15 +39,18 @@ linters:
     - govet
     - ineffassign
     - interfacer
+    - makezero
     - maligned
     - misspell
     - nakedret
     - nolintlint
+    - prealloc
     - rowserrcheck
     - scopelint
     - staticcheck
     - structcheck
     - stylecheck
+    - thelper
     - typecheck
     - unconvert
     - unparam

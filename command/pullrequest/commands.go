@@ -12,7 +12,7 @@ var category = bot.Category{
 }
 
 // GetCommands returns a list of all available PR watcher (gitlab, github, bitbucket etc) based on the current config
-func GetCommands(base bot.BaseCommand, cfg config.Config) bot.Commands {
+func GetCommands(base bot.BaseCommand, cfg *config.Config) bot.Commands {
 	commands := bot.Commands{}
 
 	commands.AddCommand(

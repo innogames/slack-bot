@@ -2,11 +2,12 @@ package games
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestNumberGuesser(t *testing.T) {

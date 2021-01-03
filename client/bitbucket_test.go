@@ -1,9 +1,10 @@
 package client
 
 import (
+	"testing"
+
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestBitbucket(t *testing.T) {

@@ -2,12 +2,13 @@ package cron
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
-	"strings"
-	"time"
 )
 
 func (c *command) GetMatcher() matcher.Matcher {

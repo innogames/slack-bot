@@ -2,14 +2,15 @@ package jenkins
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client/jenkins"
-	"regexp"
-	"strings"
 )
 
 // command to trigger/start jenkins jobs

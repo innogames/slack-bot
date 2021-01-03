@@ -2,6 +2,8 @@ package jira
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/andygrunwald/go-jira"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
@@ -9,12 +11,11 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command/queue"
-	"time"
 )
 
 // newWatchCommand will inform the user abut the first ticket state change
-func newWatchCommand(jiraClient *jira.Client, slackClient client.SlackClient, config *config.Jira) bot.Command {
-	return &watchCommand{jiraClient, slackClient, config}
+func newWatchCommand(jiraClient *jira.Client, slackClient client.SlackClient, cfg *config.Jira) bot.Command {
+	return &watchCommand{jiraClient, slackClient, cfg}
 }
 
 type watchCommand struct {

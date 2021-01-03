@@ -3,14 +3,15 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"time"
+
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/pkg/errors"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
-	"io/ioutil"
-	"net/http"
-	"time"
 )
 
 // todo: this whole file is WIP and not ready for production yet - just use the RTM api for a stable API
@@ -52,13 +53,13 @@ func (s *Server) interactionHandler(w http.ResponseWriter, r *http.Request) {
 	s.messageHandler(&message)
 
 	// update the original slack message (with the button) and disable the button
-	newMessage := getChangedMessage(payload.Message, action.Value)
+	newMessage := getChangedMessage(&payload.Message, action.Value)
 	response := slackevents.MessageActionResponse{}
 	response.ReplaceOriginal = true
 	response.Text = fmt.Sprintf("<@%s> performed action at %s", payload.User.Name, time.Now())
 
 	s.slackClient.SendMessage(
-		msg.FromSlackEvent(message),
+		msg.FromSlackEvent(&message),
 		newMessage.Text,
 		slack.MsgOptionUpdate(newMessage.Timestamp),
 		slack.MsgOptionAttachments(newMessage.Attachments...),
@@ -67,7 +68,7 @@ func (s *Server) interactionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // copy the given message and disable the button which got pressed and mark it as clicked
-func getChangedMessage(newMessage slack.Message, actionID string) slack.Message {
+func getChangedMessage(newMessage *slack.Message, actionID string) slack.Message {
 	for _, blocks := range newMessage.Blocks.BlockSet {
 		if actionBlock, ok := blocks.(*slack.ActionBlock); ok {
 			for _, block := range actionBlock.Elements.ElementSet {
@@ -81,5 +82,5 @@ func getChangedMessage(newMessage slack.Message, actionID string) slack.Message 
 		}
 	}
 
-	return newMessage
+	return *newMessage
 }

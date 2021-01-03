@@ -1,9 +1,10 @@
 package server
 
 import (
+	"net/http"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
-	"net/http"
 )
 
 func (s *Server) healthCheckHandler(w http.ResponseWriter, r *http.Request) {

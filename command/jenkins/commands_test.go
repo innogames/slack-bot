@@ -1,11 +1,12 @@
 package jenkins
 
 import (
+	"testing"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 // just a test helper to setup all needed mocks etc

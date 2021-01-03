@@ -2,6 +2,7 @@ package matcher
 
 import (
 	"errors"
+
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"

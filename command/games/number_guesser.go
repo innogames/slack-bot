@@ -2,10 +2,11 @@ package games
 
 import (
 	"fmt"
+	"math/rand"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
-	"math/rand"
 )
 
 const (

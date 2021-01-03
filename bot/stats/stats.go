@@ -1,10 +1,11 @@
 package stats
 
 import (
+	"sync"
+
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"sync"
 )
 
 const collection = "stats"

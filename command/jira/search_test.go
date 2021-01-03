@@ -1,6 +1,9 @@
 package jira
 
 import (
+	"net/url"
+	"testing"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
@@ -8,8 +11,6 @@ import (
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
-	"net/url"
-	"testing"
 )
 
 func TestJiraSearch(t *testing.T) {

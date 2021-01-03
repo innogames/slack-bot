@@ -1,18 +1,19 @@
 package pullrequest
 
 import (
+	"testing"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestGitlab(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
-	cfg := config.Config{}
+	cfg := &config.Config{}
 	cfg.Gitlab.AccessToken = "https://gitlab.example.com"
 	cfg.Gitlab.AccessToken = "0815"
 
@@ -24,5 +25,4 @@ func TestGitlab(t *testing.T) {
 		help := commands.GetHelp()
 		assert.Equal(t, 1, len(help))
 	})
-
 }

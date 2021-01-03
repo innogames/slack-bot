@@ -59,7 +59,7 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 	commands.Merge(jenkins.GetCommands(cfg.Jenkins, base))
 
 	// pull-request
-	commands.Merge(pullrequest.GetCommands(base, cfg))
+	commands.Merge(pullrequest.GetCommands(base, &cfg))
 
 	return commands
 }

@@ -2,6 +2,9 @@ package command
 
 import (
 	"fmt"
+	"testing"
+	"time"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
@@ -9,8 +12,6 @@ import (
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func TestDelay(t *testing.T) {
@@ -82,7 +83,7 @@ func TestDelay(t *testing.T) {
 		assert.NotEmpty(t, client.InternalMessages)
 
 		handledEvent := <-client.InternalMessages
-		expectedEvent := slack.MessageEvent{
+		expectedEvent := &slack.MessageEvent{
 			Msg: slack.Msg{
 				Text: "my command",
 			},

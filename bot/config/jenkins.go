@@ -2,7 +2,6 @@ package config
 
 import (
 	"sort"
-	"sync"
 )
 
 // Jenkins is the main Jenkins config, including credentials and the whitelisted jobs
@@ -25,7 +24,6 @@ type JobConfig struct {
 	OnStart    []string
 	OnSuccess  []string
 	OnFailure  []string
-	Lock       sync.Mutex
 }
 
 // JobParameter are defined build parameters per job

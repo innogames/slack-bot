@@ -2,12 +2,13 @@ package vcs
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	log "github.com/sirupsen/logrus"
-	"strings"
-	"time"
 )
 
 const branchFetchInterval = time.Minute * 2
@@ -21,12 +22,12 @@ type BranchFetcher interface {
 }
 
 // InitBranchWatcher will load the current branches each X from the configured VCS -> e.g. used for branch lookup for Jenkins parameters
-func InitBranchWatcher(config *config.Config, ctx *util.ServerContext) {
+func InitBranchWatcher(cfg *config.Config, ctx *util.ServerContext) {
 	ctx.RegisterChild()
 	defer ctx.ChildDone()
 
 	var err error
-	fetcher := createBranchFetcher(config)
+	fetcher := createBranchFetcher(cfg)
 
 	// load branch list using startup
 	branches, err = fetcher.LoadBranches()

@@ -1,13 +1,14 @@
 package queue
 
 import (
+	"strings"
+	"sync"
+
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/client"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"strings"
-	"sync"
 )
 
 const (
