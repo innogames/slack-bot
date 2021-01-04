@@ -1,10 +1,11 @@
 package matcher
 
 import (
+	"testing"
+
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestPrefix(t *testing.T) {

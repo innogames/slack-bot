@@ -2,12 +2,13 @@ package admin
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
-	"os"
-	"strings"
 )
 
 const logChars = 4000

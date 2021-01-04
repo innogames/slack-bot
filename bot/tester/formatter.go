@@ -1,10 +1,11 @@
 package tester
 
 import (
-	"github.com/gookit/color"
-	"github.com/hackebrot/turtle"
 	"regexp"
 	"strings"
+
+	"github.com/gookit/color"
+	"github.com/hackebrot/turtle"
 )
 
 var boldRe = regexp.MustCompile(`\*.+\*`)

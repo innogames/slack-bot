@@ -2,6 +2,9 @@ package jenkins
 
 import (
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
@@ -11,8 +14,6 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
-	"sync"
-	"time"
 )
 
 var mu sync.Mutex
@@ -27,7 +28,7 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 	processHooks(cfg.OnStart, message, jobParams)
 	slackClient.AddReaction(iconPending, message)
 
-	build, err := startJob(cfg, jenkins, jobName, jobParams)
+	build, err := startJob(jenkins, jobName, jobParams)
 	if err != nil {
 		return errors.Wrapf(err, "Job *%s* could not start job", jobName)
 	}
@@ -103,10 +104,10 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 }
 
 // startJob starts a job and waits until job is not queued anymore
-func startJob(cfg config.JobConfig, jenkins Client, jobName string, jobParams map[string]string) (*gojenkins.Build, error) {
+func startJob(jenkins Client, jobName string, jobParams map[string]string) (*gojenkins.Build, error) {
 	// avoid nasty racing conditions when two people are starting the same job
-	cfg.Lock.Lock()
-	defer cfg.Lock.Unlock()
+	mu.Lock()
+	defer mu.Unlock()
 
 	job, err := jenkins.GetJob(jobName)
 	if err != nil {

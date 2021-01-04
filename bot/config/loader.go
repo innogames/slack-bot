@@ -2,11 +2,12 @@ package config
 
 import (
 	"bytes"
-	"github.com/spf13/viper"
-	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 )
 
 // Load all yaml config from a directory or a single .yaml file

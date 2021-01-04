@@ -1,11 +1,12 @@
 package vcs
 
 import (
+	"testing"
+	"time"
+
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func TestInitBranchWatcher(t *testing.T) {

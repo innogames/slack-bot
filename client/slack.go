@@ -4,13 +4,13 @@ package client
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/pkg/errors"
 	"strings"
 
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/bot/util"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 )

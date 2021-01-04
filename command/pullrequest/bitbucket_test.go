@@ -1,6 +1,9 @@
 package pullrequest
 
 import (
+	"testing"
+	"time"
+
 	bitbucketServer "github.com/gfleury/go-bitbucket-v1/test/bb-mock-server/go"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
@@ -10,15 +13,13 @@ import (
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func TestBitbucketNotActive(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
-	cfg := config.Config{}
+	cfg := &config.Config{}
 
 	command := bot.Commands{}
 	cmd := newBitbucketCommand(base, cfg)
@@ -57,7 +58,7 @@ func TestBitbucketFakeServer(t *testing.T) {
 	}
 
 	command := bot.Commands{}
-	cmd := newBitbucketCommand(base, config.Config{
+	cmd := newBitbucketCommand(base, &config.Config{
 		Bitbucket: cfg,
 	})
 	command.AddCommand(cmd)

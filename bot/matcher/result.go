@@ -1,9 +1,10 @@
 package matcher
 
 import (
-	"github.com/innogames/slack-bot/bot/util"
 	"regexp"
 	"strconv"
+
+	"github.com/innogames/slack-bot/bot/util"
 )
 
 type Result interface {

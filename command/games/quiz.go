@@ -3,16 +3,17 @@ package games
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
-	"github.com/pkg/errors"
 	"html"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"strconv"
+
+	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/innogames/slack-bot/client"
+	"github.com/pkg/errors"
 )
 
 const maxQuestions = 50 // api limit is 50

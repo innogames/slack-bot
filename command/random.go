@@ -1,13 +1,14 @@
 package command
 
 import (
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/msg"
 	"math/rand"
 	"strings"
 	"text/template"
 	"time"
+
+	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 )
 
 // NewRandomCommand will reply a random entry

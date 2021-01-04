@@ -1,20 +1,21 @@
 package pullrequest
 
 import (
+	"regexp"
+	"strings"
+	"text/template"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/xanzy/go-gitlab"
-	"regexp"
-	"strings"
-	"text/template"
 )
 
 type gitlabFetcher struct {
 	client *gitlab.Client
 }
 
-func newGitlabCommand(base bot.BaseCommand, cfg config.Config) bot.Command {
+func newGitlabCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 	if cfg.Gitlab.AccessToken == "" && cfg.Gitlab.Host == "" {
 		return nil
 	}

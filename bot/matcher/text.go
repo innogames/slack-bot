@@ -1,9 +1,10 @@
 package matcher
 
 import (
+	"strings"
+
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
-	"strings"
 )
 
 // NewTextMatcher match messages by full text (case insensitive)

@@ -2,14 +2,16 @@ package command
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
-	"regexp"
-	"strings"
+	log "github.com/sirupsen/logrus"
 )
 
 // NewCommands defines custom commands by defining a trigger (regexp) and a list of commands which should be executed
@@ -60,7 +62,7 @@ func (c *macroCommand) Execute(ref msg.Ref, text string) bool {
 		for _, commandText := range macro.config.Commands {
 			command, err := util.CompileTemplate(commandText)
 			if err != nil {
-				fmt.Printf("cannot parse command %s: %s\n", commandText, err.Error())
+				log.Warnf("cannot parse command %s: %s", commandText, err.Error())
 				c.ReplyError(ref, err)
 
 				continue

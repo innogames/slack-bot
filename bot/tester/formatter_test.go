@@ -1,8 +1,9 @@
 package tester
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetEmoji(t *testing.T) {

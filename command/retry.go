@@ -7,6 +7,7 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/client"
+	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 )
 
@@ -55,7 +56,10 @@ func (c *retryCommand) Store(ref msg.Ref, text string) bool {
 	}
 
 	key := ref.GetUniqueKey()
-	storage.Write(storageKey, key, text)
+	err := storage.Write(storageKey, key, text)
+	if err != nil {
+		log.Error(err)
+	}
 
 	return false
 }
@@ -75,7 +79,7 @@ func (c *retryCommand) SlackMessage(match matcher.Result, message msg.Message) {
 		c.ReplyError(message, err)
 		return
 	}
-	historyMessage := msg.FromSlackEvent(slack.MessageEvent{
+	historyMessage := msg.FromSlackEvent(&slack.MessageEvent{
 		Msg: m.Messages[0].Msg,
 	})
 	historyMessage.Channel = channel

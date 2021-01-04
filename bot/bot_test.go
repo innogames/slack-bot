@@ -1,13 +1,14 @@
 package bot
 
 import (
+	"testing"
+
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestBot(t *testing.T) {

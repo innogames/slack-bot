@@ -2,8 +2,9 @@ package util
 
 import (
 	"context"
-	log "github.com/sirupsen/logrus"
 	"sync"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // wrapper for ctx to simply add childs which have a blocking shutdown process

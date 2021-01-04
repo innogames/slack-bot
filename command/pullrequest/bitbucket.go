@@ -1,6 +1,10 @@
 package pullrequest
 
 import (
+	"regexp"
+	"strings"
+	"text/template"
+
 	bitbucket "github.com/gfleury/go-bitbucket-v1"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
@@ -8,9 +12,6 @@ import (
 	"github.com/innogames/slack-bot/client"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"regexp"
-	"strings"
-	"text/template"
 )
 
 type bitbucketFetcher struct {
@@ -21,7 +22,7 @@ var closedPr = pullRequest{
 	Status: prStatusClosed,
 }
 
-func newBitbucketCommand(base bot.BaseCommand, cfg config.Config) bot.Command {
+func newBitbucketCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 	if !cfg.Bitbucket.IsEnabled() {
 		return nil
 	}

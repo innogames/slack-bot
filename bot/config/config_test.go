@@ -1,11 +1,11 @@
 package config
 
 import (
-	"fmt"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"path"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLoadExampleConfig(t *testing.T) {
@@ -64,6 +64,4 @@ func TestEnvironment(t *testing.T) {
 	assert.Equal(t, "test/test", cfg.Timezone)
 	assert.Equal(t, "myToken", cfg.Slack.Token)
 	assert.Equal(t, "info", cfg.Logger.Level)
-
-	fmt.Println(cfg.AllowedUsers)
 }

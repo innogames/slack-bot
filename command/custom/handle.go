@@ -2,9 +2,10 @@ package custom
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
-	"strings"
 )
 
 func (c command) Handle(ref msg.Ref, text string) bool {

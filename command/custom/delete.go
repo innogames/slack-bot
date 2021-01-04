@@ -2,6 +2,7 @@ package custom
 
 import (
 	"fmt"
+
 	"github.com/innogames/slack-bot/bot/matcher"
 	msg "github.com/innogames/slack-bot/bot/msg"
 )

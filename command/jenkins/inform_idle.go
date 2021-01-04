@@ -1,11 +1,12 @@
 package jenkins
 
 import (
+	"time"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/command/queue"
-	"time"
 )
 
 type idleWatcherCommand struct {

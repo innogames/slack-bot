@@ -2,6 +2,7 @@ package jenkins
 
 import (
 	"fmt"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
@@ -46,7 +47,7 @@ func (c *retryCommand) Run(match matcher.Result, message msg.Message) {
 	buildNumber := match.GetInt("build")
 	build, err := getBuild(job, buildNumber)
 	if err != nil {
-		c.ReplyError(message, fmt.Errorf("given build *%s #%d* does not exist: %s", jobName, buildNumber, err.Error()))
+		c.ReplyError(message, fmt.Errorf("given build *%s #%d* does not exist: %w", jobName, buildNumber, err))
 		return
 	}
 

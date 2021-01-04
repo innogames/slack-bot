@@ -1,11 +1,12 @@
 package server
 
 import (
-	"github.com/innogames/slack-bot/bot/config"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/innogames/slack-bot/bot/config"
 )
 
 func TestHealthCheckHandler(t *testing.T) {
@@ -50,5 +51,4 @@ func TestInteraction(t *testing.T) {
 				rr.Body.String(), expected)
 		}
 	})
-
 }

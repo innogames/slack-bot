@@ -2,13 +2,14 @@ package server
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/innogames/slack-bot/bot/config"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestEvent(t *testing.T) {

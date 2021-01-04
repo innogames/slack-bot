@@ -1,9 +1,10 @@
 package matcher
 
 import (
+	"testing"
+
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestVoid(t *testing.T) {

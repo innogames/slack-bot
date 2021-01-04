@@ -1,9 +1,10 @@
 package jira
 
 import (
+	"testing"
+
 	"github.com/andygrunwald/go-jira"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestJira(t *testing.T) {

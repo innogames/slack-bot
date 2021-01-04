@@ -3,6 +3,9 @@ package weather
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
+	"time"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
@@ -10,8 +13,6 @@ import (
 	"github.com/innogames/slack-bot/client"
 	"github.com/pkg/errors"
 	"github.com/slack-go/slack"
-	"net/url"
-	"time"
 )
 
 const defaultAPIURL = "https://api.openweathermap.org/data/2.5/weather"

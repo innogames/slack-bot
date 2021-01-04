@@ -1,10 +1,10 @@
 package bot
 
 import (
-	"github.com/innogames/slack-bot/bot/msg"
 	"testing"
 
 	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"

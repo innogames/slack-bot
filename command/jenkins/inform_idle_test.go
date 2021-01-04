@@ -2,13 +2,14 @@ package jenkins
 
 import (
 	"encoding/json"
+	"testing"
+	"time"
+
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/command/queue"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func TestInformIdle(t *testing.T) {

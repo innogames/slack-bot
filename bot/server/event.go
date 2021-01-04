@@ -3,11 +3,12 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
-	"io/ioutil"
-	"net/http"
 )
 
 // todo: this whole file is WIP and not ready for production yet - just use the RTM api for a stable API

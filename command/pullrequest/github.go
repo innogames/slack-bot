@@ -2,20 +2,22 @@ package pullrequest
 
 import (
 	"context"
+	"github.com/pkg/errors"
+	"text/template"
+
 	"github.com/google/go-github/github"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/client"
 	"golang.org/x/oauth2"
-	"text/template"
 )
 
 type githubFetcher struct {
 	client *github.Client
 }
 
-func newGithubCommand(base bot.BaseCommand, cfg config.Config) bot.Command {
+func newGithubCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 	var githubClient *github.Client
 	if cfg.Github.AccessToken == "" {
 		githubClient = github.NewClient(client.HTTPClient)
@@ -45,7 +47,9 @@ func (c *githubFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 	ctx := context.Background()
 	rawPullRequest, _, err := c.client.PullRequests.Get(ctx, project, repo, prNumber)
 	if err != nil {
-		if respErr, ok := err.(*github.ErrorResponse); ok && respErr.Message == "Not Found" {
+		var respErr *github.ErrorResponse
+
+		if ok := errors.As(err, &respErr); ok && respErr.Message == "Not Found" {
 			return closedPr, nil
 		}
 		return pr, err

@@ -2,6 +2,10 @@ package admin
 
 import (
 	"fmt"
+	"runtime"
+	"strings"
+	"time"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
@@ -9,9 +13,6 @@ import (
 	"github.com/innogames/slack-bot/bot/stats"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/command/queue"
-	"runtime"
-	"strings"
-	"time"
 )
 
 // bots uptime

@@ -2,12 +2,13 @@ package queue
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	log "github.com/sirupsen/logrus"
-	"time"
 )
 
 // NewQueueCommand is able to execute a command when another blocking process is done

@@ -1,12 +1,13 @@
 package jenkins
 
 import (
+	"time"
+
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	log "github.com/sirupsen/logrus"
-	"time"
 )
 
 const (

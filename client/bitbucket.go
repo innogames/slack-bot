@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"errors"
+
 	bitbucket "github.com/gfleury/go-bitbucket-v1"
 	"github.com/innogames/slack-bot/bot/config"
 )

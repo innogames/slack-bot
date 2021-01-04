@@ -2,10 +2,10 @@ package bot
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot/bot/msg"
 	"math"
 	"strings"
 
+	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/texttheater/golang-levenshtein/levenshtein"
 )

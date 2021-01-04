@@ -1,12 +1,13 @@
 package vcs
 
 import (
+	"testing"
+	"time"
+
 	bitbucketServer "github.com/gfleury/go-bitbucket-v1/test/bb-mock-server/go"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 func TestBitbucketLoader(t *testing.T) {

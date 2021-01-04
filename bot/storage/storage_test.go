@@ -1,11 +1,14 @@
 package storage
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func testStorage(t *testing.T, storage Storage) {
+	t.Helper()
+
 	var err error
 	var stringValue string
 	var intValue int

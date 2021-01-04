@@ -2,6 +2,11 @@ package bot
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/server"
@@ -11,10 +16,6 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
-	"regexp"
-	"strings"
-	"sync"
-	"time"
 )
 
 var linkRegexp = regexp.MustCompile(`<\S+?\|(.*?)>`)
@@ -173,7 +174,7 @@ func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
 	for {
 		select {
 		case event := <-rtmChan:
-			// message received from user
+			// message received from user via RTM API
 			switch message := event.Data.(type) {
 			case *slack.HelloEvent:
 				log.Info("Hello, the RTM connection is ready!")
@@ -182,7 +183,7 @@ func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
 			case *slack.RTMError, *slack.UnmarshallingErrorEvent, *slack.RateLimitEvent, *slack.ConnectionErrorEvent:
 				log.Error(event)
 			case *slack.LatencyReport:
-				log.Debugf("Current latency: %v", message.Value)
+				log.Debugf("Current latency: %s", message.Value)
 			}
 		case message := <-client.InternalMessages:
 			// e.g. triggered by "delay" or "macro" command. They are still executed in original event context
@@ -204,7 +205,7 @@ func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
 // - find the matching command and execute it
 func (b *Bot) HandleMessage(message *slack.MessageEvent) {
 	if b.canHandleMessage(message) {
-		go b.handleMessage(msg.FromSlackEvent(*message), true)
+		go b.handleMessage(msg.FromSlackEvent(message), true)
 	}
 }
 
@@ -229,19 +230,19 @@ func (b *Bot) canHandleMessage(event *slack.MessageEvent) bool {
 }
 
 // remove @Bot prefix of message and cleans the message
-func (b *Bot) cleanMessage(msg string, fromUserContext bool) string {
-	msg = strings.ReplaceAll(msg, "<@"+b.auth.UserID+">", "")
-	msg = cleanMessage.Replace(msg)
+func (b *Bot) cleanMessage(text string, fromUserContext bool) string {
+	text = strings.ReplaceAll(text, "<@"+b.auth.UserID+">", "")
+	text = cleanMessage.Replace(text)
 
-	msg = strings.Trim(msg, "*")
-	msg = strings.TrimSpace(msg)
+	text = strings.Trim(text, "*")
+	text = strings.TrimSpace(text)
 
 	// remove links from incoming messages. for internal ones they might be wanted, as they contain valid links with texts
 	if fromUserContext {
-		msg = linkRegexp.ReplaceAllString(msg, "$1")
+		text = linkRegexp.ReplaceAllString(text, "$1")
 	}
 
-	return msg
+	return text
 }
 
 // handleMessage process the incoming message and respond appropriately

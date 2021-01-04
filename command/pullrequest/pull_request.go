@@ -1,6 +1,10 @@
 package pullrequest
 
 import (
+	"net"
+	"text/template"
+	"time"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
@@ -11,9 +15,6 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
-	"net"
-	"text/template"
-	"time"
 )
 
 const (
@@ -106,7 +107,8 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 
 		// something failed while loading the PR data...retry if it was temporary, else quit watching
 		if err != nil {
-			if nerr, ok := err.(net.Error); ok && nerr.Temporary() {
+			var netErr *net.Error
+			if ok := errors.As(err, &netErr); ok && (*netErr).Temporary() {
 				time.Sleep(maxCheckInterval)
 				continue
 			}
