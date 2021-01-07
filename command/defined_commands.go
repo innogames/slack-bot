@@ -26,13 +26,13 @@ func NewCommands(base bot.BaseCommand, macros []config.Command) bot.Command {
 		}
 	}
 
-	return &macroCommand{
+	return &definedCommand{
 		base,
 		commands,
 	}
 }
 
-type macroCommand struct {
+type definedCommand struct {
 	bot.BaseCommand
 
 	// precompiled regexp and list of commands
@@ -44,11 +44,14 @@ type command struct {
 	config config.Command
 }
 
-func (c *macroCommand) GetMatcher() matcher.Matcher {
-	return matcher.WildcardMatcher(c.Execute)
+func (c *definedCommand) GetMatcher() matcher.Matcher {
+	return matcher.NewGroupMatcher(
+		matcher.NewTextMatcher("list template functions", c.ListTemplateFunction),
+		matcher.WildcardMatcher(c.Execute),
+	)
 }
 
-func (c *macroCommand) Execute(ref msg.Ref, text string) bool {
+func (c *definedCommand) Execute(ref msg.Ref, text string) bool {
 	for _, macro := range c.commands {
 		match := macro.re.FindStringSubmatch(text)
 		if len(match) == 0 {
@@ -88,7 +91,19 @@ func (c *macroCommand) Execute(ref msg.Ref, text string) bool {
 	return false
 }
 
-func (c *macroCommand) GetHelp() []bot.Help {
+// receiver for "list template functions"
+func (c *definedCommand) ListTemplateFunction(match matcher.Result, message msg.Message) {
+	functions := util.GetTemplateFunctions()
+
+	text := fmt.Sprintf("This %d are available template functions:\n", len(functions))
+	for name := range functions {
+		text += fmt.Sprintf("- %s\n", name)
+	}
+
+	c.SendMessage(message, text)
+}
+
+func (c *definedCommand) GetHelp() []bot.Help {
 	help := make([]bot.Help, 0, len(c.commands))
 
 	for _, macro := range c.commands {
@@ -113,6 +128,11 @@ func (c *macroCommand) GetHelp() []bot.Help {
 		}
 		help = append(help, patternHelp)
 	}
+
+	help = append(help, bot.Help{
+		Command:     "list template functions",
+		Description: "lists all available template functions for custom commands (global ones and user specific ones)",
+	})
 
 	return help
 }

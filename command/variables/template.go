@@ -5,7 +5,7 @@ import (
 	"text/template"
 )
 
-func (c *command) GetTemplateFunction() template.FuncMap {
+func (c command) GetTemplateFunction() template.FuncMap {
 	return template.FuncMap{
 		"customVariable": func(userId string, name string) string {
 			list := loadList(userId)

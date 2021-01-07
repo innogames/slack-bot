@@ -21,6 +21,11 @@ var functions = template.FuncMap{
 	},
 }
 
+// GetTemplateFunctions returns a list of the currently available template functions which can be used in definedCommands or user specific commands
+func GetTemplateFunctions() template.FuncMap {
+	return functions
+}
+
 // RegisterFunctions will add a function to any template renderer
 func RegisterFunctions(funcMap template.FuncMap) {
 	for name, function := range funcMap {
