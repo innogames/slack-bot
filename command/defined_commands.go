@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/innogames/slack-bot/bot"
@@ -91,12 +92,19 @@ func (c *definedCommand) Execute(ref msg.Ref, text string) bool {
 	return false
 }
 
-// receiver for "list template functions"
+// receiver for "list template functions". Sort all template functions by name
 func (c *definedCommand) ListTemplateFunction(match matcher.Result, message msg.Message) {
 	functions := util.GetTemplateFunctions()
+	functionNames := make([]string, 0, len(functions))
+
+	for name := range functions {
+		functionNames = append(functionNames, name)
+	}
+
+	sort.Strings(functionNames)
 
 	text := fmt.Sprintf("This %d are available template functions:\n", len(functions))
-	for name := range functions {
+	for _, name := range functionNames {
 		text += fmt.Sprintf("- %s\n", name)
 	}
 
