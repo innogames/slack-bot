@@ -437,6 +437,3 @@ Test coverage is generated to build/coverage.html
 ```
 make test-coverage
 ```
-
-# Support
-There is [a new Slack-Group](https://join.slack.com/t/slack-bot-go/signup) which can give support if you need help to setup this slack-bot.
