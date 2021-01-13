@@ -18,16 +18,16 @@ import (
 )
 
 const (
-	iconInReview        = "eyes"
-	iconApproved        = "white_check_mark"
-	iconMerged          = "twisted_rightwards_arrows"
-	iconClosed          = "x"
-	iconBuildFailed     = "fire"
-	iconBuildRunning    = "arrows_counterclockwise"
-	iconError           = "x"
-	minCheckInterval    = time.Second * 30
-	maxCheckInterval    = time.Minute * 3
-	maxConnectionErrors = 10
+	iconInReview     = "eyes"
+	iconApproved     = "white_check_mark"
+	iconMerged       = "twisted_rightwards_arrows"
+	iconClosed       = "x"
+	iconBuildFailed  = "fire"
+	iconBuildRunning = "arrows_counterclockwise"
+	iconError        = "x"
+	minCheckInterval = time.Second * 30
+	maxCheckInterval = time.Minute * 3
+	maxErrors        = 5 // number of max errors in a row before aborting the PR watcher
 )
 
 type buildStatus int8
@@ -89,7 +89,7 @@ func (c command) Execute(match matcher.Result, message msg.Message) {
 
 func (c command) watch(match matcher.Result, message msg.Message) {
 	msgRef := slack.NewRefToMessage(message.Channel, message.Timestamp)
-	connectionErrors := 0
+	currentErrorCount := 0
 	done := queue.AddRunningCommand(message, message.Text)
 
 	defer func() {
@@ -107,25 +107,28 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 
 		// something failed while loading the PR data...retry if it was temporary, else quit watching
 		if err != nil {
-			var netErr *net.Error
-			if ok := errors.As(err, &netErr); ok && (*netErr).Temporary() {
+			if nerr, ok := err.(net.Error); ok && nerr.Temporary() {
 				time.Sleep(maxCheckInterval)
 				continue
 			}
 
-			connectionErrors++
-			if connectionErrors > maxConnectionErrors {
+			currentErrorCount++
+			if currentErrorCount > maxErrors {
 				// reply error in new thread
 				c.ReplyError(
 					message,
-					errors.Wrapf(err, "Error while fetching PR data %d times in a row", connectionErrors),
+					errors.Wrapf(err, "Error while fetching PR data %d times in a row", currentErrorCount),
 				)
 				c.AddReaction(iconError, message)
 				return
 			}
+
+			// wait some time before the next retry...might be some server restart or whatever
+			time.Sleep(maxCheckInterval)
+
 			continue
 		}
-		connectionErrors = 0
+		currentErrorCount = 0
 
 		c.setPRReactions(pr, currentReactions, message)
 
