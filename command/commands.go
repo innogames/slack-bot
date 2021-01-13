@@ -23,7 +23,7 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 	commands := &bot.Commands{}
 	commands.AddCommand(
 		// needs to be the first commands to store all executed commands
-		NewRetryCommand(base),
+		NewRetryCommand(base, &cfg),
 
 		NewCommands(base, cfg.Commands),
 		NewReplyCommand(base),

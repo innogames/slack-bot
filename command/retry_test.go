@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/config"
 	"testing"
 
 	"github.com/innogames/slack-bot/bot"
@@ -15,10 +16,11 @@ import (
 func TestRetry(t *testing.T) {
 	client.InternalMessages = make(chan msg.Message, 2)
 	slackClient := &mocks.SlackClient{}
+	cfg := &config.Config{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	retry := bot.Commands{}
-	retry.AddCommand(NewRetryCommand(base))
+	retry.AddCommand(NewRetryCommand(base, cfg))
 
 	t.Run("Ignore internal messages", func(t *testing.T) {
 		message := msg.Message{}
@@ -62,7 +64,7 @@ func TestRetry(t *testing.T) {
 		assert.Equal(t, handledEvent, message)
 	})
 
-	t.Run("With with other user", func(t *testing.T) {
+	t.Run("Run with other user", func(t *testing.T) {
 		message := msg.Message{}
 		message.User = "testUser1"
 		message.Text = "magic command"

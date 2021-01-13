@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/storage"
@@ -15,14 +16,16 @@ const storageKey = "user_history"
 
 // NewRetryCommand store the history of the commands of the user sent to the bot in a local storage
 // With "retry" the most recent command of the channel will be repeated
-func NewRetryCommand(base bot.BaseCommand) bot.Command {
+func NewRetryCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 	return &retryCommand{
 		base,
+		cfg,
 	}
 }
 
 type retryCommand struct {
 	bot.BaseCommand
+	cfg *config.Config
 }
 
 func (c *retryCommand) GetMatcher() matcher.Matcher {
@@ -83,7 +86,8 @@ func (c *retryCommand) SlackMessage(match matcher.Result, message msg.Message) {
 		Msg: m.Messages[0].Msg,
 	})
 	historyMessage.Channel = channel
-	if historyMessage.User != message.User {
+	// check if the user is allowed to re-post the message: either the author of the message or an admin
+	if historyMessage.User != message.User && c.cfg.AdminUsers.Contains(message.User) {
 		c.SendMessage(message, "this is not your message")
 		return
 	}
