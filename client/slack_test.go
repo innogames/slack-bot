@@ -1,6 +1,8 @@
 package client
 
 import (
+	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/slack-go/slack"
 	"testing"
 
 	"github.com/innogames/slack-bot/bot/config"
@@ -52,6 +54,20 @@ func TestGetSlackChannel(t *testing.T) {
 	id, name = GetChannel("foobar")
 	assert.Equal(t, "", id)
 	assert.Equal(t, "", name)
+}
+
+func TestGetMessageArchiveLink(t *testing.T) {
+	AuthResponse = slack.AuthTestResponse{
+		Team: "Test-Project",
+	}
+
+	message := msg.MessageRef{}
+	message.Timestamp = "1610699454.002000"
+	message.Channel = "DKJAPDWV8"
+	actual := GetSlackArchiveLink(message)
+
+	expected := "https://test-project.slack.com/archives/DKJAPDWV8/p1610699454002000"
+	assert.Equal(t, expected, actual)
 }
 
 func TestGetSlackLink(t *testing.T) {
