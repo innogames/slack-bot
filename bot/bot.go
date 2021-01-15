@@ -56,7 +56,7 @@ func (b *Bot) Init() (err error) {
 	if err != nil {
 		return errors.Wrap(err, "auth error")
 	}
-	client.BotUserID = b.auth.UserID
+	client.AuthResponse = *b.auth
 	client.Channels, err = b.loadChannels()
 	if err != nil {
 		return errors.Wrap(err, "error while fetching public channels")

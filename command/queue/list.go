@@ -69,8 +69,9 @@ func (c *listCommand) listQueue(message msg.Message, filter filterFunc) {
 		timeAgo := now.Sub(messageTime)
 		color := getColor(timeAgo)
 		text := fmt.Sprintf(
-			"<@%s> (%s, %s ago): ```%s``` %s \n",
+			"<@%s> (<%s|%s, %s ago>): ```%s``` %s\n",
 			userID,
+			client.GetSlackArchiveLink(queuedEvent),
 			messageTime.Format(time.Stamp),
 			util.FormatDuration(timeAgo),
 			queuedEvent.GetText(),

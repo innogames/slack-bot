@@ -18,8 +18,8 @@ import (
 // InternalMessages is internal queue of internal messages
 var InternalMessages = make(chan msg.Message, 50)
 
-// BotUserID is filled with the slack user id of the bot
-var BotUserID = ""
+// AuthResponse is holding some basic Slack metadata for the current connection, like Bot-Id, Workspace etc
+var AuthResponse slack.AuthTestResponse
 
 // Users is a lookup from user-id to user-name
 var Users map[string]string
@@ -225,4 +225,14 @@ func GetInteraction(ref msg.Ref, text string, command string, args ...string) *s
 	button.Style = style
 
 	return slack.NewActionBlock("", button)
+}
+
+// GetSlackArchiveLink returns a permalink to the ref which can be shared
+func GetSlackArchiveLink(msg msg.Ref) string {
+	return fmt.Sprintf(
+		"https://%s.slack.com/archives/%s/p%s",
+		strings.ToLower(AuthResponse.Team),
+		msg.GetChannel(),
+		strings.ReplaceAll(msg.GetTimestamp(), ".", ""),
+	)
 }
