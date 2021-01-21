@@ -10,17 +10,17 @@ import (
 )
 
 // NewAddButtonCommand is more or less internal command to add a link button to the posted message
-func NewAddButtonCommand(base bot.BaseCommand, cfg config.Server) bot.Command {
+func NewAddButtonCommand(base bot.BaseCommand, cfg config.Slack) bot.Command {
 	return &addButtonCommand{base, cfg}
 }
 
 type addButtonCommand struct {
 	bot.BaseCommand
-	cfg config.Server
+	cfg config.Slack
 }
 
 func (c *addButtonCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher("add button \"(?P<name>.*)\" \"(?P<command>.*)\"", c.AddLink)
+	return matcher.NewRegexpMatcher(`add button "(?P<name>.*)" "(?P<command>.*)"`, c.AddLink)
 }
 
 func (c *addButtonCommand) AddLink(match matcher.Result, message msg.Message) {
@@ -28,7 +28,7 @@ func (c *addButtonCommand) AddLink(match matcher.Result, message msg.Message) {
 	command := match.GetString("command")
 
 	blocks := []slack.Block{
-		client.GetInteraction(message, name, command),
+		slack.NewActionBlock("", client.GetInteractionButton(message, name, command)),
 	}
 
 	c.SendMessage(message, "", slack.MsgOptionBlocks(blocks...))
@@ -36,7 +36,7 @@ func (c *addButtonCommand) AddLink(match matcher.Result, message msg.Message) {
 
 // IsEnabled checks if the http server is enabled to receive slack interactions
 func (c *addButtonCommand) IsEnabled() bool {
-	return c.cfg.IsEnabled()
+	return c.cfg.CanHandleInteractions()
 }
 
 func (c *addButtonCommand) GetHelp() []bot.Help {

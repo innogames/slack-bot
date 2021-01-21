@@ -17,7 +17,6 @@ func TestLoadExampleConfig(t *testing.T) {
 	assert.Equal(t, false, cfg.Jenkins.IsEnabled())
 	assert.Equal(t, false, cfg.Jira.IsEnabled())
 	assert.Equal(t, false, cfg.Bitbucket.IsEnabled())
-	assert.Equal(t, false, cfg.Server.IsEnabled())
 }
 
 func TestLoadDirectory(t *testing.T) {

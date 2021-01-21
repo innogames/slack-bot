@@ -16,9 +16,7 @@ func TestAddButton(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
-	cfg := config.Server{}
-	cfg.Listen = "0.0.0.0:1234"
-	cfg.SigningSecret = "iamsecret"
+	cfg := config.Slack{}
 
 	command := bot.Commands{}
 	command.AddCommand(NewAddButtonCommand(base, cfg))

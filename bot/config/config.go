@@ -3,7 +3,6 @@ package config
 // Config contains the full config structure of this bot
 type Config struct {
 	Slack       Slack     `mapstructure:"slack"`
-	Server      Server    `mapstructure:"server"`
 	Jenkins     Jenkins   `mapstructure:"jenkins"`
 	Jira        Jira      `mapstructure:"jira"`
 	StoragePath string    `mapstructure:"storage_path"`
@@ -44,23 +43,18 @@ type OpenWeather struct {
 // Slack contains the credentials and configuration of the Slack client
 type Slack struct {
 	Token         string   `mapstructure:"token"`
+	SocketToken   string   `mapstructure:"socket_token"`
 	AllowedGroups []string `mapstructure:"allowed_groups,flow"`
 	ErrorChannel  string   `mapstructure:"error_channel"`
 
-	Debug       bool `mapstructure:"debug"`
-	UseEventAPI bool `mapstructure:"use_event_api"`
+	Debug bool `mapstructure:"debug"`
 
 	// only used for integration tests
 	TestEndpointURL string `mapstructure:"-"`
 }
 
-type Server struct {
-	Listen        string `mapstructure:"listen"`
-	SigningSecret string `mapstructure:"signing_secret"`
-}
-
-func (c Server) IsEnabled() bool {
-	return c.Listen != "" && c.SigningSecret != ""
+func (s Slack) CanHandleInteractions() bool {
+	return s.SocketToken != ""
 }
 
 // Logger configuration to define log target or log levels
@@ -101,12 +95,19 @@ func (c *Bitbucket) IsEnabled() bool {
 
 type UserList []string
 
-func (l UserList) Contains(userID string) bool {
-	for _, adminID := range l {
-		if adminID == userID {
+func (l UserList) Contains(givenUserID string) bool {
+	for _, userId := range l {
+		if userId == givenUserID {
 			return true
 		}
 	}
 
 	return false
+}
+
+// UserMap indexed by user id, value is the user name
+type UserMap map[string]string
+
+func (m UserMap) Contains(givenUserID string) bool {
+	return m[givenUserID] != ""
 }

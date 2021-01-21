@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
+	"github.com/slack-go/slack/socketmode"
 )
 
 // InternalMessages is internal queue of internal messages
@@ -22,7 +23,7 @@ var InternalMessages = make(chan msg.Message, 50)
 var AuthResponse slack.AuthTestResponse
 
 // Users is a lookup from user-id to user-name
-var Users map[string]string
+var Users config.UserMap
 
 // Channels is a map of each channelsId and the name
 var Channels map[string]string
@@ -42,14 +43,26 @@ func GetSlackClient(cfg config.Slack) *Slack {
 		options = append(options, slack.OptionDebug(true))
 	}
 
+	if cfg.SocketToken != "" {
+		options = append(options, slack.OptionAppLevelToken(cfg.SocketToken))
+	}
+
 	rawClient := slack.New(cfg.Token, options...)
 
+	// todo validate
+	// xapp == app token == socket_token
+	// xoxb == bot token == token
 	var rtm *slack.RTM
-	if !cfg.UseEventAPI {
+	var socket *socketmode.Client
+	if cfg.Token != "" {
+		socket = socketmode.New(
+			rawClient,
+		)
+	} else {
 		rtm = rawClient.NewRTM()
 	}
 
-	return &Slack{Client: rawClient, RTM: rtm, config: cfg}
+	return &Slack{Client: rawClient, RTM: rtm, Socket: socket, config: cfg}
 }
 
 type SlackClient interface {
@@ -73,6 +86,7 @@ type SlackClient interface {
 type Slack struct {
 	*slack.Client
 	RTM    *slack.RTM
+	Socket *socketmode.Client
 	config config.Slack
 }
 
@@ -207,7 +221,20 @@ func GetSlackLink(name string, url string, args ...string) slack.AttachmentActio
 	return action
 }
 
-func GetInteraction(ref msg.Ref, text string, command string, args ...string) *slack.ActionBlock {
+// GetTextBlock wraps a simple text in a Slack Block Section
+func GetTextBlock(text string) *slack.SectionBlock {
+	return slack.NewSectionBlock(
+		&slack.TextBlockObject{
+			Type: slack.MarkdownType,
+			Text: text,
+		},
+		nil,
+		nil,
+	)
+}
+
+// GetInteractionButton generates a block "Button" which is able to execute the given command once
+func GetInteractionButton(ref msg.Ref, text string, command string, args ...string) *slack.ButtonBlockElement {
 	var style slack.Style
 	if len(args) > 0 {
 		style = slack.Style(args[0])
@@ -224,7 +251,7 @@ func GetInteraction(ref msg.Ref, text string, command string, args ...string) *s
 	button := slack.NewButtonBlockElement("id", id, buttonText)
 	button.Style = style
 
-	return slack.NewActionBlock("", button)
+	return button
 }
 
 // GetSlackArchiveLink returns a permalink to the ref which can be shared

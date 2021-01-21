@@ -3,6 +3,7 @@ package games
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/slack-go/slack"
 	"html"
 	"io/ioutil"
 	"math/rand"
@@ -53,6 +54,9 @@ func (c *quizCommand) GetMatcher() matcher.Matcher {
 		matcher.NewRegexpMatcher(`quiz (?P<questions>\d+)`, c.StartQuiz),
 		matcher.NewRegexpMatcher(`answer (?P<answer>[\w\s]+)`, c.Answer),
 	)
+}
+func (c *quizCommand) IsActive() bool {
+	return true // true
 }
 
 func (c *quizCommand) StartQuiz(match matcher.Result, message msg.Message) {
@@ -135,13 +139,21 @@ func (c *quizCommand) printCurrentQuestion(message msg.Message) {
 		html.UnescapeString(question.Category),
 	)
 	text += html.UnescapeString(question.Question) + "\n"
-	for index, answer := range question.Answers {
-		text += fmt.Sprintf("%d.) %s\n", index+1, html.UnescapeString(answer))
+
+	blocks := []slack.Block{
+		client.GetTextBlock(text),
+	}
+	for _, answer := range question.Answers {
+		blocks = append(
+			blocks,
+			slack.NewActionBlock(
+				"",
+				client.GetInteractionButton(message, answer, fmt.Sprintf("answer %s", answer)),
+			),
+		)
 	}
 
-	text += ":interrobang: Hint type `answer {number}` to send your answer :interrobang:"
-
-	c.SendMessage(message, text)
+	c.SendMessage(message, "", slack.MsgOptionBlocks(blocks...))
 }
 
 func (c *quizCommand) getCurrentQuestion() question {

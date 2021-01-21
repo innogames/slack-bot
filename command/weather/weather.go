@@ -90,29 +90,21 @@ func (c *command) GetWeather(match matcher.Result, message msg.Message) {
 		},
 	}
 
-	headerText := slack.NewTextBlockObject(
-		"mrkdwn",
-		fmt.Sprintf(
-			"*Weather information for: %s :flag-%s:* %s",
-			record.Name,
-			record.Sys.Country,
-			getIcon(record.Weather[0].ID),
-		),
-		false,
-		false,
-	)
-	headerSection := slack.NewSectionBlock(headerText, nil, nil)
+	headerSection := client.GetTextBlock(fmt.Sprintf(
+		"*Weather information for: %s :flag-%s:* %s",
+		record.Name,
+		record.Sys.Country,
+		getIcon(record.Weather[0].ID),
+	))
 
 	sections := make([]slack.Block, 0, len(fields)+1)
 	sections = append(sections, headerSection)
 
 	for _, element := range fields {
-		var textBlocks []*slack.TextBlockObject
-		textBlocks = append(
-			textBlocks,
+		textBlocks := []*slack.TextBlockObject{
 			slack.NewTextBlockObject("mrkdwn", element[0], false, false),
 			slack.NewTextBlockObject("mrkdwn", element[1], false, false),
-		)
+		}
 
 		sections = append(sections, slack.NewSectionBlock(nil, textBlocks, nil))
 	}
