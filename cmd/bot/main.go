@@ -37,7 +37,8 @@ func main() {
 	err = storage.InitStorage(cfg.StoragePath)
 	checkError(err)
 
-	slackClient := client.GetSlackClient(cfg.Slack)
+	slackClient, err := client.GetSlackClient(cfg.Slack)
+	checkError(err)
 
 	ctx := util.NewServerContext()
 	go vcs.InitBranchWatcher(&cfg, ctx) // todo move into some command to init branch watcher

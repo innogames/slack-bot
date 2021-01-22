@@ -97,8 +97,8 @@ func (c *command) GetWeather(match matcher.Result, message msg.Message) {
 		getIcon(record.Weather[0].ID),
 	))
 
-	sections := make([]slack.Block, 0, len(fields)+1)
-	sections = append(sections, headerSection)
+	blocks := make([]slack.Block, 0, len(fields)+1)
+	blocks = append(blocks, headerSection)
 
 	for _, element := range fields {
 		textBlocks := []*slack.TextBlockObject{
@@ -106,10 +106,10 @@ func (c *command) GetWeather(match matcher.Result, message msg.Message) {
 			slack.NewTextBlockObject("mrkdwn", element[1], false, false),
 		}
 
-		sections = append(sections, slack.NewSectionBlock(nil, textBlocks, nil))
+		blocks = append(blocks, slack.NewSectionBlock(nil, textBlocks, nil))
 	}
 
-	c.SendMessage(message, "", slack.MsgOptionBlocks(sections...))
+	c.SendBlockMessage(message, blocks)
 }
 
 func timestampToTime(timestamp int) string {

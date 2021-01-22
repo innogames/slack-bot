@@ -24,7 +24,8 @@ const botID = "W12345"
 
 // StartBot will start this bot against the fake slack instance
 func StartBot(cfg config.Config) *bot.Bot {
-	slackClient := client.GetSlackClient(cfg.Slack)
+	slackClient, err := client.GetSlackClient(cfg.Slack)
+	checkError(err)
 
 	commands := command.GetCommands(
 		slackClient,
@@ -36,7 +37,7 @@ func StartBot(cfg config.Config) *bot.Bot {
 		commands,
 	)
 
-	err := realBot.Init()
+	err = realBot.Init()
 	checkError(err)
 
 	return realBot
@@ -93,7 +94,7 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 	fakeSlack.BotID = botID
 	fakeSlack.Start()
 
-	cfg.Slack.Token = "not needed"
+	cfg.Slack.Token = "xoxb-fake"
 	cfg.Slack.TestEndpointURL = fakeSlack.GetAPIURL()
 	cfg.AllowedUsers = []string{
 		"W012A3CDE",

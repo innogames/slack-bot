@@ -34,36 +34,39 @@ func TestQuiz(t *testing.T) {
 	t.Run("Full Game", func(t *testing.T) {
 		// start the game
 		message := msg.Message{}
-		message.Text = "quiz"
-		slackClient.On("SendMessage", message,
-			"Next question (#1) is of *\"hard\" difficulty* from the category: \"*Entertainment: Video Games*\"\n"+
-				"According to Toby Fox, what was the method to creating the initial tune for Megalovania?\n"+
-				"1.) Using a Composer Software\n"+
-				"2.) Listened to birds at the park\n"+
-				"3.) Singing into a Microphone\n4.) Playing a Piano\n"+
-				":interrobang: Hint type `answer {number}` to send your answer :interrobang:",
-		).Return("")
+		message.Text = "start quiz"
+
+		expected := `[` +
+			`{"type":"section","text":{"type":"mrkdwn","text":"Next question (#1) is of *\"hard\" difficulty* from the category: \"*Entertainment: Video Games*\"\nAccording to Toby Fox, what was the method to creating the initial tune for Megalovania?\n"}},` +
+			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"Using a Composer Software","emoji":true},"action_id":"id","value":"token-1"}]},` +
+			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"Listened to birds at the park","emoji":true},"action_id":"id","value":"token-2"}]},` +
+			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"Singing into a Microphone","emoji":true},"action_id":"id","value":"token-3"}]},` +
+			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"Playing a Piano","emoji":true},"action_id":"id","value":"token-4"}]}` +
+			`]`
+		mocks.AssertSlackBlocks(t, slackClient, message, expected)
+
 		actual := commands.Run(message)
 		assert.True(t, actual)
 
 		// wrong answer
 		message = msg.Message{}
 		message.Text = "answer 4"
-		slackClient.On("SendMessage", message, "incorrect. try again").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "incorrect. try again")
 		actual = commands.Run(message)
 		assert.True(t, actual)
 
 		// correct answer
 		message = msg.Message{}
 		message.Text = "answer 3"
-		slackClient.On("SendMessage", message, ""+
-			"Next question (#2) is of *\"easy\" difficulty* from the category: \"*Math*\"\n"+
-			"Whats 1+4?\n"+
-			"1.) 5\n"+
-			"2.) 6\n"+
-			":interrobang: Hint type `answer {number}` to send your answer :interrobang:",
-		).Return("")
-		slackClient.On("SendMessage", message, "correct").Return("")
+
+		expected = `[` +
+			`{"type":"section","text":{"type":"mrkdwn","text":"Next question (#2) is of *\"easy\" difficulty* from the category: \"*Math*\"\nWhats 1+4?\n"}},` +
+			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"5","emoji":true},"action_id":"id","value":"token-1"}]},` +
+			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"6","emoji":true},"action_id":"id","value":"token-2"}]}` +
+			`]`
+		mocks.AssertSlackBlocks(t, slackClient, message, expected)
+
+		mocks.AssertSlackMessage(slackClient, message, "correct")
 		actual = commands.Run(message)
 		assert.True(t, actual)
 	})

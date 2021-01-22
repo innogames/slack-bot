@@ -50,13 +50,12 @@ type Quiz struct {
 func (c *quizCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewTextMatcher(`start quiz`, c.StartQuiz),
-		matcher.NewTextMatcher(`quiz`, c.StartQuiz),
-		matcher.NewRegexpMatcher(`quiz (?P<questions>\d+)`, c.StartQuiz),
+		matcher.NewRegexpMatcher(`start quiz (?P<questions>\d+)`, c.StartQuiz),
 		matcher.NewRegexpMatcher(`answer (?P<answer>[\w\s]+)`, c.Answer),
 	)
 }
 func (c *quizCommand) IsActive() bool {
-	return true // true
+	return c.CanHandleInteractions()
 }
 
 func (c *quizCommand) StartQuiz(match matcher.Result, message msg.Message) {
@@ -124,7 +123,9 @@ func (c *quizCommand) parseAnswers() {
 	for questionNr, question := range c.quiz.Questions {
 		answers := append(question.IncorrectAnswers, question.CorrectAnswer)
 
-		rand.Shuffle(len(answers), func(i, j int) { answers[i], answers[j] = answers[j], answers[i] })
+		rand.Shuffle(len(answers), func(i, j int) {
+			answers[i], answers[j] = answers[j], answers[i]
+		})
 
 		c.quiz.Questions[questionNr].Answers = answers
 	}
@@ -153,7 +154,7 @@ func (c *quizCommand) printCurrentQuestion(message msg.Message) {
 		)
 	}
 
-	c.SendMessage(message, "", slack.MsgOptionBlocks(blocks...))
+	c.SendBlockMessage(message, blocks)
 }
 
 func (c *quizCommand) getCurrentQuestion() question {

@@ -61,17 +61,18 @@ func (c *delayCommand) Delay(match matcher.Result, message msg.Message) {
 			client.GetTextBlock(text),
 		}
 
-		if true {
+		// add a abort button, ich we can handle the,
+		if c.CanHandleInteractions() {
 			blocks = append(
 				blocks,
 				slack.NewActionBlock(
 					"",
-					client.GetInteractionButton(message, "stop timer", fmt.Sprintf("stop timer %d", stopNumber)),
+					client.GetInteractionButton(message, "Stop timer!", fmt.Sprintf("stop timer %d", stopNumber)),
 				),
 			)
 		}
 
-		c.SendMessage(message, "", slack.MsgOptionBlocks(blocks...))
+		c.SendBlockMessage(message, blocks)
 	}
 
 	done := queue.AddRunningCommand(message, "")

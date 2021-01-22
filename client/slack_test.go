@@ -10,15 +10,30 @@ import (
 )
 
 func TestGetSlackClient(t *testing.T) {
-	cfg := config.Slack{
-		TestEndpointURL: "http://slack.example.com/",
-		Debug:           true,
-	}
+	t.Run("Connect to invalid URL", func(t *testing.T) {
+		cfg := config.Slack{
+			TestEndpointURL: "http://slack.example.com/",
+			Debug:           true,
+			Token:           "xoxb-XXXXX",
+		}
 
-	client := GetSlackClient(cfg)
+		client, err := GetSlackClient(cfg)
+		assert.Empty(t, err)
 
-	_, _, err := client.RTM.ConnectRTM()
-	assert.Contains(t, err.Error(), "slack.example.com")
+		_, _, err = client.RTM.ConnectRTM()
+		assert.Contains(t, err.Error(), "slack.example.com")
+	})
+
+	t.Run("Connect with invalid token", func(t *testing.T) {
+		cfg := config.Slack{
+			TestEndpointURL: "http://slack.example.com/",
+			Debug:           true,
+		}
+
+		client, err := GetSlackClient(cfg)
+		assert.Equal(t, err.Error(), "slack.token needs to start with 'xoxb-'")
+		assert.Nil(t, client)
+	})
 }
 
 func TestGetSlackUser(t *testing.T) {
