@@ -96,8 +96,8 @@ func (c *Bitbucket) IsEnabled() bool {
 type UserList []string
 
 func (l UserList) Contains(givenUserID string) bool {
-	for _, userId := range l {
-		if userId == givenUserID {
+	for _, userID := range l {
+		if userID == givenUserID {
 			return true
 		}
 	}

@@ -187,13 +187,11 @@ func (s *Slack) CanHandleInteractions() bool {
 
 // SendBlockMessage will send Slack Blocks/Sections to the target
 func (s *Slack) SendBlockMessage(ref msg.Ref, blocks []slack.Block, options ...slack.MsgOption) string {
-	// todo cleanup
 	allOptions := []slack.MsgOption{
 		slack.MsgOptionBlocks(blocks...),
 	}
-	allOptions = append(allOptions, options...)
 
-	return s.SendMessage(ref, "", allOptions...)
+	return s.SendMessage(ref, "", append(allOptions, options...)...)
 }
 
 func GetUser(identifier string) (id string, name string) {
@@ -279,11 +277,11 @@ func GetInteractionButton(ref msg.Ref, text string, command string, args ...stri
 }
 
 // GetSlackArchiveLink returns a permalink to the ref which can be shared
-func GetSlackArchiveLink(msg msg.Ref) string {
+func GetSlackArchiveLink(message msg.Ref) string {
 	return fmt.Sprintf(
 		"https://%s.slack.com/archives/%s/p%s",
 		strings.ToLower(AuthResponse.Team),
-		msg.GetChannel(),
-		strings.ReplaceAll(msg.GetTimestamp(), ".", ""),
+		message.GetChannel(),
+		strings.ReplaceAll(message.GetTimestamp(), ".", ""),
 	)
 }

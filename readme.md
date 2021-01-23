@@ -10,21 +10,29 @@ This slack bot improves the workflow of development teams. Especially with focus
 [![Docker](https://img.shields.io/docker/pulls/brainexe/slack-bot.svg)](https://hub.docker.com/r/brainexe/slack-bot)
 
 # Installation
-**Create Classic Slack App:**
-- Create a [Classic Slack App](https://api.slack.com/apps?new_classic_app=1) - IMPORTANT: only Classic apps are fully supported yet!
-- Go to "App Home" and "First, add a legacy bot user"
-- Go to "Incoming Webhooks" and Activate Incoming Webhooks"
-- Go to "Basic Information" and "Install your app to your workspace"
+**1st) Create+prepare the Slack App:**
+- Create a [Slack App](https://api.slack.com/app)
+- Go to "Socket Mode" menu and activate it. 
+- - use any token name, like "Slack-Bot Socket Mode token"
+- - You will see a App-Level Token (beginning with xapp-). Sse it in the config.yaml as slack.socket_token.
+- Enable "Interactivity & Shortcuts" 
+- Enable "Event Subscriptions":
+- - if you see a "Send events to my app using the new format" checkbox, check it (only for old migrated apps)  
+- - in "Subscribe to bot events", add "app_mention" and "message.im" events
+- Go to "OAuth & Permissions":
+- - use the "Bot User OAuth Access Token" (beginning with "xoxb-") as slack.token in the config.yaml
+- - in "Scopes" add "app_mentions:read", "channels:read", "chat:write", "im:history", "users:read"   
+- Go to "Install your App" and "Install your app to your workspace"
 - Back to "Install app" tab, the "Bot User OAuth Access Token" is visible (starts with "xoxb-"). You need this one in the config.yaml in slack->token.
 
-**Quick steps:** (just use the bot via Docker)
+**2nd) Run the bot - Quick steps:** (just use the bot via Docker)
 - [install Docker incl. docker-compose](https://docs.docker.com/get-docker/)
 - clone this repo or at least fetch the docker-compose.yaml
 - create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
 - add your Slack user id or user name in the "allowed_users:" section of the config.yaml
 - `docker-compose up`
 
-**Advanced** (when planning working on the bot core)
+**2nd) Advanced** (when planning working on the bot core)
 - install go (at least 1.14)
 - clone/fork this repo
 - create a config.yaml (at least a slack token is required) or take a look in config-example.yaml

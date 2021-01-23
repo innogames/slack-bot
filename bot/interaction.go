@@ -46,13 +46,12 @@ func (b *Bot) handleEvent(eventsAPIEvent slackevents.EventsAPIEvent) {
 }
 
 func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
-	action := payload.ActionCallback.BlockActions[0]
-
 	if !b.allowedUsers.Contains(payload.User.ID) {
 		log.Warnf("User %s tried to execute a command", payload.User.ID)
-		fmt.Println(b.allowedUsers)
 		return
 	}
+
+	action := payload.ActionCallback.BlockActions[0]
 
 	// check in storage if there is still a interaction stored on our side
 	var message slack.MessageEvent
@@ -73,6 +72,9 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
 	response.ReplaceOriginal = true
 	response.Text = fmt.Sprintf("<@%s> performed action at %s", payload.User.Name, time.Now())
 
+	if b.slackClient.Socket == nil {
+		return
+	}
 	b.slackClient.SendMessage(
 		msg.FromSlackEvent(&message),
 		newMessage.Text,

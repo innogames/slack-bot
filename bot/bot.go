@@ -2,7 +2,6 @@ package bot
 
 import (
 	"fmt"
-	"github.com/alicebob/miniredis/v2/server"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/stats"
@@ -41,7 +40,6 @@ type Bot struct {
 	slackClient  *client.Slack
 	auth         *slack.AuthTestResponse
 	commands     *Commands
-	server       *server.Server
 	allowedUsers config.UserMap
 	userLocks    map[string]*sync.Mutex
 }
@@ -186,14 +184,8 @@ func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
 		case event := <-socketChan:
 			// message from Socket Mode
 			switch event.Type {
-			case socketmode.EventTypeConnecting:
-				log.Infof("Connecting to Slack with Socket Mode...")
-			case socketmode.EventTypeHello:
-				log.Infof("Hello, I'm ready!")
 			case socketmode.EventTypeConnectionError:
-				log.Infof("Connection failed. Retrying later...")
-			case socketmode.EventTypeConnected:
-				log.Infof("Connected to Slack with Socket Mode.")
+				log.Warn("Socket Mode connection failed")
 			case socketmode.EventTypeEventsAPI:
 				eventsAPIEvent := event.Data.(slackevents.EventsAPIEvent)
 				b.slackClient.Socket.Ack(*event.Request)
@@ -221,8 +213,6 @@ func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
 				b.HandleMessage(message)
 			case *slack.RTMError, *slack.UnmarshallingErrorEvent, *slack.RateLimitEvent, *slack.ConnectionErrorEvent:
 				log.Error(event)
-			case *slack.LatencyReport:
-				log.Debugf("Current latency: %s", message.Value)
 			}
 		case message := <-client.InternalMessages:
 			// e.g. triggered by "delay" or "macro" command. They are still executed in original event context
@@ -261,7 +251,7 @@ func (b *Bot) canHandleMessage(event *slack.MessageEvent) bool {
 	}
 
 	// Direct message channels always starts with 'D'
-	if event.Channel[0] == 'D' {
+	if strings.HasPrefix(event.Channel, "D") {
 		return true
 	}
 
