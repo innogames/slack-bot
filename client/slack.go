@@ -138,7 +138,7 @@ func (s *Slack) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption
 	if err != nil {
 		log.
 			WithField("user", ref.GetUser()).
-			Errorf(err.Error())
+			Error(err.Error())
 	}
 
 	return msgTimestamp
@@ -172,6 +172,7 @@ func (s *Slack) SendToUser(user string, text string) {
 	channel, _, _, err := s.Client.OpenConversation(options)
 	if err != nil {
 		log.WithError(err).Errorf("Cannot open channel")
+		return
 	}
 
 	message := msg.Message{}

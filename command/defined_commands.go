@@ -74,7 +74,7 @@ func (c *definedCommand) Execute(ref msg.Ref, text string) bool {
 
 			text, err := util.EvalTemplate(command, params)
 			if err != nil {
-				fmt.Printf("cannot executing command %s: %s\n", commandText, err.Error())
+				log.Errorf("cannot executing command %s: %s", commandText, err.Error())
 				c.ReplyError(ref, err)
 
 				continue

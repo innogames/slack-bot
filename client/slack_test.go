@@ -1,6 +1,7 @@
 package client
 
 import (
+	"fmt"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/slack-go/slack"
 	"testing"
@@ -102,6 +103,22 @@ func TestGetSlackLink(t *testing.T) {
 	link := GetSlackLink("name", "url", "color")
 	assert.Equal(t, "url", link.URL)
 	assert.Equal(t, "name", link.Text)
+}
+
+func TestSendMessage(t *testing.T) {
+	client := &Slack{}
+
+	t.Run("No text", func(t *testing.T) {
+		ref := msg.MessageRef{}
+		actual := client.SendMessage(ref, "")
+		assert.Equal(t, "", actual)
+	})
+
+	t.Run("ReplyError", func(t *testing.T) {
+		ref := msg.MessageRef{}
+		err := fmt.Errorf("test error")
+		client.ReplyError(ref, err)
+	})
 }
 
 func assertIDNameLookup(t *testing.T, identifier string, expectedID string, expectedName string) {

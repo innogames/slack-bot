@@ -21,7 +21,7 @@ This slack bot improves the workflow of development teams. Especially with focus
 - - in "Subscribe to bot events", add "app_mention" and "message.im" events
 - Go to "OAuth & Permissions":
 - - use the "Bot User OAuth Access Token" (beginning with "xoxb-") as slack.token in the config.yaml
-- - in "Scopes" add "app_mentions:read", "channels:read", "chat:write", "im:history", "users:read"   
+- - in "Scopes" add "app_mentions:read", "channels:read", "chat:write", "im:history", "im:write", "users:read"   
 - Go to "Install your App" and "Install your app to your workspace"
 - Back to "Install app" tab, the "Bot User OAuth Access Token" is visible (starts with "xoxb-"). You need this one in the config.yaml in slack->token.
 

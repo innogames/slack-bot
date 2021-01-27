@@ -170,6 +170,7 @@ func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
 		socketChan = b.slackClient.Socket.Events
 
 		go func() {
+			// todo find a cleaner solution to delete old data
 			for range time.NewTicker(time.Second).C {
 				deleted := b.cleanOldInteractions()
 				if deleted > 0 {
@@ -316,5 +317,6 @@ func (b *Bot) handleMessage(message msg.Message, fromUserContext bool) {
 
 	logger.
 		WithField("duration", util.FormatDuration(time.Since(start))).
+		WithField("durationWithLatency", util.FormatDuration(time.Since(message.GetTime()))).
 		Infof("handled message: %s", message.Text)
 }

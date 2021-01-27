@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"testing"
 	"time"
 
@@ -38,7 +39,7 @@ func TestAll(t *testing.T) {
 	assert.Equal(t, output.String(), expectedOutput.String())
 }
 
-func testCommand(command string, expectedOutput string, input *util.MutexBuffer, output *util.MutexBuffer) {
+func testCommand(command string, expectedOutput string, input io.Writer, output io.Writer) {
 	input.Write([]byte(command + "\n"))
 	time.Sleep(time.Millisecond * 200)
 

@@ -23,7 +23,7 @@ type MessageRef struct {
 	User            string `json:"user,omitempty"`
 	Timestamp       string `json:"ts,omitempty"`
 	Thread          string `json:"thread_ts,omitempty"`
-	InternalMessage bool
+	InternalMessage bool   `json:"InternalMessage,omitempty"`
 }
 
 func (msg MessageRef) GetChannel() string {
@@ -50,6 +50,9 @@ func (msg MessageRef) GetUniqueKey() string {
 }
 
 func (msg MessageRef) GetTime() time.Time {
+	if msg.GetTimestamp() == "" {
+		return time.Time{}
+	}
 	timestamp, _ := strconv.ParseInt(msg.GetTimestamp()[0:10], 10, 64)
 
 	return time.Unix(timestamp, 0)

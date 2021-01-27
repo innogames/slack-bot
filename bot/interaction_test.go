@@ -44,7 +44,7 @@ func TestInteraction(t *testing.T) {
 		"user1": "user2",
 	}
 
-	t.Run(".cleanOldInteractions", func(t *testing.T) {
+	t.Run("clean old interactions", func(t *testing.T) {
 		actual := bot.cleanOldInteractions()
 		assert.Equal(t, 0, actual)
 	})
@@ -132,6 +132,12 @@ func TestInteraction(t *testing.T) {
 		time.Sleep(time.Millisecond * 20)
 
 		commandsProcessed, err := stats.Get(stats.TotalCommands)
+		assert.Nil(t, err)
+		assert.Equal(t, uint(1), commandsProcessed)
+
+		// "press the button" again -> should not work!
+		bot.handleInteraction(callback)
+		commandsProcessed, err = stats.Get(stats.TotalCommands)
 		assert.Nil(t, err)
 		assert.Equal(t, uint(1), commandsProcessed)
 	})
