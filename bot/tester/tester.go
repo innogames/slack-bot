@@ -4,18 +4,17 @@ package tester
 import (
 	"encoding/json"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"os"
-
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slacktest"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"os"
 )
 
 // TestChannel is just a test channel name which is used for testing
@@ -85,7 +84,9 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 		})
 		c.Handle("/reactions.add", func(w http.ResponseWriter, r *http.Request) {
 			payload, _ := ioutil.ReadAll(r.Body)
-			fmt.Fprintln(output, getEmoji(string(payload)))
+			query, _ := url.ParseQuery(string(payload))
+			emoji := query.Get("name")
+			fmt.Fprintln(output, getEmoji(emoji))
 		})
 	}
 

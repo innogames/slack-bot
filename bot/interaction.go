@@ -67,7 +67,7 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
 	b.HandleMessage(&message)
 
 	// update the original slack message (with the button) and disable the button
-	newMessage := replaceClickedButton(&payload.Message, action.Value, " (already clicked)")
+	newMessage := replaceClickedButton(&payload.Message, action.Value, " (clicked)")
 	response := slackevents.MessageActionResponse{}
 	response.ReplaceOriginal = true
 	response.Text = fmt.Sprintf("<@%s> performed action at %s", payload.User.Name, time.Now())

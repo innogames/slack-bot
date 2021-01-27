@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// wrapper for ctx to simply add childs which have a blocking shutdown process
+// NewServerContext wrapper for ctx to simply add childs which have a blocking shutdown process
 // -> make sure all stuff is closed properly before exit
 // todo directly add term/kill handling
 func NewServerContext() *ServerContext {
@@ -27,7 +27,7 @@ type ServerContext struct {
 	cancel context.CancelFunc
 }
 
-// start the shutdown process
+// StopTheWorld start the shutdown process
 func (c *ServerContext) StopTheWorld() {
 	log.Info("Stop the world!")
 	c.cancel()

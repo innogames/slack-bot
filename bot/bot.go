@@ -201,11 +201,13 @@ func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
 				default:
 					log.Infof("Unexpected interactive type received: %s\n", event.Type)
 				}
+			case socketmode.EventTypeConnected, socketmode.EventTypeConnecting, socketmode.EventTypeHello:
+				// ignore
 			default:
 				log.Infof("Unexpected event type received: %s\n", event.Type)
 			}
 		case event := <-rtmChan:
-			// message received from user via depreacted RTM API
+			// message received from user via deprecated RTM API
 			switch message := event.Data.(type) {
 			case *slack.HelloEvent:
 				log.Info("Hello, the RTM connection is ready!")

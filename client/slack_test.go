@@ -31,7 +31,20 @@ func TestGetSlackClient(t *testing.T) {
 		}
 
 		client, err := GetSlackClient(cfg)
-		assert.Equal(t, err.Error(), "slack.token needs to start with 'xoxb-'")
+		assert.Equal(t, err.Error(), "config slack.token needs to start with 'xoxb-'")
+		assert.Nil(t, client)
+	})
+
+	t.Run("Connect with invalid socket-token", func(t *testing.T) {
+		cfg := config.Slack{
+			TestEndpointURL: "http://slack.example.com/",
+			Token:           "xoxb-yep",
+			SocketToken:     "sometoken",
+			Debug:           true,
+		}
+
+		client, err := GetSlackClient(cfg)
+		assert.Equal(t, err.Error(), "config slack.socket_token needs to start to 'xapp-'")
 		assert.Nil(t, client)
 	})
 }

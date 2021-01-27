@@ -32,7 +32,7 @@ var Channels map[string]string
 // Either via "Socket Mode" or the legacy "RTM" connection
 func GetSlackClient(cfg config.Slack) (*Slack, error) {
 	if !strings.HasPrefix(cfg.Token, "xoxb-") {
-		return nil, fmt.Errorf("slack.token needs to start with 'xoxb-'")
+		return nil, fmt.Errorf("config slack.token needs to start with 'xoxb-'")
 	}
 
 	options := []slack.Option{
@@ -49,7 +49,7 @@ func GetSlackClient(cfg config.Slack) (*Slack, error) {
 
 	if cfg.SocketToken != "" {
 		if !strings.HasPrefix(cfg.SocketToken, "xapp-") {
-			return nil, fmt.Errorf("cfg.socket_token needs to start to 'xapp-'")
+			return nil, fmt.Errorf("config slack.socket_token needs to start to 'xapp-'")
 		}
 		options = append(options, slack.OptionAppLevelToken(cfg.SocketToken))
 	}
