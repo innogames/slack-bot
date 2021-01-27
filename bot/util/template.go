@@ -16,8 +16,8 @@ var functions = template.FuncMap{
 	"makeSlice": func(args ...interface{}) []interface{} {
 		return args
 	},
-	"slice": func(string string, start int, end int) string {
-		return string[start:end]
+	"slice": func(str string, start int, end int) string {
+		return str[start:end]
 	},
 }
 

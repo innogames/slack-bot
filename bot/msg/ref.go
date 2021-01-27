@@ -13,7 +13,6 @@ type Ref interface {
 	GetThread() string
 	IsInternalMessage() bool
 	WithText(text string) Message
-
 	GetUniqueKey() string
 }
 
@@ -49,6 +48,7 @@ func (msg MessageRef) GetUniqueKey() string {
 	)
 }
 
+// GetTime extracts the time of the Message
 func (msg MessageRef) GetTime() time.Time {
 	timestamp, _ := strconv.ParseInt(msg.GetTimestamp()[0:10], 10, 64)
 
@@ -59,7 +59,7 @@ func (msg MessageRef) IsInternalMessage() bool {
 	return msg.InternalMessage
 }
 
-// attach a text to a message
+// WithText attaches a text to a message
 func (msg MessageRef) WithText(text string) Message {
 	return Message{
 		MessageRef: msg,

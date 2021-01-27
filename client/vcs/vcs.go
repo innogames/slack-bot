@@ -51,6 +51,7 @@ func InitBranchWatcher(cfg *config.Config, ctx *util.ServerContext) {
 	}
 }
 
+// GetBranches returns a list of currently known branches
 func GetBranches() []string {
 	return branches
 }

@@ -35,6 +35,7 @@ func (c testCommand) GetHelp() []Help {
 		},
 	}
 }
+
 func (c testCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewVoidMatcher()
 }

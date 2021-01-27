@@ -71,7 +71,7 @@ func (c *bitbucketFetcher) getPullRequest(match matcher.Result) (pullRequest, er
 
 	pr = pullRequest{
 		Name:        rawPullRequest.Title,
-		Status:      c.getStatus(rawPullRequest),
+		Status:      c.getStatus(&rawPullRequest),
 		BuildStatus: c.getBuildStatus(rawPullRequest.FromRef.LatestCommit),
 		Approvers:   approvers,
 	}
@@ -79,7 +79,7 @@ func (c *bitbucketFetcher) getPullRequest(match matcher.Result) (pullRequest, er
 	return pr, nil
 }
 
-func (c *bitbucketFetcher) getStatus(pr bitbucket.PullRequest) prStatus {
+func (c *bitbucketFetcher) getStatus(pr *bitbucket.PullRequest) prStatus {
 	// https://developer.atlassian.com/bitbucket/api/2/reference/resource/repositories/%7Bworkspace%7D/%7Brepo_slug%7D/pullrequests
 	switch pr.State {
 	case "MERGED":

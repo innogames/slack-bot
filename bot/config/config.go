@@ -1,3 +1,5 @@
+// Load application config, usually defined in config.yaml and overrideable y env vars
+
 package config
 
 // Config contains the full config structure of this bot
