@@ -12,12 +12,12 @@ import (
 
 // Load all yaml config from a directory or a single .yaml file
 func Load(configFile string) (Config, error) {
-	v := viper.NewWithOptions(viper.KeyDelimiter("#"), viper.KeyPreserveCase())
+	v := viper.NewWithOptions(viper.KeyDelimiter("-"), viper.KeyPreserveCase())
 
 	v.SetConfigType("yaml")
 	v.AllowEmptyEnv(true)
 	v.SetEnvPrefix("BOT")
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "#", "_"))
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	v.AutomaticEnv()
 
 	cfg := defaultConfig

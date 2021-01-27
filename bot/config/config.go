@@ -8,10 +8,8 @@ type Config struct {
 	Jira        Jira      `mapstructure:"jira"`
 	StoragePath string    `mapstructure:"storage_path"`
 	Bitbucket   Bitbucket `mapstructure:"bitbucket"`
-	Github      struct {
-		AccessToken string `mapstructure:"access_token"`
-	}
-	Gitlab struct {
+	Github      Github    `mapstructure:"github"`
+	Gitlab      struct {
 		AccessToken string
 		Host        string
 	}
@@ -31,6 +29,10 @@ type Config struct {
 	OpenWeather  OpenWeather `mapstructure:"open_weather"`
 	PullRequest  PullRequest `mapstructure:"pullrequest"`
 	Timezone     string      `mapstructure:"timezone"`
+}
+
+type Github struct {
+	AccessToken string `mapstructure:"access_token"`
 }
 
 // OpenWeather is an optional feature to get current weather

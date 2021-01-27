@@ -55,13 +55,15 @@ func TestLoadFile(t *testing.T) {
 }
 
 func TestEnvironment(t *testing.T) {
-	os.Setenv("BOT_TIMEZONE", "test/test")
-	os.Setenv("BOT_SLACK_TOKEN", "myToken")
+	os.Setenv("BOT_TIMEZONE", "Europe/Berlin")
+	os.Setenv("BOT_SLACK_TOKEN", "mySlackToken")
+	os.Setenv("BOT_GITHUB_ACCESS_TOKEN", "myGithubToken")
 
 	// load example file == okay
 	cfg, err := Load("../../config.example.yaml")
 	assert.Nil(t, err)
-	assert.Equal(t, "test/test", cfg.Timezone)
-	assert.Equal(t, "myToken", cfg.Slack.Token)
+	assert.Equal(t, "Europe/Berlin", cfg.Timezone)
+	assert.Equal(t, "mySlackToken", cfg.Slack.Token)
 	assert.Equal(t, "info", cfg.Logger.Level)
+	assert.Equal(t, "myGithubToken", cfg.Github.AccessToken)
 }
