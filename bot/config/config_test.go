@@ -29,7 +29,7 @@ func TestLoadDirectory(t *testing.T) {
 
 	// invalid directory
 	cfg, err = Load("/sdsdsdds")
-	assert.EqualError(t, err, "stat /sdsdsdds: no such file or directory")
+	assert.NotNil(t, err)
 	assert.Equal(t, defaultConfig, cfg)
 }
 
@@ -37,7 +37,7 @@ func TestLoadFile(t *testing.T) {
 	// not existing file
 	configPath := path.Join("..", "..", "readme.sdsdsd")
 	cfg, err := Load(configPath)
-	assert.Contains(t, err.Error(), "stat "+configPath+": no such file or directory")
+	assert.NotNil(t, err)
 	assert.Equal(t, defaultConfig, cfg)
 
 	// parse invalid file
