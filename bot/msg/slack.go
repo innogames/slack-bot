@@ -11,11 +11,10 @@ func FromSlackEvent(event *slack.MessageEvent) Message {
 	return Message{
 		Text: event.Text,
 		MessageRef: MessageRef{
-			Channel:         event.Channel,
-			Thread:          event.ThreadTimestamp,
-			User:            event.User,
-			Timestamp:       event.Timestamp,
-			InternalMessage: event.SubType == typeInternal,
+			Channel:   event.Channel,
+			Thread:    event.ThreadTimestamp,
+			User:      event.User,
+			Timestamp: event.Timestamp,
 		},
 	}
 }
