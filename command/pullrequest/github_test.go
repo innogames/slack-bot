@@ -1,6 +1,7 @@
 package pullrequest
 
 import (
+	"os"
 	"testing"
 	"time"
 
@@ -19,7 +20,7 @@ func TestGithub(t *testing.T) {
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	cfg := &config.Config{}
-	cfg.Github.AccessToken = ""
+	cfg.Github.AccessToken = os.Getenv("BOT_GITHUB_ACCESS_TOKEN")
 
 	commands := bot.Commands{}
 	cmd := newGithubCommand(base, cfg).(command)
