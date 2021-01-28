@@ -29,7 +29,7 @@ func TestLoadDirectory(t *testing.T) {
 
 	// invalid directory
 	cfg, err = Load("/sdsdsdds")
-	assert.EqualError(t, err, "stat /sdsdsdds: no such file or directory")
+	assert.NotNil(t, err)
 	assert.Equal(t, defaultConfig, cfg)
 }
 
@@ -37,7 +37,7 @@ func TestLoadFile(t *testing.T) {
 	// not existing file
 	configPath := path.Join("..", "..", "readme.sdsdsd")
 	cfg, err := Load(configPath)
-	assert.Contains(t, err.Error(), "stat "+configPath+": no such file or directory")
+	assert.NotNil(t, err)
 	assert.Equal(t, defaultConfig, cfg)
 
 	// parse invalid file
@@ -55,13 +55,15 @@ func TestLoadFile(t *testing.T) {
 }
 
 func TestEnvironment(t *testing.T) {
-	os.Setenv("BOT_TIMEZONE", "test/test")
-	os.Setenv("BOT_SLACK_TOKEN", "myToken")
+	os.Setenv("BOT_TIMEZONE", "Europe/Berlin")
+	os.Setenv("BOT_SLACK_TOKEN", "mySlackToken")
+	os.Setenv("BOT_GITHUB_ACCESS_TOKEN", "myGithubToken")
 
 	// load example file == okay
 	cfg, err := Load("../../config.example.yaml")
 	assert.Nil(t, err)
-	assert.Equal(t, "test/test", cfg.Timezone)
-	assert.Equal(t, "myToken", cfg.Slack.Token)
+	assert.Equal(t, "Europe/Berlin", cfg.Timezone)
+	assert.Equal(t, "mySlackToken", cfg.Slack.Token)
 	assert.Equal(t, "info", cfg.Logger.Level)
+	assert.Equal(t, "myGithubToken", cfg.Github.AccessToken)
 }

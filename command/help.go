@@ -12,6 +12,14 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 )
 
+type helpCommand struct {
+	bot.BaseCommand
+	commands       *bot.Commands
+	sortedCommands []bot.Help
+	commandHelp    map[string]bot.Help
+	once           sync.Once
+}
+
 // NewHelpCommand provides information about all registered commands with description and examples
 func NewHelpCommand(base bot.BaseCommand, commands *bot.Commands) bot.Command {
 	return &helpCommand{BaseCommand: base, commands: commands}
@@ -22,14 +30,6 @@ func (t *helpCommand) GetMatcher() matcher.Matcher {
 		matcher.NewTextMatcher("help", t.ShowAll),
 		matcher.NewRegexpMatcher("help (?P<command>.*)", t.ShowSingleCommand),
 	)
-}
-
-type helpCommand struct {
-	bot.BaseCommand
-	commands       *bot.Commands
-	sortedCommands []bot.Help
-	commandHelp    map[string]bot.Help
-	once           sync.Once
 }
 
 func (t *helpCommand) GetHelp() []bot.Help {

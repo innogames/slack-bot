@@ -6,7 +6,7 @@ import (
 
 var category = bot.Category{
 	Name:        "Games",
-	Description: "Just fun...",
+	Description: "Just for fun...",
 }
 
 // GetCommands will return a list of available games commands

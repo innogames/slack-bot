@@ -50,7 +50,7 @@ jira:
 
 # optional Github integration to watch PR state
 github:
-  accesstoken: # optional when using github features
+  access_token: # optional when using github features
 
 # optional Gitlab integration to watch merge request state
 gitlab:
