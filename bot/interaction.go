@@ -7,8 +7,11 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
+	"sync"
 	"time"
 )
+
+var interactionLock sync.Mutex
 
 // this method is called, when a user pressed a button:
 // - validates that the user is allowed to press the button
@@ -51,16 +54,27 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
 		return
 	}
 
+	interactionLock.Lock()
+	defer interactionLock.Unlock()
+
 	action := payload.ActionCallback.BlockActions[0]
 
 	// check in storage if there is still a interaction stored on our side
 	var message slack.MessageEvent
 	err := storage.Read("interactions", action.Value, &message)
 	if err != nil {
-		log.Warnf("Action %s got already executed", action.Value)
+		log.Warnf("Action '%s' got already executed (user: %s)", action.Value, payload.User.Name)
 		return
 	}
 	storage.Delete("interactions", action.Value)
+
+	log.Infof(
+		"Received interaction from user %s/%s (action-id: %s, command: %s)",
+		payload.User.ID,
+		payload.User.Name,
+		action.Value,
+		message.Text,
+	)
 
 	// execute the command which is stored for this interaction
 	message.User = payload.User.ID

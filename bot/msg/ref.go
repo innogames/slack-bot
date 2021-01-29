@@ -43,10 +43,11 @@ func (msg MessageRef) GetThread() string {
 }
 
 func (msg MessageRef) GetUniqueKey() string {
-	return strings.TrimRight(
+	key := strings.TrimRight(
 		strings.Join([]string{msg.GetUser(), msg.GetChannel(), msg.GetThread()}, "-"),
 		"-",
 	)
+	return strings.ReplaceAll(key, ".", "_")
 }
 
 func (msg MessageRef) GetTime() time.Time {
