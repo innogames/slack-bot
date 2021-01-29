@@ -4,18 +4,17 @@ package tester
 import (
 	"encoding/json"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"os"
-
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slacktest"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"os"
 )
 
 // TestChannel is just a test channel name which is used for testing
@@ -24,7 +23,8 @@ const botID = "W12345"
 
 // StartBot will start this bot against the fake slack instance
 func StartBot(cfg config.Config) *bot.Bot {
-	slackClient := client.GetSlackClient(cfg.Slack)
+	slackClient, err := client.GetSlackClient(cfg.Slack)
+	checkError(err)
 
 	commands := command.GetCommands(
 		slackClient,
@@ -36,7 +36,7 @@ func StartBot(cfg config.Config) *bot.Bot {
 		commands,
 	)
 
-	err := realBot.Init()
+	err = realBot.Init()
 	checkError(err)
 
 	return realBot
@@ -84,7 +84,9 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 		})
 		c.Handle("/reactions.add", func(w http.ResponseWriter, r *http.Request) {
 			payload, _ := ioutil.ReadAll(r.Body)
-			fmt.Fprintln(output, getEmoji(string(payload)))
+			query, _ := url.ParseQuery(string(payload))
+			emoji := query.Get("name")
+			fmt.Fprintln(output, getEmoji(emoji))
 		})
 	}
 
@@ -93,7 +95,7 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 	fakeSlack.BotID = botID
 	fakeSlack.Start()
 
-	cfg.Slack.Token = "not needed"
+	cfg.Slack.Token = "xoxb-fake"
 	cfg.Slack.TestEndpointURL = fakeSlack.GetAPIURL()
 	cfg.AllowedUsers = []string{
 		"W012A3CDE",

@@ -2,53 +2,46 @@ package main
 
 import (
 	"flag"
-	"github.com/innogames/slack-bot/bot/util"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/storage"
+	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/client/vcs"
 	"github.com/innogames/slack-bot/command"
 	log "github.com/sirupsen/logrus"
-	// comment in to profile live socket server via "/debug/pprof". e.g.:
-	// attention: enable the server: section in the config!
-	// https://golang.org/doc/diagnostics.html
-	// curl localhost:4390/debug/pprof/heap\?debug=1 | less
-	// curl localhost:4390/debug/pprof/allocs\?debug=1 | less
-	// curl localhost:4390/debug/pprof/goroutine\?debug=1 | less
-	// curl localhost:4390/debug/pprof/profile\?seconds=30 > /tmp/pprof.trace #
-	// curl localhost:4390/debug/pprof/trace\?seconds=30 > /tmp/trace.trace #
-	// _ "net/http/pprof"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 // main entry point for the bot application. Listens on incoming slack messages and handles them
 func main() {
-	configFile := flag.String("config", "config.yaml", "Path to config.yaml. Can be a directory which will load all '*.yaml' inside")
-	verbose := flag.Bool("verbose", false, "More verbose output")
+	var configFile string
+	var verbose bool
+	flag.StringVar(&configFile, "config", "config.yaml", "Path to config.yaml. Can be a directory which will load all '*.yaml' inside")
+	flag.BoolVar(&verbose, "verbose", false, "More verbose output")
 	flag.Parse()
 
-	cfg, err := config.Load(*configFile)
+	cfg, err := config.Load(configFile)
 	checkError(err)
 
-	if *verbose {
+	if verbose {
 		cfg.Logger.Level = "debug"
 	}
 
 	bot.InitLogger(cfg.Logger)
-	log.Infof("Loaded config from %s", *configFile)
+	log.Infof("Loaded config from %s", configFile)
 
 	err = storage.InitStorage(cfg.StoragePath)
 	checkError(err)
 
-	slackClient := client.GetSlackClient(cfg.Slack)
+	slackClient, err := client.GetSlackClient(cfg.Slack)
+	checkError(err)
 
 	ctx := util.NewServerContext()
-	go vcs.InitBranchWatcher(&cfg, ctx)
+	go vcs.InitBranchWatcher(&cfg, ctx) // todo move into some command to init branch watcher
 
 	// set global default timezone
 	if cfg.Timezone != "" {
@@ -69,6 +62,7 @@ func main() {
 
 	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 
+	// listen for messages until we receive sigterm/sigint
 	<-stopChan
 
 	ctx.StopTheWorld()
@@ -77,7 +71,6 @@ func main() {
 
 func checkError(err error) {
 	if err != nil {
-		log.Error(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 }

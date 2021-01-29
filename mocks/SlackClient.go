@@ -19,6 +19,20 @@ func (_m *SlackClient) AddReaction(reaction string, ref msg.Ref) {
 	_m.Called(reaction, ref)
 }
 
+// CanHandleInteractions provides a mock function with given fields:
+func (_m *SlackClient) CanHandleInteractions() bool {
+	ret := _m.Called()
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func() bool); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
 // GetConversationHistory provides a mock function with given fields: _a0
 func (_m *SlackClient) GetConversationHistory(_a0 *slack.GetConversationHistoryParameters) (*slack.GetConversationHistoryResponse, error) {
 	ret := _m.Called(_a0)
@@ -73,6 +87,27 @@ func (_m *SlackClient) RemoveReaction(reaction string, ref msg.Ref) {
 // ReplyError provides a mock function with given fields: ref, err
 func (_m *SlackClient) ReplyError(ref msg.Ref, err error) {
 	_m.Called(ref, err)
+}
+
+// SendBlockMessage provides a mock function with given fields: ref, blocks, options
+func (_m *SlackClient) SendBlockMessage(ref msg.Ref, blocks []slack.Block, options ...slack.MsgOption) string {
+	_va := make([]interface{}, len(options))
+	for _i := range options {
+		_va[_i] = options[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ref, blocks)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(msg.Ref, []slack.Block, ...slack.MsgOption) string); ok {
+		r0 = rf(ref, blocks, options...)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
 }
 
 // SendMessage provides a mock function with given fields: ref, text, options

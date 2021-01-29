@@ -1,6 +1,7 @@
 package client
 
 import (
+	"fmt"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/slack-go/slack"
 	"testing"
@@ -10,15 +11,43 @@ import (
 )
 
 func TestGetSlackClient(t *testing.T) {
-	cfg := config.Slack{
-		TestEndpointURL: "http://slack.example.com/",
-		Debug:           true,
-	}
+	t.Run("Connect to invalid URL", func(t *testing.T) {
+		cfg := config.Slack{
+			TestEndpointURL: "http://slack.example.com/",
+			Debug:           true,
+			Token:           "xoxb-XXXXX",
+		}
 
-	client := GetSlackClient(cfg)
+		client, err := GetSlackClient(cfg)
+		assert.Empty(t, err)
 
-	_, _, err := client.RTM.ConnectRTM()
-	assert.Contains(t, err.Error(), "slack.example.com")
+		_, _, err = client.RTM.ConnectRTM()
+		assert.Contains(t, err.Error(), "slack.example.com")
+	})
+
+	t.Run("Connect with invalid token", func(t *testing.T) {
+		cfg := config.Slack{
+			TestEndpointURL: "http://slack.example.com/",
+			Debug:           true,
+		}
+
+		client, err := GetSlackClient(cfg)
+		assert.Equal(t, err.Error(), "config slack.token needs to start with 'xoxb-'")
+		assert.Nil(t, client)
+	})
+
+	t.Run("Connect with invalid socket-token", func(t *testing.T) {
+		cfg := config.Slack{
+			TestEndpointURL: "http://slack.example.com/",
+			Token:           "xoxb-yep",
+			SocketToken:     "sometoken",
+			Debug:           true,
+		}
+
+		client, err := GetSlackClient(cfg)
+		assert.Equal(t, err.Error(), "config slack.socket_token needs to start to 'xapp-'")
+		assert.Nil(t, client)
+	})
 }
 
 func TestGetSlackUser(t *testing.T) {
@@ -74,6 +103,22 @@ func TestGetSlackLink(t *testing.T) {
 	link := GetSlackLink("name", "url", "color")
 	assert.Equal(t, "url", link.URL)
 	assert.Equal(t, "name", link.Text)
+}
+
+func TestSendMessage(t *testing.T) {
+	client := &Slack{}
+
+	t.Run("No text", func(t *testing.T) {
+		ref := msg.MessageRef{}
+		actual := client.SendMessage(ref, "")
+		assert.Equal(t, "", actual)
+	})
+
+	t.Run("ReplyError", func(t *testing.T) {
+		ref := msg.MessageRef{}
+		err := fmt.Errorf("test error")
+		client.ReplyError(ref, err)
+	})
 }
 
 func assertIDNameLookup(t *testing.T, identifier string, expectedID string, expectedName string) {

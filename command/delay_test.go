@@ -17,6 +17,8 @@ import (
 func TestDelay(t *testing.T) {
 	client.InternalMessages = make(chan msg.Message, 2)
 	slackClient := &mocks.SlackClient{}
+	slackClient.On("CanHandleInteractions").Return(true)
+
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	command := bot.Commands{}
@@ -49,7 +51,8 @@ func TestDelay(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "delay 20ms my command"
 
-		mocks.AssertSlackMessage(slackClient, message, "I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer")
+		expected := "[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer\"}},{\"type\":\"actions\",\"elements\":[{\"type\":\"button\",\"text\":{\"type\":\"plain_text\",\"text\":\"Stop timer!\",\"emoji\":true},\"action_id\":\"id\",\"value\":\"token-1\"}]}]"
+		mocks.AssertSlackBlocks(t, slackClient, message, expected)
 
 		actual := command.Run(message)
 		assert.True(t, actual)
@@ -100,7 +103,8 @@ func TestDelay(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "delay 20ms my command"
 
-		mocks.AssertSlackMessage(slackClient, message, "I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer")
+		expected := "[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer\"}},{\"type\":\"actions\",\"elements\":[{\"type\":\"button\",\"text\":{\"type\":\"plain_text\",\"text\":\"Stop timer!\",\"emoji\":true},\"action_id\":\"id\",\"value\":\"token-1\"}]}]"
+		mocks.AssertSlackBlocks(t, slackClient, message, expected)
 
 		actual := command.Run(message)
 		assert.True(t, actual)

@@ -1,9 +1,7 @@
 
 slack:
   token: # use xoxb-1234567-secret
-
-  # WIP config to enable the event-API from slack (replaces RTM communication)
-  #use_event_api: true
+  socket_token: # needed for Socket mode, starts with "xapp-"
 
 # list of trusted slack users: allows the user-id and the name
 allowed_users:
@@ -36,11 +34,6 @@ jenkins:
           default: master
           type: branch
 
-# WIP: allows receiving events directly from Slack server instead via RTM
-#server:
-#  listen: 127.0.0.1:4390
-#  signing_secret: d12345sd943434sdfdsfsif9sif9
-
 # optional Jira integration
 jira:
   #host: https://jira.example.de
@@ -64,6 +57,8 @@ logger:
 commands:
   - name: thanks
     trigger: (thanks|thank you|danke|sudo)
+    description: only replies 'nothing to thank for' and adds an reaction
+
     commands:
       - "reply nothing to thank for"
     examples:
@@ -78,7 +73,7 @@ commands:
       - "{{.command}}"
       - "add reaction :pray:"
     examples:
-      - please deploy master to xx1
+      - please deploy master to beta
 
   - name: table flip
     description: Reply the table flip emoji
@@ -90,11 +85,6 @@ commands:
     examples:
       - flip
       - flip table
-
-# slack interaction server:
-server:
-  listen: 127.0.0.1:4390 # using local ngrok.io tunnel
-  verification_secret: 12345678qwertzuiopasdfghj
 
 # used for the "weather" command to fetch current weather information from openweathermap.org
 #open_weathermap:

@@ -3,6 +3,7 @@ package command
 import (
 	"errors"
 	"fmt"
+	"github.com/slack-go/slack"
 	"sync"
 	"time"
 
@@ -49,12 +50,29 @@ func (c *delayCommand) Delay(match matcher.Result, message msg.Message) {
 	c.timers = append(c.timers, timer)
 
 	if !quietMode {
-		c.SendMessage(message, fmt.Sprintf(
+		stopNumber := len(c.timers) - 1
+		text := fmt.Sprintf(
 			"I queued the command `%s` for %s. Use `stop timer %d` to stop the timer",
 			command,
 			delay,
-			len(c.timers)-1,
-		))
+			stopNumber,
+		)
+		blocks := []slack.Block{
+			client.GetTextBlock(text),
+		}
+
+		// add a abort button, ich we can handle the,
+		if c.CanHandleInteractions() {
+			blocks = append(
+				blocks,
+				slack.NewActionBlock(
+					"",
+					client.GetInteractionButton(message, "Stop timer!", fmt.Sprintf("stop timer %d", stopNumber)),
+				),
+			)
+		}
+
+		c.SendBlockMessage(message, blocks)
 	}
 
 	done := queue.AddRunningCommand(message, "")

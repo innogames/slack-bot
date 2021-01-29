@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
+	"github.com/slack-go/slack/socketmode"
 )
 
 // InternalMessages is internal queue of internal messages
@@ -22,13 +23,18 @@ var InternalMessages = make(chan msg.Message, 50)
 var AuthResponse slack.AuthTestResponse
 
 // Users is a lookup from user-id to user-name
-var Users map[string]string
+var Users config.UserMap
 
 // Channels is a map of each channelsId and the name
 var Channels map[string]string
 
-// GetSlackClient establishes a RTM connection to the slack server
-func GetSlackClient(cfg config.Slack) *Slack {
+// GetSlackClient establishes a connection to the slack server.
+// Either via "Socket Mode" or the legacy "RTM" connection
+func GetSlackClient(cfg config.Slack) (*Slack, error) {
+	if !strings.HasPrefix(cfg.Token, "xoxb-") {
+		return nil, fmt.Errorf("config slack.token needs to start with 'xoxb-'")
+	}
+
 	options := []slack.Option{
 		slack.OptionHTTPClient(HTTPClient),
 	}
@@ -37,27 +43,39 @@ func GetSlackClient(cfg config.Slack) *Slack {
 		options = append(options, slack.OptionAPIURL(cfg.TestEndpointURL))
 	}
 
-	// todo add slack.OptionLog() and proxy to log
 	if cfg.Debug {
 		options = append(options, slack.OptionDebug(true))
+	}
+
+	if cfg.SocketToken != "" {
+		if !strings.HasPrefix(cfg.SocketToken, "xapp-") {
+			return nil, fmt.Errorf("config slack.socket_token needs to start to 'xapp-'")
+		}
+		options = append(options, slack.OptionAppLevelToken(cfg.SocketToken))
 	}
 
 	rawClient := slack.New(cfg.Token, options...)
 
 	var rtm *slack.RTM
-	if !cfg.UseEventAPI {
+	var socket *socketmode.Client
+	if cfg.SocketToken != "" {
+		socket = socketmode.New(
+			rawClient,
+		)
+	} else {
 		rtm = rawClient.NewRTM()
 	}
 
-	return &Slack{Client: rawClient, RTM: rtm, config: cfg}
+	return &Slack{Client: rawClient, RTM: rtm, Socket: socket, config: cfg}, nil
 }
 
 type SlackClient interface {
 	// ReplyError Replies a error to the current channel/user/thread + log it!
 	ReplyError(ref msg.Ref, err error)
-
 	// SendMessage is the extended version of Reply and accepts any slack.MsgOption
 	SendMessage(ref msg.Ref, text string, options ...slack.MsgOption) string
+	// SendBlockMessage will send Slack Blocks/Sections to the target
+	SendBlockMessage(ref msg.Ref, blocks []slack.Block, options ...slack.MsgOption) string
 
 	// send a message to a user, using "@username or @U12334"
 	SendToUser(user string, text string)
@@ -67,12 +85,16 @@ type SlackClient interface {
 	GetReactions(item slack.ItemRef, params slack.GetReactionsParameters) ([]slack.ItemReaction, error)
 
 	GetConversationHistory(*slack.GetConversationHistoryParameters) (*slack.GetConversationHistoryResponse, error)
+
+	// CanHandleInteractions checks if we have a slack connections which can inform us about events/interactions, like pressed buttons?
+	CanHandleInteractions() bool
 }
 
 // wrapper to the Slack client which also holds the RTM connection (optional) and all needed config
 type Slack struct {
 	*slack.Client
 	RTM    *slack.RTM
+	Socket *socketmode.Client
 	config config.Slack
 }
 
@@ -116,7 +138,7 @@ func (s *Slack) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption
 	if err != nil {
 		log.
 			WithField("user", ref.GetUser()).
-			Errorf(err.Error())
+			Error(err.Error())
 	}
 
 	return msgTimestamp
@@ -150,12 +172,27 @@ func (s *Slack) SendToUser(user string, text string) {
 	channel, _, _, err := s.Client.OpenConversation(options)
 	if err != nil {
 		log.WithError(err).Errorf("Cannot open channel")
+		return
 	}
 
 	message := msg.Message{}
 	message.Channel = channel.ID
 
 	s.SendMessage(message, text)
+}
+
+// CanHandleInteractions checks if we have a slack connections which can inform us about events/interactions, like pressed buttons?
+func (s *Slack) CanHandleInteractions() bool {
+	return s.config.CanHandleInteractions()
+}
+
+// SendBlockMessage will send Slack Blocks/Sections to the target
+func (s *Slack) SendBlockMessage(ref msg.Ref, blocks []slack.Block, options ...slack.MsgOption) string {
+	allOptions := []slack.MsgOption{
+		slack.MsgOptionBlocks(blocks...),
+	}
+
+	return s.SendMessage(ref, "", append(allOptions, options...)...)
 }
 
 func GetUser(identifier string) (id string, name string) {
@@ -207,7 +244,20 @@ func GetSlackLink(name string, url string, args ...string) slack.AttachmentActio
 	return action
 }
 
-func GetInteraction(ref msg.Ref, text string, command string, args ...string) *slack.ActionBlock {
+// GetTextBlock wraps a simple text in a Slack Block Section
+func GetTextBlock(text string) *slack.SectionBlock {
+	return slack.NewSectionBlock(
+		&slack.TextBlockObject{
+			Type: slack.MarkdownType,
+			Text: text,
+		},
+		nil,
+		nil,
+	)
+}
+
+// GetInteractionButton generates a block "Button" which is able to execute the given command once
+func GetInteractionButton(ref msg.Ref, text string, command string, args ...string) *slack.ButtonBlockElement {
 	var style slack.Style
 	if len(args) > 0 {
 		style = slack.Style(args[0])
@@ -224,15 +274,15 @@ func GetInteraction(ref msg.Ref, text string, command string, args ...string) *s
 	button := slack.NewButtonBlockElement("id", id, buttonText)
 	button.Style = style
 
-	return slack.NewActionBlock("", button)
+	return button
 }
 
 // GetSlackArchiveLink returns a permalink to the ref which can be shared
-func GetSlackArchiveLink(msg msg.Ref) string {
+func GetSlackArchiveLink(message msg.Ref) string {
 	return fmt.Sprintf(
 		"https://%s.slack.com/archives/%s/p%s",
 		strings.ToLower(AuthResponse.Team),
-		msg.GetChannel(),
-		strings.ReplaceAll(msg.GetTimestamp(), ".", ""),
+		message.GetChannel(),
+		strings.ReplaceAll(message.GetTimestamp(), ".", ""),
 	)
 }

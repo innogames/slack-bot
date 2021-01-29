@@ -6,9 +6,6 @@ var defaultConfig = Config{
 		File:  "./bot.log",
 		Level: "info",
 	},
-	Server: Server{
-		Listen: ":8765",
-	},
 	OpenWeather: OpenWeather{
 		Units: "metric",
 	},

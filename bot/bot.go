@@ -2,20 +2,20 @@ package bot
 
 import (
 	"fmt"
-	"regexp"
-	"strings"
-	"sync"
-	"time"
-
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/server"
 	"github.com/innogames/slack-bot/bot/stats"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
+	"github.com/slack-go/slack/slackevents"
+	"github.com/slack-go/slack/socketmode"
+	"regexp"
+	"strings"
+	"sync"
+	"time"
 )
 
 var linkRegexp = regexp.MustCompile(`<\S+?\|(.*?)>`)
@@ -30,7 +30,7 @@ func NewBot(cfg config.Config, slackClient *client.Slack, commands *Commands) *B
 		config:       cfg,
 		slackClient:  slackClient,
 		commands:     commands,
-		allowedUsers: map[string]string{},
+		allowedUsers: config.UserMap{},
 		userLocks:    map[string]*sync.Mutex{},
 	}
 }
@@ -40,8 +40,7 @@ type Bot struct {
 	slackClient  *client.Slack
 	auth         *slack.AuthTestResponse
 	commands     *Commands
-	server       *server.Server
-	allowedUsers map[string]string
+	allowedUsers config.UserMap
 	userLocks    map[string]*sync.Mutex
 }
 
@@ -65,11 +64,6 @@ func (b *Bot) Init() (err error) {
 	err = b.loadSlackData()
 	if err != nil {
 		return err
-	}
-
-	if b.config.Server.IsEnabled() {
-		b.server = server.NewServer(b.config.Server, b.slackClient, b.HandleMessage)
-		go b.server.StartServer()
 	}
 
 	if b.slackClient.RTM != nil {
@@ -119,10 +113,6 @@ func (b *Bot) loadChannels() (map[string]string, error) {
 
 // DisconnectRTM will do a clean shutdown and kills all connections
 func (b *Bot) DisconnectRTM() error {
-	if b.server != nil {
-		return b.server.Stop()
-	}
-
 	if b.slackClient.RTM != nil {
 		return b.slackClient.RTM.Disconnect()
 	}
@@ -160,21 +150,65 @@ func (b *Bot) loadSlackData() error {
 	return nil
 }
 
-// ListenForMessages is blocking method to handle new incoming events
+// ListenForMessages is blocking method to handle new incoming events...from different sources
 func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
 	ctx.RegisterChild()
 	defer ctx.ChildDone()
 
-	// only listen for
+	// listen for old/deprecated RTM connection
+	// https://api.slack.com/rtm
 	var rtmChan chan slack.RTMEvent
 	if b.slackClient.RTM != nil {
 		rtmChan = b.slackClient.RTM.IncomingEvents
 	}
 
+	// initialize Socket Mode:
+	// https://api.slack.com/apis/connections/socket
+	var socketChan chan socketmode.Event
+	if b.slackClient.Socket != nil {
+		go b.slackClient.Socket.Run()
+		socketChan = b.slackClient.Socket.Events
+
+		go func() {
+			// todo find a cleaner solution to delete old data
+			for range time.NewTicker(time.Second).C {
+				deleted := b.cleanOldInteractions()
+				if deleted > 0 {
+					log.Infof("Deleted %d old interactions", deleted)
+				}
+			}
+		}()
+	}
+
 	for {
 		select {
+		case event := <-socketChan:
+			// message from Socket Mode
+			switch event.Type {
+			case socketmode.EventTypeConnectionError:
+				log.Warn("Socket Mode connection failed")
+			case socketmode.EventTypeEventsAPI:
+				eventsAPIEvent := event.Data.(slackevents.EventsAPIEvent)
+				b.slackClient.Socket.Ack(*event.Request)
+
+				b.handleEvent(eventsAPIEvent)
+			case socketmode.EventTypeInteractive:
+				callback := event.Data.(slack.InteractionCallback)
+				b.slackClient.Socket.Ack(*event.Request)
+
+				switch callback.Type {
+				case slack.InteractionTypeBlockActions:
+					b.handleInteraction(event.Data.(slack.InteractionCallback))
+				default:
+					log.Infof("Unexpected interactive type received: %s\n", event.Type)
+				}
+			case socketmode.EventTypeConnected, socketmode.EventTypeConnecting, socketmode.EventTypeHello:
+				// ignore
+			default:
+				log.Infof("Unexpected event type received: %s\n", event.Type)
+			}
 		case event := <-rtmChan:
-			// message received from user via RTM API
+			// message received from user via deprecated RTM API
 			switch message := event.Data.(type) {
 			case *slack.HelloEvent:
 				log.Info("Hello, the RTM connection is ready!")
@@ -182,8 +216,6 @@ func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
 				b.HandleMessage(message)
 			case *slack.RTMError, *slack.UnmarshallingErrorEvent, *slack.RateLimitEvent, *slack.ConnectionErrorEvent:
 				log.Error(event)
-			case *slack.LatencyReport:
-				log.Debugf("Current latency: %s", message.Value)
 			}
 		case message := <-client.InternalMessages:
 			// e.g. triggered by "delay" or "macro" command. They are still executed in original event context
@@ -222,7 +254,7 @@ func (b *Bot) canHandleMessage(event *slack.MessageEvent) bool {
 	}
 
 	// Direct message channels always starts with 'D'
-	if event.Channel[0] == 'D' {
+	if strings.HasPrefix(event.Channel, "D") {
 		return true
 	}
 
@@ -266,7 +298,7 @@ func (b *Bot) handleMessage(message msg.Message, fromUserContext bool) {
 
 	stats.IncreaseOne(stats.TotalCommands)
 
-	_, existing := b.allowedUsers[message.User]
+	existing := b.allowedUsers.Contains(message.User)
 	if !existing && fromUserContext && b.config.Slack.TestEndpointURL == "" {
 		logger.Errorf("user %s is not allowed to execute message (missing in 'allowed_users' section): %s", message.User, message.Text)
 		b.slackClient.SendMessage(message, fmt.Sprintf(
@@ -285,5 +317,6 @@ func (b *Bot) handleMessage(message msg.Message, fromUserContext bool) {
 
 	logger.
 		WithField("duration", util.FormatDuration(time.Since(start))).
+		WithField("durationWithLatency", util.FormatDuration(time.Since(message.GetTime()))).
 		Infof("handled message: %s", message.Text)
 }

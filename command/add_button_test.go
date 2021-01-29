@@ -4,30 +4,28 @@ import (
 	"testing"
 
 	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestAddButton(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
+	slackClient.On("CanHandleInteractions").Return(true)
+
 	base := bot.BaseCommand{SlackClient: slackClient}
 
-	cfg := config.Server{}
-	cfg.Listen = "0.0.0.0:1234"
-	cfg.SigningSecret = "iamsecret"
-
 	command := bot.Commands{}
-	command.AddCommand(NewAddButtonCommand(base, cfg))
+	command.AddCommand(NewAddButtonCommand(base))
 
 	t.Run("add link", func(t *testing.T) {
 		message := msg.Message{}
 		message.Text = `add button "test" "reply it works"`
 
-		slackClient.On("SendMessage", message, "", mock.Anything).Return("")
+		expected := `[{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"test","emoji":true},"action_id":"id","value":"token-0"}]}]`
+
+		mocks.AssertSlackBlocks(t, slackClient, message, expected)
 
 		actual := command.Run(message)
 		assert.True(t, actual)

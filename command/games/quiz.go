@@ -3,6 +3,7 @@ package games
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/slack-go/slack"
 	"html"
 	"io/ioutil"
 	"math/rand"
@@ -49,10 +50,12 @@ type Quiz struct {
 func (c *quizCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewTextMatcher(`start quiz`, c.StartQuiz),
-		matcher.NewTextMatcher(`quiz`, c.StartQuiz),
-		matcher.NewRegexpMatcher(`quiz (?P<questions>\d+)`, c.StartQuiz),
+		matcher.NewRegexpMatcher(`start quiz (?P<questions>\d+)`, c.StartQuiz),
 		matcher.NewRegexpMatcher(`answer (?P<answer>[\w\s]+)`, c.Answer),
 	)
+}
+func (c *quizCommand) IsActive() bool {
+	return c.CanHandleInteractions()
 }
 
 func (c *quizCommand) StartQuiz(match matcher.Result, message msg.Message) {
@@ -120,7 +123,9 @@ func (c *quizCommand) parseAnswers() {
 	for questionNr, question := range c.quiz.Questions {
 		answers := append(question.IncorrectAnswers, question.CorrectAnswer)
 
-		rand.Shuffle(len(answers), func(i, j int) { answers[i], answers[j] = answers[j], answers[i] })
+		rand.Shuffle(len(answers), func(i, j int) {
+			answers[i], answers[j] = answers[j], answers[i]
+		})
 
 		c.quiz.Questions[questionNr].Answers = answers
 	}
@@ -135,13 +140,21 @@ func (c *quizCommand) printCurrentQuestion(message msg.Message) {
 		html.UnescapeString(question.Category),
 	)
 	text += html.UnescapeString(question.Question) + "\n"
-	for index, answer := range question.Answers {
-		text += fmt.Sprintf("%d.) %s\n", index+1, html.UnescapeString(answer))
+
+	blocks := []slack.Block{
+		client.GetTextBlock(text),
+	}
+	for _, answer := range question.Answers {
+		blocks = append(
+			blocks,
+			slack.NewActionBlock(
+				"",
+				client.GetInteractionButton(message, answer, fmt.Sprintf("answer %s", answer)),
+			),
+		)
 	}
 
-	text += ":interrobang: Hint type `answer {number}` to send your answer :interrobang:"
-
-	c.SendMessage(message, text)
+	c.SendBlockMessage(message, blocks)
 }
 
 func (c *quizCommand) getCurrentQuestion() question {
