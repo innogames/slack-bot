@@ -315,6 +315,11 @@ func (b *Bot) handleMessage(message msg.Message, fromUserContext bool) {
 		b.sendFallbackMessage(message)
 	}
 
+	// mark the message as handled...if someone needs this information
+	if message.Done != nil {
+		message.Done.Done()
+	}
+
 	logger.
 		WithField("duration", util.FormatDuration(time.Since(start))).
 		WithField("durationWithLatency", util.FormatDuration(time.Since(message.GetTime()))).
