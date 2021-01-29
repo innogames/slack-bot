@@ -68,7 +68,7 @@ func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg co
 			message.Channel = tester.TestChannel
 			message.User = "cli"
 
-			client.InternalMessages <- message
+			client.QueueMessage(message).Wait()
 		}
 	}
 }

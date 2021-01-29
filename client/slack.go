@@ -5,6 +5,7 @@ package client
 import (
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
@@ -17,7 +18,17 @@ import (
 )
 
 // InternalMessages is internal queue of internal messages
+// @deprecated -> use QueueMessage instead
 var InternalMessages = make(chan msg.Message, 50)
+
+// QueueMessage will register the given message in the queue...and returns a sync.WaitGroup which can be used to see when the message is handled
+func QueueMessage(message msg.Message) *sync.WaitGroup {
+	done := message.AddDoneHandler()
+
+	InternalMessages <- message
+
+	return done
+}
 
 // AuthResponse is holding some basic Slack metadata for the current connection, like Bot-Id, Workspace etc
 var AuthResponse slack.AuthTestResponse

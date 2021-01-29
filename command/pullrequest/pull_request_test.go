@@ -129,7 +129,7 @@ func TestPullRequest(t *testing.T) {
 		time.Sleep(time.Millisecond * 10) // todo channel
 	})
 
-	t.Run("PR in reiew", func(t *testing.T) {
+	t.Run("PR in review", func(t *testing.T) {
 		commands, fetcher := initTest(slackClient)
 
 		message := msg.Message{}

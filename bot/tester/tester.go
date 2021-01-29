@@ -75,6 +75,16 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 			payload, _ := ioutil.ReadAll(r.Body)
 			query, _ := url.ParseQuery(string(payload))
 			text := query.Get("text")
+
+			// extract text from TextBlock
+			if text == "" {
+				blockJSON := query.Get("blocks")
+				var blocks []slack.SectionBlock
+				json.Unmarshal([]byte(blockJSON), &blocks)
+
+				text = blocks[0].Text.Text
+			}
+
 			fmt.Fprintf(output, formatSlackMessage(text)+"\n")
 
 			response := slack.Message{}

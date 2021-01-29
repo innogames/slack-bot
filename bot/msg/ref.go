@@ -52,7 +52,7 @@ func (msg MessageRef) GetUniqueKey() string {
 // GetTime extracts the time of the Message
 func (msg MessageRef) GetTime() time.Time {
 	if msg.GetTimestamp() == "" {
-		return time.Time{}
+		return time.Now()
 	}
 	timestamp, _ := strconv.ParseInt(msg.GetTimestamp()[0:10], 10, 64)
 

@@ -7,9 +7,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// NewServerContext wrapper for ctx to simply add childs which have a blocking shutdown process
+// NewServerContext wrapper for ctx to simply add children which have a blocking shutdown process
 // -> make sure all stuff is closed properly before exit
-// todo directly add term/kill handling
 func NewServerContext() *ServerContext {
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -20,6 +19,7 @@ func NewServerContext() *ServerContext {
 	}
 }
 
+// ServerContext is an extended context.Context to be able to wait for all children to have a proper shutdown
 type ServerContext struct {
 	context.Context
 
