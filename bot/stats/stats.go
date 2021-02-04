@@ -41,9 +41,6 @@ func Increase(key string, count uint) {
 
 // Set the stats to a specific value
 func Set(key string, value uint) {
-	mu.Lock()
-	defer mu.Unlock()
-
 	if err := storage.Write(collection, key, value); err != nil {
 		log.Warn(errors.Wrap(err, "error while set stats"))
 	}

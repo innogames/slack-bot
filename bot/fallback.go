@@ -23,7 +23,9 @@ func (b *Bot) sendFallbackMessage(message msg.Message) {
 
 	b.slackClient.SendMessage(message, "Command `"+message.Text+"` not found...do you mean *"+bestMatching.Command+"* command?")
 
-	client.InternalMessages <- message.WithText(fmt.Sprintf("help %s", bestMatching.Command))
+	client.HandleMessage(
+		message.WithText(fmt.Sprintf("help %s", bestMatching.Command)),
+	)
 }
 
 // find the best matching command bases on the given strings...using levenstein to fetch the best one

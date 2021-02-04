@@ -16,7 +16,7 @@ func TestStatsLog(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
-	cfg := config.Config{}
+	cfg := &config.Config{}
 	cfg.AdminUsers = []string{
 		"UADMIN",
 	}

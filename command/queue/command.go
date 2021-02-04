@@ -60,7 +60,7 @@ func (c *command) Run(match matcher.Result, message msg.Message) {
 			c.AddReaction(doneIcon, message)
 
 			// trigger new command
-			client.InternalMessages <- message.WithText(command)
+			client.HandleMessage(message.WithText(command))
 
 			log.Infof("[Queue] Blocking command is over, eval newMessage: %s", command)
 			return

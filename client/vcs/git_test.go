@@ -7,9 +7,9 @@ import (
 )
 
 func TestGitLoader(t *testing.T) {
-	t.Run("Load branches with slack-bot repo", func(t *testing.T) {
+	t.Run("Load branches with slack-bot repoURL", func(t *testing.T) {
 		fetcher := &git{
-			repo: "https://github.com/innogames/slack-bot.git",
+			repoURL: "https://github.com/innogames/slack-bot.git",
 		}
 
 		branches, err := fetcher.LoadBranches()
@@ -17,9 +17,9 @@ func TestGitLoader(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
-	t.Run("Load branches with invalid repo", func(t *testing.T) {
+	t.Run("Load branches with invalid repoURL", func(t *testing.T) {
 		fetcher := &git{
-			repo: "sdsdsdsd",
+			repoURL: "sdsdsdsd",
 		}
 
 		branches, err := fetcher.LoadBranches()

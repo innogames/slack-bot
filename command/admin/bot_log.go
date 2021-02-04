@@ -14,7 +14,7 @@ import (
 const logChars = 4000
 
 // NewBotLogCommand prints the recent bot.log as slack command
-func NewBotLogCommand(base bot.BaseCommand, cfg config.Config) bot.Command {
+func NewBotLogCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 	return &botLogCommand{
 		base,
 		cfg,
@@ -23,7 +23,7 @@ func NewBotLogCommand(base bot.BaseCommand, cfg config.Config) bot.Command {
 
 type botLogCommand struct {
 	bot.BaseCommand
-	cfg config.Config
+	cfg *config.Config
 }
 
 func (c *botLogCommand) GetMatcher() matcher.Matcher {

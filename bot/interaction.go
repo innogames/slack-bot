@@ -13,6 +13,9 @@ import (
 
 var interactionLock sync.Mutex
 
+// internal storage collection which contains all stored interactions aka buttons which can get pressed
+const storageCollection = "interactions"
+
 // this method is called, when a user pressed a button:
 // - validates that the user is allowed to press the button
 func (b *Bot) handleEvent(eventsAPIEvent slackevents.EventsAPIEvent) {
@@ -54,19 +57,24 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
 		return
 	}
 
+	action := payload.ActionCallback.BlockActions[0]
+
+	if action.Value == "" {
+		log.Infof("Action '%s' got already executed (user: %s)", action.Value, payload.User.Name)
+		return
+	}
+
 	interactionLock.Lock()
 	defer interactionLock.Unlock()
 
-	action := payload.ActionCallback.BlockActions[0]
-
 	// check in storage if there is still a interaction stored on our side
 	var message slack.MessageEvent
-	err := storage.Read("interactions", action.Value, &message)
+	err := storage.Read(storageCollection, action.Value, &message)
 	if err != nil {
-		log.Warnf("Action '%s' got already executed (user: %s)", action.Value, payload.User.Name)
+		log.Warnf("Action '%s' is invalid (user: %s)", action.Value, payload.User.Name)
 		return
 	}
-	storage.Delete("interactions", action.Value)
+	storage.Delete(storageCollection, action.Value)
 
 	log.Infof(
 		"Received interaction from user %s/%s (action-id: %s, command: %s)",
@@ -101,12 +109,12 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
 func (b *Bot) cleanOldInteractions() (deleted int) {
 	timeCheck := time.Now().Add(-time.Hour * 24)
 	var message slack.MessageEvent
-	keys, _ := storage.GetKeys("interactions")
+	keys, _ := storage.GetKeys(storageCollection)
 
 	for _, key := range keys {
-		storage.Read("interactions", key, &message)
+		storage.Read(storageCollection, key, &message)
 		if msg.FromSlackEvent(&message).GetTime().Before(timeCheck) {
-			storage.Delete("interactions", key)
+			storage.Delete(storageCollection, key)
 			deleted++
 		}
 	}

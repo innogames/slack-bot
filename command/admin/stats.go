@@ -19,13 +19,13 @@ import (
 var startTime = time.Now()
 
 // NewStatsCommand shows a bunch of runtime statistics of the bot (admin-only)
-func NewStatsCommand(base bot.BaseCommand, cfg config.Config) bot.Command {
+func NewStatsCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 	return &statsCommand{base, cfg}
 }
 
 type statsCommand struct {
 	bot.BaseCommand
-	cfg config.Config
+	cfg *config.Config
 }
 
 func (c *statsCommand) GetMatcher() matcher.Matcher {

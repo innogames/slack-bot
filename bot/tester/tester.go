@@ -8,13 +8,13 @@ import (
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command"
+	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slacktest"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 )
 
 // TestChannel is just a test channel name which is used for testing
@@ -116,7 +116,6 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 
 func checkError(err error) {
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 }

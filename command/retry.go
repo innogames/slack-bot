@@ -46,7 +46,7 @@ func (c *retryCommand) Retry(match matcher.Result, message msg.Message) {
 	if lastCommand != "" {
 		c.SendMessage(message, fmt.Sprintf("Executing command: %s", lastCommand))
 
-		client.InternalMessages <- message.WithText(lastCommand)
+		client.HandleMessage(message.WithText(lastCommand))
 	} else {
 		c.SendMessage(message, "Sorry, no history found.")
 	}
@@ -92,7 +92,7 @@ func (c *retryCommand) SlackMessage(match matcher.Result, message msg.Message) {
 		return
 	}
 	c.AddReaction("white_check_mark", message)
-	client.InternalMessages <- historyMessage
+	client.HandleMessage(historyMessage)
 }
 
 func (c *retryCommand) GetHelp() []bot.Help {

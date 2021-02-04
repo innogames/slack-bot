@@ -3,6 +3,7 @@ package mocks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/innogames/slack-bot/client"
 	"net/url"
 	"testing"
 
@@ -14,6 +15,13 @@ import (
 
 func AssertSlackMessage(slackClient *SlackClient, ref msg.Ref, text string) {
 	slackClient.On("SendMessage", ref, text).Once().Return("")
+}
+
+func AssertQueuedMessage(t *testing.T, expected msg.Message) {
+	t.Helper()
+
+	actual := <-client.InternalMessages
+	assert.Equal(t, actual, expected)
 }
 
 // AssertSlackJSON is a test helper to assert full slack attachments

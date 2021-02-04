@@ -4,7 +4,7 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 )
 
-// NewGroupMatcher is a matcher which go through the list of given sub-matcher...just define multiple matcher in a chain/group
+// NewGroupMatcher is a matcher that iterates through the list of specified sub-matchers ...just define multiple matcher in a chain/group
 func NewGroupMatcher(matcher ...Matcher) Matcher {
 	return groupMatcher{
 		matcher: matcher,

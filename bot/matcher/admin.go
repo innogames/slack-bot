@@ -23,6 +23,7 @@ type adminMatcher struct {
 func (m adminMatcher) Match(message msg.Message) (Runner, Result) {
 	run, result := m.matcher.Match(message)
 	if !result.Matched() {
+		// the wrapped command didn't match...ignore
 		return nil, result
 	}
 
@@ -38,7 +39,7 @@ func (m adminMatcher) Match(message msg.Message) (Runner, Result) {
 	return func(match Result, message msg.Message) {
 		m.slackClient.ReplyError(
 			message,
-			errors.New("sorry, you are no admins and not allowed to execute this command"),
+			errors.New("sorry, you are no admin and not allowed to execute this command"),
 		)
 	}, match
 }

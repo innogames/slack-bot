@@ -81,7 +81,7 @@ func (c *delayCommand) Delay(match matcher.Result, message msg.Message) {
 		<-timer.C // todo abort here when it was aborted + more random stop key
 		done <- true
 
-		client.InternalMessages <- message.WithText(command)
+		client.HandleMessage(message.WithText(command))
 	}()
 }
 
