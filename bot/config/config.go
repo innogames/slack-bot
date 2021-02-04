@@ -77,12 +77,6 @@ type Command struct {
 	Examples    []string
 }
 
-// PullRequest special configuration to change the pull request behavior
-type PullRequest struct {
-	// able to set a custom "approved" reactions to see directly who or which component/department approved a pullrequest
-	CustomApproveReaction map[string]string `mapstructure:"custom_approve_reaction"`
-}
-
 // Bitbucket credentials/options. Either add Username+Password OR a APIKey
 type Bitbucket struct {
 	Host       string `mapstructure:"host"`

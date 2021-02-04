@@ -60,6 +60,7 @@ func TestPullRequest(t *testing.T) {
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
 		slackClient.On("ReplyError", message, fetcher.err)
+		slackClient.On("AddReaction", "x", message)
 
 		actual := commands.Run(message)
 		assert.True(t, actual)
@@ -80,9 +81,9 @@ func TestPullRequest(t *testing.T) {
 		slackClient.
 			On("GetReactions", msgRef, slack.NewGetReactionsParameters()).Return(nil, nil)
 
-		slackClient.On("RemoveReaction", iconInReview, message)
-		slackClient.On("AddReaction", iconApproved, message)
-		slackClient.On("AddReaction", iconMerged, message)
+		slackClient.On("RemoveReaction", "eyes", message)
+		slackClient.On("AddReaction", "white_check_mark", message)
+		slackClient.On("AddReaction", "twisted_rightwards_arrows", message)
 
 		actual := commands.Run(message)
 		assert.True(t, actual)
@@ -100,9 +101,9 @@ func TestPullRequest(t *testing.T) {
 		}
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
-		slackClient.On("RemoveReaction", iconInReview, message)
-		slackClient.On("RemoveReaction", iconApproved, message)
-		slackClient.On("AddReaction", iconClosed, message)
+		slackClient.On("RemoveReaction", "eyes", message)
+		slackClient.On("RemoveReaction", "white_check_mark", message)
+		slackClient.On("AddReaction", "x", message)
 
 		actual := commands.Run(message)
 		assert.True(t, actual)
@@ -120,9 +121,9 @@ func TestPullRequest(t *testing.T) {
 		}
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
-		slackClient.On("RemoveReaction", iconInReview, message)
-		slackClient.On("RemoveReaction", iconClosed, message)
-		slackClient.On("AddReaction", iconApproved, message)
+		slackClient.On("RemoveReaction", "eyes", message)
+		slackClient.On("RemoveReaction", "x", message)
+		slackClient.On("AddReaction", "white_check_mark", message)
 
 		actual := commands.Run(message)
 		assert.True(t, actual)
@@ -140,7 +141,7 @@ func TestPullRequest(t *testing.T) {
 		}
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
-		slackClient.On("AddReaction", iconInReview, message)
+		slackClient.On("AddReaction", "eyes", message)
 
 		actual := commands.Run(message)
 		assert.True(t, actual)
@@ -154,9 +155,11 @@ func initTest(slackClient client.SlackClient) (bot.Commands, *testFetcher) {
 	commands := bot.Commands{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
+	cfg := config.DefaultConfig
+
 	cmd := &command{
 		base,
-		config.PullRequest{},
+		cfg.PullRequest,
 		fetcher,
 		".*/projects/(?P<project>.+)/repos/(?P<repo>.+)/pull-requests/(?P<number>\\d+).*",
 	}

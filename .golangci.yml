@@ -61,3 +61,5 @@ linters:
     - whitespace
   fast: false
 
+issues:
+  new: true

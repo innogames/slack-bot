@@ -1,6 +1,7 @@
 package pullrequest
 
 import (
+	"fmt"
 	"net"
 	"text/template"
 	"time"
@@ -18,13 +19,6 @@ import (
 )
 
 const (
-	iconInReview     = "eyes"
-	iconApproved     = "white_check_mark"
-	iconMerged       = "twisted_rightwards_arrows"
-	iconClosed       = "x"
-	iconBuildFailed  = "fire"
-	iconBuildRunning = "arrows_counterclockwise"
-	iconError        = "x"
 	minCheckInterval = time.Second * 30
 	maxCheckInterval = time.Minute * 3
 	maxErrors        = 5 // number of max errors in a row before aborting the PR watcher
@@ -80,6 +74,7 @@ func (c command) Execute(match matcher.Result, message msg.Message) {
 	_, err := c.fetcher.getPullRequest(match)
 
 	if err != nil {
+		c.AddReaction(c.cfg.Reactions.Error, message)
 		c.ReplyError(message, err)
 		return
 	}
@@ -119,7 +114,7 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 					message,
 					errors.Wrapf(err, "Error while fetching PR data %d times in a row", currentErrorCount),
 				)
-				c.AddReaction(iconError, message)
+				c.AddReaction(c.cfg.Reactions.Error, message)
 				return
 			}
 
@@ -146,29 +141,29 @@ func (c command) setPRReactions(pr pullRequest, currentReactions map[string]bool
 
 	// add approved reaction(s)
 	if len(pr.Approvers) > 0 {
-		for icon := range c.getApproveIcons(pr.Approvers) {
+		for icon := range c.getApproveReactions(pr.Approvers) {
 			c.addReaction(currentReactions, icon, message)
 		}
 
 		hasApproval = true
 	} else {
-		c.removeReaction(currentReactions, iconApproved, message)
+		c.removeReaction(currentReactions, c.cfg.Reactions.Approved, message)
 	}
 
 	c.processBuildStatus(pr, currentReactions, message)
 
 	// add :eyes: when someone is reviewing the PR but nobody approved it yet
 	if pr.Status == prStatusInReview && !hasApproval {
-		c.addReaction(currentReactions, iconInReview, message)
+		c.addReaction(currentReactions, c.cfg.Reactions.InReview, message)
 	} else {
-		c.removeReaction(currentReactions, iconInReview, message)
+		c.removeReaction(currentReactions, c.cfg.Reactions.InReview, message)
 	}
 
 	if pr.Status == prStatusMerged {
-		c.addReaction(currentReactions, iconMerged, message)
+		c.addReaction(currentReactions, c.cfg.Reactions.Merged, message)
 	} else if pr.Status == prStatusClosed {
-		c.removeReaction(currentReactions, iconApproved, message)
-		c.addReaction(currentReactions, iconClosed, message)
+		c.removeReaction(currentReactions, c.cfg.Reactions.Approved, message)
+		c.addReaction(currentReactions, c.cfg.Reactions.Closed, message)
 	}
 }
 
@@ -178,15 +173,15 @@ func (c command) setPRReactions(pr pullRequest, currentReactions map[string]bool
 func (c command) processBuildStatus(pr pullRequest, currentReactions map[string]bool, message msg.Ref) {
 	// monitor build Status
 	if pr.BuildStatus == buildStatusFailed {
-		c.addReaction(currentReactions, iconBuildFailed, message)
+		c.addReaction(currentReactions, c.cfg.Reactions.BuildFailed, message)
 	} else {
-		c.removeReaction(currentReactions, iconBuildFailed, message)
+		c.removeReaction(currentReactions, c.cfg.Reactions.BuildFailed, message)
 	}
 
 	if pr.BuildStatus == buildStatusRunning {
-		c.addReaction(currentReactions, iconBuildRunning, message)
+		c.addReaction(currentReactions, c.cfg.Reactions.BuildRunning, message)
 	} else {
-		c.removeReaction(currentReactions, iconBuildRunning, message)
+		c.removeReaction(currentReactions, c.cfg.Reactions.BuildRunning, message)
 	}
 }
 
@@ -207,45 +202,47 @@ func (c command) getOwnReactions(msgRef slack.ItemRef) map[string]bool {
 	return currentReactions
 }
 
-func (c command) removeReaction(currentReactions map[string]bool, icon string, message msg.Ref) {
-	if ok := currentReactions[icon]; !ok {
+func (c command) removeReaction(currentReactions map[string]bool, reaction string, message msg.Ref) {
+	fmt.Println(reaction)
+	if ok := currentReactions[reaction]; !ok {
 		// already removed
 		return
 	}
 
-	delete(currentReactions, icon)
-	c.RemoveReaction(icon, message)
+	delete(currentReactions, reaction)
+	c.RemoveReaction(reaction, message)
 }
 
-func (c *command) addReaction(currentReactions map[string]bool, icon string, message msg.Ref) {
-	if _, ok := currentReactions[icon]; ok {
+func (c *command) addReaction(currentReactions map[string]bool, reaction string, message msg.Ref) {
+	fmt.Println(reaction)
+	if _, ok := currentReactions[reaction]; ok {
 		// already added
 		return
 	}
 
-	currentReactions[icon] = true
+	currentReactions[reaction] = true
 
-	c.AddReaction(icon, message)
+	c.AddReaction(reaction, message)
 }
 
-// generates a map of all icons for the given Approvers list. If there is no special mapping, it returns the default icon
-func (c command) getApproveIcons(approvers []string) map[string]bool {
-	icons := make(map[string]bool)
+// generates a map of all reactions for the given Approvers list. If there is no special mapping, it returns the default icon
+func (c command) getApproveReactions(approvers []string) map[string]bool {
+	reactions := make(map[string]bool)
 
 	for _, approver := range approvers {
-		if icon, ok := c.cfg.CustomApproveReaction[approver]; ok {
-			icons[icon] = true
+		if reaction, ok := c.cfg.CustomApproveReaction[approver]; ok {
+			reactions[reaction] = true
 		} else {
 			log.Infof("not mapped approver: %s", approver)
 		}
 	}
 
-	if len(icons) == 0 {
+	if len(reactions) == 0 {
 		// use the default approve icon by default
-		icons[iconApproved] = true
+		reactions[c.cfg.Reactions.Approved] = true
 	}
 
-	return icons
+	return reactions
 }
 
 func (c command) GetTemplateFunction() template.FuncMap {
