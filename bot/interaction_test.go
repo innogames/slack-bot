@@ -142,6 +142,23 @@ func TestInteraction(t *testing.T) {
 		assert.Equal(t, uint(1), commandsProcessed)
 	})
 
+	t.Run("handle invalid interaction", func(t *testing.T) {
+		callback := slack.InteractionCallback{
+			User: slack.User{
+				ID: "user1",
+			},
+			ActionCallback: slack.ActionCallbacks{
+				BlockActions: []*slack.BlockAction{
+					{
+						Value: "",
+					},
+				},
+			},
+		}
+
+		bot.handleInteraction(callback)
+	})
+
 	t.Run("handle unauthorized interaction", func(t *testing.T) {
 		callback := slack.InteractionCallback{
 			User: slack.User{

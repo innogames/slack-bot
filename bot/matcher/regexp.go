@@ -7,7 +7,7 @@ import (
 	"github.com/innogames/slack-bot/bot/util"
 )
 
-// NewRegexpMatcher matches a command based on a given prefix. 2 additional rules:
+// NewRegexpMatcher matches a command based on a given regexp. 2 additional rules:
 // - it's case insensitive
 // - it always has to match the full line (adding ^ and $ implicitly)
 func NewRegexpMatcher(regexpString string, run Runner) Matcher {

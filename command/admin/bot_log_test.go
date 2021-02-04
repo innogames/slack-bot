@@ -16,7 +16,7 @@ func TestBotLog(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
-	cfg := config.Config{}
+	cfg := &config.Config{}
 	cfg.Logger.File = testFile
 	cfg.AdminUsers = []string{
 		"UADMIN",

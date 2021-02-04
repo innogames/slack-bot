@@ -68,6 +68,6 @@ func processHooks(commands []string, ref msg.Ref, params map[string]string) {
 			continue
 		}
 		text, _ := util.EvalTemplate(temp, params)
-		client.InternalMessages <- ref.WithText(text)
+		client.HandleMessage(ref.WithText(text))
 	}
 }

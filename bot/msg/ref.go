@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// Ref is the context of a message: the author, channel, timestamp etc
 type Ref interface {
 	GetChannel() string
 	GetUser() string
@@ -49,7 +50,7 @@ func (msg MessageRef) GetUniqueKey() string {
 	return strings.ReplaceAll(key, ".", "_")
 }
 
-// GetTime extracts the time of the Message
+// GetTime extracts the time.Time of the Message
 func (msg MessageRef) GetTime() time.Time {
 	if msg.GetTimestamp() == "" {
 		return time.Now()

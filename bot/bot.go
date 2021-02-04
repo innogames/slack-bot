@@ -77,6 +77,7 @@ func (b *Bot) Init() (err error) {
 	return nil
 }
 
+// loads a list of all public channels
 func (b *Bot) loadChannels() (map[string]string, error) {
 	var err error
 	var cursor string

@@ -5,25 +5,23 @@ import (
 	"regexp"
 )
 
+// git fetcher to load all branch names from a remote repository
 type git struct {
-	repo string
+	repoURL string
 }
 
 var gitBranchRe = regexp.MustCompile(`refs/(remotes/origin|heads)/(.*)\n`)
 
 // LoadBranches will load the branches from a (remote) git repository
 func (f git) LoadBranches() (branchNames []string, err error) {
-	cmd := exec.Command("git", "ls-remote", "--refs", f.repo)
+	cmd := exec.Command("git", "ls-remote", "--refs", f.repoURL)
 	output, err := cmd.Output()
 	if err != nil {
 		return
 	}
 
-	for _, match := range gitBranchRe.FindAllSubmatch(output, -1) {
-		if string(match[2]) == "HEAD" {
-			continue
-		}
-		branchNames = append(branchNames, string(match[2]))
+	for _, match := range gitBranchRe.FindAllStringSubmatch(string(output), -1) {
+		branchNames = append(branchNames, match[2])
 	}
 
 	return

@@ -3,10 +3,11 @@ package msg
 // Message is a wrapper which holds all important fields from slack.MessageEvent
 import "sync"
 
+// Message represents a slack.Message in a slim format. The MessageRef contains the context of the message
 type Message struct {
 	MessageRef
-	Done *sync.WaitGroup
 	Text string `json:"text,omitempty"`
+	Done *sync.WaitGroup
 }
 
 func (msg *Message) GetText() string {

@@ -82,7 +82,7 @@ func (c *definedCommand) Execute(ref msg.Ref, text string) bool {
 
 			// each line is interpreted as command
 			for _, part := range strings.Split(text, "\n") {
-				client.InternalMessages <- ref.WithText(part)
+				client.HandleMessage(ref.WithText(part))
 			}
 		}
 

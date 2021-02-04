@@ -41,6 +41,7 @@ linters:
     - interfacer
     - makezero
     - maligned
+    - megacheck
     - misspell
     - nakedret
     - nolintlint
@@ -58,6 +59,5 @@ linters:
     - unused
     - varcheck
     - whitespace
+  fast: false
 
-issues:
-  new: true

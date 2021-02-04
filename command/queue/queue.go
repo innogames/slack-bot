@@ -97,7 +97,7 @@ func executeFallbackCommand() {
 		}
 
 		log.Infof("[Queue] Booted! I'll trigger this command now: `%s`", event.Text)
-		client.InternalMessages <- event
+		client.HandleMessage(event)
 	}
 
 	storage.DeleteCollection(storageKey)

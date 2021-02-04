@@ -17,13 +17,14 @@ import (
 
 // starts a interactive shell to communicate with a mocked slack server and execute real commands
 func main() {
-	verbose := flag.Bool("verbose", false, "More verbose output")
+	var verbose bool
+	flag.BoolVar(&verbose, "verbose", false, "More verbose output")
 
 	// todo add path to config
 	flag.Parse()
 
 	cfg := config.Config{}
-	if *verbose {
+	if verbose {
 		cfg.Logger.Level = "debug"
 	}
 
@@ -68,7 +69,7 @@ func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg co
 			message.Channel = tester.TestChannel
 			message.User = "cli"
 
-			client.QueueMessage(message).Wait()
+			client.HandleMessageWithDoneHandler(message).Wait()
 		}
 	}
 }
