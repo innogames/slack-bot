@@ -19,7 +19,7 @@ func TestBitbucketNotActive(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
-	cfg := &config.Config{}
+	cfg := &config.DefaultConfig
 
 	command := bot.Commands{}
 	cmd := newBitbucketCommand(base, cfg)
@@ -50,7 +50,8 @@ func TestBitbucketFakeServer(t *testing.T) {
 
 	time.Sleep(time.Millisecond * 200)
 
-	cfg := config.Bitbucket{
+	cfg := config.DefaultConfig
+	cfg.Bitbucket = config.Bitbucket{
 		Host:       "http://localhost:7992",
 		Project:    "myProject",
 		Repository: "myRepo",
@@ -58,9 +59,7 @@ func TestBitbucketFakeServer(t *testing.T) {
 	}
 
 	command := bot.Commands{}
-	cmd := newBitbucketCommand(base, &config.Config{
-		Bitbucket: cfg,
-	})
+	cmd := newBitbucketCommand(base, &cfg)
 	command.AddCommand(cmd)
 
 	t.Run("Merged PR", func(t *testing.T) {

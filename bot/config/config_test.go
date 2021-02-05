@@ -29,7 +29,7 @@ func TestLoadDirectory(t *testing.T) {
 	// invalid directory
 	cfg, err = Load("/sdsdsdds")
 	assert.NotNil(t, err)
-	assert.Equal(t, defaultConfig, cfg)
+	assert.Equal(t, DefaultConfig, cfg)
 }
 
 func TestLoadFile(t *testing.T) {
@@ -37,13 +37,13 @@ func TestLoadFile(t *testing.T) {
 	configPath := path.Join("..", "..", "readme.sdsdsd")
 	cfg, err := Load(configPath)
 	assert.NotNil(t, err)
-	assert.Equal(t, defaultConfig, cfg)
+	assert.Equal(t, DefaultConfig, cfg)
 
 	// parse invalid file
 	configPath = path.Join("..", "..", "readme.md")
 	cfg, err = Load(configPath)
 	assert.Contains(t, err.Error(), "While parsing config: yaml")
-	assert.Equal(t, defaultConfig, cfg)
+	assert.Equal(t, DefaultConfig, cfg)
 
 	// load example file == okay
 	configPath = path.Join("..", "..", "config.example.yaml")

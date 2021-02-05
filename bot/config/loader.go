@@ -20,10 +20,10 @@ func Load(configFile string) (Config, error) {
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	v.AutomaticEnv()
 
-	cfg := defaultConfig
+	cfg := DefaultConfig
 
 	// workaround to take all keys from struct available
-	defaultYaml, _ := yaml.Marshal(defaultConfig)
+	defaultYaml, _ := yaml.Marshal(DefaultConfig)
 	err := v.ReadConfig(bytes.NewBuffer(defaultYaml))
 	if err != nil {
 		return cfg, err

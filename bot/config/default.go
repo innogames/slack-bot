@@ -1,6 +1,7 @@
 package config
 
-var defaultConfig = Config{
+// DefaultConfig with some common values
+var DefaultConfig = Config{
 	StoragePath: "./storage/",
 	Logger: Logger{
 		File:  "./bot.log",
@@ -18,6 +19,17 @@ var defaultConfig = Config{
 					"Bug": ":bug:",
 				},
 			},
+		},
+	},
+	PullRequest: PullRequest{
+		Reactions: PullRequestReactions{
+			InReview:     "eyes",
+			Approved:     "white_check_mark",
+			Merged:       "twisted_rightwards_arrows",
+			Closed:       "x",
+			BuildFailed:  "fire",
+			BuildRunning: "arrows_counterclockwise",
+			Error:        "x",
 		},
 	},
 }

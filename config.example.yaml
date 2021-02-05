@@ -2,6 +2,7 @@
 slack:
   token: # use xoxb-1234567-secret
   socket_token: # needed for Socket mode, starts with "xapp-"
+  debug: false # some more slack information
 
 # list of trusted slack users: allows the user-id and the name
 allowed_users:
@@ -91,8 +92,10 @@ commands:
 #  api_key: iamtheapifromopenweathermap
 #  location: Hamburg
 
-# able to set a custom "approved" reactions to see directly who or which component/department approved a pullrequest
+# able to set a custom "approved" reactions. E.g to see directly who or which component/department approved a pullrequest
 #pullrequest:
+#  reactions:
+#    merged: custom_merge_arrow
 #  custom_approve_reaction:
 #    nerdydev: "approved_backend"
 #    iamamobiledev: "approved_mobile"

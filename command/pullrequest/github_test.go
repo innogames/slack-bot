@@ -1,10 +1,6 @@
 package pullrequest
 
 import (
-	"os"
-	"testing"
-	"time"
-
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
@@ -13,13 +9,16 @@ import (
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
+	"os"
+	"testing"
+	"time"
 )
 
 func TestGithub(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
-	cfg := &config.Config{}
+	cfg := &config.DefaultConfig
 	cfg.Github.AccessToken = os.Getenv("BOT_GITHUB_ACCESS_TOKEN")
 
 	commands := bot.Commands{}
@@ -38,7 +37,7 @@ func TestGithub(t *testing.T) {
 		msgRef := slack.NewRefToMessage(message.Channel, message.Timestamp)
 
 		slackClient.On("GetReactions", msgRef, slack.NewGetReactionsParameters()).Return(nil, nil)
-		slackClient.On("AddReaction", iconClosed, message)
+		slackClient.On("AddReaction", "x", message)
 
 		actual := commands.Run(message)
 		time.Sleep(time.Millisecond * 300)
@@ -52,7 +51,7 @@ func TestGithub(t *testing.T) {
 		msgRef := slack.NewRefToMessage(message.Channel, message.Timestamp)
 
 		slackClient.On("GetReactions", msgRef, slack.NewGetReactionsParameters()).Return(nil, nil)
-		slackClient.On("AddReaction", iconMerged, message)
+		slackClient.On("AddReaction", "twisted_rightwards_arrows", message)
 
 		actual := commands.Run(message)
 		time.Sleep(time.Millisecond * 300)
