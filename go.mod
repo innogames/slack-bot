@@ -14,7 +14,7 @@ require (
 	github.com/go-test/deep v1.0.7 // indirect
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/google/go-github v17.0.0+incompatible
-	github.com/gookit/color v1.3.6
+	github.com/gookit/color v1.3.7
 	github.com/hackebrot/go-repr v0.1.0 // indirect
 	github.com/hackebrot/turtle v0.1.0
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
