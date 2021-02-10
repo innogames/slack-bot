@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/command"
 	log "github.com/sirupsen/logrus"
@@ -96,7 +97,7 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 			payload, _ := ioutil.ReadAll(r.Body)
 			query, _ := url.ParseQuery(string(payload))
 			emoji := query.Get("name")
-			fmt.Fprintln(output, getEmoji(emoji))
+			fmt.Fprintln(output, util.Reaction(emoji).GetChar())
 		})
 	}
 

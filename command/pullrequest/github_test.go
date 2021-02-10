@@ -37,7 +37,7 @@ func TestGithub(t *testing.T) {
 		msgRef := slack.NewRefToMessage(message.Channel, message.Timestamp)
 
 		slackClient.On("GetReactions", msgRef, slack.NewGetReactionsParameters()).Return(nil, nil)
-		slackClient.On("AddReaction", "x", message)
+		mocks.AssertReaction(slackClient, "x", message)
 
 		actual := commands.Run(message)
 		time.Sleep(time.Millisecond * 300)
@@ -51,7 +51,7 @@ func TestGithub(t *testing.T) {
 		msgRef := slack.NewRefToMessage(message.Channel, message.Timestamp)
 
 		slackClient.On("GetReactions", msgRef, slack.NewGetReactionsParameters()).Return(nil, nil)
-		slackClient.On("AddReaction", "twisted_rightwards_arrows", message)
+		mocks.AssertReaction(slackClient, "twisted_rightwards_arrows", message)
 
 		actual := commands.Run(message)
 		time.Sleep(time.Millisecond * 300)

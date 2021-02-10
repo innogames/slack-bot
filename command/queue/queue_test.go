@@ -68,9 +68,9 @@ func TestQueue(t *testing.T) {
 		done := AddRunningCommand(message, "test")
 		msgRef := slack.NewRefToMessage(message.Channel, message.Timestamp)
 
-		slackClient.On("AddReaction", waitIcon, message)
-		slackClient.On("AddReaction", doneIcon, message)
-		slackClient.On("RemoveReaction", waitIcon, message)
+		mocks.AssertReaction(slackClient, waitIcon, message)
+		mocks.AssertReaction(slackClient, doneIcon, message)
+		mocks.AssertRemoveReaction(slackClient, waitIcon, message)
 
 		actual := command.Run(message)
 		assert.True(t, actual)

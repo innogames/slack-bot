@@ -1,12 +1,11 @@
 package command
 
 import (
-	"testing"
-
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestReaction(t *testing.T) {
@@ -32,7 +31,8 @@ func TestReaction(t *testing.T) {
 		message.Channel = "chan"
 		message.Timestamp = "time"
 
-		slackClient.On("AddReaction", "test", message)
+		mocks.AssertReaction(slackClient, "test", message)
+
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -43,7 +43,8 @@ func TestReaction(t *testing.T) {
 		message.Channel = "chan"
 		message.Timestamp = "time"
 
-		slackClient.On("RemoveReaction", "test", message)
+		mocks.AssertRemoveReaction(slackClient, "test", message)
+
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
