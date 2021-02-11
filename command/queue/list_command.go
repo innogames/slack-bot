@@ -34,23 +34,25 @@ func (c *listCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c *listCommand) ListAll(match matcher.Result, message msg.Message) {
-	c.listQueue(message, func(event msg.Message) bool {
+	msgOptions := c.listQueue(func(event msg.Message) bool {
 		return true
 	})
+	c.SendMessage(message, "", msgOptions)
 }
 
 func (c *listCommand) ListChannel(match matcher.Result, message msg.Message) {
-	c.listQueue(message, func(queuedEvent msg.Message) bool {
+	msgOptions := c.listQueue(func(queuedEvent msg.Message) bool {
 		return message.GetChannel() == queuedEvent.GetChannel()
 	})
+	c.SendMessage(message, "", msgOptions)
 }
 
-func (c *listCommand) listQueue(message msg.Message, filter filterFunc) {
-	keys, _ := storage.GetKeys(storageKey)
+func (c *listCommand) listQueue(filter filterFunc) slack.MsgOption {
 	now := time.Now()
-
 	count := 0
-	attachments := make([]slack.Attachment, 0, len(keys))
+
+	keys, _ := storage.GetKeys(storageKey)
+	attachments := make([]slack.Attachment, 0, len(keys)+1)
 
 	var queuedEvent msg.Message
 	for _, key := range keys {
@@ -86,9 +88,14 @@ func (c *listCommand) listQueue(message msg.Message, filter filterFunc) {
 		})
 	}
 
-	response := fmt.Sprintf("%d queued commands", count)
+	// prepend the number of matched commands (after filtering :))
+	attachments = append([]slack.Attachment{
+		{
+			Text: fmt.Sprintf("*%d queued commands*", count),
+		},
+	}, attachments...)
 
-	c.SendMessage(message, response, slack.MsgOptionAttachments(attachments...))
+	return slack.MsgOptionAttachments(attachments...)
 }
 
 // get attachment color for a given message time

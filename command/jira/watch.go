@@ -56,11 +56,11 @@ func (c *watchCommand) watchTicket(message msg.Message, issue *jira.Issue) {
 
 	defer ticker.Stop()
 
-	done := queue.AddRunningCommand(message, message.Text)
+	runningCommand := queue.AddRunningCommand(message, message.Text)
 	for range ticker.C {
 		issue, resp, err := c.jira.Issue.Get(issue.ID, nil)
 		if err != nil {
-			done <- true
+			runningCommand.Done()
 			c.slackClient.ReplyError(message, err)
 			return
 		}
@@ -77,7 +77,7 @@ func (c *watchCommand) watchTicket(message msg.Message, issue *jira.Issue) {
 				newStatus,
 			))
 
-			done <- true
+			runningCommand.Done()
 			return
 		}
 	}

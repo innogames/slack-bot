@@ -14,7 +14,7 @@ require (
 	github.com/go-test/deep v1.0.7 // indirect
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/google/go-github v17.0.0+incompatible
-	github.com/gookit/color v1.3.6
+	github.com/gookit/color v1.3.7
 	github.com/hackebrot/go-repr v0.1.0 // indirect
 	github.com/hackebrot/turtle v0.1.0
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
@@ -45,11 +45,10 @@ require (
 	github.com/trivago/tgo v1.0.7 // indirect
 	github.com/xanzy/go-gitlab v0.43.0
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
-	golang.org/x/oauth2 v0.0.0-20210201163806-010130855d6c
+	golang.org/x/oauth2 v0.0.0-20210210192628-66670185b0cd
 	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
 	golang.org/x/text v0.3.5 // indirect
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324 // indirect
-	golang.org/x/tools v0.0.0-20200825202427-b303f430e36d // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect

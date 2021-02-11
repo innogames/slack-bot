@@ -2,8 +2,6 @@ package queue
 
 import (
 	"fmt"
-	"time"
-
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
@@ -16,21 +14,22 @@ import (
 func NewQueueCommand(base bot.BaseCommand) bot.Command {
 	executeFallbackCommand()
 
-	return &command{
+	return &thenCommand{
 		base,
 	}
 }
 
-type command struct {
+type thenCommand struct {
 	bot.BaseCommand
 }
 
-func (c *command) GetMatcher() matcher.Matcher {
+func (c *thenCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewRegexpMatcher("(?i:queue|then) (?P<command>.*)", c.Run)
 }
 
-func (c *command) Run(match matcher.Result, message msg.Message) {
-	if !IsBlocked(message) {
+func (c *thenCommand) Run(match matcher.Result, message msg.Message) {
+	runningCommand, found := runningCommands[message.GetUniqueKey()]
+	if !found {
 		c.ReplyError(
 			message,
 			fmt.Errorf("you have to call this command when another long running command is already running"),
@@ -41,34 +40,19 @@ func (c *command) Run(match matcher.Result, message msg.Message) {
 	command := match.GetString("command")
 	c.AddReaction(waitIcon, message)
 
-	key := message.GetUniqueKey()
-
 	go func() {
-		// todo avoid polling here by another chan etc
-		ticker := time.NewTicker(time.Millisecond * 250)
-		defer ticker.Stop()
+		runningCommand.Wait()
 
-		for range ticker.C {
-			mu.RLock()
-			if _, ok := runningCommands[key]; ok {
-				// still running...
-				mu.RUnlock()
+		c.AddReaction(doneIcon, message)
 
-				continue
-			}
-			mu.RUnlock()
-			c.AddReaction(doneIcon, message)
+		// trigger new command
+		client.HandleMessage(message.WithText(command))
 
-			// trigger new command
-			client.HandleMessage(message.WithText(command))
-
-			log.Infof("[Queue] Blocking command is over, eval newMessage: %s", command)
-			return
-		}
+		log.Infof("[Queue] Blocking command is over, eval message: %s", command)
 	}()
 }
 
-func (c *command) GetHelp() []bot.Help {
+func (c *thenCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "queue",

@@ -50,14 +50,14 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 		GetAttachment(build, text),
 	)
 
-	done := queue.AddRunningCommand(
+	runningCommand := queue.AddRunningCommand(
 		message,
 		fmt.Sprintf("inform job %s #%d", jobName, build.GetBuildNumber()),
 	)
 	go func() {
 		// wait until job is not running anymore
 		<-WatchBuild(build)
-		done <- true
+		runningCommand.Done()
 
 		// update main message
 		attachment := GetAttachment(build, fmt.Sprintf(
