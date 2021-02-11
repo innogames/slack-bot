@@ -3,13 +3,12 @@ package jenkins
 import (
 	"encoding/json"
 	"errors"
-	"testing"
-
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestStartBuild(t *testing.T) {
@@ -22,7 +21,7 @@ func TestStartBuild(t *testing.T) {
 		jobName := "TestJob"
 		params := map[string]string{}
 
-		slackClient.On("AddReaction", iconPending, message)
+		mocks.AssertReaction(slackClient, iconPending, message)
 		client.On("GetJob", jobName).Return(nil, errors.New("404"))
 
 		err := TriggerJenkinsJob(cfg, jobName, params, slackClient, client, message)

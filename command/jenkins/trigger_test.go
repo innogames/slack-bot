@@ -3,6 +3,7 @@ package jenkins
 import (
 	"errors"
 	"fmt"
+	"github.com/innogames/slack-bot/mocks"
 	"testing"
 
 	"github.com/innogames/slack-bot/bot"
@@ -50,7 +51,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "trigger job NotExisting"
 
-		slackClient.On("SendMessage", message, "Sorry, job *NotExisting* is not startable. Possible jobs: \n - *Prefix/Test* \n - *TestJob* \n - *TestJobWithTrigger* \n - *TestJobWithoutTrigger*").Once().Return("")
+		mocks.AssertSlackMessage(slackClient, message, "Sorry, job *NotExisting* is not startable. Possible jobs: \n - *Prefix/Test* \n - *TestJob* \n - *TestJobWithTrigger* \n - *TestJobWithoutTrigger*")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -86,11 +87,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "trigger job TestJob foo"
 
-		slackClient.On(
-			"AddReaction",
-			"coffee",
-			message,
-		)
+		mocks.AssertReaction(slackClient, "coffee", message)
 
 		slackClient.On(
 			"ReplyError",
@@ -108,11 +105,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "just do it"
 
-		slackClient.On(
-			"AddReaction",
-			"coffee",
-			message,
-		)
+		mocks.AssertReaction(slackClient, "coffee", message)
 
 		slackClient.On(
 			"ReplyError",

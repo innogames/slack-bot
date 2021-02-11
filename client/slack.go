@@ -96,8 +96,8 @@ type SlackClient interface {
 	// send a message to a user, using "@username or @U12334"
 	SendToUser(user string, text string)
 
-	RemoveReaction(reaction string, ref msg.Ref)
-	AddReaction(reaction string, ref msg.Ref)
+	RemoveReaction(reaction util.Reaction, ref msg.Ref)
+	AddReaction(reaction util.Reaction, ref msg.Ref)
 	GetReactions(item slack.ItemRef, params slack.GetReactionsParameters) ([]slack.ItemReaction, error)
 
 	GetConversationHistory(*slack.GetConversationHistoryParameters) (*slack.GetConversationHistoryResponse, error)
@@ -114,15 +114,15 @@ type Slack struct {
 	config config.Slack
 }
 
-func (s *Slack) AddReaction(reaction string, ref msg.Ref) {
-	err := s.Client.AddReaction(reaction, slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp()))
+func (s *Slack) AddReaction(reaction util.Reaction, ref msg.Ref) {
+	err := s.Client.AddReaction(reaction.ToSlackReaction(), slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp()))
 	if err != nil {
 		log.Warn(errors.Wrapf(err, "Error while adding reaction: %s - %+v", reaction, ref))
 	}
 }
 
-func (s *Slack) RemoveReaction(reaction string, ref msg.Ref) {
-	err := s.Client.RemoveReaction(reaction, slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp()))
+func (s *Slack) RemoveReaction(reaction util.Reaction, ref msg.Ref) {
+	err := s.Client.RemoveReaction(reaction.ToSlackReaction(), slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp()))
 	if err != nil {
 		log.Warn(errors.Wrapf(err, "Error while removing reaction %s", reaction))
 	}

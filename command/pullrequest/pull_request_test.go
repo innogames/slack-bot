@@ -60,7 +60,7 @@ func TestPullRequest(t *testing.T) {
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
 		slackClient.On("ReplyError", message, fetcher.err)
-		slackClient.On("AddReaction", "x", message)
+		mocks.AssertReaction(slackClient, "x", message)
 
 		actual := commands.Run(message)
 		assert.True(t, actual)
@@ -81,9 +81,9 @@ func TestPullRequest(t *testing.T) {
 		slackClient.
 			On("GetReactions", msgRef, slack.NewGetReactionsParameters()).Return(nil, nil)
 
-		slackClient.On("RemoveReaction", "eyes", message)
-		slackClient.On("AddReaction", "white_check_mark", message)
-		slackClient.On("AddReaction", "twisted_rightwards_arrows", message)
+		mocks.AssertRemoveReaction(slackClient, "eyes", message)
+		mocks.AssertReaction(slackClient, "white_check_mark", message)
+		mocks.AssertReaction(slackClient, "twisted_rightwards_arrows", message)
 
 		actual := commands.Run(message)
 		assert.True(t, actual)
@@ -101,9 +101,9 @@ func TestPullRequest(t *testing.T) {
 		}
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
-		slackClient.On("RemoveReaction", "eyes", message)
-		slackClient.On("RemoveReaction", "white_check_mark", message)
-		slackClient.On("AddReaction", "x", message)
+		mocks.AssertRemoveReaction(slackClient, "eyes", message)
+		mocks.AssertRemoveReaction(slackClient, "white_check_mark", message)
+		mocks.AssertReaction(slackClient, "x", message)
 
 		actual := commands.Run(message)
 		assert.True(t, actual)
@@ -121,9 +121,9 @@ func TestPullRequest(t *testing.T) {
 		}
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
-		slackClient.On("RemoveReaction", "eyes", message)
-		slackClient.On("RemoveReaction", "x", message)
-		slackClient.On("AddReaction", "white_check_mark", message)
+		mocks.AssertRemoveReaction(slackClient, "eyed", message)
+		mocks.AssertRemoveReaction(slackClient, "x", message)
+		mocks.AssertReaction(slackClient, "white_check_mark", message)
 
 		actual := commands.Run(message)
 		assert.True(t, actual)
@@ -141,7 +141,7 @@ func TestPullRequest(t *testing.T) {
 		}
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
-		slackClient.On("AddReaction", "eyes", message)
+		mocks.AssertReaction(slackClient, "eyes", message)
 
 		actual := commands.Run(message)
 		assert.True(t, actual)

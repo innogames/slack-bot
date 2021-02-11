@@ -1,11 +1,11 @@
 package tester
 
 import (
+	"github.com/innogames/slack-bot/bot/util"
 	"regexp"
 	"strings"
 
 	"github.com/gookit/color"
-	"github.com/hackebrot/turtle"
 )
 
 var boldRe = regexp.MustCompile(`\*.+\*`)
@@ -16,16 +16,9 @@ func formatSlackMessage(msg string) string {
 		return color.Bold.Sprintf(strings.Trim(part, "*"))
 	})
 
-	msg = emojiRe.ReplaceAllStringFunc(msg, getEmoji)
+	msg = emojiRe.ReplaceAllStringFunc(msg, func(s string) string {
+		return util.Reaction(s).GetChar()
+	})
 
 	return msg
-}
-
-func getEmoji(name string) string {
-	name = strings.Trim(name, ":")
-	emoji, ok := turtle.Emojis[name]
-	if !ok {
-		return "??"
-	}
-	return emoji.Char
 }

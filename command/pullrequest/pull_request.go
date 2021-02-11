@@ -42,6 +42,8 @@ const (
 	prStatusClosed
 )
 
+type reactionMap map[util.Reaction]bool
+
 type fetcher interface {
 	getPullRequest(match matcher.Result) (pullRequest, error)
 	getHelp() []bot.Help
@@ -136,7 +138,7 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 	}
 }
 
-func (c command) setPRReactions(pr pullRequest, currentReactions map[string]bool, message msg.Ref) {
+func (c command) setPRReactions(pr pullRequest, currentReactions reactionMap, message msg.Ref) {
 	hasApproval := false
 
 	// add approved reaction(s)
@@ -170,7 +172,7 @@ func (c command) setPRReactions(pr pullRequest, currentReactions map[string]bool
 // add reactions based on the build Status:
 // running: iconBuildRunning
 // failed: iconBuildFailed
-func (c command) processBuildStatus(pr pullRequest, currentReactions map[string]bool, message msg.Ref) {
+func (c command) processBuildStatus(pr pullRequest, currentReactions reactionMap, message msg.Ref) {
 	// monitor build Status
 	if pr.BuildStatus == buildStatusFailed {
 		c.addReaction(currentReactions, c.cfg.Reactions.BuildFailed, message)
@@ -186,14 +188,14 @@ func (c command) processBuildStatus(pr pullRequest, currentReactions map[string]
 }
 
 // get the current reactions in the given message which got created by this bot user
-func (c command) getOwnReactions(msgRef slack.ItemRef) map[string]bool {
-	currentReactions := make(map[string]bool)
+func (c command) getOwnReactions(msgRef slack.ItemRef) reactionMap {
+	currentReactions := make(reactionMap)
 	reactions, _ := c.GetReactions(msgRef, slack.NewGetReactionsParameters())
 
 	for _, reaction := range reactions {
 		for _, user := range reaction.Users {
 			if user == client.AuthResponse.UserID {
-				currentReactions[reaction.Name] = true
+				currentReactions[util.Reaction(reaction.Name)] = true
 				break
 			}
 		}
@@ -202,8 +204,7 @@ func (c command) getOwnReactions(msgRef slack.ItemRef) map[string]bool {
 	return currentReactions
 }
 
-func (c command) removeReaction(currentReactions map[string]bool, reaction string, message msg.Ref) {
-	fmt.Println(reaction)
+func (c command) removeReaction(currentReactions reactionMap, reaction util.Reaction, message msg.Ref) {
 	if ok := currentReactions[reaction]; !ok {
 		// already removed
 		return
@@ -213,7 +214,7 @@ func (c command) removeReaction(currentReactions map[string]bool, reaction strin
 	c.RemoveReaction(reaction, message)
 }
 
-func (c *command) addReaction(currentReactions map[string]bool, reaction string, message msg.Ref) {
+func (c *command) addReaction(currentReactions reactionMap, reaction util.Reaction, message msg.Ref) {
 	fmt.Println(reaction)
 	if _, ok := currentReactions[reaction]; ok {
 		// already added
@@ -226,8 +227,8 @@ func (c *command) addReaction(currentReactions map[string]bool, reaction string,
 }
 
 // generates a map of all reactions for the given Approvers list. If there is no special mapping, it returns the default icon
-func (c command) getApproveReactions(approvers []string) map[string]bool {
-	reactions := make(map[string]bool)
+func (c command) getApproveReactions(approvers []string) reactionMap {
+	reactions := make(reactionMap)
 
 	for _, approver := range approvers {
 		if reaction, ok := c.cfg.CustomApproveReaction[approver]; ok {

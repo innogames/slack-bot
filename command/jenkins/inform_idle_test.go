@@ -2,6 +2,7 @@ package jenkins
 
 import (
 	"encoding/json"
+	"github.com/innogames/slack-bot/mocks"
 	"testing"
 	"time"
 
@@ -41,10 +42,10 @@ func TestInformIdle(t *testing.T) {
 			getNodeWithExecutors(0, 2),
 		}, nil).Once()
 
-		slackClient.On("AddReaction", waitingReaction, message)
-		slackClient.On("RemoveReaction", waitingReaction, message)
-		slackClient.On("SendMessage", message, "No job is running anymore").Return("")
-		slackClient.On("AddReaction", doneReaction, message)
+		mocks.AssertReaction(slackClient, waitingReaction, message)
+		mocks.AssertRemoveReaction(slackClient, waitingReaction, message)
+		mocks.AssertSlackMessage(slackClient, message, "No job is running anymore")
+		mocks.AssertReaction(slackClient, doneReaction, message)
 
 		actual := command.Run(message)
 		assert.True(t, actual)
