@@ -75,7 +75,7 @@ func (c *delayCommand) Delay(match matcher.Result, message msg.Message) {
 		c.SendBlockMessage(message, blocks)
 	}
 
-	runningCommand := queue.AddRunningCommand(message, message.GetText())
+	runningCommand := queue.AddRunningCommand(message, "")
 
 	go func() {
 		<-timer.C // todo abort here when it was aborted + more random stop key

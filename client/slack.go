@@ -272,7 +272,20 @@ func GetTextBlock(text string) *slack.SectionBlock {
 	)
 }
 
+// GetContextBlock generates a "Context block"
+// https://api.slack.com/reference/block-kit/blocks#context
+func GetContextBlock(text string) *slack.ContextBlock {
+	return slack.NewContextBlock(
+		"",
+		&slack.TextBlockObject{
+			Type: slack.MarkdownType,
+			Text: text,
+		},
+	)
+}
+
 // GetInteractionButton generates a block "Button" which is able to execute the given command once
+// https://api.slack.com/reference/block-kit/blocks#actions
 func GetInteractionButton(ref msg.Ref, text string, command string, args ...string) *slack.ButtonBlockElement {
 	var style slack.Style
 	if len(args) > 0 {

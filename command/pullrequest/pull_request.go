@@ -1,11 +1,6 @@
 package pullrequest
 
 import (
-	"fmt"
-	"net"
-	"text/template"
-	"time"
-
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
@@ -16,6 +11,9 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
+	"net"
+	"text/template"
+	"time"
 )
 
 const (
@@ -213,7 +211,6 @@ func (c command) removeReaction(currentReactions reactionMap, reaction util.Reac
 }
 
 func (c *command) addReaction(currentReactions reactionMap, reaction util.Reaction, message msg.Ref) {
-	fmt.Println(reaction)
 	if _, ok := currentReactions[reaction]; ok {
 		// already added
 		return

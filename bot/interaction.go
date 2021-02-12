@@ -68,25 +68,24 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
 	defer interactionLock.Unlock()
 
 	// check in storage if there is still a interaction stored on our side
-	var message slack.MessageEvent
-	err := storage.Read(storageCollection, action.Value, &message)
+	var messageEvent slack.MessageEvent
+	err := storage.Read(storageCollection, action.Value, &messageEvent)
 	if err != nil {
 		log.Warnf("Action '%s' is invalid (user: %s)", action.Value, payload.User.Name)
 		return
 	}
 	storage.Delete(storageCollection, action.Value)
-
+	messageEvent.Timestamp = payload.Message.Timestamp
 	log.Infof(
 		"Received interaction from user %s/%s (action-id: %s, command: %s)",
 		payload.User.ID,
 		payload.User.Name,
 		action.Value,
-		message.Text,
+		messageEvent.Text,
 	)
 
-	// execute the command which is stored for this interaction
-	message.User = payload.User.ID
-	b.HandleMessage(&message)
+	message := msg.FromSlackEvent(&messageEvent)
+	message.UpdatedMessage = true
 
 	// update the original slack message (with the button) and disable the button
 	newMessage := replaceClickedButton(&payload.Message, action.Value, " (clicked)")
@@ -94,16 +93,19 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
 	response.ReplaceOriginal = true
 	response.Text = fmt.Sprintf("<@%s> performed action at %s", payload.User.Name, time.Now())
 
-	if b.slackClient.Socket == nil {
-		return
+	if b.slackClient.Socket != nil {
+		b.slackClient.SendMessage(
+			message,
+			newMessage.Text,
+			slack.MsgOptionUpdate(newMessage.Timestamp),
+			slack.MsgOptionAttachments(newMessage.Attachments...),
+			slack.MsgOptionBlocks(newMessage.Blocks.BlockSet...),
+		)
 	}
-	b.slackClient.SendMessage(
-		msg.FromSlackEvent(&message),
-		newMessage.Text,
-		slack.MsgOptionUpdate(newMessage.Timestamp),
-		slack.MsgOptionAttachments(newMessage.Attachments...),
-		slack.MsgOptionBlocks(newMessage.Blocks.BlockSet...),
-	)
+
+	// execute the command which is stored for this interaction
+	messageEvent.User = payload.User.ID
+	go b.handleMessage(message, true)
 }
 
 func (b *Bot) cleanOldInteractions() (deleted int) {

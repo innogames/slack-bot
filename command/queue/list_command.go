@@ -2,8 +2,6 @@ package queue
 
 import (
 	"fmt"
-	"time"
-
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
@@ -11,7 +9,10 @@ import (
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 	"github.com/slack-go/slack"
+	"time"
 )
+
+const processingReaction = "eyes"
 
 type listCommand struct {
 	bot.BaseCommand
@@ -33,26 +34,46 @@ func (c *listCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
+// ListAll shows a list of all queued commands
 func (c *listCommand) ListAll(match matcher.Result, message msg.Message) {
-	msgOptions := c.listQueue(func(event msg.Message) bool {
+	c.sendList(message, func(event msg.Message) bool {
 		return true
 	})
-	c.SendMessage(message, "", msgOptions)
 }
 
+// ListChannel shows a list of all queued commands within the current channel
 func (c *listCommand) ListChannel(match matcher.Result, message msg.Message) {
-	msgOptions := c.listQueue(func(queuedEvent msg.Message) bool {
+	c.sendList(message, func(queuedEvent msg.Message) bool {
 		return message.GetChannel() == queuedEvent.GetChannel()
 	})
-	c.SendMessage(message, "", msgOptions)
 }
 
-func (c *listCommand) listQueue(filter filterFunc) slack.MsgOption {
-	now := time.Now()
-	count := 0
+// format a block-based message with all matching commands
+func (c *listCommand) sendList(message msg.Message, filter filterFunc) {
+	// add :eyes: temporary because loading the list might take some seconds
+	c.AddReaction(processingReaction, message)
+	defer c.RemoveReaction(processingReaction, message)
 
+	count, queueBlocks := c.getQueueAsBlocks(message, filter)
+
+	blocks := []slack.Block{
+		client.GetTextBlock(fmt.Sprintf("*%d queued commands*", count)),
+	}
+	blocks = append(blocks, queueBlocks...)
+
+	// replace the original message when it's triggered by the "refresh" button
+	var msgOptions []slack.MsgOption
+	if message.IsUpdatedMessage() {
+		msgOptions = append(msgOptions, slack.MsgOptionUpdate(message.Timestamp))
+	}
+
+	c.SendBlockMessage(message, blocks, msgOptions...)
+}
+
+// loads all matching queue entries and format them into slack.Block
+func (c *listCommand) getQueueAsBlocks(message msg.Message, filter filterFunc) (count uint, blocks []slack.Block) {
+	now := time.Now()
 	keys, _ := storage.GetKeys(storageKey)
-	attachments := make([]slack.Attachment, 0, len(keys)+1)
 
 	var queuedEvent msg.Message
 	for _, key := range keys {
@@ -69,9 +90,8 @@ func (c *listCommand) listQueue(filter filterFunc) slack.MsgOption {
 
 		messageTime := queuedEvent.GetTime()
 		timeAgo := now.Sub(messageTime)
-		color := getColor(timeAgo)
 		text := fmt.Sprintf(
-			"*%s* (<%s|%s, %s ago>): ```%s``` %s\n",
+			"*%s* (<%s|%s, %s ago>): ```%s``` %s",
 			userName,
 			client.GetSlackArchiveLink(queuedEvent),
 			messageTime.Format(time.Stamp),
@@ -79,36 +99,32 @@ func (c *listCommand) listQueue(filter filterFunc) slack.MsgOption {
 			queuedEvent.GetText(),
 			c.getReactions(queuedEvent),
 		)
-		attachments = append(attachments, slack.Attachment{
-			Text:  text,
-			Color: color,
-			MarkdownIn: []string{
-				"text",
-			},
-		})
+
+		textBlock := client.GetTextBlock(text)
+		blocks = append(
+			blocks,
+			textBlock,
+		)
 	}
 
-	// prepend the number of matched commands (after filtering :))
-	attachments = append([]slack.Attachment{
-		{
-			Text: fmt.Sprintf("*%d queued commands*", count),
-		},
-	}, attachments...)
-
-	return slack.MsgOptionAttachments(attachments...)
-}
-
-// get attachment color for a given message time
-// older messages will be marked as red to ma them as more important
-func getColor(timeAgo time.Duration) string {
-	var color string
-	if timeAgo.Hours() >= 24 {
-		color = "#CC0000"
-	} else {
-		color = "#E0E000"
+	// add "Updated at..." time if there was an update
+	if message.IsUpdatedMessage() {
+		blocks = append(
+			blocks,
+			client.GetContextBlock(fmt.Sprintf("Updated at: %s", time.Now().Format(time.Stamp))),
+		)
 	}
 
-	return color
+	// add "Refresh" button
+	blocks = append(
+		blocks,
+		slack.NewActionBlock(
+			"",
+			client.GetInteractionButton(message, "Refresh :arrows_counterclockwise:", message.GetText()),
+		),
+	)
+
+	return count, blocks
 }
 
 func (c *listCommand) getReactions(ref msg.Ref) string {
