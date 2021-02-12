@@ -75,6 +75,33 @@ func TestInteraction(t *testing.T) {
 		assert.Equal(t, uint(0), commandsProcessed)
 	})
 
+	t.Run("don't handle edited message", func(t *testing.T) {
+		message := &slackevents.MessageEvent{
+			User:    "user1",
+			Text:    "dummy",
+			Channel: "D12",
+			SubType: "message_changed",
+		}
+
+		innerEvent := slackevents.EventsAPIInnerEvent{
+			Data: message,
+		}
+		event := slackevents.EventsAPIEvent{
+			Type:       slackevents.CallbackEvent,
+			InnerEvent: innerEvent,
+		}
+
+		// we reset the stats count and expect later on that one command was processed completely
+		stats.Set(stats.TotalCommands, 0)
+
+		bot.handleEvent(event)
+		time.Sleep(time.Millisecond * 20)
+
+		commandsProcessed, err := stats.Get(stats.TotalCommands)
+		assert.Nil(t, err)
+		assert.Equal(t, uint(0), commandsProcessed)
+	})
+
 	t.Run("handle app mention event", func(t *testing.T) {
 		message := &slackevents.AppMentionEvent{
 			User:    "user1",
