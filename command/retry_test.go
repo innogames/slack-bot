@@ -2,15 +2,14 @@ package command
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot/bot/config"
-	"testing"
-
 	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestRetry(t *testing.T) {
@@ -93,7 +92,9 @@ func TestRetry(t *testing.T) {
 		message.Text = "<https://foe-workshop.slack.com/archives/D0183HUURA9/p1607971366001000>"
 
 		err := fmt.Errorf("bad")
-		slackClient.On("GetConversationHistory", &slack.GetConversationHistoryParameters{ChannelID: "D0183HUURA9", Inclusive: true, Latest: "1607971366.001000", Limit: 1}).Return(nil, err)
+		slackClient.On("GetConversationHistory", &slack.GetConversationHistoryParameters{ChannelID: "D0183HUURA9", Inclusive: true, Latest: "1607971366.001000", Limit: 1}).
+			Once().
+			Return(nil, err)
 
 		slackClient.On("ReplyError", message, err)
 		actual := retry.Run(message)
@@ -117,7 +118,7 @@ func TestRetry(t *testing.T) {
 		slackClient.On(
 			"GetConversationHistory",
 			&slack.GetConversationHistoryParameters{ChannelID: "D0183HUURA9", Inclusive: true, Latest: "1607971366.001000", Limit: 1},
-		).Return(&slack.GetConversationHistoryResponse{Messages: []slack.Message{history}}, nil)
+		).Once().Return(&slack.GetConversationHistoryResponse{Messages: []slack.Message{history}}, nil)
 
 		mocks.AssertSlackMessage(slackClient, message, "this is not your message")
 		actual := retry.Run(message)

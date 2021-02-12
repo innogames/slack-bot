@@ -109,5 +109,5 @@ func AssertContainsSlackBlocks(t *testing.T, slackClient *SlackClient, message m
 		assert.Nil(t, err)
 
 		return strings.Contains(string(givenJSON), string(expectedJsonBlock))
-	})).Once().Return("")
+	}), mock.Anything).Once().Return("")
 }
