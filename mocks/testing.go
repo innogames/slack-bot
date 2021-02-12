@@ -9,7 +9,7 @@ import (
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"net/url"
+	"strings"
 	"testing"
 )
 
@@ -25,6 +25,17 @@ func AssertRemoveReaction(slackClient *SlackClient, reaction string, ref msg.Ref
 	slackClient.On("RemoveReaction", util.Reaction(reaction), ref).Once()
 }
 
+func AssertError(slackClient *SlackClient, ref msg.Ref, errorIn interface{}) {
+	var err error
+	switch e := errorIn.(type) {
+	case string:
+		err = fmt.Errorf(e)
+	case error:
+		err = e
+	}
+	slackClient.On("ReplyError", ref, err).Once()
+}
+
 func AssertQueuedMessage(t *testing.T, expected msg.Message) {
 	t.Helper()
 
@@ -33,7 +44,7 @@ func AssertQueuedMessage(t *testing.T, expected msg.Message) {
 }
 
 // AssertSlackJSON is a test helper to assert full slack attachments
-func AssertSlackJSON(t *testing.T, slackClient *SlackClient, message msg.Ref, expected url.Values) {
+func AssertSlackJSON(t *testing.T, slackClient *SlackClient, message msg.Ref, expected string) {
 	t.Helper()
 
 	slackClient.On("SendMessage", message, "", mock.MatchedBy(func(option slack.MsgOption) bool {
@@ -44,12 +55,25 @@ func AssertSlackJSON(t *testing.T, slackClient *SlackClient, message msg.Ref, ex
 			option,
 		)
 
-		expected.Add("token", "token")
-		expected.Add("channel", "channel")
-
-		assert.Equal(t, expected, values)
+		assert.Equal(t, expected, values.Get("attachments"))
 
 		return true
+	})).Once().Return("")
+}
+
+// AssertSlackJSONContains is a test helper to assert parts of the JSON slack attachments
+func AssertSlackJSONContains(t *testing.T, slackClient *SlackClient, message msg.Ref, expected string) {
+	t.Helper()
+
+	slackClient.On("SendMessage", message, "", mock.MatchedBy(func(option slack.MsgOption) bool {
+		_, values, _ := slack.UnsafeApplyMsgOptions(
+			"token",
+			"channel",
+			"apiUrl",
+			option,
+		)
+
+		return strings.Contains(values.Get("attachments"), expected)
 	})).Once().Return("")
 }
 

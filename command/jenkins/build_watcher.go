@@ -60,14 +60,14 @@ func (c *buildWatcherCommand) Run(match matcher.Result, message msg.Message) {
 	attachment := jenkins.GetAttachment(build, text)
 	msgTimestamp := c.SendMessage(message, "", attachment)
 
-	done := queue.AddRunningCommand(
+	runningCommand := queue.AddRunningCommand(
 		message,
 		fmt.Sprintf("inform job %s #%d", jobName, build.GetBuildNumber()),
 	)
 
 	go func() {
 		<-jenkins.WatchBuild(build)
-		done <- true
+		runningCommand.Done()
 
 		c.SendMessage(
 			message,

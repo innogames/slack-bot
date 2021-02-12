@@ -87,11 +87,9 @@ func (c command) Execute(match matcher.Result, message msg.Message) {
 func (c command) watch(match matcher.Result, message msg.Message) {
 	msgRef := slack.NewRefToMessage(message.Channel, message.Timestamp)
 	currentErrorCount := 0
-	done := queue.AddRunningCommand(message, message.Text)
 
-	defer func() {
-		done <- true
-	}()
+	runningCommand := queue.AddRunningCommand(message, message.Text)
+	defer runningCommand.Done()
 
 	delay := util.GetIncreasingDelay(minCheckInterval, maxCheckInterval)
 	currentReactions := c.getOwnReactions(msgRef)

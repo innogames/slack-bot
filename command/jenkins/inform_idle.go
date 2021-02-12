@@ -38,7 +38,7 @@ func (c *idleWatcherCommand) Run(match matcher.Result, message msg.Message) {
 		return
 	}
 
-	done := queue.AddRunningCommand(
+	runningCommand := queue.AddRunningCommand(
 		message,
 		message.Text,
 	)
@@ -62,7 +62,7 @@ func (c *idleWatcherCommand) Run(match matcher.Result, message msg.Message) {
 			c.AddReaction(doneReaction, message)
 
 			// mark queued command as done to perform next "then" command
-			done <- true
+			runningCommand.Done()
 
 			return
 		}

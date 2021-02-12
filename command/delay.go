@@ -75,11 +75,11 @@ func (c *delayCommand) Delay(match matcher.Result, message msg.Message) {
 		c.SendBlockMessage(message, blocks)
 	}
 
-	done := queue.AddRunningCommand(message, "")
+	runningCommand := queue.AddRunningCommand(message, message.GetText())
 
 	go func() {
 		<-timer.C // todo abort here when it was aborted + more random stop key
-		done <- true
+		runningCommand.Done()
 
 		client.HandleMessage(message.WithText(command))
 	}()
