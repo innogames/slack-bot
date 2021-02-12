@@ -13,6 +13,7 @@ type Ref interface {
 	GetTimestamp() string
 	GetThread() string
 	IsInternalMessage() bool
+	IsUpdatedMessage() bool
 	WithText(text string) Message
 	GetUniqueKey() string
 }
@@ -24,6 +25,7 @@ type MessageRef struct {
 	Timestamp       string `json:"ts,omitempty"`
 	Thread          string `json:"thread_ts,omitempty"`
 	InternalMessage bool   `json:"InternalMessage,omitempty"`
+	UpdatedMessage  bool   `json:"updated,omitempty"`
 }
 
 func (msg MessageRef) GetChannel() string {
@@ -40,6 +42,11 @@ func (msg MessageRef) GetTimestamp() string {
 
 func (msg MessageRef) GetThread() string {
 	return msg.Thread
+}
+
+// IsUpdatedMessage identifies if the processed message should be updated (like with a "refresh" button)
+func (msg MessageRef) IsUpdatedMessage() bool {
+	return msg.UpdatedMessage
 }
 
 func (msg MessageRef) GetUniqueKey() string {

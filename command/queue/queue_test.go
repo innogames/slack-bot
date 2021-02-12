@@ -76,7 +76,9 @@ func TestQueue(t *testing.T) {
 
 		// list queue
 		message.Text = "list queue"
-		mocks.AssertSlackJSONContains(t, slackClient, message, "1 queued command")
+		mocks.AssertReaction(slackClient, processingReaction, message)
+		mocks.AssertRemoveReaction(slackClient, processingReaction, message)
+		mocks.AssertContainsSlackBlocks(t, slackClient, message, client.GetTextBlock("*1 queued commands*"))
 
 		slackClient.On("GetReactions", msgRef, slack.NewGetReactionsParameters()).Return(
 			[]slack.ItemReaction{
@@ -90,7 +92,9 @@ func TestQueue(t *testing.T) {
 
 		// list queue for current channel
 		message.Text = "list queue in channel"
-		mocks.AssertSlackJSONContains(t, slackClient, message, "1 queued command")
+		mocks.AssertReaction(slackClient, processingReaction, message)
+		mocks.AssertRemoveReaction(slackClient, processingReaction, message)
+		mocks.AssertContainsSlackBlocks(t, slackClient, message, client.GetTextBlock("*1 queued commands*"))
 
 		actual = command.Run(message)
 		assert.True(t, actual)
@@ -98,14 +102,15 @@ func TestQueue(t *testing.T) {
 		// list queue for other channel
 		message.Text = "list queue in channel"
 		message.Channel = "C1212121"
-
-		mocks.AssertSlackJSONContains(t, slackClient, message, "0 queued command")
+		mocks.AssertReaction(slackClient, processingReaction, message)
+		mocks.AssertRemoveReaction(slackClient, processingReaction, message)
+		mocks.AssertContainsSlackBlocks(t, slackClient, message, client.GetTextBlock("*0 queued commands*"))
 
 		actual = command.Run(message)
 		assert.True(t, actual)
 
 		runningCommand.Done()
-		time.Sleep(time.Millisecond * 400)
+		time.Sleep(time.Millisecond * 250)
 
 		assert.NotEmpty(t, client.InternalMessages)
 
