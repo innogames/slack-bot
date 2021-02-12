@@ -31,16 +31,34 @@ func TestStartBuild(t *testing.T) {
 }
 
 func TestGetAttachment(t *testing.T) {
-	jenkinsBuild := &gojenkins.Build{
-		Raw: &gojenkins.BuildResponse{
-			Result: gojenkins.STATUS_ABORTED,
-			URL:    "https://jenkins.example.com/build/",
-		},
-	}
-	message := "myMessage"
-	actual := getAttachment(jenkinsBuild, message)
-	jsonResponse, _ := json.Marshal(actual)
 
-	expected := `{"color":"#CCCCCC","title":"myMessage","title_link":"https://jenkins.example.com/build/","actions":[{"name":"","text":"Build :black_circle_for_record:","style":"default","type":"button","url":"https://jenkins.example.com/build/"},{"name":"","text":"Console :page_with_curl:","style":"default","type":"button","url":"https://jenkins.example.com/build/console"},{"name":"","text":"Rebuild :arrows_counterclockwise:","style":"default","type":"button","url":"https://jenkins.example.com/build/rebuild/parameterized"}],"blocks":null}`
-	assert.Equal(t, expected, string(jsonResponse))
+	t.Run("Simple Job", func(t *testing.T) {
+		jenkinsBuild := &gojenkins.Build{
+			Raw: &gojenkins.BuildResponse{
+				Result: gojenkins.STATUS_ABORTED,
+				URL:    "https://jenkins.example.com/build/",
+			},
+		}
+		message := "myMessage"
+		actual := getAttachment(jenkinsBuild, message)
+		jsonResponse, _ := json.Marshal(actual)
+
+		expected := `{"color":"#CCCCCC","title":"myMessage","title_link":"https://jenkins.example.com/build/","actions":[{"name":"","text":"Build :black_circle_for_record:","style":"default","type":"button","url":"https://jenkins.example.com/build/"},{"name":"","text":"Console :page_with_curl:","style":"default","type":"button","url":"https://jenkins.example.com/build/console"},{"name":"","text":"Rebuild :arrows_counterclockwise:","style":"default","type":"button","url":"https://jenkins.example.com/build/rebuild/parameterized"}],"blocks":null}`
+		assert.Equal(t, expected, string(jsonResponse))
+	})
+
+	t.Run("Building Job", func(t *testing.T) {
+		jenkinsBuild := &gojenkins.Build{
+			Raw: &gojenkins.BuildResponse{
+				Building: true,
+				URL:      "https://jenkins.example.com/build/",
+			},
+		}
+		message := "myMessage"
+		actual := getAttachment(jenkinsBuild, message)
+		jsonResponse, _ := json.Marshal(actual)
+
+		expected := `{"color":"#E0E000","title":"myMessage","title_link":"https://jenkins.example.com/build/","actions":[{"name":"","text":"Build :arrows_counterclockwise:","style":"default","type":"button","url":"https://jenkins.example.com/build/"},{"name":"","text":"Console :page_with_curl:","style":"default","type":"button","url":"https://jenkins.example.com/build/console"},{"name":"","text":"Abort :bomb:","style":"danger","type":"button","url":"https://jenkins.example.com/build/stop/"}],"blocks":null}`
+		assert.Equal(t, expected, string(jsonResponse))
+	})
 }

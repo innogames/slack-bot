@@ -140,6 +140,12 @@ func BenchmarkTrimMessage(b *testing.B) {
 	})
 }
 
+func TestInitLogger(t *testing.T) {
+	cfg := config.Config{}
+	cfg.Logger.Level = "debug"
+	InitLogger(cfg.Logger)
+}
+
 func BenchmarkShouldHandle(b *testing.B) {
 	bot := Bot{}
 	bot.auth = &slack.AuthTestResponse{}

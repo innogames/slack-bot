@@ -36,6 +36,7 @@ func (c *command) GetHelp() []bot.Help {
 		{
 			Command:     "list crons",
 			Description: "list the registered crons and the next execution time",
+			HelpURL:     "https://github.com/innogames/slack-bot#cron",
 			Examples: []string{
 				"list crons",
 			},

@@ -49,22 +49,8 @@ type usersResponse struct {
 
 // StartFakeSlack will start a http server which implements the basic Slack API
 func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
-	authResponse := fmt.Sprintf(`
-	{
-		"ok": true,
-		"url": "https://localhost.localdomain/",
-		"team": "%s",
-		"user": "%s",
-		"team_id": "%s",
-		"user_id": "%s"
-	}
-`, "T123", "bot", "teamId", botID)
-
 	// handle requests sto the mocked slack server and react on them for the "cli" tool
 	handler := func(c slacktest.Customize) {
-		c.Handle("/handler.test", func(w http.ResponseWriter, _ *http.Request) {
-			_, _ = w.Write([]byte(authResponse))
-		})
 		c.Handle("/users.list", func(w http.ResponseWriter, _ *http.Request) {
 			users := usersResponse{
 				Members: []slack.User{},
@@ -98,6 +84,11 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 			query, _ := url.ParseQuery(string(payload))
 			emoji := query.Get("name")
 			fmt.Fprintln(output, util.Reaction(emoji).GetChar())
+
+			response := slack.SlackResponse{}
+			response.Ok = true
+			bytes, _ := json.Marshal(response)
+			w.Write(bytes)
 		})
 	}
 

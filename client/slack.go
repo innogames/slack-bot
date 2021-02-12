@@ -117,7 +117,7 @@ type Slack struct {
 func (s *Slack) AddReaction(reaction util.Reaction, ref msg.Ref) {
 	err := s.Client.AddReaction(reaction.ToSlackReaction(), slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp()))
 	if err != nil {
-		log.Warn(errors.Wrapf(err, "Error while adding reaction: %s - %+v", reaction, ref))
+		log.Warn(errors.Wrapf(err, "Error while adding reaction: %s - %+v", reaction, err))
 	}
 }
 

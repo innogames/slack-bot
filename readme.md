@@ -1,5 +1,6 @@
 # Slack Bot
-This slack bot improves the workflow of development teams. Especially with focus on Jenkins and Jira integration.
+This Slack bot improves the workflow of development teams. Especially with focus on Jenkins, Github, Gitlab and Jira, as the integration is working out of the box.
+But also custom commands, macros and other project specific commands can be implemented in a simple and flexible way.
 
 [![Actions Status](https://github.com/innogames/slack-bot/workflows/Test/badge.svg)](https://github.com/innogames/slack-bot/actions)
 [![PkgGoDev](https://pkg.go.dev/badge/innogames/slack-bot)](https://pkg.go.dev/github.com/innogames/slack-bot/)
