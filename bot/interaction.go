@@ -24,6 +24,10 @@ func (b *Bot) handleEvent(eventsAPIEvent slackevents.EventsAPIEvent) {
 		innerEvent := eventsAPIEvent.InnerEvent
 		switch ev := innerEvent.Data.(type) {
 		case *slackevents.MessageEvent:
+			if ev.SubType == "message_changed" {
+				// don't listen to edited messages
+				return
+			}
 			message := &slack.MessageEvent{
 				Msg: slack.Msg{
 					Text:            ev.Text,
