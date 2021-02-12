@@ -6,8 +6,8 @@ import "sync"
 // Message represents a slack.Message in a slim format. The MessageRef contains the context of the message
 type Message struct {
 	MessageRef
-	Text string `json:"text,omitempty"`
-	Done *sync.WaitGroup
+	Text string          `json:"text,omitempty"`
+	Done *sync.WaitGroup `json:"-"`
 }
 
 func (msg *Message) GetText() string {

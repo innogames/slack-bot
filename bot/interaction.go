@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"fmt"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/storage"
 	log "github.com/sirupsen/logrus"
@@ -93,9 +92,6 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
 
 	// update the original slack message (with the button) and disable the button
 	newMessage := replaceClickedButton(&payload.Message, action.Value, " (clicked)")
-	response := slackevents.MessageActionResponse{}
-	response.ReplaceOriginal = true
-	response.Text = fmt.Sprintf("<@%s> performed action at %s", payload.User.Name, time.Now())
 
 	if b.slackClient.Socket != nil {
 		b.slackClient.SendMessage(

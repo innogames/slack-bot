@@ -171,8 +171,7 @@ func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
 		socketChan = b.slackClient.Socket.Events
 
 		go func() {
-			// todo find a cleaner solution to delete old data
-			for range time.NewTicker(time.Second).C {
+			for range time.NewTicker(time.Hour).C {
 				deleted := b.cleanOldInteractions()
 				if deleted > 0 {
 					log.Infof("Deleted %d old interactions", deleted)
