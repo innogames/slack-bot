@@ -1,31 +1,31 @@
 package weather
 
-type Coord struct {
+type coord struct {
 	Lon float64 `json:"lon"`
 	Lat float64 `json:"lat"`
 }
 
-type Weather struct {
+type weather struct {
 	ID          int    `json:"id"`
 	Main        string `json:"main"`
 	Description string `json:"description"`
 	Icon        string `json:"icon"`
 }
 
-type Wind struct {
+type wind struct {
 	Speed float64 `json:"speed"`
 	Deg   float64 `json:"deg"`
 }
 
-type Clouds struct {
+type clouds struct {
 	All int `json:"all"`
 }
 
-type Rain struct {
+type rain struct {
 	Threehr int `json:"3h"`
 }
 
-type Main struct {
+type main struct {
 	Temp     float64 `json:"temp"`
 	Pressure int     `json:"pressure"`
 	Humidity int     `json:"humidity"`
@@ -33,20 +33,20 @@ type Main struct {
 	TempMax  float64 `json:"temp_max"`
 }
 
-type Sys struct {
+type sys struct {
 	Country string `json:"country"`
 	Sunrise int    `json:"sunrise"`
 	Sunset  int    `json:"sunset"`
 }
 
 type CurrentWeatherResponse struct {
-	Coord   Coord     `json:"coord"`
-	Weather []Weather `json:"weather"`
-	Main    Main      `json:"main"`
-	Wind    Wind      `json:"wind"`
-	Rain    Rain      `json:"rain"`
-	Clouds  Clouds    `json:"clouds"`
-	Sys     Sys       `json:"sys"`
+	Coord   coord     `json:"coord"`
+	Weather []weather `json:"weather"`
+	Main    main      `json:"main"`
+	Wind    wind      `json:"wind"`
+	Rain    rain      `json:"rain"`
+	Clouds  clouds    `json:"clouds"`
+	Sys     sys       `json:"sys"`
 	Dt      int       `json:"dt"`
 	ID      int       `json:"id"`
 	Name    string    `json:"name"`

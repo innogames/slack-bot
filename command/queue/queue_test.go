@@ -110,9 +110,8 @@ func TestQueue(t *testing.T) {
 		assert.True(t, actual)
 
 		runningCommand.Done()
-		time.Sleep(time.Millisecond * 250)
 
-		assert.NotEmpty(t, client.InternalMessages)
+		mocks.WaitTillHavingInternalMessage()
 
 		handledEvent := <-client.InternalMessages
 

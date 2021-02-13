@@ -36,7 +36,7 @@ type JobParameter struct {
 // JenkinsJobs is the list of all (whitelisted) Jenkins jobs
 type JenkinsJobs map[string]JobConfig
 
-// get all defined job names, sorted by name
+// GetSortedNames get all defined job names, sorted by name
 func (j JenkinsJobs) GetSortedNames() []string {
 	jobNames := make([]string, 0, len(j))
 	for jobName := range j {

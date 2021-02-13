@@ -73,24 +73,11 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 			attachment,
 		)
 
-		duration := time.Duration(build.GetDuration()) * time.Millisecond
-		text = fmt.Sprintf(
-			"<@%s> *%s:* %s #%d took %s: <%s|Build> <%sconsole/|Console>",
-			message.GetUser(),
-			build.GetResult(),
-			jobName,
-			build.GetBuildNumber(),
-			util.FormatDuration(duration),
-			build.GetUrl(),
-			build.GetUrl(),
-		)
-		if build.IsGood() {
+		text = getFinishBuildText(build, message.User, jobName)
+		if build.Raw.Result == gojenkins.STATUS_SUCCESS {
 			slackClient.SendMessage(message, text)
 			processHooks(cfg.OnSuccess, message, jobParams)
 		} else {
-			// failed/aborted build
-			text += fmt.Sprintf("\nRetry the build by using `retry build %s #%d`", jobName, build.GetBuildNumber())
-
 			slackClient.SendMessage(
 				message,
 				text,
@@ -203,4 +190,26 @@ func getAttachment(build *gojenkins.Build, message string) slack.Attachment {
 	}
 
 	return attachment
+}
+
+func getFinishBuildText(build *gojenkins.Build, user string, jobName string) string {
+	duration := time.Duration(build.GetDuration()) * time.Millisecond
+
+	text := fmt.Sprintf(
+		"<@%s> *%s:* %s #%d took %s: <%s|Build> <%sconsole/|Console>",
+		user,
+		build.GetResult(),
+		jobName,
+		build.GetBuildNumber(),
+		util.FormatDuration(duration),
+		build.GetUrl(),
+		build.GetUrl(),
+	)
+
+	if build.Raw.Result != gojenkins.STATUS_SUCCESS {
+		// failed/aborted build
+		text += fmt.Sprintf("\nRetry the build by using `retry build %s #%d`", jobName, build.GetBuildNumber())
+	}
+
+	return text
 }

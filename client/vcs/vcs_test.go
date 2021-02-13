@@ -10,21 +10,44 @@ import (
 )
 
 func TestInitBranchWatcher(t *testing.T) {
-	cfg := &config.Config{}
 
-	branches = []string{
-		"release/3.12.23",
-	}
+	t.Run("Null fetcher", func(t *testing.T) {
+		cfg := &config.Config{}
 
-	assert.Len(t, GetBranches(), 1)
+		branches = []string{
+			"release/3.12.23",
+		}
 
-	ctx := util.NewServerContext()
-	go InitBranchWatcher(cfg, ctx)
-	time.Sleep(time.Millisecond * 10)
-	ctx.StopTheWorld()
+		assert.Len(t, GetBranches(), 1)
 
-	// as a nullFetcher is used -> should be empty now
-	assert.Len(t, GetBranches(), 0)
+		ctx := util.NewServerContext()
+		go InitBranchWatcher(cfg, ctx)
+		time.Sleep(time.Millisecond * 10)
+		ctx.StopTheWorld()
+
+		// as a nullFetcher is used -> should be empty now
+		assert.Len(t, GetBranches(), 0)
+	})
+
+	t.Run("Git", func(t *testing.T) {
+		cfg := &config.Config{}
+		cfg.BranchLookup.Type = "git"
+		cfg.BranchLookup.Repository = "test.git"
+
+		fetcher := createBranchFetcher(cfg)
+
+		assert.Equal(t, "test.git", fetcher.(git).repoURL)
+	})
+
+	t.Run("Bitbucket", func(t *testing.T) {
+		cfg := &config.Config{}
+		cfg.BranchLookup.Type = "bitbucket"
+
+		fetcher := createBranchFetcher(cfg)
+
+		// we expect a null-fetcher as we don't have valid bitbucket config
+		assert.IsType(t, null{}, fetcher)
+	})
 }
 
 func TestGetMatchingBranches(t *testing.T) {

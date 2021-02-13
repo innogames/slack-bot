@@ -2,6 +2,7 @@ package util
 
 import "fmt"
 
+// FormatBytes formats a given number of bytes in a simple human readable version
 func FormatBytes(bytes uint64) string {
 	const unit = 1000
 	if bytes < unit {

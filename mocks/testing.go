@@ -6,11 +6,13 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
+	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"strings"
 	"testing"
+	"time"
 )
 
 func AssertSlackMessage(slackClient *SlackClient, ref msg.Ref, text string) {
@@ -61,22 +63,6 @@ func AssertSlackJSON(t *testing.T, slackClient *SlackClient, message msg.Ref, ex
 	})).Once().Return("")
 }
 
-// AssertSlackJSONContains is a test helper to assert parts of the JSON slack attachments
-func AssertSlackJSONContains(t *testing.T, slackClient *SlackClient, message msg.Ref, expected string) {
-	t.Helper()
-
-	slackClient.On("SendMessage", message, "", mock.MatchedBy(func(option slack.MsgOption) bool {
-		_, values, _ := slack.UnsafeApplyMsgOptions(
-			"token",
-			"channel",
-			"apiUrl",
-			option,
-		)
-
-		return strings.Contains(values.Get("attachments"), expected)
-	})).Once().Return("")
-}
-
 // AssertSlackBlocks test helper to assert a given JSON representation of "Blocks"
 func AssertSlackBlocks(t *testing.T, slackClient *SlackClient, message msg.Ref, expectedJSON string) {
 	t.Helper()
@@ -99,6 +85,7 @@ func AssertSlackBlocks(t *testing.T, slackClient *SlackClient, message msg.Ref, 
 	})).Once().Return("")
 }
 
+// AssertContainsSlackBlocks is a small test helper to check for certain slack.Block
 func AssertContainsSlackBlocks(t *testing.T, slackClient *SlackClient, message msg.Ref, block slack.Block) {
 	t.Helper()
 
@@ -110,4 +97,20 @@ func AssertContainsSlackBlocks(t *testing.T, slackClient *SlackClient, message m
 
 		return strings.Contains(string(givenJSON), string(expectedJsonBlock))
 	}), mock.Anything).Once().Return("")
+}
+
+// WaitTillHavingInternalMessage blocks until there is a internal message queued
+func WaitTillHavingInternalMessage() {
+	deadline := time.Now().Add(time.Second * 2)
+	for {
+		if len(client.InternalMessages) >= 1 {
+			return
+		}
+
+		if time.Now().After(deadline) {
+			log.Fatalf("No new internal message after 2 seconds!")
+		}
+
+		time.Sleep(time.Millisecond * 10)
+	}
 }

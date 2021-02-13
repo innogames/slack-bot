@@ -28,10 +28,24 @@ func TestStartBuild(t *testing.T) {
 
 		assert.EqualError(t, err, "Job *TestJob* could not start job: 404")
 	})
+
+	t.Run("format finish build", func(t *testing.T) {
+		build := &gojenkins.Build{}
+		build.Raw = &gojenkins.BuildResponse{}
+		build.Raw.Duration = int64(60 * 3 * 1000)
+		build.Raw.Result = "FAILURE"
+		build.Raw.Number = 1233
+
+		build.Raw.URL = "https://jenkins.example.com/job/test/12/"
+
+		actual := getFinishBuildText(build, "user123", "testJob")
+		expected := "<@user123> *FAILURE:* testJob #1233 took 3m0s: <https://jenkins.example.com/job/test/12/|Build> <https://jenkins.example.com/job/test/12/console/|Console>\nRetry the build by using `retry build testJob #1233`"
+
+		assert.Equal(t, expected, actual)
+	})
 }
 
 func TestGetAttachment(t *testing.T) {
-
 	t.Run("Simple Job", func(t *testing.T) {
 		jenkinsBuild := &gojenkins.Build{
 			Raw: &gojenkins.BuildResponse{

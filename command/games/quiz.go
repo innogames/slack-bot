@@ -21,12 +21,12 @@ const maxQuestions = 50 // api limit is 50
 const apiURL = "https://opentdb.com/api.php"
 
 func NewQuizCommand(base bot.BaseCommand) bot.Command {
-	return &quizCommand{base, Quiz{}, apiURL}
+	return &quizCommand{base, quiz{}, apiURL}
 }
 
 type quizCommand struct {
 	bot.BaseCommand
-	quiz   Quiz
+	quiz   quiz
 	apiURL string
 }
 
@@ -40,7 +40,7 @@ type question struct {
 	Answers          []string
 }
 
-type Quiz struct {
+type quiz struct {
 	ResponseCode    int        `json:"response_code"`
 	Questions       []question `json:"results"`
 	currentQuestion int
