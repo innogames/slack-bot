@@ -110,9 +110,8 @@ func TestQueue(t *testing.T) {
 		assert.True(t, actual)
 
 		runningCommand.Done()
-		time.Sleep(time.Millisecond * 250)
 
-		assert.NotEmpty(t, client.InternalMessages)
+		mocks.WaitTillHavingInternalMessage()
 
 		handledEvent := <-client.InternalMessages
 
@@ -122,4 +121,41 @@ func TestQueue(t *testing.T) {
 		expectedMessage.Text = "reply test"
 		assert.Equal(t, handledEvent, expectedMessage)
 	})
+
+	t.Run("Test refresh queue command", func(t *testing.T) {
+		message.Text = "list queue"
+		message.UpdatedMessage = true
+
+		mocks.AssertReaction(slackClient, processingReaction, message)
+		mocks.AssertRemoveReaction(slackClient, processingReaction, message)
+		mocks.AssertContainsSlackBlocks(t, slackClient, message, client.GetTextBlock("*0 queued commands*"))
+
+		actual := command.Run(message)
+		assert.True(t, actual)
+	})
+}
+
+func TestFallbackQueue(t *testing.T) {
+	client.InternalMessages = make(chan msg.Message, 2)
+	slackClient := &mocks.SlackClient{}
+	base := bot.BaseCommand{SlackClient: slackClient}
+
+	message := msg.Message{}
+	message.User = "testUser1"
+
+	// this command should get executed on next startup..ot when we initialize "NewQueueCommand
+	runningCommand := AddRunningCommand(message, "reply yep")
+
+	command := bot.Commands{}
+	command.AddCommand(NewQueueCommand(base))
+
+	handledEvent := <-client.InternalMessages
+
+	expectedMessage := msg.Message{}
+	expectedMessage.Timestamp = message.Timestamp
+	expectedMessage.User = message.User
+	expectedMessage.Text = "reply yep"
+	assert.Equal(t, handledEvent, expectedMessage)
+
+	runningCommand.Done()
 }

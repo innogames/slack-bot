@@ -87,7 +87,7 @@ func (c *retryCommand) SlackMessage(match matcher.Result, message msg.Message) {
 	})
 	historyMessage.Channel = channel
 	// check if the user is allowed to re-post the message: either the author of the message or an admin
-	if historyMessage.User != message.User && c.cfg.AdminUsers.Contains(message.User) {
+	if historyMessage.User != message.User && !c.cfg.AdminUsers.Contains(message.User) {
 		c.SendMessage(message, "this is not your message")
 		return
 	}

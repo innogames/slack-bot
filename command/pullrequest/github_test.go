@@ -1,6 +1,7 @@
 package pullrequest
 
 import (
+	"github.com/google/go-github/github"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
@@ -23,6 +24,7 @@ func TestGithub(t *testing.T) {
 
 	commands := bot.Commands{}
 	cmd := newGithubCommand(base, cfg).(command)
+	githubFetcher := cmd.fetcher.(*githubFetcher)
 	commands.AddCommand(cmd)
 
 	t.Run("help", func(t *testing.T) {
@@ -83,5 +85,23 @@ func TestGithub(t *testing.T) {
 		assert.Nil(t, err)
 
 		assert.Equal(t, `PR: "Add weather command"`, res)
+	})
+
+	t.Run("get status", func(t *testing.T) {
+		state := "closed"
+
+		pr := &github.PullRequest{}
+		pr.State = &state
+		actual := githubFetcher.getStatus(pr, true)
+		assert.Equal(t, prStatusClosed, actual)
+
+		state = "open"
+		pr.State = &state
+		actual = githubFetcher.getStatus(pr, true)
+		assert.Equal(t, prStatusInReview, actual)
+
+		pr.State = &state
+		actual = githubFetcher.getStatus(pr, false)
+		assert.Equal(t, prStatusOpen, actual)
 	})
 }

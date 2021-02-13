@@ -46,7 +46,7 @@ func TestReply(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "reply Test"
 
-		slackClient.On("SendMessage", message, "Test").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "Test")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -55,7 +55,7 @@ func TestReply(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "reply Test"
 
-		slackClient.On("SendMessage", message, "Test").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "Test")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})

@@ -1,6 +1,7 @@
 package weather
 
 import (
+	"github.com/innogames/slack-bot/bot/util"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -68,5 +69,32 @@ func TestWeather(t *testing.T) {
 	t.Run("Test help", func(t *testing.T) {
 		help := command.GetHelp()
 		assert.Equal(t, 1, len(help))
+	})
+
+	t.Run("Fetch with invalid API-Key", func(t *testing.T) {
+		message := msg.Message{}
+		message.Text = "weather"
+
+		cfg := config.OpenWeather{}
+		cfg.Location = "Hamburg"
+		cfg.Apikey = "12345"
+
+		mocks.AssertSlackMessage(slackClient, message, "Api call returned an err: 401")
+
+		command := bot.Commands{}
+		command.AddCommand(NewWeatherCommand(base, cfg))
+
+		actual := command.Run(message)
+		assert.True(t, actual)
+	})
+
+	t.Run("Test weather icon", func(t *testing.T) {
+		// tests for each possible icon code that we have a valid reaction/emoji
+		for code := 0; code <= 1000; code++ {
+			icon := getIcon(code)
+
+			reaction := util.Reaction(icon)
+			assert.NotEqual(t, "?", reaction)
+		}
 	})
 }

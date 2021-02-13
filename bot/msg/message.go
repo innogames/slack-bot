@@ -10,6 +10,7 @@ type Message struct {
 	Done *sync.WaitGroup `json:"-"`
 }
 
+// GetText returns the attached text of the message
 func (msg *Message) GetText() string {
 	return msg.Text
 }

@@ -7,6 +7,7 @@ func (msg *Message) GetMessageRef() slack.ItemRef {
 	return slack.NewRefToMessage(msg.Channel, msg.Timestamp)
 }
 
+// FromSlackEvent generates a slack.MessageEvent into a msg.Message
 func FromSlackEvent(event *slack.MessageEvent) Message {
 	return Message{
 		Text: event.Text,

@@ -22,6 +22,7 @@ const (
 	maxDelay = time.Minute * 5
 )
 
+// JobResult holds the build result of a Build
 type JobResult struct {
 	build  *gojenkins.Build
 	status string

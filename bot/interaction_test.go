@@ -6,6 +6,7 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/stats"
+	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/client"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
@@ -45,8 +46,24 @@ func TestInteraction(t *testing.T) {
 	}
 
 	t.Run("clean old interactions", func(t *testing.T) {
+		messageEvent := &slack.MessageEvent{}
+		messageEvent.Channel = "D1234"
+		messageEvent.User = "user1"
+		messageEvent.Timestamp = "1234567889.12333" // old timestamp
+		ref := msg.FromSlackEvent(messageEvent)
+
+		// store a button interaction
+		client.GetInteractionButton(ref, "my text", "dummy")
+
+		keys, err := storage.GetKeys(storageCollection)
+		assert.Nil(t, err)
+		assert.Len(t, keys, 1)
+
 		actual := bot.cleanOldInteractions()
-		assert.Equal(t, 0, actual)
+		assert.Equal(t, 1, actual)
+
+		keys, _ = storage.GetKeys(storageCollection)
+		assert.Len(t, keys, 0)
 	})
 
 	t.Run("handle message event", func(t *testing.T) {
