@@ -43,7 +43,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/texttheater/golang-levenshtein v1.0.1
 	github.com/trivago/tgo v1.0.7 // indirect
-	github.com/xanzy/go-gitlab v0.43.0
+	github.com/xanzy/go-gitlab v0.44.0
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
 	golang.org/x/oauth2 v0.0.0-20210210192628-66670185b0cd
 	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
