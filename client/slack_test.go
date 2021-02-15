@@ -2,12 +2,11 @@ package client
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/slack-go/slack"
-	"testing"
-
-	"github.com/innogames/slack-bot/bot/config"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestGetSlackClient(t *testing.T) {
@@ -48,6 +47,11 @@ func TestGetSlackClient(t *testing.T) {
 		assert.Equal(t, err.Error(), "config slack.socket_token needs to start to 'xapp-'")
 		assert.Nil(t, client)
 	})
+
+	t.Run("Send to user", func(t *testing.T) {
+		slackClient := &Slack{}
+		slackClient.SendToUser("user", "foo")
+	})
 }
 
 func TestGetSlackUser(t *testing.T) {
@@ -72,15 +76,15 @@ func TestGetSlackChannel(t *testing.T) {
 		"C234": "general",
 	}
 
-	id, name := GetChannel("#C123")
+	id, name := GetChannelIDAndName("#C123")
 	assert.Equal(t, "C123", id)
 	assert.Equal(t, "dev", name)
 
-	id, name = GetChannel("general")
+	id, name = GetChannelIDAndName("general")
 	assert.Equal(t, "C234", id)
 	assert.Equal(t, "general", name)
 
-	id, name = GetChannel("foobar")
+	id, name = GetChannelIDAndName("foobar")
 	assert.Equal(t, "", id)
 	assert.Equal(t, "", name)
 }
@@ -110,7 +114,15 @@ func TestSendMessage(t *testing.T) {
 
 	t.Run("No text", func(t *testing.T) {
 		ref := msg.MessageRef{}
+		ref.Channel = "C1233"
 		actual := client.SendMessage(ref, "")
+		assert.Equal(t, "", actual)
+	})
+
+	t.Run("No target", func(t *testing.T) {
+		ref := msg.MessageRef{}
+		ref.Channel = ""
+		actual := client.SendMessage(ref, "test")
 		assert.Equal(t, "", actual)
 	})
 
@@ -124,7 +136,7 @@ func TestSendMessage(t *testing.T) {
 func assertIDNameLookup(t *testing.T, identifier string, expectedID string, expectedName string) {
 	t.Helper()
 
-	id, name := GetUser(identifier)
+	id, name := GetUserIDAndName(identifier)
 	assert.Equal(t, expectedName, name)
 	assert.Equal(t, expectedID, id)
 }

@@ -37,7 +37,9 @@ func TestRetry(t *testing.T) {
 		message := msg.Message{}
 		message.User = "testUser1"
 		message.Text = "retry"
-		slackClient.On("SendMessage", message, "Sorry, no history found.").Return("")
+
+		mocks.AssertSlackMessage(slackClient, message, "Sorry, no history found.")
+
 		actual := retry.Run(message)
 		assert.True(t, actual)
 		assert.Empty(t, client.InternalMessages)
@@ -54,7 +56,9 @@ func TestRetry(t *testing.T) {
 		message2 := msg.Message{}
 		message2.User = "testUser1"
 		message2.Text = "retry"
-		slackClient.On("SendMessage", message2, "Executing command: magic command").Return("")
+
+		mocks.AssertSlackMessage(slackClient, message2, "Executing command: magic command")
+
 		actual = retry.Run(message2)
 		assert.True(t, actual)
 		assert.NotEmpty(t, client.InternalMessages)
@@ -77,7 +81,7 @@ func TestRetry(t *testing.T) {
 		message2.User = "testUser2"
 		message2.Text = "retry"
 
-		slackClient.On("SendMessage", message2, "Sorry, no history found.").Return("")
+		mocks.AssertSlackMessage(slackClient, message2, "Sorry, no history found.")
 
 		actual = retry.Run(message2)
 

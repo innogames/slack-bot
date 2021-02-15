@@ -27,7 +27,6 @@ linters:
     - exhaustive
     - exportloopref
     - forbidigo
-    - gci
     - gochecknoinits
     - gocritic
     - gocyclo
@@ -60,6 +59,3 @@ linters:
     - varcheck
     - whitespace
   fast: false
-
-issues:
-  new: true

@@ -6,10 +6,10 @@ import (
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/stats"
-	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/client"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
+	"github.com/slack-go/slack/socketmode"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -44,27 +44,6 @@ func TestInteraction(t *testing.T) {
 	bot.allowedUsers = config.UserMap{
 		"user1": "user2",
 	}
-
-	t.Run("clean old interactions", func(t *testing.T) {
-		messageEvent := &slack.MessageEvent{}
-		messageEvent.Channel = "D1234"
-		messageEvent.User = "user1"
-		messageEvent.Timestamp = "1234567889.12333" // old timestamp
-		ref := msg.FromSlackEvent(messageEvent)
-
-		// store a button interaction
-		client.GetInteractionButton(ref, "my text", "dummy")
-
-		keys, err := storage.GetKeys(storageCollection)
-		assert.Nil(t, err)
-		assert.Len(t, keys, 1)
-
-		actual := bot.cleanOldInteractions()
-		assert.Equal(t, 1, actual)
-
-		keys, _ = storage.GetKeys(storageCollection)
-		assert.Len(t, keys, 0)
-	})
 
 	t.Run("handle message event", func(t *testing.T) {
 		message := &slackevents.MessageEvent{
@@ -129,7 +108,7 @@ func TestInteraction(t *testing.T) {
 		innerEvent := slackevents.EventsAPIInnerEvent{
 			Data: message,
 		}
-		event := slackevents.EventsAPIEvent{
+		eventData := slackevents.EventsAPIEvent{
 			Type:       slackevents.CallbackEvent,
 			InnerEvent: innerEvent,
 		}
@@ -137,7 +116,11 @@ func TestInteraction(t *testing.T) {
 		// we reset the stats count and expect later on that one command was processed completely
 		stats.Set(stats.TotalCommands, 0)
 
-		bot.handleEvent(event)
+		event := socketmode.Event{}
+		event.Type = socketmode.EventTypeEventsAPI
+		event.Data = eventData
+
+		bot.handleSocketModeEvent(event)
 		time.Sleep(time.Millisecond * 20)
 
 		commandsProcessed, err := stats.Get(stats.TotalCommands)
@@ -149,12 +132,11 @@ func TestInteraction(t *testing.T) {
 		messageEvent := &slack.MessageEvent{}
 		messageEvent.Channel = "D1234"
 		messageEvent.User = "user1"
-		ref := msg.FromSlackEvent(messageEvent)
 
-		action := slack.NewActionBlock("", client.GetInteractionButton(ref, "my text", "dummy"))
+		action := slack.NewActionBlock("", client.GetInteractionButton("my text", "dummy"))
 		button := action.Elements.ElementSet[0].(*slack.ButtonBlockElement)
 		actionID := button.Value
-		assert.Len(t, actionID, 32)
+		assert.Equal(t, "dummy", actionID)
 
 		callback := slack.InteractionCallback{
 			User: slack.User{
@@ -216,12 +198,11 @@ func TestInteraction(t *testing.T) {
 
 func TestReplaceClickedButton(t *testing.T) {
 	messageEvent := &slack.MessageEvent{}
-	ref := msg.FromSlackEvent(messageEvent)
 
-	action := slack.NewActionBlock("", client.GetInteractionButton(ref, "my text", "replay YEP"))
+	action := slack.NewActionBlock("", client.GetInteractionButton("my text", "replay YEP", slack.StylePrimary))
 	button := action.Elements.ElementSet[0].(*slack.ButtonBlockElement)
 	actionID := button.Value
-	assert.Len(t, actionID, 32)
+	assert.Equal(t, "replay YEP", actionID)
 
 	messageEvent.Blocks = slack.Blocks{
 		BlockSet: []slack.Block{

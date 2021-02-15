@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"github.com/alicebob/miniredis/v2"
@@ -8,19 +9,35 @@ import (
 )
 
 func TestRedisStorage(t *testing.T) {
-	server, err := miniredis.Run()
-	if err != nil {
-		panic(err)
-	}
-	defer server.Close()
+	t.Run("test miniredis", func(t *testing.T) {
+		server, err := miniredis.Run()
+		if err != nil {
+			panic(err)
+		}
+		defer server.Close()
 
-	client := redis.NewClient(&redis.Options{
-		Addr: server.Addr(),
+		client := redis.NewClient(&redis.Options{
+			Addr: server.Addr(),
+		})
+
+		storage := NewRedisStorage(client)
+
+		testStorage(t, storage)
 	})
 
-	storage := NewRedisStorage(client)
+	t.Run("test error handling", func(t *testing.T) {
+		client := redis.NewClient(&redis.Options{
+			Addr: "invalid.host",
+		})
 
-	t.Run("test redis", func(t *testing.T) {
-		testStorage(t, storage)
+		storage := NewRedisStorage(client)
+
+		var i int
+		err := storage.Read("test", "foo", &i)
+		assert.Equal(t, "dial tcp: address invalid.host: missing port in address", err.Error())
+
+		keys, err := storage.GetKeys("test")
+		assert.Len(t, keys, 0)
+		assert.Equal(t, "dial tcp: address invalid.host: missing port in address", err.Error())
 	})
 }

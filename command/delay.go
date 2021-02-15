@@ -67,7 +67,7 @@ func (c *delayCommand) Delay(match matcher.Result, message msg.Message) {
 				blocks,
 				slack.NewActionBlock(
 					"",
-					client.GetInteractionButton(message, "Stop timer!", fmt.Sprintf("stop timer %d", stopNumber)),
+					client.GetInteractionButton("Stop timer!", fmt.Sprintf("stop timer %d", stopNumber)),
 				),
 			)
 		}

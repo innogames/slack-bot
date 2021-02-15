@@ -13,9 +13,10 @@ import (
 
 func TestBot(t *testing.T) {
 	cfg := config.Config{}
+	cfg.Slack.Token = "xoxb-12345"
 
-	rawSlackClient := &slack.Client{}
-	slackClient := &client.Slack{Client: rawSlackClient, RTM: rawSlackClient.NewRTM()}
+	slackClient, err := client.GetSlackClient(cfg.Slack)
+	assert.Nil(t, err)
 
 	commands := &Commands{}
 	commands.AddCommand(testCommand2{})
@@ -51,6 +52,13 @@ func TestBot(t *testing.T) {
 		message.User = "U123"
 		message.Channel = "C123"
 		bot.handleMessage(message, true)
+	})
+
+	t.Run("Init with invalid token", func(t *testing.T) {
+		bot.config.Slack.Token = "invalid"
+
+		err := bot.Init()
+		assert.EqualError(t, err, "auth error: invalid_auth")
 	})
 }
 

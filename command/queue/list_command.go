@@ -86,7 +86,7 @@ func (c *listCommand) getQueueAsBlocks(message msg.Message, filter filterFunc) (
 		}
 
 		count++
-		_, userName := client.GetUser(queuedEvent.User)
+		_, userName := client.GetUserIDAndName(queuedEvent.User)
 
 		messageTime := queuedEvent.GetTime()
 		timeAgo := now.Sub(messageTime)
@@ -120,7 +120,7 @@ func (c *listCommand) getQueueAsBlocks(message msg.Message, filter filterFunc) (
 		blocks,
 		slack.NewActionBlock(
 			"",
-			client.GetInteractionButton(message, "Refresh :arrows_counterclockwise:", message.GetText()),
+			client.GetInteractionButton("Refresh :arrows_counterclockwise:", message.GetText()),
 		),
 	)
 

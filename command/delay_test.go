@@ -51,7 +51,7 @@ func TestDelay(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "delay 20ms my command"
 
-		expected := "[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer\"}},{\"type\":\"actions\",\"elements\":[{\"type\":\"button\",\"text\":{\"type\":\"plain_text\",\"text\":\"Stop timer!\",\"emoji\":true},\"action_id\":\"id\",\"value\":\"token-1\"}]}]"
+		expected := "[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer\"}},{\"type\":\"actions\",\"elements\":[{\"type\":\"button\",\"text\":{\"type\":\"plain_text\",\"text\":\"Stop timer!\",\"emoji\":true},\"action_id\":\"id\",\"value\":\"stop timer 0\"}]}]"
 		mocks.AssertSlackBlocks(t, slackClient, message, expected)
 
 		actual := command.Run(message)
@@ -101,7 +101,7 @@ func TestDelay(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "delay 20ms my command"
 
-		expected := "[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer\"}},{\"type\":\"actions\",\"elements\":[{\"type\":\"button\",\"text\":{\"type\":\"plain_text\",\"text\":\"Stop timer!\",\"emoji\":true},\"action_id\":\"id\",\"value\":\"token-1\"}]}]"
+		expected := "[{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\"I queued the command `my command` for 20ms. Use `stop timer 0` to stop the timer\"}},{\"type\":\"actions\",\"elements\":[{\"type\":\"button\",\"text\":{\"type\":\"plain_text\",\"text\":\"Stop timer!\",\"emoji\":true},\"action_id\":\"id\",\"value\":\"stop timer 0\"}]}]"
 		mocks.AssertSlackBlocks(t, slackClient, message, expected)
 
 		actual := command.Run(message)

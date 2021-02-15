@@ -1,7 +1,6 @@
 package matcher
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/innogames/slack-bot/bot/config"
@@ -26,7 +25,7 @@ func TestAdmin(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "test"
 
-		slackClient.On("ReplyError", message, errors.New("sorry, you are no admin and not allowed to execute this command"))
+		mocks.AssertError(slackClient, message, "sorry, you are no admin and not allowed to execute this command")
 
 		runner, match := subject.Match(message)
 		runner(MapResult{}, message)
