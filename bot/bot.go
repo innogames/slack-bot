@@ -302,7 +302,8 @@ func (b *Bot) handleMessage(message msg.Message, fromUserContext bool) {
 	if !existing && fromUserContext && b.config.Slack.TestEndpointURL == "" {
 		logger.Errorf("user %s is not allowed to execute message (missing in 'allowed_users' section): %s", message.User, message.Text)
 		b.slackClient.SendMessage(message, fmt.Sprintf(
-			"Sorry, you are not whitelisted yet. Please ask a slack-bot admin to get access: %s",
+			"Sorry <@%s>, you are not whitelisted yet. Please ask a slack-bot admin to get access: %s",
+			message.User,
 			strings.Join(b.config.AdminUsers, ", "),
 		))
 		stats.IncreaseOne(stats.UnauthorizedCommands)

@@ -79,6 +79,7 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
 	}
 	storage.Delete(storageCollection, action.Value)
 	messageEvent.Timestamp = payload.Message.Timestamp
+	messageEvent.User = payload.User.ID
 	log.Infof(
 		"Received interaction from user %s/%s (action-id: %s, command: %s)",
 		payload.User.ID,
