@@ -10,7 +10,6 @@ import (
 )
 
 func TestInitBranchWatcher(t *testing.T) {
-
 	t.Run("Null fetcher", func(t *testing.T) {
 		cfg := &config.Config{}
 

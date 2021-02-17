@@ -2,18 +2,13 @@ package bot
 
 import (
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/storage"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"sync"
-	"time"
 )
 
 var interactionLock sync.Mutex
-
-// internal storage collection which contains all stored interactions aka buttons which can get pressed
-const storageCollection = "interactions"
 
 // this method is called, when a user pressed a button:
 // - validates that the user is allowed to press the button
@@ -61,6 +56,7 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
 	}
 
 	action := payload.ActionCallback.BlockActions[0]
+	command := action.Value
 
 	if action.Value == "" {
 		log.Infof("Action '%s' got already executed (user: %s)", action.Value, payload.User.Name)
@@ -70,33 +66,27 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
 	interactionLock.Lock()
 	defer interactionLock.Unlock()
 
-	// check in storage if there is still a interaction stored on our side
-	var messageEvent slack.MessageEvent
-	err := storage.Read(storageCollection, action.Value, &messageEvent)
-	if err != nil {
-		log.Warnf("Action '%s' is invalid (user: %s)", action.Value, payload.User.Name)
-		return
-	}
-	storage.Delete(storageCollection, action.Value)
-	messageEvent.Timestamp = payload.Message.Timestamp
-	messageEvent.User = payload.User.ID
 	log.Infof(
 		"Received interaction from user %s/%s (action-id: %s, command: %s)",
 		payload.User.ID,
 		payload.User.Name,
 		action.Value,
-		messageEvent.Text,
+		command,
 	)
 
-	message := msg.FromSlackEvent(&messageEvent)
-	message.UpdatedMessage = true
+	ref := msg.MessageRef{
+		Channel:        payload.Container.ChannelID,
+		User:           payload.User.ID,
+		Timestamp:      payload.Message.Timestamp,
+		UpdatedMessage: true,
+	}
 
 	// update the original slack message (with the button) and disable the button
 	newMessage := replaceClickedButton(&payload.Message, action.Value, " (clicked)")
 
 	if b.slackClient.Socket != nil {
 		b.slackClient.SendMessage(
-			message,
+			ref,
 			newMessage.Text,
 			slack.MsgOptionUpdate(newMessage.Timestamp),
 			slack.MsgOptionAttachments(newMessage.Attachments...),
@@ -105,23 +95,7 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
 	}
 
 	// execute the command which is stored for this interaction
-	messageEvent.User = payload.User.ID
-	go b.handleMessage(message, true)
-}
-
-func (b *Bot) cleanOldInteractions() (deleted int) {
-	timeCheck := time.Now().Add(-time.Hour * 24)
-	var message slack.MessageEvent
-	keys, _ := storage.GetKeys(storageCollection)
-
-	for _, key := range keys {
-		storage.Read(storageCollection, key, &message)
-		if msg.FromSlackEvent(&message).GetTime().Before(timeCheck) {
-			storage.Delete(storageCollection, key)
-			deleted++
-		}
-	}
-	return
+	go b.handleMessage(ref.WithText(command), true)
 }
 
 // replaces the clicked button: appends the "message" (like "already clicked") and changed the color to red
@@ -132,7 +106,7 @@ func replaceClickedButton(newMessage *slack.Message, actionID string, message st
 				if buttonBlock, ok := block.(*slack.ButtonBlockElement); ok {
 					if buttonBlock.Value == actionID {
 						buttonBlock.Style = slack.StyleDanger
-						buttonBlock.Value = ""
+						buttonBlock.Value = "" // purge command from button
 						buttonBlock.Text.Text += message
 					}
 				}

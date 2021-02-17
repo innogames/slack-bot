@@ -39,7 +39,7 @@ func (c *commentCommand) AddComment(match matcher.Result, message msg.Message) {
 		return
 	}
 
-	_, userName := client.GetUser(message.GetUser())
+	_, userName := client.GetUserIDAndName(message.GetUser())
 
 	comment := fmt.Sprintf(
 		"%s: %s",

@@ -58,7 +58,7 @@ func (c *command) getCallback(cron config.Cron) func() {
 
 			newMessage := msg.Message{}
 			newMessage.User = "cron"
-			newMessage.Channel, _ = client.GetChannel(cron.Channel)
+			newMessage.Channel, _ = client.GetChannelIDAndName(cron.Channel)
 			newMessage.Text = text
 			client.HandleMessage(newMessage)
 		}

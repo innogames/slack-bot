@@ -9,7 +9,6 @@ import (
 
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/storage"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -171,7 +170,7 @@ func (s *Slack) ReplyError(ref msg.Ref, err error) {
 			err.Error(),
 		)
 		message := msg.Message{}
-		message.Channel, _ = GetChannel(s.config.ErrorChannel)
+		message.Channel, _ = GetChannelIDAndName(s.config.ErrorChannel)
 		s.SendMessage(message, text)
 	}
 }
@@ -179,10 +178,14 @@ func (s *Slack) ReplyError(ref msg.Ref, err error) {
 // SendToUser sends a message to any user via IM channel
 func (s *Slack) SendToUser(user string, text string) {
 	// check if a real username was passed -> we need the user-id here
-	user, _ = GetUser(user)
+	userID, _ := GetUserIDAndName(user)
+	if userID == "" {
+		log.Errorf("Invalid user: %s", user)
+		return
+	}
 
 	options := &slack.OpenConversationParameters{
-		Users: []string{user},
+		Users: []string{userID},
 	}
 
 	channel, _, _, err := s.Client.OpenConversation(options)
@@ -211,7 +214,8 @@ func (s *Slack) SendBlockMessage(ref msg.Ref, blocks []slack.Block, options ...s
 	return s.SendMessage(ref, "", append(allOptions, options...)...)
 }
 
-func GetUser(identifier string) (id string, name string) {
+// GetUserIDAndName returns the user-id and user-name based on a identifier. If can get a user-id or name
+func GetUserIDAndName(identifier string) (id string, name string) {
 	identifier = strings.TrimPrefix(identifier, "@")
 	if name, ok := Users[identifier]; ok {
 		return identifier, name
@@ -227,8 +231,8 @@ func GetUser(identifier string) (id string, name string) {
 	return "", ""
 }
 
-// GetChannel returns channel-id and channel-name by an identifier which can be an id or a name
-func GetChannel(identifier string) (id string, name string) {
+// GetChannelIDAndName returns channel-id and channel-name by an identifier which can be an id or a name
+func GetChannelIDAndName(identifier string) (id string, name string) {
 	identifier = strings.TrimPrefix(identifier, "#")
 	if name, ok := Channels[identifier]; ok {
 		return identifier, name
@@ -286,21 +290,14 @@ func GetContextBlock(text string) *slack.ContextBlock {
 
 // GetInteractionButton generates a block "Button" which is able to execute the given command once
 // https://api.slack.com/reference/block-kit/blocks#actions
-func GetInteractionButton(ref msg.Ref, text string, command string, args ...string) *slack.ButtonBlockElement {
+func GetInteractionButton(text string, command string, args ...slack.Style) *slack.ButtonBlockElement {
 	var style slack.Style
 	if len(args) > 0 {
-		style = slack.Style(args[0])
-	}
-
-	id := util.RandString(32)
-
-	message := ref.WithText(command)
-	if err := storage.Write("interactions", id, message); err != nil {
-		log.Warn(err)
+		style = args[0]
 	}
 
 	buttonText := slack.NewTextBlockObject("plain_text", text, true, false)
-	button := slack.NewButtonBlockElement("id", id, buttonText)
+	button := slack.NewButtonBlockElement("id", command, buttonText)
 	button.Style = style
 
 	return button

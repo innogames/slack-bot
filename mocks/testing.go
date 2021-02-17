@@ -68,18 +68,14 @@ func AssertSlackBlocks(t *testing.T, slackClient *SlackClient, message msg.Ref, 
 	t.Helper()
 
 	slackClient.On("SendBlockMessage", message, mock.MatchedBy(func(givenBlocks []slack.Block) bool {
-		// replace the random tokens to fixed ones for easier mocking
-		for i := range givenBlocks {
-			if actionBlock, ok := givenBlocks[i].(*slack.ActionBlock); ok {
-				if button, ok := actionBlock.Elements.ElementSet[0].(*slack.ButtonBlockElement); ok {
-					button.Value = fmt.Sprintf("token-%d", i)
-				}
-			}
-		}
 		givenJSON, err := json.Marshal(givenBlocks)
 		assert.Nil(t, err)
 
-		fmt.Println(string(givenJSON))
+		if expectedJSON != string(givenJSON) {
+			fmt.Println(expectedJSON)
+			fmt.Println("vs")
+			fmt.Println(string(givenJSON))
+		}
 
 		return expectedJSON == string(givenJSON)
 	})).Once().Return("")
