@@ -79,7 +79,7 @@ func (b *Bot) handleSocketModeEvent(event socketmode.Event) {
 		default:
 			log.Infof("Unexpected interactive type received: %s\n", event.Type)
 		}
-	case socketmode.EventTypeConnected, socketmode.EventTypeConnecting, socketmode.EventTypeHello:
+	case socketmode.EventTypeConnected, socketmode.EventTypeConnecting, socketmode.EventTypeHello, socketmode.EventTypeDisconnect, socketmode.EventTypeSlashCommand:
 		// ignore
 	default:
 		log.Infof("Unexpected event type received: %s\n", event.Type)

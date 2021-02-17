@@ -42,7 +42,7 @@ func (c *retryCommand) Retry(match matcher.Result, message msg.Message) {
 	key := message.GetUniqueKey()
 
 	var lastCommand string
-	storage.Read(storageKey, key, &lastCommand)
+	_ = storage.Read(storageKey, key, &lastCommand)
 	if lastCommand != "" {
 		c.SendMessage(message, fmt.Sprintf("Executing command: %s", lastCommand))
 

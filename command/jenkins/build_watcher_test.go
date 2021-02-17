@@ -10,7 +10,7 @@ import (
 )
 
 func TestBuildWatcher(t *testing.T) {
-	slackClient, jenkins, base := getTestJenkinsCommand()
+	slackClient, jenkinsClient, base := getTestJenkinsCommand()
 
 	command := bot.Commands{}
 	command.AddCommand(newBuildWatcherCommand(base))
@@ -27,7 +27,7 @@ func TestBuildWatcher(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "notify build TestJob"
 
-		jenkins.On("GetJob", "TestJob").Return(nil, fmt.Errorf(""))
+		jenkinsClient.On("GetJob", "TestJob").Return(nil, fmt.Errorf(""))
 		slackClient.On("SendMessage", message, "Job *TestJob* does not exist").Return("")
 		actual := command.Run(message)
 		assert.True(t, actual)

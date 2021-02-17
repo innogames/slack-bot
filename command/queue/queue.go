@@ -89,5 +89,8 @@ func executeFallbackCommand() {
 		client.HandleMessage(event)
 	}
 
-	storage.DeleteCollection(storageKey)
+	err := storage.DeleteCollection(storageKey)
+	if err != nil {
+		log.Warn(errors.Wrap(err, "error while deleting fallback queue after startup"))
+	}
 }
