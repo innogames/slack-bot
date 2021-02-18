@@ -1,10 +1,13 @@
 package jenkins
 
 import (
-	"testing"
-
+	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot/config"
+	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/innogames/slack-bot/client"
+	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestGetClient(t *testing.T) {
@@ -110,6 +113,40 @@ func TestParseWords(t *testing.T) {
 
 	actual = parseWords("test \"der test")
 	assert.Equal(t, []string{"test", "der test"}, actual)
+}
+
+func TestWatch(t *testing.T) {
+	build := &gojenkins.Build{}
+
+	resultChan := WatchBuild(build)
+	assert.Empty(t, resultChan)
+}
+
+func TestHook(t *testing.T) {
+	ref := msg.MessageRef{}
+
+	t.Run("With template", func(t *testing.T) {
+		commands := []string{
+			"reply foo",
+			"reply {{.var1}}",
+		}
+		params := map[string]string{
+			"var1": "bar",
+		}
+		processHooks(commands, ref, params)
+		mocks.AssertQueuedMessage(t, ref.WithText("reply foo"))
+		mocks.AssertQueuedMessage(t, ref.WithText("reply bar"))
+	})
+
+	t.Run("With Error", func(t *testing.T) {
+		commands := []string{
+			"reply {{.var1}",
+		}
+		params := map[string]string{}
+
+		processHooks(commands, ref, params)
+		assert.Empty(t, client.InternalMessages)
+	})
 }
 
 func TestJenkinsMixedParameters(t *testing.T) {

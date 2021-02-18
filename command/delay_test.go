@@ -1,7 +1,6 @@
 package command
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -109,7 +108,7 @@ func TestDelay(t *testing.T) {
 		assert.Empty(t, client.InternalMessages)
 
 		message.Text = "stop timer 0"
-		slackClient.On("SendMessage", message, "Stopped timer!").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "Stopped timer!")
 		actual = command.Run(message)
 		assert.True(t, actual)
 
@@ -118,7 +117,7 @@ func TestDelay(t *testing.T) {
 
 		// now try to stop an invalid timer
 		message.Text = "stop timer 5"
-		slackClient.On("ReplyError", message, fmt.Errorf("invalid timer"))
+		mocks.AssertError(slackClient, message, "invalid timer")
 		actual = command.Run(message)
 		assert.True(t, actual)
 	})

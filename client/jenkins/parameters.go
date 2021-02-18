@@ -78,7 +78,8 @@ func parseWords(parameterString string) []string {
 
 	for len(cur) > 0 {
 		c, cur = cur[0], cur[1:]
-		if c == '"' {
+		switch {
+		case c == '"':
 			if isQuoted {
 				isQuoted = false
 				parameters = append(parameters, string(param))
@@ -86,11 +87,11 @@ func parseWords(parameterString string) []string {
 			} else {
 				isQuoted = true
 			}
-		} else if c == ' ' && !isQuoted {
+		case c == ' ' && !isQuoted:
 			// next param
 			parameters = append(parameters, string(param))
 			param = make([]byte, 0)
-		} else {
+		default:
 			// append char to current param
 			param = append(param, c)
 		}

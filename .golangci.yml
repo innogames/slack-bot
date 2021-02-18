@@ -1,24 +1,14 @@
 
 linters-settings:
   gocritic:
-    settings:
-      rangeValCopy:
-        sizeThreshold: 200
-      hugeParam:
-        sizeThreshold: 200
-    enabled-tags:
-      - performance
-      - diagnostic
-      - style
-      - experimental
-      - opinionated
-    disabled-checks:
-      - paramTypeCombine
+#    disabled-checks:
+#      - paramTypeCombine
 issues:
   exclude-rules:
     - path: _test\.go
       linters:
         - errcheck
+        - forbidigo
 
 linters:
   enable:

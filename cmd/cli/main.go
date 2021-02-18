@@ -38,7 +38,7 @@ func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg co
 	defer ctx.ChildDone()
 
 	// set an empty storage -> just store data in Ram
-	storage.InitStorage("")
+	_ = storage.InitStorage("")
 
 	// starts a local http server which is mocking the needed Slack API
 	fakeSlack := tester.StartFakeSlack(&cfg, output)
