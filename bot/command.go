@@ -16,7 +16,7 @@ type Command interface {
 	GetMatcher() matcher.Matcher
 }
 
-// base struct which is handy for all commands, as a direct Slack communication is possible
+// BaseCommand is base struct which is handy for all commands, as a direct Slack communication is possible
 type BaseCommand struct {
 	client.SlackClient
 }

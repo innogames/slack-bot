@@ -5,10 +5,13 @@ import (
 	"text/template"
 )
 
+// TemplateFunctionProvider can be provided by Commands to register template functions to the internal parser.
+// example: "{{ jiraTicketUrl $ticket.Key }}" can be used in custom commands which is provided by the "jiraCommand"
 type TemplateFunctionProvider interface {
 	GetTemplateFunction() template.FuncMap
 }
 
+// Parameters is a wrapper for a map[string]string which is the default set of passing template variables
 type Parameters map[string]string
 
 var functions = template.FuncMap{

@@ -28,18 +28,22 @@ type MessageRef struct {
 	UpdatedMessage  bool   `json:"updated,omitempty"`
 }
 
+// GetChannel returns the channel id (usually starting with "C") of the current message
 func (msg MessageRef) GetChannel() string {
 	return msg.Channel
 }
 
+// GetUser returns the user id (usually starting with "U") of the current message
 func (msg MessageRef) GetUser() string {
 	return msg.User
 }
 
+// GetTimestamp returns the slack-timestamp of the message (e.g. 1613728332.201900)
 func (msg MessageRef) GetTimestamp() string {
 	return msg.Timestamp
 }
 
+// GetTimestamp returns the thread "timestamp" of the message
 func (msg MessageRef) GetThread() string {
 	return msg.Thread
 }
@@ -49,6 +53,7 @@ func (msg MessageRef) IsUpdatedMessage() bool {
 	return msg.UpdatedMessage
 }
 
+// GetUniqueKey generated a unique identifier for a message (based on the user/channel/thread)
 func (msg MessageRef) GetUniqueKey() string {
 	key := strings.TrimRight(
 		strings.Join([]string{msg.GetUser(), msg.GetChannel(), msg.GetThread()}, "-"),
@@ -67,6 +72,7 @@ func (msg MessageRef) GetTime() time.Time {
 	return time.Unix(timestamp, 0)
 }
 
+// IsInternalMessage is set when the bot is generating internal messages which are handles (like from "cron" command)
 func (msg MessageRef) IsInternalMessage() bool {
 	return msg.InternalMessage
 }

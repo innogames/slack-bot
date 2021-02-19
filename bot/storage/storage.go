@@ -9,6 +9,7 @@ import (
 var currentStorage Storage
 var mu sync.Mutex
 
+// Storage is the main interface which is used to persist bot related data (like queued messages or user histories)
 type Storage interface {
 	Write(collection, key string, v interface{}) error
 	Read(collection, key string, v interface{}) error

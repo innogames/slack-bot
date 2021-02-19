@@ -20,6 +20,7 @@ import (
 const maxQuestions = 50 // api limit is 50
 const apiURL = "https://opentdb.com/api.php"
 
+// NewQuizCommand returns a new quizCommand which is a small quiz game
 func NewQuizCommand(base bot.BaseCommand) bot.Command {
 	return &quizCommand{base, quiz{}, apiURL}
 }

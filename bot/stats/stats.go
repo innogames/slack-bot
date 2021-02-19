@@ -24,7 +24,7 @@ func IncreaseOne(key string) {
 	Increase(key, 1)
 }
 
-// IncreaseOne is increasing the stats counter
+// Increase is increasing the stats counter
 func Increase(key string, count uint) {
 	mu.Lock()
 	defer mu.Unlock()

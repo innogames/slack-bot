@@ -11,6 +11,8 @@ type PullRequest struct {
 	CustomApproveReaction map[string]util.Reaction `mapstructure:"custom_approve_reaction"`
 }
 
+// PullRequestReactions can be defined in the config.yaml to have custom reactions for pull requests.
+// the defaults are defined in default.go
 type PullRequestReactions struct {
 	InReview     util.Reaction `mapstructure:"in_review"`
 	Approved     util.Reaction `mapstructure:"approved"`

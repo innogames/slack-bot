@@ -36,12 +36,12 @@ func (c *ServerContext) StopTheWorld() {
 	log.Info("Done...bye bye!")
 }
 
-// add a new child...
+// RegisterChild adds a new child...
 func (c *ServerContext) RegisterChild() {
 	c.wg.Add(1)
 }
 
-// ...mark a child shutdown as done (-> use this method in defer)
+// ChildDone ...mark a child shutdown as done (-> use this method in defer)
 func (c *ServerContext) ChildDone() {
 	c.wg.Done()
 }
