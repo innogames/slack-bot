@@ -20,7 +20,7 @@ import (
 // @deprecated -> use HandleMessageWithDoneHandler instead
 var InternalMessages = make(chan msg.Message, 50)
 
-// HandleMessageWithDoneHandler will register the given message in the queue...and returns a sync.WaitGroup which can be used to see when the message is handled
+// HandleMessage will register the given message in the queue...and returns a sync.WaitGroup which can be used to see when the message is handled
 func HandleMessage(message msg.Message) {
 	InternalMessages <- message
 }
@@ -84,6 +84,8 @@ func GetSlackClient(cfg config.Slack) (*Slack, error) {
 	return &Slack{Client: rawClient, RTM: rtm, Socket: socket, config: cfg}, nil
 }
 
+// SlackClient is the main interface which is used for all commands to interact with slack
+// for tests we have a mock for it, for production use, we use a slack.Client with some custom logic
 type SlackClient interface {
 	// ReplyError Replies a error to the current channel/user/thread + log it!
 	ReplyError(ref msg.Ref, err error)
@@ -99,13 +101,14 @@ type SlackClient interface {
 	AddReaction(reaction util.Reaction, ref msg.Ref)
 	GetReactions(item slack.ItemRef, params slack.GetReactionsParameters) ([]slack.ItemReaction, error)
 
+	// GetConversationHistory loads the message history from slack
 	GetConversationHistory(*slack.GetConversationHistoryParameters) (*slack.GetConversationHistoryResponse, error)
 
 	// CanHandleInteractions checks if we have a slack connections which can inform us about events/interactions, like pressed buttons?
 	CanHandleInteractions() bool
 }
 
-// wrapper to the Slack client which also holds the RTM connection (optional) and all needed config
+// Slack is wrapper to the slack.Client which also holds the RTM connection OR the socketmode.Client and all needed config
 type Slack struct {
 	*slack.Client
 	RTM    *slack.RTM
@@ -113,6 +116,7 @@ type Slack struct {
 	config config.Slack
 }
 
+// AddReaction will add a reaction from the given message
 func (s *Slack) AddReaction(reaction util.Reaction, ref msg.Ref) {
 	err := s.Client.AddReaction(reaction.ToSlackReaction(), slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp()))
 	if err != nil {
@@ -120,6 +124,7 @@ func (s *Slack) AddReaction(reaction util.Reaction, ref msg.Ref) {
 	}
 }
 
+// RemoveReaction will remove a reaction from the given message
 func (s *Slack) RemoveReaction(reaction util.Reaction, ref msg.Ref) {
 	err := s.Client.RemoveReaction(reaction.ToSlackReaction(), slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp()))
 	if err != nil {
@@ -134,6 +139,7 @@ func (s *Slack) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption
 	}
 
 	if len(options) == 0 && text == "" {
+		// ignore empty messages
 		return ""
 	}
 
@@ -159,6 +165,7 @@ func (s *Slack) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption
 	return msgTimestamp
 }
 
+// ReplyError send a error message as a reply to the user and log it in the log + send it to ErrorChannel (if defined)
 func (s *Slack) ReplyError(ref msg.Ref, err error) {
 	log.WithError(err).Warnf("Error while sending reply")
 	s.SendMessage(ref, err.Error())
@@ -248,6 +255,8 @@ func GetChannelIDAndName(identifier string) (id string, name string) {
 	return "", ""
 }
 
+// GetSlackLink generates a "link button" as a slack.AttachmentAction which will
+// open the given URL in the Slack client (when pressed)
 func GetSlackLink(name string, url string, args ...string) slack.AttachmentAction {
 	style := "default"
 

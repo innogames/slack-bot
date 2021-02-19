@@ -15,18 +15,22 @@ import (
 	"time"
 )
 
+// AssertSlackMessage is a test helper to check for a given slack message
 func AssertSlackMessage(slackClient *SlackClient, ref msg.Ref, text string) {
 	slackClient.On("SendMessage", ref, text).Once().Return("")
 }
 
+// AssertReactions is a test helper to expect a given slack reaction to be added
 func AssertReaction(slackClient *SlackClient, reaction string, ref msg.Ref) {
 	slackClient.On("AddReaction", util.Reaction(reaction), ref).Once()
 }
 
+// AssertRemoveReaction is a test helper to expect a given slack reaction to be removed
 func AssertRemoveReaction(slackClient *SlackClient, reaction string, ref msg.Ref) {
 	slackClient.On("RemoveReaction", util.Reaction(reaction), ref).Once()
 }
 
+// AssertError is a test helper which check for calls to "ReplyError"
 func AssertError(slackClient *SlackClient, ref msg.Ref, errorIn interface{}) {
 	var err error
 	switch e := errorIn.(type) {
@@ -38,6 +42,7 @@ func AssertError(slackClient *SlackClient, ref msg.Ref, errorIn interface{}) {
 	slackClient.On("ReplyError", ref, err).Once()
 }
 
+// AssertQueuedMessage checks if a given internal message was queued
 func AssertQueuedMessage(t *testing.T, expected msg.Message) {
 	t.Helper()
 

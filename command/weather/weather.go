@@ -64,7 +64,7 @@ func (c *command) GetWeather(match matcher.Result, message msg.Message) {
 		return
 	}
 
-	var record CurrentWeatherResponse
+	var record currentWeatherResponse
 	err = json.NewDecoder(response.Body).Decode(&record)
 	if err != nil {
 		c.ReplyError(message, err)

@@ -33,6 +33,8 @@ func NewBot(cfg config.Config, slackClient *client.Slack, commands *Commands) *B
 	}
 }
 
+// Bot is the main object which is holding the connection to Slack and all possible commands
+// it also registers the listener and handles topics like authentication and logging
 type Bot struct {
 	config       config.Config
 	slackClient  *client.Slack
@@ -145,7 +147,7 @@ func (b *Bot) loadSlackData() error {
 	return nil
 }
 
-// entry point for incoming slack messages:
+// HandleMessage is the entry point for incoming slack messages:
 // - checks if the message is relevant (direct message to bot or mentioned via @bot)
 // - is the user allowed to interact with the bot?
 // - find the matching command and execute it

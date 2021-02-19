@@ -32,6 +32,7 @@ type Config struct {
 	Timezone     string      `mapstructure:"timezone"`
 }
 
+// Github config, currently just an access token
 type Github struct {
 	AccessToken string `mapstructure:"access_token"`
 }
@@ -57,6 +58,8 @@ type Slack struct {
 	TestEndpointURL string `mapstructure:"-"`
 }
 
+// CanHandleInteractions checks if the slack config supports interaction/event via "Socket Mode" API
+// in this case some commands are adding buttons to messages which are more advanced
 func (s Slack) CanHandleInteractions() bool {
 	return s.SocketToken != ""
 }
@@ -87,12 +90,15 @@ type Bitbucket struct {
 	Repository string `mapstructure:"repository"`
 }
 
+// IsEnabled checks if a host is defined in the Bitbucket config
 func (c *Bitbucket) IsEnabled() bool {
 	return c.Host != ""
 }
 
+// UserList is a wrapper for []string with some helper to check is a user is in the list (e.g. used for AdminUser list)
 type UserList []string
 
+// Contains checks if the given user is in the UserList
 func (l UserList) Contains(givenUserID string) bool {
 	for _, userID := range l {
 		if userID == givenUserID {
@@ -106,6 +112,7 @@ func (l UserList) Contains(givenUserID string) bool {
 // UserMap indexed by user id, value is the user name
 type UserMap map[string]string
 
+// Contains checks if the given user is in the UserMap
 func (m UserMap) Contains(givenUserID string) bool {
 	return m[givenUserID] != ""
 }

@@ -1,8 +1,4 @@
 
-linters-settings:
-  gocritic:
-#    disabled-checks:
-#      - paramTypeCombine
 issues:
   exclude-rules:
     - path: _test\.go
@@ -54,6 +50,3 @@ linters:
     - varcheck
     - whitespace
   fast: false
-
-issues:
-  new: true

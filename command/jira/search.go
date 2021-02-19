@@ -24,9 +24,7 @@ type jiraCommand struct {
 }
 
 const (
-	FormatDefault = "default"
-	FormatFull    = "full"
-	FormatLink    = "link"
+	formatLink = "link"
 )
 
 var ticketRe = regexp.MustCompile(`^(\w+)-(\d+)$`)
@@ -94,7 +92,7 @@ func (c *jiraCommand) getTicketNumber(eventText string) string {
 }
 
 func (c *jiraCommand) sendTicket(ref msg.Ref, issue *jira.Issue, format string) {
-	if format == FormatLink {
+	if format == formatLink {
 		text := fmt.Sprintf("<%s|%s: %s>", getTicketURL(c.config, *issue), issue.Key, issue.Fields.Summary)
 		c.slackClient.SendMessage(ref, text)
 		return

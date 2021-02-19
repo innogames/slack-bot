@@ -39,7 +39,7 @@ type sys struct {
 	Sunset  int    `json:"sunset"`
 }
 
-type CurrentWeatherResponse struct {
+type currentWeatherResponse struct {
 	Coord   coord     `json:"coord"`
 	Weather []weather `json:"weather"`
 	Main    main      `json:"main"`

@@ -59,7 +59,7 @@ func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
 }
 
 func (b *Bot) handleSocketModeEvent(event socketmode.Event) {
-	if b.slackClient.Socket != nil {
+	if b.slackClient.Socket != nil && event.Request != nil && event.Type != socketmode.EventTypeHello {
 		b.slackClient.Socket.Ack(*event.Request)
 	}
 
