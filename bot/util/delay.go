@@ -15,7 +15,7 @@ const durationForMaxDelay = time.Hour * 24
 // Result:   22223333444455556666777788889999999999999999999
 func GetIncreasingDelay(minDuration time.Duration, maxDuration time.Duration) IncreasingDelay {
 	return IncreasingDelay{
-		time.Millisecond * time.Duration(rand.Intn(2000)), // add up to 2s randomly to avoid peaks
+		time.Millisecond * time.Duration(rand.Intn(2000)), //nolint:gosec // add up to 2s randomly to avoid peaks
 		time.Now(),
 		minDuration,
 		maxDuration,

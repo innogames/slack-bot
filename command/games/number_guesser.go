@@ -43,7 +43,7 @@ func (c *numberGuesserCommand) Start(match matcher.Result, message msg.Message) 
 		return
 	}
 
-	randomNumber := rand.Intn(maxNumber)
+	randomNumber := rand.Intn(maxNumber) //nolint:gosec
 	game := &game{
 		randomNumber: randomNumber,
 		tries:        0,

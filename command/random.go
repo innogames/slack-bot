@@ -13,7 +13,7 @@ import (
 
 // NewRandomCommand will reply a random entry
 func NewRandomCommand(base bot.BaseCommand) bot.Command {
-	random := rand.New(rand.NewSource(time.Now().UnixNano()))
+	random := rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec
 
 	return &randomCommand{base, random}
 }

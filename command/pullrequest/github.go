@@ -85,15 +85,16 @@ func (c *githubFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 }
 
 func (c *githubFetcher) getStatus(pr *github.PullRequest, inReview bool) prStatus {
-	if pr.GetMerged() {
+	switch {
+	case pr.GetMerged():
 		return prStatusMerged
-	} else if *pr.State == "closed" {
+	case *pr.State == "closed":
 		return prStatusClosed
-	} else if inReview {
+	case inReview:
 		return prStatusInReview
+	default:
+		return prStatusOpen
 	}
-
-	return prStatusOpen
 }
 
 func (c *githubFetcher) GetTemplateFunction() template.FuncMap {

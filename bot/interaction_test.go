@@ -182,7 +182,11 @@ func TestInteraction(t *testing.T) {
 			},
 		}
 
-		bot.handleInteraction(callback)
+		event := socketmode.Event{}
+		event.Type = socketmode.EventTypeInteractive
+		event.Data = callback
+
+		bot.handleSocketModeEvent(event)
 	})
 
 	t.Run("handle unauthorized interaction", func(t *testing.T) {

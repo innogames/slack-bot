@@ -59,26 +59,17 @@ func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
 }
 
 func (b *Bot) handleSocketModeEvent(event socketmode.Event) {
+	if b.slackClient.Socket != nil {
+		b.slackClient.Socket.Ack(*event.Request)
+	}
+
 	switch event.Type {
 	case socketmode.EventTypeConnectionError, socketmode.EventTypeErrorBadMessage, socketmode.EventTypeErrorWriteFailed, socketmode.EventTypeIncomingError, socketmode.EventTypeInvalidAuth:
 		log.Warnf("Socket Mode error: %s - %s", event.Type, event.Data)
 	case socketmode.EventTypeEventsAPI:
-		eventsAPIEvent := event.Data.(slackevents.EventsAPIEvent)
-		if b.slackClient.Socket != nil {
-			b.slackClient.Socket.Ack(*event.Request)
-		}
-
-		b.handleEvent(eventsAPIEvent)
+		b.handleEvent(event.Data.(slackevents.EventsAPIEvent))
 	case socketmode.EventTypeInteractive:
-		callback := event.Data.(slack.InteractionCallback)
-		b.slackClient.Socket.Ack(*event.Request)
-
-		switch callback.Type {
-		case slack.InteractionTypeBlockActions:
-			b.handleInteraction(event.Data.(slack.InteractionCallback))
-		default:
-			log.Infof("Unexpected interactive type received: %s\n", event.Type)
-		}
+		b.handleInteraction(event.Data.(slack.InteractionCallback))
 	case socketmode.EventTypeConnected, socketmode.EventTypeConnecting, socketmode.EventTypeHello, socketmode.EventTypeDisconnect, socketmode.EventTypeSlashCommand:
 		// ignore
 	default:
