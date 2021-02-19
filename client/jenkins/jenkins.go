@@ -11,6 +11,7 @@ import (
 )
 
 const (
+	// IconRunning and the other ones are jenkins specific Slack reactions which are used for different kind of commands
 	IconRunning = "arrows_counterclockwise"
 	IconSuccess = "white_check_mark"
 	IconFailed  = "x"

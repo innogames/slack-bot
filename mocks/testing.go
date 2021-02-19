@@ -20,7 +20,7 @@ func AssertSlackMessage(slackClient *SlackClient, ref msg.Ref, text string) {
 	slackClient.On("SendMessage", ref, text).Once().Return("")
 }
 
-// AssertReactions is a test helper to expect a given slack reaction to be added
+// AssertReaction is a test helper to expect a given slack reaction to be added
 func AssertReaction(slackClient *SlackClient, reaction string, ref msg.Ref) {
 	slackClient.On("AddReaction", util.Reaction(reaction), ref).Once()
 }

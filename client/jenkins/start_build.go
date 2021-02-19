@@ -35,20 +35,7 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 
 	slackClient.RemoveReaction(iconPending, message)
 
-	estimatedDuration := time.Duration(build.Raw.EstimatedDuration) * time.Millisecond
-	text := fmt.Sprintf(
-		"Job %s started (#%d - estimated: %s)",
-		build.Job.GetName(),
-		build.GetBuildNumber(),
-		util.FormatDuration(estimatedDuration),
-	)
-
-	// send main response (with parameters)
-	msgTimestamp := slackClient.SendMessage(
-		message,
-		"",
-		GetAttachment(build, text),
-	)
+	msgTimestamp := sendBuildStartedMessage(build, slackClient, message)
 
 	runningCommand := queue.AddRunningCommand(
 		message,
@@ -73,7 +60,7 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 			attachment,
 		)
 
-		text = getFinishBuildText(build, message.User, jobName)
+		text := getFinishBuildText(build, message.User, jobName)
 		if build.Raw.Result == gojenkins.STATUS_SUCCESS {
 			slackClient.SendMessage(message, text)
 			processHooks(cfg.OnSuccess, message, jobParams)
@@ -88,6 +75,25 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 	}()
 
 	return nil
+}
+
+// send main response (with parameters)
+func sendBuildStartedMessage(build *gojenkins.Build, slackClient client.SlackClient, ref msg.Ref) string {
+	estimatedDuration := time.Duration(build.Raw.EstimatedDuration) * time.Millisecond
+	text := fmt.Sprintf(
+		"Job %s started (#%d - estimated: %s)",
+		build.Job.GetName(),
+		build.GetBuildNumber(),
+		util.FormatDuration(estimatedDuration),
+	)
+
+	msgTimestamp := slackClient.SendMessage(
+		ref,
+		"",
+		GetAttachment(build, text),
+	)
+
+	return msgTimestamp
 }
 
 // startJob starts a job and waits until job is not queued anymore

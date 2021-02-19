@@ -8,7 +8,7 @@ import (
 // after this duration, return the maxDuration. Below, calculate a linear delay, based on min/max
 const durationForMaxDelay = time.Hour * 24
 
-// Returns a increasing duration to have less polling overhead but keep a higher frequency in the first day
+// GetIncreasingDelay Returns a increasing duration to have less polling overhead but keep a higher frequency in the first day
 //
 // given: min: 2, max: 9
 // Timeline: start                       max             now
@@ -22,6 +22,7 @@ func GetIncreasingDelay(minDuration time.Duration, maxDuration time.Duration) In
 	}
 }
 
+// IncreasingDelay is a wrapper to support GetIncreasingDelay to have a increasing interval functionality
 type IncreasingDelay struct {
 	randomAdd   time.Duration
 	startedAt   time.Time
@@ -29,6 +30,7 @@ type IncreasingDelay struct {
 	maxDuration time.Duration
 }
 
+// GetNextDelay returns a time.Duration based on the given context
 func (d IncreasingDelay) GetNextDelay() time.Duration {
 	startedAgo := time.Since(d.startedAt)
 

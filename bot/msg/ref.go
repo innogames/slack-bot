@@ -43,7 +43,7 @@ func (msg MessageRef) GetTimestamp() string {
 	return msg.Timestamp
 }
 
-// GetTimestamp returns the thread "timestamp" of the message
+// GetThread returns the thread "timestamp" of the message
 func (msg MessageRef) GetThread() string {
 	return msg.Thread
 }

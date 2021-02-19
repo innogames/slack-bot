@@ -11,10 +11,14 @@ import (
 const collection = "stats"
 
 const (
-	// keys of some tracked statistics
-	TotalCommands        = "command_total"
+	// TotalCommands is the tracking key to get the number of all processed commands
+	TotalCommands = "command_total"
+
+	// UnauthorizedCommands is the tracking key to get the number of commands by unauthorized users
 	UnauthorizedCommands = "command_unauthorized"
-	UnknownCommands      = "command_unknown"
+
+	// UnknownCommands is the tracking key to get the number of all unknown commands (when the fallback-command is fired)
+	UnknownCommands = "command_unknown"
 )
 
 var mu sync.Mutex
