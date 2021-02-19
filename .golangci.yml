@@ -54,3 +54,6 @@ linters:
     - varcheck
     - whitespace
   fast: false
+
+issues:
+  new: true
