@@ -1,6 +1,6 @@
 # Slack Bot
 This Slack bot improves the workflow of development teams. Especially with focus on Jenkins, Github, Gitlab and Jira, as the integration is working out of the box.
-But also custom commands, macros and other project specific commands can be implemented in a simple and flexible way.
+But also custom commands, macros, crons and other project specific commands can be implemented in a simple and flexible way.
 
 [![Actions Status](https://github.com/innogames/slack-bot/workflows/Test/badge.svg)](https://github.com/innogames/slack-bot/actions)
 [![PkgGoDev](https://pkg.go.dev/badge/innogames/slack-bot)](https://pkg.go.dev/github.com/innogames/slack-bot/)
@@ -168,20 +168,7 @@ It's possible to create buttons which are performing any bot action when pressin
 
 **Note** 
  - only whitelisted users can click the button
- - each button is only active once (but it will stay with the)
- - slack needs to reach the server via public domain/IP! [See this slack documentation](https://api.slack.com/tutorials/tunneling-with-ngrok) about some tricks.
- 
-**Config without a public reachable IP/Domain**
-1) start local [ngrok.io](https://ngrok.io) server (using local port 4390 by default)
-2) In [App settings](https://api.slack.com/apps) open the "Interactivity & Shortcuts" for your app and make sure it's enabled.
-3) Add the request URL. E.g. https://foobar.eu.ngrok.io/interactions (Note: `/interactions` is the slack-bot handle)
-4) In "Basic Information" of the Slack app, use the "Signing Secret" as server.signing_secret below.
-5) Add this to the config and start the bot:
-```
-server:
-  listen: 127.0.0.1:4390 # using local ngrok.io tunnel
-  verification_secret: 12345678qwertzuiopasdfghj
-```
+ - each button is only active once
   
 ## Custom variables
 Configure user specific variables to customize bot behaviour. E.g. each developer has his own server environment.
@@ -189,12 +176,33 @@ Configure user specific variables to customize bot behaviour. E.g. each develope
 **Example:** Having this global config:
 ```
 commands:
-  - name: deploy
+  - name: Deploy
     trigger: "deploy (?P<branch>.*)"
     commands:
       - deploy {{.branch}} to {{ customVariable "defaultServer" }}
 ``` 
 
+**Another example**
+Here an advanced version which uses [Go templates](https://golang.org/pkg/text/template/).
+In the end the command will generate one subcommand, like:
+`reply <!here> demo for <https://jira.example.com/TEST-1234|TEST-1234: Example-Ticket>` which will post the link to the Slack channel.
+
+```
+  - name: demo
+    trigger: "demo (?P<ticketId>\\w+-\\d+)"
+    commands:
+      - |
+        {{ $ticket := jiraTicket .ticketId }}
+        {{ if $ticket }}
+          reply <!here> demo for <{{ jiraTicketUrl $ticket.Key }}|{{ $ticket.Key }}: {{ $ticket.Fields.Summary }}>
+        {{ else }}
+          reply Ticket {{ .ticketId }} not found :white_frowning_face:
+        {{ end }}
+    description: Informs the current channel about a demo of a Jira ticket. It directly posts a link to the ticket
+    examples:
+      - demo XYZ-1232
+```
+    
 User can define his default environment once by using `set variable serverEnvironment aws-02`.
 
 Then the `deploy feature-123` will deploy the branch to the defined `aws-02` environment.

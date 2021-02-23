@@ -3,12 +3,14 @@
 
 all: clean dep test build/slack-bot
 
+FLAGS = -trimpath -ldflags="-s -w -X github.com/innogames/slack-bot/bot.Version=$(shell git describe --tags)"
+
 build/slack-bot: dep
 	mkdir -p build/
-	go build -o build/slack-bot -trimpath -ldflags="-s -w" cmd/bot/main.go
+	go build $(FLAGS) -o build/slack-bot cmd/bot/main.go
 
 run: dep
-	go run cmd/bot/main.go
+	go run $(FLAGS) cmd/bot/main.go
 
 run-cli: dep
 	go run cmd/cli/main.go

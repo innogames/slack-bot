@@ -57,10 +57,6 @@ func (s *memoryStorage) GetKeys(collection string) ([]string, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	if len(s.storage[collection]) == 0 {
-		return nil, fmt.Errorf("collection is empty")
-	}
-
 	var keys = make([]string, 0, len(s.storage[collection]))
 
 	for key := range s.storage[collection] {

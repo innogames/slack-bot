@@ -2,7 +2,6 @@ package command
 
 import (
 	"fmt"
-	"io"
 	"sort"
 	"strings"
 	"sync"
@@ -49,46 +48,48 @@ func (t *helpCommand) GetHelp() []bot.Help {
 func (t *helpCommand) ShowAll(match matcher.Result, message msg.Message) {
 	t.once.Do(t.prebuildHelp)
 
-	var text strings.Builder
+	var text string
 
-	text.WriteString("Hello <@" + message.User + ">, I’m your friendly slack-bot. You want me to show you around? :smile: \n")
-	text.WriteString("I currently listen to the following commands:\n")
+	text += "Hello <@" + message.User + ">, I’m your friendly slack-bot. You want me to show you around? :smile: \n"
+	text += "I currently listen to the following commands:\n"
 
 	var lastCategory = bot.Category{}
 	for _, commandHelp := range t.sortedCommands {
 		// print new category header
 		if commandHelp.Category.Name != "" && lastCategory != commandHelp.Category {
 			lastCategory = commandHelp.Category
-			t.printCategoryHeader(commandHelp, &text)
+			text += t.printCategoryHeader(commandHelp)
 		}
 
 		if commandHelp.HelpURL != "" {
-			text.WriteString(fmt.Sprintf("• <%s|%s>", commandHelp.HelpURL, commandHelp.Command))
+			text += fmt.Sprintf("• <%s|%s>", commandHelp.HelpURL, commandHelp.Command)
 		} else {
-			text.WriteString(fmt.Sprintf("• *%s*", commandHelp.Command))
+			text += fmt.Sprintf("• *%s*", commandHelp.Command)
 		}
 		if commandHelp.Description != "" {
-			text.WriteString(fmt.Sprintf(" _(%s)_", commandHelp.Description))
+			text += fmt.Sprintf(" _(%s)_", commandHelp.Description)
 		}
-		text.WriteString("\n")
+		text += "\n"
 	}
 
-	text.WriteString("With *help <command>* I can provide you with more details!")
-	t.SendMessage(message, text.String())
+	text += "With *help <command>* I can provide you with more details!"
+	t.SendMessage(message, text)
 }
 
-func (t *helpCommand) printCategoryHeader(commandHelp bot.Help, text io.StringWriter) {
+func (t *helpCommand) printCategoryHeader(commandHelp bot.Help) (text string) {
 	if commandHelp.Category.HelpURL != "" {
-		text.WriteString(fmt.Sprintf("*<%s|%s>*", commandHelp.Category.HelpURL, commandHelp.Category.Name))
+		text += fmt.Sprintf("*<%s|%s>*", commandHelp.Category.HelpURL, commandHelp.Category.Name)
 	} else {
-		text.WriteString(fmt.Sprintf("*%s*", commandHelp.Category.Name))
+		text += fmt.Sprintf("*%s*", commandHelp.Category.Name)
 	}
 
 	if commandHelp.Category.Description != "" {
-		text.WriteString(fmt.Sprintf(" (_%s_)", commandHelp.Category.Description))
+		text += fmt.Sprintf(" (_%s_)", commandHelp.Category.Description)
 	}
 
-	text.WriteString(":\n")
+	text += ":\n"
+
+	return
 }
 
 // ShowSingleCommand prints details of a specific command

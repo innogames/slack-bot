@@ -16,15 +16,15 @@ admin_users:
 # define a custom set of own commands: They match a regular expression any can call a set of other internal/custom commands
 # here just some examples:
 commands:
-
-  - name: deploy
+  - name: Deploy
     trigger: "deploy (?P<branch>[\\w\\d\\-_\\.\\/]+)"
     commands:
       - trigger job BuildClients {{.branch}}
       - trigger job Deploy {{.branch}}
       - reply I deployed {{.branch}}
+      - add link "Open Admintool" https://project.example.com/admintool/
 
-  - name: open component bugs
+  - name: List open Jira bugs
     trigger: "open (?P<project>(backend|mobile|frontend)) bugs"
     description: "Lists open Jira bugs from a given component"
     category: QA

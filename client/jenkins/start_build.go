@@ -147,16 +147,16 @@ func getAttachment(build *gojenkins.Build, message string) slack.Attachment {
 	var icon string
 	var color string
 	if build.Raw.Building {
-		icon = IconRunning
+		icon = iconRunning
 		color = "#E0E000"
 	} else if build.Raw.Result == gojenkins.STATUS_SUCCESS {
-		icon = IconSuccess
+		icon = iconSuccess
 		color = "#00EE00"
 	} else if build.Raw.Result == gojenkins.STATUS_ABORTED {
 		icon = iconAborted
 		color = "#CCCCCC"
 	} else {
-		icon = IconFailed
+		icon = iconFailed
 		color = "#CC0000"
 	}
 

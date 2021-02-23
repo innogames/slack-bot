@@ -6,6 +6,7 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/slack-go/slack"
+	"strings"
 )
 
 // NewAddLinkCommand is more or less internal command to add a link button to the posted message
@@ -27,7 +28,10 @@ func (c *addLinkCommand) AddLink(match matcher.Result, message msg.Message) {
 
 	attachment := slack.Attachment{
 		Actions: []slack.AttachmentAction{
-			client.GetSlackLink(name, link),
+			client.GetSlackLink(
+				strings.Trim(name, "'\""),
+				link,
+			),
 		},
 	}
 

@@ -36,7 +36,7 @@ func testStorage(t *testing.T, storage Storage) {
 	assert.Len(t, keys, 3)
 
 	keys, err = storage.GetKeys("invalid-collection")
-	assert.Error(t, err)
+	assert.Nil(t, err)
 	assert.Len(t, keys, 0)
 
 	// read valid data
@@ -65,7 +65,7 @@ func testStorage(t *testing.T, storage Storage) {
 	assert.Error(t, err)
 
 	keys, err = storage.GetKeys(collection)
-	assert.Error(t, err)
+	assert.Nil(t, err)
 	assert.Len(t, keys, 0)
 
 	keys, err = GetKeys("../")

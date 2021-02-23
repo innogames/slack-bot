@@ -2,8 +2,6 @@ package storage
 
 import (
 	"encoding/json"
-	"fmt"
-
 	"github.com/go-redis/redis/v7"
 )
 
@@ -43,10 +41,6 @@ func (s redisStorage) GetKeys(collection string) ([]string, error) {
 	res, err := s.client.HKeys(collection).Result()
 	if err != nil {
 		return nil, err
-	}
-
-	if len(res) == 0 {
-		return nil, fmt.Errorf("collection is empty")
 	}
 
 	return res, nil

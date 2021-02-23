@@ -18,6 +18,12 @@ type buildWatcherCommand struct {
 	jenkinsCommand
 }
 
+const (
+	iconRunning = "arrows_counterclockwise"
+	iconSuccess = "white_check_mark"
+	iconFailed  = "x"
+)
+
 // newBuildWatcherCommand watches the status of an already running jenkins build
 func newBuildWatcherCommand(base jenkinsCommand) bot.Command {
 	return &buildWatcherCommand{base}
@@ -76,11 +82,11 @@ func (c *buildWatcherCommand) Run(match matcher.Result, message msg.Message) {
 			jenkins.GetAttachment(build, text),
 		)
 
-		c.RemoveReaction(jenkins.IconRunning, message)
+		c.RemoveReaction(iconRunning, message)
 		if build.IsGood() {
-			c.AddReaction(jenkins.IconSuccess, message)
+			c.AddReaction(iconSuccess, message)
 		} else {
-			c.AddReaction(jenkins.IconFailed, message)
+			c.AddReaction(iconFailed, message)
 		}
 
 		duration := time.Duration(build.GetDuration()) * time.Millisecond
