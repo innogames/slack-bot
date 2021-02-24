@@ -8,10 +8,10 @@ on:
 
 jobs:
   test:
-    name: Tests
+    name: Run tests and buid binary
     strategy:
       matrix:
-        go-version: [1.15.x]
+        go-version: [1.15.x, 1.16.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -21,8 +21,22 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Run tests
+        run: make test
+        env:
+          BOT_GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: make build/slack-bot
+  test-coverage:
+    name: Generate test coverage
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v2
         with:
-          fetch-depth: 0
+          go-version: "1.16.x"
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Test
         run: make test-coverage
         env:

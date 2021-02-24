@@ -10,6 +10,4 @@ FROM alpine:latest as alpine
 RUN apk add --no-cache git ca-certificates tzdata
 COPY --from=builder app .
 
-EXPOSE 4390
-
 CMD ["./app"]

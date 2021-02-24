@@ -14,6 +14,7 @@ linters:
     - depguard
     - dogsled
     - dupl
+    - errcheck
     - errorlint
     - exhaustive
     - exportloopref
@@ -24,8 +25,8 @@ linters:
     - gofmt
     - golint
     - goprintffuncname
-    - gosimple
     - gosec
+    - gosimple
     - govet
     - ineffassign
     - interfacer

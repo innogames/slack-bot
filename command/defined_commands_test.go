@@ -61,12 +61,19 @@ func TestMacro(t *testing.T) {
 	client.InternalMessages = make(chan msg.Message, 2)
 	cfg := []config.Command{
 		{
-			Name: "Test",
+			Name: "Test 1",
 			Commands: []string{
 				"macro 1",
 				"macro {{ .text }}",
 			},
 			Trigger: "start (?P<text>.*)",
+		},
+		{
+			Name: "Test 2",
+			Commands: []string{
+				"reply {{project}}", // should be {{.project}} to output the var
+			},
+			Trigger: "test (?P<project>(backend|mobile|frontend))",
 		},
 	}
 
@@ -81,7 +88,15 @@ func TestMacro(t *testing.T) {
 		assert.False(t, actual)
 	})
 
-	t.Run("test util", func(t *testing.T) {
+	t.Run("invalid macro with regexp", func(t *testing.T) {
+		message := msg.Message{}
+		message.Text = "test 122"
+
+		actual := command.Run(message)
+		assert.False(t, actual)
+	})
+
+	t.Run("test commands", func(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "start test"
 
@@ -99,5 +114,15 @@ func TestMacro(t *testing.T) {
 			Text: "macro test",
 		})
 		assert.Empty(t, client.InternalMessages)
+	})
+
+	t.Run("test error", func(t *testing.T) {
+		message := msg.Message{}
+		message.Text = "test backend"
+
+		mocks.AssertError(slackClient, message, "template: reply {{project}}:1: function \"project\" not defined")
+
+		actual := command.Run(message)
+		assert.True(t, actual)
 	})
 }

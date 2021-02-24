@@ -3,6 +3,7 @@ package admin
 import (
 	"fmt"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -62,6 +63,8 @@ func (c *statsCommand) collectStats(result *statsResult) {
 	result.addValue("Mem TotalAlloc", util.FormatBytes(m.TotalAlloc))
 	result.addValue("Mem Sys", util.FormatBytes(m.Sys))
 	result.addValue("NumGC", fmt.Sprintf("%d", m.NumGC))
+	result.addValue("Bot Version", bot.Version)
+	result.addValue("Go Version", runtime.Version())
 }
 
 type statsResult struct {
@@ -69,11 +72,15 @@ type statsResult struct {
 }
 
 func (s *statsResult) addNewSection(section string) {
-	s.WriteString(fmt.Sprintf("*%s*:\n", section))
+	s.addLine(fmt.Sprintf("*%s*:", section))
 }
 
 func (s *statsResult) addValue(name string, value string) {
-	s.WriteString(fmt.Sprintf("• %s: %s\n", name, value))
+	s.addLine(fmt.Sprintf("• %s: %s", name, value))
+}
+
+func (s *statsResult) addLine(line string) {
+	_, _ = s.WriteString(line + "\n")
 }
 
 func formatStats(key string) string {
@@ -82,7 +89,7 @@ func formatStats(key string) string {
 		return "0"
 	}
 
-	return fmt.Sprintf("%d", value)
+	return strconv.Itoa(int(value))
 }
 
 func (c *statsCommand) GetHelp() []bot.Help {

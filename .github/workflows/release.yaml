@@ -22,10 +22,11 @@ jobs:
             goos: darwin
     steps:
       - uses: actions/checkout@v2
-      - uses: wangyoucao577/go-release-action@master
+      - uses: wangyoucao577/go-release-action@v1.14
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           binary_name: slack-bot
           project_path: "./cmd/bot"
+          ldflags: -trimpath -ldflags="-s -w -X github.com/innogames/slack-bot/bot.Version=${{ github.event.release.tag_name }}"

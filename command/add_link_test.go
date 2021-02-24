@@ -34,4 +34,15 @@ func TestAddLink(t *testing.T) {
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
+
+	t.Run("add link with quotes", func(t *testing.T) {
+		message := msg.Message{}
+		message.Text = "add link 'google' <https://google.com>"
+
+		expected := `[{"actions":[{"name":"","text":"google","style":"default","type":"button","url":"https://google.com"}],"blocks":null}]`
+		mocks.AssertSlackJSON(t, slackClient, message, expected)
+
+		actual := command.Run(message)
+		assert.True(t, actual)
+	})
 }
