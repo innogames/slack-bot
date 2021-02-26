@@ -39,7 +39,7 @@ func (c *statsCommand) GetMatcher() matcher.Matcher {
 
 func (c *statsCommand) Stats(match matcher.Result, message msg.Message) {
 	result := statsResult{}
-	result.WriteString("Here are some current stats:\n")
+	result.addLine("Here are some current stats:")
 
 	c.collectStats(&result)
 	c.SendMessage(message, result.String())
@@ -53,6 +53,7 @@ func (c *statsCommand) collectStats(result *statsResult) {
 	result.addValue("Total commands executed", formatStats(stats.TotalCommands))
 	result.addValue("Unknown Commands", formatStats(stats.UnknownCommands))
 	result.addValue("Unauthorized Commands", formatStats(stats.UnauthorizedCommands))
+	result.addValue("Interactions", formatStats(stats.Interactions))
 	result.addValue("Queued commands", fmt.Sprintf("%d", queue.CountCurrentJobs()))
 	result.addValue("Crons", fmt.Sprintf("%d", len(c.cfg.Crons)))
 
@@ -60,7 +61,6 @@ func (c *statsCommand) collectStats(result *statsResult) {
 	result.addValue("Uptime", util.FormatDuration(time.Since(startTime)))
 	result.addValue("Goroutines", fmt.Sprintf("%d", runtime.NumGoroutine()))
 	result.addValue("Mem Alloc", util.FormatBytes(m.Alloc))
-	result.addValue("Mem TotalAlloc", util.FormatBytes(m.TotalAlloc))
 	result.addValue("Mem Sys", util.FormatBytes(m.Sys))
 	result.addValue("NumGC", fmt.Sprintf("%d", m.NumGC))
 	result.addValue("Bot Version", bot.Version)

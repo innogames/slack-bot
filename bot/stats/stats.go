@@ -19,6 +19,9 @@ const (
 
 	// UnknownCommands is the tracking key to get the number of all unknown commands (when the fallback-command is fired)
 	UnknownCommands = "command_unknown"
+
+	// Interactions is the tracking key to get the number of all processed interactions aka buttons
+	Interactions = "interactions"
 )
 
 var mu sync.Mutex
