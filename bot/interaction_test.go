@@ -153,6 +153,7 @@ func TestInteraction(t *testing.T) {
 
 		// we reset the stats count and expect later on that one command was processed completely
 		stats.Set(stats.TotalCommands, 0)
+		stats.Set(stats.Interactions, 0)
 
 		bot.handleInteraction(callback)
 		time.Sleep(time.Millisecond * 20)
@@ -166,6 +167,11 @@ func TestInteraction(t *testing.T) {
 		commandsProcessed, err = stats.Get(stats.TotalCommands)
 		assert.Nil(t, err)
 		assert.Equal(t, uint(1), commandsProcessed)
+
+		// stats counter should be at "2" now, as we pressed it 2 times
+		interactionStats, err := stats.Get(stats.Interactions)
+		assert.Nil(t, err)
+		assert.Equal(t, uint(2), interactionStats)
 	})
 
 	t.Run("handle invalid interaction", func(t *testing.T) {

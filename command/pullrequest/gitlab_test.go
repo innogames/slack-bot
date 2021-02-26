@@ -45,6 +45,47 @@ func TestGitlab(t *testing.T) {
 		assert.Equal(t, prStatusClosed, actual)
 	})
 
+	t.Run("test convertToPullRequest", func(t *testing.T) {
+		mr := &gitlab.MergeRequest{}
+		mr.State = "open"
+		mr.Pipeline = &gitlab.PipelineInfo{}
+		mr.Pipeline.Status = "running"
+		mr.Title = "my title"
+
+		actual := gitlabFetcher.convertToPullRequest(mr, 100)
+
+		expected := pullRequest{}
+		expected.Status = prStatusOpen
+		expected.BuildStatus = buildStatusRunning
+		expected.Approvers = []string{}
+		expected.Name = "my title"
+
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("get build status", func(t *testing.T) {
+		mr := &gitlab.MergeRequest{}
+		actual := gitlabFetcher.getPipelineStatus(mr)
+		assert.Equal(t, buildStatusUnknown, actual)
+
+		mr = &gitlab.MergeRequest{}
+		mr.Pipeline = &gitlab.PipelineInfo{}
+		actual = gitlabFetcher.getPipelineStatus(mr)
+		assert.Equal(t, buildStatusUnknown, actual)
+
+		mr = &gitlab.MergeRequest{}
+		mr.Pipeline = &gitlab.PipelineInfo{}
+		mr.Pipeline.Status = "failed"
+		actual = gitlabFetcher.getPipelineStatus(mr)
+		assert.Equal(t, buildStatusFailed, actual)
+
+		mr = &gitlab.MergeRequest{}
+		mr.Pipeline = &gitlab.PipelineInfo{}
+		mr.Pipeline.Status = "success"
+		actual = gitlabFetcher.getPipelineStatus(mr)
+		assert.Equal(t, buildStatusSuccess, actual)
+	})
+
 	t.Run("get empty approvers", func(t *testing.T) {
 		mr := &gitlab.MergeRequest{}
 		actual := gitlabFetcher.getApprovers(mr, 1)

@@ -51,15 +51,7 @@ func (c *gitlabFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 	}
 	resp.Body.Close()
 
-	// todo add buildStatus!
-
-	pr = pullRequest{
-		Name:      rawPullRequest.Title,
-		Approvers: c.getApprovers(rawPullRequest, prNumber),
-		Status:    c.getStatus(rawPullRequest),
-	}
-
-	return pr, nil
+	return c.convertToPullRequest(rawPullRequest, prNumber), nil
 }
 
 func (c *gitlabFetcher) getStatus(pr *gitlab.MergeRequest) prStatus {
@@ -117,5 +109,34 @@ func (c *gitlabFetcher) getHelp() []bot.Help {
 				"https://gitlab.example.com/home-assistant/home-assistant/merge_requests/13958",
 			},
 		},
+	}
+}
+
+// convertToPullRequest converts a gitlab.MergeRequest to our own pullRequest structure
+func (c *gitlabFetcher) convertToPullRequest(rawPullRequest *gitlab.MergeRequest, prNumber int) pullRequest {
+	return pullRequest{
+		Name:        rawPullRequest.Title,
+		Approvers:   c.getApprovers(rawPullRequest, prNumber),
+		Status:      c.getStatus(rawPullRequest),
+		BuildStatus: c.getPipelineStatus(rawPullRequest),
+	}
+}
+
+// getPipelineStatus will convert the Pipeline.Status into a buildStatus
+// see API: https://docs.gitlab.com/ee/api/pipelines.html
+func (c *gitlabFetcher) getPipelineStatus(pr *gitlab.MergeRequest) buildStatus {
+	if pr.Pipeline == nil {
+		return buildStatusUnknown
+	}
+
+	switch pr.Pipeline.Status {
+	case "failed":
+		return buildStatusFailed
+	case "success":
+		return buildStatusSuccess
+	case "created", "pending", "running":
+		return buildStatusRunning
+	default:
+		return buildStatusUnknown
 	}
 }
