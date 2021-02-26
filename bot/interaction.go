@@ -2,6 +2,7 @@ package bot
 
 import (
 	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/innogames/slack-bot/bot/stats"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
@@ -96,6 +97,8 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
 
 	// execute the command which is stored for this interaction
 	go b.handleMessage(ref.WithText(command), true)
+
+	stats.IncreaseOne(stats.Interactions)
 }
 
 // replaces the clicked button: appends the "message" (like "already clicked") and changed the color to red
