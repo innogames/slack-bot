@@ -66,7 +66,6 @@ func TestDelay(t *testing.T) {
 		}
 
 		assert.Equal(t, handledEvent, expectedEvent)
-		assert.Equal(t, 0, queue.CountCurrentJobs())
 	})
 
 	t.Run("Test quiet option", func(t *testing.T) {

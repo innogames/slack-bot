@@ -14,7 +14,7 @@ func TestIncreasingDelay(t *testing.T) {
 
 	// just started -> should return min
 	actual = subject.GetNextDelay()
-	assert.Equal(t, time.Second*10, actual)
+	assert.Equal(t, 10, int(actual.Seconds()))
 
 	// 6h = 10 + 1/4 * 50
 	subject.startedAt = time.Now().Add(-time.Hour * 6)
