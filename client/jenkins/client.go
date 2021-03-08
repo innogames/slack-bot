@@ -22,7 +22,7 @@ func GetClient(cfg config.Jenkins) (*gojenkins.Jenkins, error) {
 	}
 
 	jenkinsClient := gojenkins.CreateJenkins(
-		client.HTTPClient,
+		client.GetHTTPClient(),
 		cfg.Host,
 		cfg.Username,
 		cfg.Password,

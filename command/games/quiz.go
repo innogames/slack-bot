@@ -69,7 +69,7 @@ func (c *quizCommand) StartQuiz(match matcher.Result, message msg.Message) {
 		return
 	}
 
-	resp, err := client.HTTPClient.Get(fmt.Sprintf("%s?amount=%d", c.apiURL, questions))
+	resp, err := client.GetHTTPClient().Get(fmt.Sprintf("%s?amount=%d", c.apiURL, questions))
 	if err != nil {
 		c.ReplyError(message, errors.Wrap(err, "Error while loading Quiz"))
 		return
