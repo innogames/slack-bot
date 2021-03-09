@@ -33,11 +33,11 @@ func (c *statsCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewAdminMatcher(
 		c.cfg.AdminUsers,
 		c.SlackClient,
-		matcher.NewTextMatcher("bot stats", c.Stats),
+		matcher.NewTextMatcher("bot stats", c.stats),
 	)
 }
 
-func (c *statsCommand) Stats(match matcher.Result, message msg.Message) {
+func (c *statsCommand) stats(match matcher.Result, message msg.Message) {
 	result := statsResult{}
 	result.addLine("Here are some current stats:")
 

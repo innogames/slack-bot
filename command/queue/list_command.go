@@ -29,20 +29,20 @@ func NewListCommand(base bot.BaseCommand) bot.Command {
 
 func (c *listCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewTextMatcher("list queue", c.ListAll),
-		matcher.NewTextMatcher("list queue in channel", c.ListChannel),
+		matcher.NewTextMatcher("list queue", c.listAll),
+		matcher.NewTextMatcher("list queue in channel", c.listChannel),
 	)
 }
 
 // ListAll shows a list of all queued commands
-func (c *listCommand) ListAll(match matcher.Result, message msg.Message) {
+func (c *listCommand) listAll(match matcher.Result, message msg.Message) {
 	c.sendList(message, func(event msg.Message) bool {
 		return true
 	})
 }
 
 // ListChannel shows a list of all queued commands within the current channel
-func (c *listCommand) ListChannel(match matcher.Result, message msg.Message) {
+func (c *listCommand) listChannel(match matcher.Result, message msg.Message) {
 	c.sendList(message, func(queuedEvent msg.Message) bool {
 		return message.GetChannel() == queuedEvent.GetChannel()
 	})

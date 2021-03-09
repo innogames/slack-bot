@@ -20,6 +20,8 @@ var linkRegexp = regexp.MustCompile(`<\S+?\|(.*?)>`)
 var cleanMessage = strings.NewReplacer(
 	"‘", "'",
 	"’", "'",
+	"“", "\"",
+	"”", "\"",
 )
 
 // NewBot created main Bot struct which holds the slack connection and dispatch messages to commands

@@ -16,9 +16,9 @@ type command struct {
 
 func (c command) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewRegexpMatcher("(add|set) variable '?(?P<name>.*?)'? '?(?P<value>.*?)'?", c.Add),
-		matcher.NewRegexpMatcher("(delete|remove) variable '?(?P<name>.*?)'?", c.Delete),
-		matcher.NewTextMatcher("list variables", c.List),
+		matcher.NewRegexpMatcher("(add|set) variable '?(?P<name>.*?)'? '?(?P<value>.*?)'?", c.add),
+		matcher.NewRegexpMatcher("(delete|remove) variable '?(?P<name>.*?)'?", c.delete),
+		matcher.NewTextMatcher("list variables", c.list),
 	)
 }
 

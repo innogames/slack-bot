@@ -18,12 +18,12 @@ type replyCommand struct {
 
 func (c *replyCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewPrefixMatcher("reply", c.Reply),
-		matcher.NewPrefixMatcher("comment", c.CommentInNewThread),
+		matcher.NewPrefixMatcher("reply", c.reply),
+		matcher.NewPrefixMatcher("comment", c.commentInNewThread),
 	)
 }
 
-func (c *replyCommand) Reply(match matcher.Result, message msg.Message) {
+func (c *replyCommand) reply(match matcher.Result, message msg.Message) {
 	text := match.MatchedString()
 	if text == "" {
 		return
@@ -33,7 +33,7 @@ func (c *replyCommand) Reply(match matcher.Result, message msg.Message) {
 }
 
 // comment in (new) thread
-func (c *replyCommand) CommentInNewThread(match matcher.Result, message msg.Message) {
+func (c *replyCommand) commentInNewThread(match matcher.Result, message msg.Message) {
 	text := match.MatchedString()
 	if text == "" {
 		return

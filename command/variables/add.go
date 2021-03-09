@@ -7,7 +7,7 @@ import (
 	"github.com/innogames/slack-bot/bot/msg"
 )
 
-func (c *command) Add(match matcher.Result, message msg.Message) {
+func (c *command) add(match matcher.Result, message msg.Message) {
 	name := match.GetString("name")
 	value := match.GetString("value")
 

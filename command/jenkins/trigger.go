@@ -46,13 +46,13 @@ func newTriggerCommand(
 
 func (c *triggerCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewRegexpMatcher(`((trigger|start) (jenkins|build|job)) (?P<job>[\w\-_\\/]*)(?P<parameters>.*)`, c.GenericCall),
-		matcher.WildcardMatcher(c.ConfigTrigger),
+		matcher.NewRegexpMatcher(`((trigger|start) (jenkins|build|job)) (?P<job>[\w\-_\\/]*)(?P<parameters>.*)`, c.genericCall),
+		matcher.WildcardMatcher(c.configTrigger),
 	)
 }
 
 // e.g. triggered by "trigger job DeployBranch master de3"
-func (c *triggerCommand) GenericCall(match matcher.Result, message msg.Message) {
+func (c *triggerCommand) genericCall(match matcher.Result, message msg.Message) {
 	jobName := match.GetString("job")
 	if _, ok := c.jobs[jobName]; !ok {
 		if len(c.jobs) == 0 {
@@ -87,7 +87,7 @@ func (c *triggerCommand) GenericCall(match matcher.Result, message msg.Message) 
 }
 
 // check trigger defined in Jenkins.Jobs.*.Trigger
-func (c *triggerCommand) ConfigTrigger(ref msg.Ref, text string) bool {
+func (c *triggerCommand) configTrigger(ref msg.Ref, text string) bool {
 	// start jobs via trigger condition
 	for jobName, jobConfig := range c.jobs {
 		if jobConfig.trigger == nil {

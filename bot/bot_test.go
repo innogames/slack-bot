@@ -125,10 +125,11 @@ func TestIsBotMessage(t *testing.T) {
 		assert.False(t, actual)
 	})
 
-	t.Run("Trim", func(t *testing.T) {
+	t.Run("Trim + Clean", func(t *testing.T) {
 		assert.Equal(t, bot.cleanMessage(" ", true), "")
 		assert.Equal(t, bot.cleanMessage("*<@BOT> random ’test’*", true), "random 'test'")
 		assert.Equal(t, bot.cleanMessage("<@BOT> random ’test’", true), "random 'test'")
+		assert.Equal(t, bot.cleanMessage("add button “test” “reply it works”", true), `add button "test" "reply it works"`)
 		assert.Equal(t, bot.cleanMessage("<https://test.com|TEST> <https://example.com|example>", false), "<https://test.com|TEST> <https://example.com|example>")
 		assert.Equal(t, bot.cleanMessage("<https://test.com|TEST> <https://example.com|example>", true), "TEST example")
 	})

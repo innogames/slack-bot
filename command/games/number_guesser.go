@@ -32,12 +32,12 @@ func NewNumberGuesserCommand(base bot.BaseCommand) bot.Command {
 
 func (c *numberGuesserCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewTextMatcher("start number guesser", c.Start),
-		matcher.NewRegexpMatcher(`guess number (?P<number>\d+)`, c.Guess),
+		matcher.NewTextMatcher("start number guesser", c.start),
+		matcher.NewRegexpMatcher(`guess number (?P<number>\d+)`, c.guess),
 	)
 }
 
-func (c *numberGuesserCommand) Start(match matcher.Result, message msg.Message) {
+func (c *numberGuesserCommand) start(match matcher.Result, message msg.Message) {
 	if _, ok := c.games[message.GetUser()]; ok {
 		c.SendMessage(message, "There is already a game :smile: use `guess number XX` instead")
 		return
@@ -53,7 +53,7 @@ func (c *numberGuesserCommand) Start(match matcher.Result, message msg.Message) 
 	c.SendMessage(message, fmt.Sprintf("I chose a number between 0 an %d. Good luck! Use `guess number XX`", maxNumber))
 }
 
-func (c *numberGuesserCommand) Guess(match matcher.Result, message msg.Message) {
+func (c *numberGuesserCommand) guess(match matcher.Result, message msg.Message) {
 	currentGame, ok := c.games[message.GetUser()]
 	if !ok {
 		c.SendMessage(message, "There is no game running. Use `start number guesser`")

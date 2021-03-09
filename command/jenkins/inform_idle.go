@@ -26,10 +26,10 @@ func newIdleWatcherCommand(base jenkinsCommand) bot.Command {
 }
 
 func (c *idleWatcherCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewTextMatcher("wait until jenkins is idle", c.Run)
+	return matcher.NewTextMatcher("wait until jenkins is idle", c.run)
 }
 
-func (c *idleWatcherCommand) Run(match matcher.Result, message msg.Message) {
+func (c *idleWatcherCommand) run(match matcher.Result, message msg.Message) {
 	if !c.hasRunningBuild(message) {
 		c.SendMessage(
 			message,

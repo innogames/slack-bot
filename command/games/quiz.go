@@ -50,16 +50,16 @@ type quiz struct {
 
 func (c *quizCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewTextMatcher(`start quiz`, c.StartQuiz),
-		matcher.NewRegexpMatcher(`start quiz (?P<questions>\d+)`, c.StartQuiz),
-		matcher.NewRegexpMatcher(`answer (?P<answer>[\w\s]+)`, c.Answer),
+		matcher.NewTextMatcher(`start quiz`, c.startQuiz),
+		matcher.NewRegexpMatcher(`start quiz (?P<questions>\d+)`, c.startQuiz),
+		matcher.NewRegexpMatcher(`answer (?P<answer>[\w\s]+)`, c.answer),
 	)
 }
 func (c *quizCommand) IsActive() bool {
 	return c.CanHandleInteractions()
 }
 
-func (c *quizCommand) StartQuiz(match matcher.Result, message msg.Message) {
+func (c *quizCommand) startQuiz(match matcher.Result, message msg.Message) {
 	questions := match.GetInt("questions")
 	if questions == 0 {
 		questions = 2
@@ -96,7 +96,7 @@ func (c *quizCommand) StartQuiz(match matcher.Result, message msg.Message) {
 	c.printCurrentQuestion(message)
 }
 
-func (c *quizCommand) Answer(match matcher.Result, message msg.Message) {
+func (c *quizCommand) answer(match matcher.Result, message msg.Message) {
 	c.quiz.tries++
 
 	answer := match.GetString("answer")

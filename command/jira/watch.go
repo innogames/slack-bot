@@ -29,10 +29,10 @@ func (c *watchCommand) IsEnabled() bool {
 }
 
 func (c *watchCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher(`watch ticket (?P<ticketId>(\w+)-(\d+))`, c.Run)
+	return matcher.NewRegexpMatcher(`watch ticket (?P<ticketId>(\w+)-(\d+))`, c.run)
 }
 
-func (c *watchCommand) Run(match matcher.Result, message msg.Message) {
+func (c *watchCommand) run(match matcher.Result, message msg.Message) {
 	ticketID := match.GetString("ticketId")
 	issue, _, err := c.jira.Issue.Get(ticketID, nil)
 

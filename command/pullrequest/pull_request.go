@@ -67,10 +67,10 @@ type pullRequest struct {
 }
 
 func (c command) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher(c.regexp, c.Execute)
+	return matcher.NewRegexpMatcher(c.regexp, c.execute)
 }
 
-func (c command) Execute(match matcher.Result, message msg.Message) {
+func (c command) execute(match matcher.Result, message msg.Message) {
 	_, err := c.fetcher.getPullRequest(match)
 
 	if err != nil {

@@ -163,6 +163,7 @@ func TestInteraction(t *testing.T) {
 		assert.Equal(t, uint(1), commandsProcessed)
 
 		// "press the button" again -> should not work!
+		callback.Value = ""
 		bot.handleInteraction(callback)
 		commandsProcessed, err = stats.Get(stats.TotalCommands)
 		assert.Nil(t, err)

@@ -24,10 +24,10 @@ type thenCommand struct {
 }
 
 func (c *thenCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher("(?i:queue|then) (?P<command>.*)", c.Run)
+	return matcher.NewRegexpMatcher("(?i:queue|then) (?P<command>.*)", c.run)
 }
 
-func (c *thenCommand) Run(match matcher.Result, message msg.Message) {
+func (c *thenCommand) run(match matcher.Result, message msg.Message) {
 	runningCommand, found := runningCommands[message.GetUniqueKey()]
 	if !found {
 		c.ReplyError(

@@ -26,8 +26,8 @@ func NewHelpCommand(base bot.BaseCommand, commands *bot.Commands) bot.Command {
 
 func (t *helpCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewTextMatcher("help", t.ShowAll),
-		matcher.NewRegexpMatcher("help (?P<command>.*)", t.ShowSingleCommand),
+		matcher.NewTextMatcher("help", t.showAll),
+		matcher.NewRegexpMatcher("help (?P<command>.*)", t.showSingleCommand),
 	)
 }
 
@@ -45,7 +45,7 @@ func (t *helpCommand) GetHelp() []bot.Help {
 }
 
 // ShowAll command entries and group them by "category"
-func (t *helpCommand) ShowAll(match matcher.Result, message msg.Message) {
+func (t *helpCommand) showAll(match matcher.Result, message msg.Message) {
 	t.once.Do(t.prebuildHelp)
 
 	var text string
@@ -93,7 +93,7 @@ func (t *helpCommand) printCategoryHeader(commandHelp bot.Help) (text string) {
 }
 
 // ShowSingleCommand prints details of a specific command
-func (t *helpCommand) ShowSingleCommand(match matcher.Result, message msg.Message) {
+func (t *helpCommand) showSingleCommand(match matcher.Result, message msg.Message) {
 	// compile help only once
 	t.once.Do(t.prebuildHelp)
 

@@ -40,12 +40,12 @@ func (c *jiraCommand) IsEnabled() bool {
 
 func (c *jiraCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewRegexpMatcher("jira (?P<action>link) (?P<text>.*)", c.Run),
-		matcher.NewRegexpMatcher("(?P<action>jira|issue|jql) (?P<text>.*)", c.Run),
+		matcher.NewRegexpMatcher("jira (?P<action>link) (?P<text>.*)", c.run),
+		matcher.NewRegexpMatcher("(?P<action>jira|issue|jql) (?P<text>.*)", c.run),
 	)
 }
 
-func (c *jiraCommand) Run(match matcher.Result, message msg.Message) {
+func (c *jiraCommand) run(match matcher.Result, message msg.Message) {
 	eventText := match.GetString("text")
 	ticketNumber := c.getTicketNumber(eventText)
 	action := match.GetString("action")

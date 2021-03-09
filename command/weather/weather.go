@@ -33,12 +33,12 @@ type command struct {
 
 func (c *command) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewTextMatcher("weather", c.GetWeather),
-		matcher.NewRegexpMatcher(`weather in (?P<location>\w\s+)`, c.GetWeather),
+		matcher.NewTextMatcher("weather", c.getWeather),
+		matcher.NewRegexpMatcher(`weather in (?P<location>\w\s+)`, c.getWeather),
 	)
 }
 
-func (c *command) GetWeather(match matcher.Result, message msg.Message) {
+func (c *command) getWeather(match matcher.Result, message msg.Message) {
 	location := match.GetString("location")
 	if location == "" {
 		location = c.cfg.Location

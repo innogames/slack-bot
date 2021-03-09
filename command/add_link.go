@@ -19,10 +19,10 @@ type addLinkCommand struct {
 }
 
 func (c *addLinkCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher("add link (?P<name>.*) <(?P<link>https:.*)>", c.AddLink)
+	return matcher.NewRegexpMatcher("add link (?P<name>.*) <(?P<link>https:.*)>", c.addLink)
 }
 
-func (c *addLinkCommand) AddLink(match matcher.Result, message msg.Message) {
+func (c *addLinkCommand) addLink(match matcher.Result, message msg.Message) {
 	name := match.GetString("name")
 	link := match.GetString("link")
 

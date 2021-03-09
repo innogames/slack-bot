@@ -24,10 +24,10 @@ type randomCommand struct {
 }
 
 func (c *randomCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewPrefixMatcher("random", c.GetRandom)
+	return matcher.NewPrefixMatcher("random", c.getRandom)
 }
 
-func (c *randomCommand) GetRandom(match matcher.Result, message msg.Message) {
+func (c *randomCommand) getRandom(match matcher.Result, message msg.Message) {
 	optionsString := match.MatchedString()
 	if optionsString == "" {
 		c.SendMessage(message, "You have to pass more arguments")
