@@ -27,14 +27,14 @@ func newNodesCommand(base jenkinsCommand, cfg config.Jenkins) bot.Command {
 }
 
 func (c *nodesCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewTextMatcher("jenkins nodes", c.Run)
+	return matcher.NewTextMatcher("jenkins nodes", c.run)
 }
 
 func (c *nodesCommand) IsEnabled() bool {
 	return c.jenkins != nil
 }
 
-func (c *nodesCommand) Run(match matcher.Result, message msg.Message) {
+func (c *nodesCommand) run(match matcher.Result, message msg.Message) {
 	nodes, err := c.jenkins.GetAllNodes()
 	if err != nil {
 		c.ReplyError(message, err)

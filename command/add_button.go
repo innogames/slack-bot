@@ -18,10 +18,10 @@ type addButtonCommand struct {
 }
 
 func (c *addButtonCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher(`add button "(?P<name>.*)" "(?P<command>.*)"`, c.AddLink)
+	return matcher.NewRegexpMatcher(`add button "(?P<name>.*)" "(?P<command>.*)"`, c.addLink)
 }
 
-func (c *addButtonCommand) AddLink(match matcher.Result, message msg.Message) {
+func (c *addButtonCommand) addLink(match matcher.Result, message msg.Message) {
 	name := match.GetString("name")
 	command := match.GetString("command")
 

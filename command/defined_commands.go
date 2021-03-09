@@ -47,12 +47,12 @@ type command struct {
 
 func (c *definedCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewTextMatcher("list template functions", c.ListTemplateFunction),
-		matcher.WildcardMatcher(c.Execute),
+		matcher.NewTextMatcher("list template functions", c.listTemplateFunction),
+		matcher.WildcardMatcher(c.execute),
 	)
 }
 
-func (c *definedCommand) Execute(ref msg.Ref, text string) bool {
+func (c *definedCommand) execute(ref msg.Ref, text string) bool {
 	for _, macro := range c.commands {
 		match := macro.re.FindStringSubmatch(text)
 		if len(match) == 0 {
@@ -93,7 +93,7 @@ func (c *definedCommand) Execute(ref msg.Ref, text string) bool {
 }
 
 // receiver for "list template functions". Sort all template functions by name
-func (c *definedCommand) ListTemplateFunction(match matcher.Result, message msg.Message) {
+func (c *definedCommand) listTemplateFunction(match matcher.Result, message msg.Message) {
 	functions := util.GetTemplateFunctions()
 	functionNames := make([]string, 0, len(functions))
 

@@ -8,7 +8,7 @@ import (
 	"github.com/innogames/slack-bot/client"
 )
 
-func (c command) Handle(ref msg.Ref, text string) bool {
+func (c command) handle(ref msg.Ref, text string) bool {
 	var commands string
 
 	list := loadList(ref)

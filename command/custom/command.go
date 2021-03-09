@@ -22,10 +22,10 @@ type command struct {
 
 func (c command) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.WildcardMatcher(c.Handle),
-		matcher.NewRegexpMatcher("add command '(?P<alias>.*)'( as)? '(?P<command>.*)'", c.Add),
-		matcher.NewRegexpMatcher("(delete|remove) command '?(?P<alias>.*?)'?", c.Delete),
-		matcher.NewTextMatcher("list commands", c.List),
+		matcher.WildcardMatcher(c.handle),
+		matcher.NewRegexpMatcher("add command '(?P<alias>.*)'( as)? '(?P<command>.*)'", c.add),
+		matcher.NewRegexpMatcher("(delete|remove) command '?(?P<alias>.*?)'?", c.delete),
+		matcher.NewTextMatcher("list commands", c.list),
 	)
 }
 

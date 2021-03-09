@@ -30,11 +30,11 @@ func (c *botLogCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewAdminMatcher(
 		c.cfg.AdminUsers,
 		c.SlackClient,
-		matcher.NewTextMatcher("bot log", c.Run),
+		matcher.NewTextMatcher("bot log", c.showBotLog),
 	)
 }
 
-func (c *botLogCommand) Run(match matcher.Result, message msg.Message) {
+func (c *botLogCommand) showBotLog(match matcher.Result, message msg.Message) {
 	log := c.readFile(c.cfg.Logger.File, logChars)
 	parts := strings.SplitN(string(log), "\n", 2)
 	if len(parts) <= 1 {

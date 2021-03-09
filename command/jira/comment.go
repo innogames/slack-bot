@@ -27,10 +27,10 @@ func (c *commentCommand) IsEnabled() bool {
 }
 
 func (c *commentCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher(`add comment to ticket (?P<ticketId>(\w+)-(\d+)) (?P<comment>.+)`, c.AddComment)
+	return matcher.NewRegexpMatcher(`add comment to ticket (?P<ticketId>(\w+)-(\d+)) (?P<comment>.+)`, c.addComment)
 }
 
-func (c *commentCommand) AddComment(match matcher.Result, message msg.Message) {
+func (c *commentCommand) addComment(match matcher.Result, message msg.Message) {
 	ticketID := match.GetString("ticketID")
 	issue, _, err := c.jira.Issue.Get(ticketID, nil)
 

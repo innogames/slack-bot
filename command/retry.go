@@ -30,15 +30,15 @@ type retryCommand struct {
 
 func (c *retryCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewTextMatcher(`retry`, c.Retry),
-		matcher.NewTextMatcher(`repeat`, c.Retry),
-		matcher.NewRegexpMatcher(`<?https://(.*)slack.com/archives/(?P<channel>\w+)/p(?P<timestamp>\d{16})>?`, c.SlackMessage),
-		matcher.WildcardMatcher(c.Store),
+		matcher.NewTextMatcher(`retry`, c.retry),
+		matcher.NewTextMatcher(`repeat`, c.retry),
+		matcher.NewRegexpMatcher(`<?https://(.*)slack.com/archives/(?P<channel>\w+)/p(?P<timestamp>\d{16})>?`, c.slackMessage),
+		matcher.WildcardMatcher(c.storeLastCommand),
 	)
 }
 
 // retry the last stored message
-func (c *retryCommand) Retry(match matcher.Result, message msg.Message) {
+func (c *retryCommand) retry(match matcher.Result, message msg.Message) {
 	key := message.GetUniqueKey()
 
 	var lastCommand string
@@ -53,7 +53,7 @@ func (c *retryCommand) Retry(match matcher.Result, message msg.Message) {
 }
 
 // store any message in the storage to get repeatable
-func (c *retryCommand) Store(ref msg.Ref, text string) bool {
+func (c *retryCommand) storeLastCommand(ref msg.Ref, text string) bool {
 	if ref.IsInternalMessage() {
 		return false
 	}
@@ -68,7 +68,7 @@ func (c *retryCommand) Store(ref msg.Ref, text string) bool {
 }
 
 // re-execute a slack message
-func (c *retryCommand) SlackMessage(match matcher.Result, message msg.Message) {
+func (c *retryCommand) slackMessage(match matcher.Result, message msg.Message) {
 	channel := match.GetString("channel")
 	timestamp := match.GetString("timestamp")
 

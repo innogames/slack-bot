@@ -18,10 +18,10 @@ type sendMessageCommand struct {
 }
 
 func (c *sendMessageCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher(`send message( to)? (?P<fullChannel><(?P<type>[#@])(?P<receiver>\w+)(?i:|[^>]*)?>) (?P<text>.*)`, c.SendMessage)
+	return matcher.NewRegexpMatcher(`send message( to)? (?P<fullChannel><(?P<type>[#@])(?P<receiver>\w+)(?i:|[^>]*)?>) (?P<text>.*)`, c.sendMessage)
 }
 
-func (c *sendMessageCommand) SendMessage(match matcher.Result, message msg.Message) {
+func (c *sendMessageCommand) sendMessage(match matcher.Result, message msg.Message) {
 	text := match.GetString("text")
 	if message.GetUser() != "" {
 		text = fmt.Sprintf("Text from <@%s>: %s", message.User, text)
