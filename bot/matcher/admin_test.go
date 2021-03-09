@@ -28,8 +28,9 @@ func TestAdmin(t *testing.T) {
 		mocks.AssertError(slackClient, message, "sorry, you are no admin and not allowed to execute this command")
 
 		runner, match := subject.Match(message)
-		runner(MapResult{}, message)
+		runner(Result{}, message)
 
-		assert.True(t, match.Matched())
+		assert.NotNil(t, match)
+		assert.NotNil(t, runner)
 	})
 }

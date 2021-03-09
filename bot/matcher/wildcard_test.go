@@ -16,9 +16,10 @@ func TestWildcard(t *testing.T) {
 
 		message := msg.Message{}
 		message.Text = "any"
-		_, match := subject.Match(message)
+		run, match := subject.Match(message)
 
-		assert.True(t, match.Matched())
+		assert.NotNil(t, match)
+		assert.Nil(t, run)
 	})
 
 	t.Run("NoMatch", func(t *testing.T) {
@@ -29,8 +30,9 @@ func TestWildcard(t *testing.T) {
 
 		message := msg.Message{}
 		message.Text = "any"
-		_, match := subject.Match(message)
+		run, match := subject.Match(message)
 
-		assert.False(t, match.Matched())
+		assert.Nil(t, match)
+		assert.Nil(t, run)
 	})
 }

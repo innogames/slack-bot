@@ -25,20 +25,18 @@ type prefixMatcher struct {
 }
 
 func (m prefixMatcher) Match(message msg.Message) (Runner, Result) {
-	var match MapResult
-
 	if strings.HasPrefix(strings.ToLower(message.Text), m.loweredPrefix) {
 		suffix := message.Text[len(m.loweredPrefix):]
 		// avoid matching "randomness" if prefix is "random"
 		if len(suffix) > 0 && suffix[0] != ' ' {
-			return nil, match
+			return nil, nil
 		}
 
-		match := MapResult{
+		match := Result{
 			util.FullMatch: strings.TrimPrefix(suffix, " "),
 		}
 		return m.run, match
 	}
 
-	return nil, match
+	return nil, nil
 }

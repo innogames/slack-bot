@@ -2,7 +2,6 @@ package matcher
 
 import (
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/util"
 )
 
 // WildcardMatcher will pass all messages into the runner. The runner needs to check if the event is relevant or not
@@ -18,12 +17,10 @@ type wildcardMatcher struct {
 }
 
 func (m wildcardMatcher) Match(message msg.Message) (Runner, Result) {
-	var match MapResult
-
 	if m.run(message, message.GetText()) {
-		match = make(MapResult, 1)
-		match[util.FullMatch] = message.GetText()
+		// command got executed! -> further commands will be ignored
+		return nil, Result{}
 	}
 
-	return nil, match
+	return nil, nil
 }

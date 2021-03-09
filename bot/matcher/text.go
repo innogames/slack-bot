@@ -21,14 +21,12 @@ type textMatcher struct {
 }
 
 func (m textMatcher) Match(message msg.Message) (Runner, Result) {
-	var match MapResult
-
 	if strings.EqualFold(message.Text, m.loweredText) {
-		match := MapResult{
+		match := Result{
 			util.FullMatch: message.Text,
 		}
 		return m.run, match
 	}
 
-	return nil, match
+	return nil, nil
 }

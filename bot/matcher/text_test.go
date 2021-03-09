@@ -35,11 +35,11 @@ func TestText(t *testing.T) {
 			run, match := subject.Match(message)
 			if testCase.expected {
 				assert.NotNil(t, run, testCase.input)
-				assert.Equal(t, testCase.match, match.MatchedString())
+				assert.NotNil(t, match, testCase.input)
 			} else {
-				assert.Nil(t, run, testCase.input)
+				assert.Nil(t, run)
+				assert.Nil(t, match)
 			}
-			assert.Equal(t, testCase.expected, match.Matched())
 		}
 	})
 }
@@ -58,7 +58,7 @@ func BenchmarkTextMatcher(b *testing.B) {
 			run, result = textMatcher.Match(message)
 		}
 		assert.Nil(b, run)
-		assert.False(b, result.Matched())
+		assert.Nil(b, result)
 	})
 
 	b.Run("loweredText: match", func(b *testing.B) {
@@ -69,6 +69,6 @@ func BenchmarkTextMatcher(b *testing.B) {
 			run, result = textMatcher.Match(message)
 		}
 		assert.NotNil(b, run)
-		assert.True(b, result.Matched())
+		assert.NotNil(b, result)
 	})
 }

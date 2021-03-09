@@ -14,7 +14,7 @@ func TestVoid(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "foo"
 		run, match := subject.Match(message)
-		assert.False(t, match.Matched())
+		assert.Nil(t, match)
 		assert.Nil(t, run)
 	})
 }

@@ -46,10 +46,10 @@ func TestGroup(t *testing.T) {
 			run, result := matcher.Match(message)
 			if testCase.expected {
 				assert.NotNil(t, run)
-				assert.True(t, result.Matched())
+				assert.NotNil(t, result)
 			} else {
 				assert.Nil(t, run)
-				assert.False(t, result.Matched())
+				assert.Nil(t, result)
 			}
 		}
 	})

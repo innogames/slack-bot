@@ -34,11 +34,11 @@ func TestRegexp(t *testing.T) {
 			run, match := subject.Match(message)
 			if testCase.expected {
 				assert.NotNil(t, run, testCase.input)
-				assert.Equal(t, testCase.input, match.MatchedString())
+				assert.NotNil(t, match, testCase.input)
 			} else {
 				assert.Nil(t, run, testCase.input)
+				assert.Nil(t, match, testCase.input)
 			}
-			assert.Equal(t, testCase.expected, match.Matched())
 		}
 	})
 
@@ -49,10 +49,10 @@ func TestRegexp(t *testing.T) {
 
 		run, match := subject.Match(message)
 		assert.NotNil(t, run)
-		assert.Equal(t, "test 12", match.MatchedString())
 		assert.Equal(t, "12", match.GetString("number"))
+		assert.Equal(t, "", match.GetString("number_invalid"))
 		assert.Equal(t, 12, match.GetInt("number"))
-		assert.Equal(t, true, match.Matched())
+		assert.Equal(t, 0, match.GetInt("number_invalid"))
 	})
 }
 
@@ -70,7 +70,7 @@ func BenchmarkRegexpMatcher(b *testing.B) {
 			run, result = matcher.Match(message)
 		}
 		assert.Nil(b, run)
-		assert.Equal(b, false, result.Matched())
+		assert.Nil(b, result)
 	})
 
 	b.Run("match", func(b *testing.B) {
@@ -83,7 +83,7 @@ func BenchmarkRegexpMatcher(b *testing.B) {
 			run, result = matcher.Match(message)
 		}
 		assert.NotNil(b, run)
-		assert.Equal(b, true, result.Matched())
-		assert.Equal(b, "trigger me", result.MatchedString())
+		assert.NotNil(b, matcher)
+		assert.Equal(b, "me", result.GetString("text"))
 	})
 }

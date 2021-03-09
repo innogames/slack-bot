@@ -61,7 +61,7 @@ func TestGithub(t *testing.T) {
 	})
 
 	t.Run("get real PR", func(t *testing.T) {
-		pr, err := cmd.fetcher.getPullRequest(matcher.MapResult{
+		pr, err := cmd.fetcher.getPullRequest(matcher.Result{
 			"project": "innogames",
 			"repo":    "slack-bot",
 			"number":  "1",
