@@ -3,18 +3,19 @@ module github.com/innogames/slack-bot
 go 1.15
 
 require (
-	github.com/alicebob/miniredis/v2 v2.14.2
+	github.com/alicebob/miniredis/v2 v2.14.3
 	github.com/andygrunwald/go-jira v1.13.0
 	github.com/bndr/gojenkins v1.0.1
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gfleury/go-bitbucket-v1 v0.0.0-20210119103841-412cc3323e5e
-	github.com/gfleury/go-bitbucket-v1/test/bb-mock-server v0.0.0-20200810125852-15f2a16ca820
+	github.com/gfleury/go-bitbucket-v1/test/bb-mock-server v0.0.0-20210119103841-412cc3323e5e
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/go-test/deep v1.0.7 // indirect
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/gookit/color v1.3.8
+	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/hackebrot/go-repr v0.1.0 // indirect
 	github.com/hackebrot/turtle v0.1.0
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
@@ -44,10 +45,10 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/texttheater/golang-levenshtein v1.0.1
 	github.com/trivago/tgo v1.0.7 // indirect
-	github.com/xanzy/go-gitlab v0.45.0
-	golang.org/x/net v0.0.0-20210220033124-5f55cee0dc0d // indirect
+	github.com/xanzy/go-gitlab v0.46.0
+	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110 // indirect
 	golang.org/x/oauth2 v0.0.0-20210220000619-9bb904979d93
-	golang.org/x/sys v0.0.0-20210220050731-9a76102bfb43 // indirect
+	golang.org/x/sys v0.0.0-20210308170721-88b6017d0656 // indirect
 	golang.org/x/text v0.3.5 // indirect
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
 	google.golang.org/appengine v1.6.7 // indirect

@@ -51,7 +51,7 @@ func GetSlackClient(cfg config.Slack) (*Slack, error) {
 	}
 
 	options := []slack.Option{
-		slack.OptionHTTPClient(HTTPClient),
+		slack.OptionHTTPClient(GetHTTPClient()),
 	}
 
 	if cfg.TestEndpointURL != "" {

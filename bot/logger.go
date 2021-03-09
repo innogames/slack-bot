@@ -2,6 +2,7 @@ package bot
 
 import (
 	"os"
+	"strings"
 
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
@@ -33,7 +34,7 @@ func (b *Bot) getUserBasedLogger(ref msg.Ref) *log.Entry {
 	_, username := client.GetUserIDAndName(ref.GetUser())
 
 	channel := ""
-	if ref.GetChannel() != "" && ref.GetChannel()[0] == 'D' {
+	if strings.HasPrefix(ref.GetChannel(), "D") {
 		channel = "@" + username
 	} else {
 		_, channel = client.GetChannelIDAndName(ref.GetChannel())

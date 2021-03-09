@@ -20,12 +20,16 @@ type githubFetcher struct {
 func newGithubCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 	var githubClient *github.Client
 	if cfg.Github.AccessToken == "" {
-		githubClient = github.NewClient(client.HTTPClient)
+		githubClient = github.NewClient(client.GetHTTPClient())
 	} else {
 		ctx := context.Background()
-		oauthClient := oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: cfg.Github.AccessToken},
-		))
+
+		oauthClient := oauth2.NewClient(
+			context.WithValue(ctx, oauth2.HTTPClient, client.GetHTTPClient()),
+			oauth2.StaticTokenSource(
+				&oauth2.Token{AccessToken: cfg.Github.AccessToken},
+			),
+		)
 		githubClient = github.NewClient(oauthClient)
 	}
 

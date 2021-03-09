@@ -52,7 +52,7 @@ func (c *command) getWeather(match matcher.Result, message msg.Message) {
 		c.cfg.Apikey,
 	)
 
-	response, err := client.HTTPClient.Get(apiURL)
+	response, err := client.GetHTTPClient().Get(apiURL)
 	if err != nil {
 		c.ReplyError(message, errors.Wrap(err, "Api call returned an err"))
 		return

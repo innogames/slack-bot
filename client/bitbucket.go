@@ -25,7 +25,7 @@ func GetBitbucketClient(cfg config.Bitbucket) (*bitbucket.DefaultApiService, err
 	}
 
 	bitbucketConfig := bitbucket.NewConfiguration(cfg.Host + "/rest")
-	bitbucketConfig.HTTPClient = HTTPClient
+	bitbucketConfig.HTTPClient = GetHTTPClient()
 
 	bitbucketClient := bitbucket.NewAPIClient(ctx, bitbucketConfig)
 
