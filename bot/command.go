@@ -58,7 +58,7 @@ func (c *Commands) Run(message msg.Message) bool {
 
 	for _, command := range c.matcher {
 		run, match := command.Match(message)
-		if match.Matched() {
+		if match != nil {
 			// this is is needed for ConditionMatcher: runner gets already executed in the matcher itself!
 			if run != nil {
 				run(match, message)

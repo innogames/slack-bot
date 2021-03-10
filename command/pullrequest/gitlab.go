@@ -91,7 +91,7 @@ func (c *gitlabFetcher) getApprovers(rawPullRequest *gitlab.MergeRequest, prNumb
 func (c *gitlabFetcher) GetTemplateFunction() template.FuncMap {
 	return template.FuncMap{
 		"gitlabPullRequest": func(repo string, number string) (pullRequest, error) {
-			return c.getPullRequest(matcher.MapResult{
+			return c.getPullRequest(matcher.Result{
 				"repo":   repo,
 				"number": number,
 			})

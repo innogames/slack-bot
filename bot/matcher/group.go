@@ -16,14 +16,12 @@ type groupMatcher struct {
 }
 
 func (m groupMatcher) Match(message msg.Message) (Runner, Result) {
-	var match MapResult
-
 	for _, matcher := range m.matcher {
 		run, match := matcher.Match(message)
-		if match.Matched() {
+		if match != nil {
 			return run, match
 		}
 	}
 
-	return nil, match
+	return nil, nil
 }

@@ -104,7 +104,7 @@ func (c *githubFetcher) getStatus(pr *github.PullRequest, inReview bool) prStatu
 func (c *githubFetcher) GetTemplateFunction() template.FuncMap {
 	return template.FuncMap{
 		"githubPullRequest": func(project string, repo string, number string) (pullRequest, error) {
-			return c.getPullRequest(matcher.MapResult{
+			return c.getPullRequest(matcher.Result{
 				"project": project,
 				"repo":    repo,
 				"number":  number,

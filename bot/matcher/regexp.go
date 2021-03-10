@@ -11,7 +11,7 @@ import (
 // - it's case insensitive
 // - it always has to match the full line (adding ^ and $ implicitly)
 func NewRegexpMatcher(regexpString string, run Runner) Matcher {
-	return &regexpMatcher{
+	return regexpMatcher{
 		regexp: util.CompileRegexp(regexpString),
 		run:    run,
 	}
@@ -22,13 +22,16 @@ type regexpMatcher struct {
 	run    Runner
 }
 
-func (m *regexpMatcher) Match(message msg.Message) (Runner, Result) {
-	var match MapResult
-
+func (m regexpMatcher) Match(message msg.Message) (Runner, Result) {
 	matches := m.regexp.FindStringSubmatch(message.GetText())
 	if len(matches) == 0 {
-		return nil, match
+		return nil, nil
 	}
 
-	return m.run, ReResult{matches, m.regexp}
+	match := make(Result, len(m.regexp.SubexpNames()))
+	for idx, name := range m.regexp.SubexpNames() {
+		match[name] = matches[idx]
+	}
+
+	return m.run, match
 }

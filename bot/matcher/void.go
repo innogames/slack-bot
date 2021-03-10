@@ -13,7 +13,5 @@ type voidMatcher struct {
 }
 
 func (m voidMatcher) Match(message msg.Message) (Runner, Result) {
-	var match MapResult
-
-	return nil, match
+	return nil, nil
 }

@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/util"
 )
 
 // NewTextMatcher match messages by full text (case insensitive)
@@ -21,14 +20,9 @@ type textMatcher struct {
 }
 
 func (m textMatcher) Match(message msg.Message) (Runner, Result) {
-	var match MapResult
-
 	if strings.EqualFold(message.Text, m.loweredText) {
-		match := MapResult{
-			util.FullMatch: message.Text,
-		}
-		return m.run, match
+		return m.run, Result{}
 	}
 
-	return nil, match
+	return nil, nil
 }

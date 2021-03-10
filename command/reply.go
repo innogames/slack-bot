@@ -4,6 +4,7 @@ import (
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/matcher"
 	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/innogames/slack-bot/bot/util"
 	"github.com/slack-go/slack"
 )
 
@@ -24,7 +25,7 @@ func (c *replyCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c *replyCommand) reply(match matcher.Result, message msg.Message) {
-	text := match.MatchedString()
+	text := match.GetString(util.FullMatch)
 	if text == "" {
 		return
 	}
@@ -34,7 +35,7 @@ func (c *replyCommand) reply(match matcher.Result, message msg.Message) {
 
 // comment in (new) thread
 func (c *replyCommand) commentInNewThread(match matcher.Result, message msg.Message) {
-	text := match.MatchedString()
+	text := match.GetString(util.FullMatch)
 	if text == "" {
 		return
 	}

@@ -5,7 +5,6 @@ import (
 
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
 )
 
@@ -22,9 +21,9 @@ type adminMatcher struct {
 
 func (m adminMatcher) Match(message msg.Message) (Runner, Result) {
 	run, result := m.matcher.Match(message)
-	if !result.Matched() {
+	if run == nil {
 		// the wrapped command didn't match...ignore
-		return nil, result
+		return nil, nil
 	}
 
 	if m.admins.Contains(message.User) {
@@ -32,14 +31,10 @@ func (m adminMatcher) Match(message msg.Message) (Runner, Result) {
 		return run, result
 	}
 
-	match := MapResult{
-		util.FullMatch: message.Text,
-	}
-
 	return func(match Result, message msg.Message) {
 		m.slackClient.ReplyError(
 			message,
 			errors.New("sorry, you are no admin and not allowed to execute this command"),
 		)
-	}, match
+	}, Result{}
 }

@@ -128,7 +128,7 @@ func (c *bitbucketFetcher) getBuildStatus(lastCommit string) buildStatus {
 func (c *bitbucketFetcher) GetTemplateFunction() template.FuncMap {
 	return template.FuncMap{
 		"bitbucketPullRequest": func(project string, repo string, number string) (pullRequest, error) {
-			return c.getPullRequest(matcher.MapResult{
+			return c.getPullRequest(matcher.Result{
 				"project": project,
 				"repo":    repo,
 				"number":  number,

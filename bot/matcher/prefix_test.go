@@ -35,11 +35,11 @@ func TestPrefix(t *testing.T) {
 			run, match := subject.Match(message)
 			if testCase.expected {
 				assert.NotNil(t, run, testCase.input)
-				assert.Equal(t, testCase.match, match.MatchedString())
+				assert.Equal(t, testCase.match, match.GetString(util.FullMatch))
 			} else {
 				assert.Nil(t, run, testCase.input)
+				assert.Nil(t, match, testCase.input)
 			}
-			assert.Equal(t, testCase.expected, match.Matched())
 		}
 	})
 

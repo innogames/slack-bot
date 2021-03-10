@@ -1,6 +1,7 @@
 package command
 
 import (
+	"github.com/innogames/slack-bot/bot/util"
 	"math/rand"
 	"strings"
 	"text/template"
@@ -28,7 +29,7 @@ func (c *randomCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c *randomCommand) getRandom(match matcher.Result, message msg.Message) {
-	optionsString := match.MatchedString()
+	optionsString := match.GetString(util.FullMatch)
 	if optionsString == "" {
 		c.SendMessage(message, "You have to pass more arguments")
 		return
