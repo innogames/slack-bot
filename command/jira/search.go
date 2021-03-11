@@ -42,6 +42,13 @@ func (c *jiraCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewRegexpMatcher("jira (?P<action>link) (?P<text>.*)", c.run),
 		matcher.NewRegexpMatcher("(?P<action>jira|issue|jql) (?P<text>.*)", c.run),
+		matcher.NewRegexpMatcher(
+			fmt.Sprintf(
+				"<%s\\/browse\\/(?P<text>.*)>",
+				regexp.QuoteMeta(strings.TrimRight(c.config.Host, "/")),
+			),
+			c.run,
+		),
 	)
 }
 
@@ -242,6 +249,7 @@ func (c *jiraCommand) GetHelp() []bot.Help {
 			Examples: []string{
 				"jql status=\"In Progress\"",
 				"issue 43234",
+				fmt.Sprintf("%s/browse/PROJ-1234", strings.TrimRight(c.config.Host, "/")),
 				"issue PROJ-23123",
 				"issue \"second city\"",
 			},
