@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/alicebob/miniredis/v2 v2.14.3
 	github.com/andygrunwald/go-jira v1.13.0
-	github.com/bndr/gojenkins v1.0.1
+	github.com/bndr/gojenkins v1.1.0
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gfleury/go-bitbucket-v1 v0.0.0-20210119103841-412cc3323e5e
