@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/storage"
@@ -14,14 +15,18 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	_ "net/http/pprof"
 )
 
 // main entry point for the bot application. Listens on incoming slack messages and handles them
 func main() {
 	var configFile string
 	var verbose bool
+	var showConfig bool
 	flag.StringVar(&configFile, "config", "config.yaml", "Path to config.yaml. Can be a directory which will load all '*.yaml' inside")
 	flag.BoolVar(&verbose, "verbose", false, "More verbose output")
+	flag.BoolVar(&showConfig, "show-config", false, "Print the config as JSON and exit")
 	flag.Parse()
 
 	cfg, err := config.Load(configFile)
@@ -29,6 +34,11 @@ func main() {
 
 	if verbose {
 		cfg.Logger.Level = "debug"
+	}
+
+	if showConfig {
+		fmt.Println(config.Dump(cfg))
+		os.Exit(0)
 	}
 
 	bot.InitLogger(cfg.Logger)
