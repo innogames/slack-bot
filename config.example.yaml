@@ -91,7 +91,7 @@ gitlab:
 
 # used for the "weather" command to fetch current weather information from openweathermap.org
 #open_weathermap:
-#  api_key: iamtheapifromopenweathermap
+#  apikey: iamtheapifromopenweathermap
 #  location: Hamburg
 
 # able to set a custom "approved" reactions. E.g to see directly who or which component/department approved a pullrequest
