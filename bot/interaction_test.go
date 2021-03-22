@@ -151,28 +151,13 @@ func TestInteraction(t *testing.T) {
 			},
 		}
 
-		// we reset the stats count and expect later on that one command was processed completely
-		stats.Set(stats.TotalCommands, 0)
-		stats.Set(stats.Interactions, 0)
-
-		bot.handleInteraction(callback)
-		time.Sleep(time.Millisecond * 20)
-
-		commandsProcessed, err := stats.Get(stats.TotalCommands)
-		assert.Nil(t, err)
-		assert.Equal(t, uint(1), commandsProcessed)
+		success := bot.handleInteraction(callback)
+		assert.True(t, success)
 
 		// "press the button" again -> should not work!
-		callback.Value = ""
-		bot.handleInteraction(callback)
-		commandsProcessed, err = stats.Get(stats.TotalCommands)
-		assert.Nil(t, err)
-		assert.Equal(t, uint(1), commandsProcessed)
-
-		// stats counter should be at "2" now, as we pressed it 2 times
-		interactionStats, err := stats.Get(stats.Interactions)
-		assert.Nil(t, err)
-		assert.Equal(t, uint(2), interactionStats)
+		callback.ActionCallback.BlockActions[0].Value = ""
+		success = bot.handleInteraction(callback)
+		assert.False(t, success)
 	})
 
 	t.Run("handle invalid interaction", func(t *testing.T) {
@@ -203,7 +188,8 @@ func TestInteraction(t *testing.T) {
 			},
 		}
 
-		bot.handleInteraction(callback)
+		success := bot.handleInteraction(callback)
+		assert.False(t, success)
 	})
 }
 
