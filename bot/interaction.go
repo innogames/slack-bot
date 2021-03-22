@@ -50,10 +50,10 @@ func (b *Bot) handleEvent(eventsAPIEvent slackevents.EventsAPIEvent) {
 	}
 }
 
-func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
+func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
 	if !b.allowedUsers.Contains(payload.User.ID) {
 		log.Warnf("User %s tried to execute a command", payload.User.ID)
-		return
+		return false
 	}
 
 	action := payload.ActionCallback.BlockActions[0]
@@ -61,7 +61,7 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
 
 	if action.Value == "" {
 		log.Infof("Action '%s' got already executed (user: %s)", action.Value, payload.User.Name)
-		return
+		return false
 	}
 
 	interactionLock.Lock()
@@ -99,6 +99,8 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) {
 	go b.handleMessage(ref.WithText(command), true)
 
 	stats.IncreaseOne(stats.Interactions)
+
+	return true
 }
 
 // replaces the clicked button: appends the "message" (like "already clicked") and changed the color to red
