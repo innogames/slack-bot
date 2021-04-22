@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	context "context"
+
 	gojenkins "github.com/bndr/gojenkins"
 
 	mock "github.com/stretchr/testify/mock"
@@ -13,23 +15,20 @@ type Client struct {
 	mock.Mock
 }
 
-// BuildJob provides a mock function with given fields: name, options
-func (_m *Client) BuildJob(name string, options ...interface{}) (int64, error) {
-	var _ca []interface{}
-	_ca = append(_ca, name)
-	_ca = append(_ca, options...)
-	ret := _m.Called(_ca...)
+// BuildJob provides a mock function with given fields: ctx, name, params
+func (_m *Client) BuildJob(ctx context.Context, name string, params map[string]string) (int64, error) {
+	ret := _m.Called(ctx, name, params)
 
 	var r0 int64
-	if rf, ok := ret.Get(0).(func(string, ...interface{}) int64); ok {
-		r0 = rf(name, options...)
+	if rf, ok := ret.Get(0).(func(context.Context, string, map[string]string) int64); ok {
+		r0 = rf(ctx, name, params)
 	} else {
 		r0 = ret.Get(0).(int64)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, ...interface{}) error); ok {
-		r1 = rf(name, options...)
+	if rf, ok := ret.Get(1).(func(context.Context, string, map[string]string) error); ok {
+		r1 = rf(ctx, name, params)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -37,13 +36,13 @@ func (_m *Client) BuildJob(name string, options ...interface{}) (int64, error) {
 	return r0, r1
 }
 
-// GetAllNodes provides a mock function with given fields:
-func (_m *Client) GetAllNodes() ([]*gojenkins.Node, error) {
-	ret := _m.Called()
+// GetAllNodes provides a mock function with given fields: ctx
+func (_m *Client) GetAllNodes(ctx context.Context) ([]*gojenkins.Node, error) {
+	ret := _m.Called(ctx)
 
 	var r0 []*gojenkins.Node
-	if rf, ok := ret.Get(0).(func() []*gojenkins.Node); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(context.Context) []*gojenkins.Node); ok {
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*gojenkins.Node)
@@ -51,8 +50,8 @@ func (_m *Client) GetAllNodes() ([]*gojenkins.Node, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -60,20 +59,20 @@ func (_m *Client) GetAllNodes() ([]*gojenkins.Node, error) {
 	return r0, r1
 }
 
-// GetJob provides a mock function with given fields: id, parentIDs
-func (_m *Client) GetJob(id string, parentIDs ...string) (*gojenkins.Job, error) {
+// GetJob provides a mock function with given fields: ctx, id, parentIDs
+func (_m *Client) GetJob(ctx context.Context, id string, parentIDs ...string) (*gojenkins.Job, error) {
 	_va := make([]interface{}, len(parentIDs))
 	for _i := range parentIDs {
 		_va[_i] = parentIDs[_i]
 	}
 	var _ca []interface{}
-	_ca = append(_ca, id)
+	_ca = append(_ca, ctx, id)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
 	var r0 *gojenkins.Job
-	if rf, ok := ret.Get(0).(func(string, ...string) *gojenkins.Job); ok {
-		r0 = rf(id, parentIDs...)
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...string) *gojenkins.Job); ok {
+		r0 = rf(ctx, id, parentIDs...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*gojenkins.Job)
@@ -81,8 +80,8 @@ func (_m *Client) GetJob(id string, parentIDs ...string) (*gojenkins.Job, error)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, ...string) error); ok {
-		r1 = rf(id, parentIDs...)
+	if rf, ok := ret.Get(1).(func(context.Context, string, ...string) error); ok {
+		r1 = rf(ctx, id, parentIDs...)
 	} else {
 		r1 = ret.Error(1)
 	}

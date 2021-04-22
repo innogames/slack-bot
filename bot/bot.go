@@ -135,6 +135,7 @@ func (b *Bot) loadSlackData() error {
 	if err != nil {
 		return errors.Wrap(err, "error fetching users")
 	}
+
 	for _, user := range allUsers {
 		for _, allowedUserName := range b.config.AllowedUsers {
 			if allowedUserName == user.Name || allowedUserName == user.ID {

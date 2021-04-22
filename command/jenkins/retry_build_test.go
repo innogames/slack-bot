@@ -1,6 +1,7 @@
 package jenkins
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -53,7 +54,8 @@ func TestJenkinsRetry(t *testing.T) {
 
 		slackClient.On("SendMessage", message, "Job *TestJob* does not exist").Return("")
 
-		jenkinsClient.On("GetJob", "TestJob").Return(nil, fmt.Errorf(""))
+		ctx := context.TODO()
+		jenkinsClient.On("GetJob", ctx, "TestJob").Return(nil, fmt.Errorf(""))
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})

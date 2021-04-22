@@ -1,6 +1,7 @@
 package jenkins
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -35,7 +36,8 @@ func TestNodes(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "jenkins nodes"
 
-		jenkinsClient.On("GetAllNodes").Return(nil, fmt.Errorf("an error occurred")).Once()
+		ctx := context.TODO()
+		jenkinsClient.On("GetAllNodes", ctx).Return(nil, fmt.Errorf("an error occurred")).Once()
 		slackClient.On("ReplyError", message, fmt.Errorf("an error occurred")).Return(true)
 		actual := command.Run(message)
 		assert.True(t, actual)
@@ -63,7 +65,8 @@ func TestNodes(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "jenkins nodes"
 
-		jenkinsClient.On("GetAllNodes").Return(nodes, nil).Once()
+		ctx := context.TODO()
+		jenkinsClient.On("GetAllNodes", ctx).Return(nodes, nil).Once()
 		mocks.AssertSlackMessage(slackClient, message, `*<https://jenkins.example.com/computer/|2 Nodes>*
 • *<https://jenkins.example.com/computer/Node 1/|Node 1>* - status: :white_check_mark: - busy executors: 0/0
 • *<https://jenkins.example.com/computer/Node 2/|Node 2>* - status: :red_circle: - busy executors: 0/0

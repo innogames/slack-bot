@@ -1,6 +1,7 @@
 package jenkins
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
@@ -28,7 +29,8 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 	processHooks(cfg.OnStart, message, jobParams)
 	slackClient.AddReaction(iconPending, message)
 
-	build, err := startJob(jenkins, jobName, jobParams)
+	ctx := context.Background()
+	build, err := startJob(ctx, jenkins, jobName, jobParams)
 	if err != nil {
 		return errors.Wrapf(err, "Job *%s* could not start job", jobName)
 	}
@@ -97,19 +99,19 @@ func sendBuildStartedMessage(build *gojenkins.Build, slackClient client.SlackCli
 }
 
 // startJob starts a job and waits until job is not queued anymore
-func startJob(jenkins Client, jobName string, jobParams map[string]string) (*gojenkins.Build, error) {
+func startJob(ctx context.Context, jenkins Client, jobName string, jobParams map[string]string) (*gojenkins.Build, error) {
 	// avoid nasty racing conditions when two people are starting the same job
 	mu.Lock()
 	defer mu.Unlock()
 
-	job, err := jenkins.GetJob(jobName)
+	job, err := jenkins.GetJob(ctx, jobName)
 	if err != nil {
 		return nil, err
 	}
 
 	lastBuildID := job.Raw.LastBuild.Number
 
-	_, err = job.InvokeSimple(jobParams)
+	_, err = job.InvokeSimple(ctx, jobParams)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +123,7 @@ func startJob(jenkins Client, jobName string, jobParams map[string]string) (*goj
 
 	// wait until build ios really really running not just queued
 	for range ticker.C {
-		job.Poll()
+		job.Poll(ctx)
 
 		newBuildID = job.Raw.LastBuild.Number
 		if newBuildID > lastBuildID {
@@ -133,7 +135,7 @@ func startJob(jenkins Client, jobName string, jobParams map[string]string) (*goj
 		WithField("job", jobName).
 		Infof("Queued job %s #%d", jobName, newBuildID)
 
-	return job.GetBuild(newBuildID)
+	return job.GetBuild(ctx, newBuildID)
 }
 
 // GetAttachment creates a attachment object for a given build

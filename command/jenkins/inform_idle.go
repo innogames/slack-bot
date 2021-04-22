@@ -1,6 +1,7 @@
 package jenkins
 
 import (
+	"context"
 	"time"
 
 	"github.com/innogames/slack-bot/bot"
@@ -71,7 +72,8 @@ func (c *idleWatcherCommand) run(match matcher.Result, message msg.Message) {
 
 // query all executors from jenkins with one request and check of any executor is busy
 func (c *idleWatcherCommand) hasRunningBuild(ref msg.Ref) bool {
-	nodes, err := c.jenkins.GetAllNodes()
+	ctx := context.TODO()
+	nodes, err := c.jenkins.GetAllNodes(ctx)
 	if err != nil {
 		c.ReplyError(ref, err)
 		return false

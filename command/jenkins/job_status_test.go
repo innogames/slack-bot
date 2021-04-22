@@ -1,6 +1,7 @@
 package jenkins
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -48,7 +49,8 @@ func TestJobStatus(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "enable job TestJob"
 
-		jenkins.On("GetJob", "TestJob").Return(nil, fmt.Errorf("invalid job TestJob"))
+		ctx := context.TODO()
+		jenkins.On("GetJob", ctx, "TestJob").Return(nil, fmt.Errorf("invalid job TestJob"))
 		slackClient.On("ReplyError", message, fmt.Errorf("invalid job TestJob")).Return(true)
 		actual := command.Run(message)
 		assert.True(t, actual)

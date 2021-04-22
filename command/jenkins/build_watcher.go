@@ -1,6 +1,7 @@
 package jenkins
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -41,13 +42,14 @@ func (c *buildWatcherCommand) run(match matcher.Result, message msg.Message) {
 	jobName := match.GetString("job")
 	buildNumber := match.GetInt("build")
 
-	job, err := c.jenkins.GetJob(jobName)
+	ctx := context.TODO()
+	job, err := c.jenkins.GetJob(ctx, jobName)
 	if err != nil {
 		c.SendMessage(message, fmt.Sprintf("Job *%s* does not exist", jobName))
 		return
 	}
 
-	build, err := getBuild(job, buildNumber)
+	build, err := getBuild(ctx, job, buildNumber)
 	if err != nil {
 		c.ReplyError(message, err)
 		return
@@ -83,7 +85,7 @@ func (c *buildWatcherCommand) run(match matcher.Result, message msg.Message) {
 		)
 
 		c.RemoveReaction(iconRunning, message)
-		if build.IsGood() {
+		if build.IsGood(ctx) {
 			c.AddReaction(iconSuccess, message)
 		} else {
 			c.AddReaction(iconFailed, message)
@@ -102,16 +104,16 @@ func (c *buildWatcherCommand) run(match matcher.Result, message msg.Message) {
 	}()
 }
 
-func getBuild(job jenkins.Job, buildNumber int) (*gojenkins.Build, error) {
+func getBuild(ctx context.Context, job jenkins.Job, buildNumber int) (*gojenkins.Build, error) {
 	if buildNumber == 0 {
-		_, err := job.Poll()
+		_, err := job.Poll(ctx)
 		if err != nil {
 			return nil, err
 		}
 
-		return job.GetLastBuild()
+		return job.GetLastBuild(ctx)
 	}
-	return job.GetBuild(int64(buildNumber))
+	return job.GetBuild(ctx, int64(buildNumber))
 }
 
 func (c *buildWatcherCommand) GetHelp() []bot.Help {
