@@ -1,6 +1,7 @@
 package jenkins
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/innogames/slack-bot/bot"
@@ -38,14 +39,15 @@ func (c *retryCommand) run(match matcher.Result, message msg.Message) {
 		return
 	}
 
-	job, err := c.jenkins.GetJob(jobName)
+	ctx := context.TODO()
+	job, err := c.jenkins.GetJob(ctx, jobName)
 	if err != nil {
 		c.SendMessage(message, fmt.Sprintf("Job *%s* does not exist", jobName))
 		return
 	}
 
 	buildNumber := match.GetInt("build")
-	build, err := getBuild(job, buildNumber)
+	build, err := getBuild(ctx, job, buildNumber)
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("given build *%s #%d* does not exist: %w", jobName, buildNumber, err))
 		return
