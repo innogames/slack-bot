@@ -3,7 +3,6 @@ package admin
 import (
 	"fmt"
 	"runtime"
-	"strconv"
 	"strings"
 	"time"
 
@@ -49,20 +48,20 @@ func (c *statsCommand) collectStats(result *statsResult) {
 	m := &runtime.MemStats{}
 	runtime.ReadMemStats(m)
 
-	result.addNewSection("Processed commands")
+	result.addNewSection("Overall stats")
 	result.addValue("Total commands executed", formatStats(stats.TotalCommands))
-	result.addValue("Unknown Commands", formatStats(stats.UnknownCommands))
-	result.addValue("Unauthorized Commands", formatStats(stats.UnauthorizedCommands))
-	result.addValue("Interactions", formatStats(stats.Interactions))
-	result.addValue("Queued commands", fmt.Sprintf("%d", queue.CountCurrentJobs()))
-	result.addValue("Crons", fmt.Sprintf("%d", len(c.cfg.Crons)))
+	result.addValue("Unknown commands", formatStats(stats.UnknownCommands))
+	result.addValue("Unauthorized commands", formatStats(stats.UnauthorizedCommands))
+	result.addValue("Handled interactions/buttons", formatStats(stats.Interactions))
 
-	result.addNewSection("Server Runtime")
-	result.addValue("Uptime", util.FormatDuration(time.Since(startTime)))
-	result.addValue("Goroutines", fmt.Sprintf("%d", runtime.NumGoroutine()))
+	result.addNewSection("Server runtime")
+	result.addValue("Registered crons", util.FormatInt(len(c.cfg.Crons)))
+	result.addValue("Queued commands", util.FormatInt(queue.CountCurrentJobs()))
+	result.addValue("Goroutines", util.FormatInt(runtime.NumGoroutine()))
 	result.addValue("Mem Alloc", util.FormatBytes(m.Alloc))
 	result.addValue("Mem Sys", util.FormatBytes(m.Sys))
-	result.addValue("NumGC", fmt.Sprintf("%d", m.NumGC))
+	result.addValue("Uptime", util.FormatDuration(time.Since(startTime)))
+	result.addValue("NumGC (since start)", util.FormatInt(int(m.NumGC)))
 	result.addValue("Bot Version", bot.Version)
 	result.addValue("Go Version", runtime.Version())
 }
@@ -89,7 +88,7 @@ func formatStats(key string) string {
 		return "0"
 	}
 
-	return strconv.Itoa(int(value))
+	return util.FormatInt(int(value))
 }
 
 func (c *statsCommand) GetHelp() []bot.Help {

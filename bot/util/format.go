@@ -1,6 +1,11 @@
 package util
 
-import "fmt"
+import (
+	"fmt"
+
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
+)
 
 // FormatBytes formats a given number of bytes in a simple human readable version
 func FormatBytes(bytes uint64) string {
@@ -18,4 +23,10 @@ func FormatBytes(bytes uint64) string {
 		"%.1f %cB",
 		float64(bytes)/float64(div), "kMGTPE"[exp],
 	)
+}
+
+func FormatInt(number int) string {
+	p := message.NewPrinter(language.English)
+
+	return p.Sprintf("%d", number)
 }

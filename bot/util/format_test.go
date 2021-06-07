@@ -20,9 +20,32 @@ var formatTestCases = []struct {
 }
 
 func TestFormatBytes(t *testing.T) {
-	t.Run("ParseDuration", func(t *testing.T) {
+	t.Run("FormatBytes", func(t *testing.T) {
 		for _, testCase := range formatTestCases {
 			actual := FormatBytes(testCase.input)
+			assert.Equal(t, testCase.expected, actual)
+		}
+	})
+}
+
+var formatIntTestCases = []struct {
+	input    int
+	expected string
+}{
+	{-1000, "-1,000"},
+	{0, "0"},
+	{1, "1"},
+	{100, "100"},
+	{999, "999"},
+	{1000, "1,000"},
+	{232632, "232,632"},
+	{3627838232862387286, "3,627,838,232,862,387,286"},
+}
+
+func TestFormatInt(t *testing.T) {
+	t.Run("TestFormatInt", func(t *testing.T) {
+		for _, testCase := range formatIntTestCases {
+			actual := FormatInt(testCase.input)
 			assert.Equal(t, testCase.expected, actual)
 		}
 	})
