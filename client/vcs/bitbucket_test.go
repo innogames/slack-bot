@@ -16,7 +16,7 @@ func TestBitbucketLoader(t *testing.T) {
 	// todo(matze) defer shutdown
 	// todo(matze) wait till server active
 
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 200)
 
 	cfg := config.Bitbucket{
 		Host:       "http://localhost:7991",

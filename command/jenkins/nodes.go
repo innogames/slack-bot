@@ -1,6 +1,7 @@
 package jenkins
 
 import (
+	"context"
 	"fmt"
 	"sort"
 
@@ -35,7 +36,8 @@ func (c *nodesCommand) IsEnabled() bool {
 }
 
 func (c *nodesCommand) run(match matcher.Result, message msg.Message) {
-	nodes, err := c.jenkins.GetAllNodes()
+	ctx := context.TODO()
+	nodes, err := c.jenkins.GetAllNodes(ctx)
 	if err != nil {
 		c.ReplyError(message, err)
 		return

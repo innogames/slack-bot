@@ -1,6 +1,7 @@
 package jenkins
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"github.com/bndr/gojenkins"
@@ -21,8 +22,9 @@ func TestStartBuild(t *testing.T) {
 		jobName := "TestJob"
 		params := map[string]string{}
 
+		ctx := context.TODO()
 		mocks.AssertReaction(slackClient, iconPending, message)
-		client.On("GetJob", jobName).Return(nil, errors.New("404"))
+		client.On("GetJob", ctx, jobName).Return(nil, errors.New("404"))
 
 		err := TriggerJenkinsJob(cfg, jobName, params, slackClient, client, message)
 
@@ -32,7 +34,7 @@ func TestStartBuild(t *testing.T) {
 	t.Run("format finish build", func(t *testing.T) {
 		build := &gojenkins.Build{}
 		build.Raw = &gojenkins.BuildResponse{}
-		build.Raw.Duration = int64(60 * 3 * 1000)
+		build.Raw.Duration = float64(60 * 3 * 1000)
 		build.Raw.Result = "FAILURE"
 		build.Raw.Number = 1233
 

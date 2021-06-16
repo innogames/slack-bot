@@ -1,6 +1,7 @@
 package jenkins
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/innogames/slack-bot/bot"
@@ -36,8 +37,10 @@ func (c *watcherCommand) run(match matcher.Result, message msg.Message) {
 	jobName := match.GetString("job")
 	if action == actionWatch {
 		stop := make(chan bool, 1)
+		ctx := context.TODO()
+		// todo use context.WithCancel instead of stopper chan
 		c.stopper[jobName+message.GetUser()] = stop
-		builds, err := jenkins.WatchJob(c.jenkins, jobName, stop)
+		builds, err := jenkins.WatchJob(ctx, c.jenkins, jobName, stop)
 		if err != nil {
 			c.ReplyError(message, err)
 			return

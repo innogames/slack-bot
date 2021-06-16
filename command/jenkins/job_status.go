@@ -1,6 +1,7 @@
 package jenkins
 
 import (
+	"context"
 	"fmt"
 	"text/template"
 
@@ -37,6 +38,8 @@ func (c *statusCommand) run(match matcher.Result, message msg.Message) {
 	action := match.GetString("action")
 	jobName := match.GetString("job")
 
+	ctx := context.TODO()
+
 	if _, ok := c.jobs[jobName]; !ok {
 		text := fmt.Sprintf(
 			"Sorry, job *%s* is not whitelisted",
@@ -46,7 +49,7 @@ func (c *statusCommand) run(match matcher.Result, message msg.Message) {
 		return
 	}
 
-	job, err := c.jenkins.GetJob(jobName)
+	job, err := c.jenkins.GetJob(ctx, jobName)
 	if err != nil {
 		c.ReplyError(message, err)
 		return
@@ -55,10 +58,10 @@ func (c *statusCommand) run(match matcher.Result, message msg.Message) {
 	var text string
 
 	if action == actionEnable {
-		_, err = job.Enable()
+		_, err = job.Enable(ctx)
 		text = fmt.Sprintf("Job *%s* is enabled now", jobName)
 	} else {
-		_, err = job.Disable()
+		_, err = job.Disable(ctx)
 		text = fmt.Sprintf("Job *%s* is disabled now", jobName)
 	}
 
@@ -73,7 +76,7 @@ func (c *statusCommand) run(match matcher.Result, message msg.Message) {
 func (c *statusCommand) GetTemplateFunction() template.FuncMap {
 	return template.FuncMap{
 		"jenkinsJob": func(jobName string) *gojenkins.Job {
-			job, _ := c.jenkins.GetJob(jobName)
+			job, _ := c.jenkins.GetJob(context.TODO(), jobName)
 
 			return job
 		},

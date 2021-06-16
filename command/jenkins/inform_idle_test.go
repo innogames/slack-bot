@@ -1,6 +1,7 @@
 package jenkins
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/innogames/slack-bot/mocks"
 	"testing"
@@ -30,14 +31,15 @@ func TestInformIdle(t *testing.T) {
 		// we don't have time to wait some minutes for the second check...
 		trigger.checkInterval = time.Millisecond * 1
 
+		ctx := context.TODO()
 		// first call: ne job is idle...the other one is still busy
-		jenkins.On("GetAllNodes").Return([]*gojenkins.Node{
+		jenkins.On("GetAllNodes", ctx).Return([]*gojenkins.Node{
 			getNodeWithExecutors(0, 1),
 			getNodeWithExecutors(1, 1),
 		}, nil).Once()
 
 		// second call: idle!
-		jenkins.On("GetAllNodes").Return([]*gojenkins.Node{
+		jenkins.On("GetAllNodes", ctx).Return([]*gojenkins.Node{
 			getNodeWithExecutors(0, 1),
 			getNodeWithExecutors(0, 2),
 		}, nil).Once()
@@ -61,7 +63,8 @@ func TestInformIdle(t *testing.T) {
 		message.Text = "wait until jenkins is idle"
 
 		// we have 2 nodes with only idle executors
-		jenkins.On("GetAllNodes").Return([]*gojenkins.Node{
+		ctx := context.TODO()
+		jenkins.On("GetAllNodes", ctx).Return([]*gojenkins.Node{
 			getNodeWithExecutors(0, 1),
 			getNodeWithExecutors(0, 2),
 		}, nil)

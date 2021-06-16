@@ -1,6 +1,7 @@
 package jenkins
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/innogames/slack-bot/mocks"
@@ -95,7 +96,8 @@ func TestJenkinsTrigger(t *testing.T) {
 			mock.Anything,
 		)
 
-		jenkinsClient.On("GetJob", "TestJob").Return(nil, errors.New("404"))
+		ctx := context.TODO()
+		jenkinsClient.On("GetJob", ctx, "TestJob").Return(nil, errors.New("404"))
 		actual := command.Run(message)
 
 		assert.True(t, actual)
@@ -113,7 +115,8 @@ func TestJenkinsTrigger(t *testing.T) {
 			mock.Anything,
 		)
 
-		jenkinsClient.On("GetJob", "TestJobWithTrigger").Return(nil, errors.New("404"))
+		ctx := context.TODO()
+		jenkinsClient.On("GetJob", ctx, "TestJobWithTrigger").Return(nil, errors.New("404"))
 		actual := command.Run(message)
 
 		assert.True(t, actual)

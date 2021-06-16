@@ -1,6 +1,7 @@
 package jenkins
 
 import (
+	"context"
 	"fmt"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/msg"
@@ -19,7 +20,8 @@ func TestJenkinsWatcher(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "watch TestJob"
 
-		jenkinsClient.On("GetJob", "TestJob").Return(nil, fmt.Errorf("404"))
+		ctx := context.TODO()
+		jenkinsClient.On("GetJob", ctx, "TestJob").Return(nil, fmt.Errorf("404"))
 		mocks.AssertError(slackClient, message, "404")
 
 		actual := command.Run(message)
