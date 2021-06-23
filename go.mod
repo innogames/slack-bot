@@ -3,7 +3,7 @@ module github.com/innogames/slack-bot
 go 1.15
 
 require (
-	github.com/alicebob/miniredis/v2 v2.14.5
+	github.com/alicebob/miniredis/v2 v2.15.0
 	github.com/andygrunwald/go-jira v1.13.0
 	github.com/bndr/gojenkins v1.1.0
 	github.com/fatih/color v1.9.0 // indirect
