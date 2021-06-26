@@ -1,6 +1,8 @@
 package client
 
 import (
+	"fmt"
+	"github.com/innogames/slack-bot/bot/version"
 	"net/http"
 	"time"
 )
@@ -14,6 +16,17 @@ func GetHTTPClient() *http.Client {
 
 	return &http.Client{
 		Timeout:   time.Second * 10,
-		Transport: transport,
+		Transport: &setUserAgentHeader{transport},
 	}
+}
+
+type setUserAgentHeader struct {
+	roundTripper http.RoundTripper
+}
+
+func (t *setUserAgentHeader) RoundTrip(req *http.Request) (*http.Response, error) {
+	userAgent := fmt.Sprintf("slack-bot/%s", version.Version)
+	req.Header.Add("User-Agent", userAgent)
+
+	return t.roundTripper.RoundTrip(req)
 }

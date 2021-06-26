@@ -2,6 +2,7 @@ package admin
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/version"
 	"runtime"
 	"strings"
 	"time"
@@ -62,7 +63,7 @@ func (c *statsCommand) collectStats(result *statsResult) {
 	result.addValue("Mem Sys", util.FormatBytes(m.Sys))
 	result.addValue("Uptime", util.FormatDuration(time.Since(startTime)))
 	result.addValue("NumGC (since start)", util.FormatInt(int(m.NumGC)))
-	result.addValue("Bot Version", bot.Version)
+	result.addValue("Bot Version", version.Version)
 	result.addValue("Go Version", runtime.Version())
 }
 
