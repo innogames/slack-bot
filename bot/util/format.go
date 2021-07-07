@@ -25,6 +25,7 @@ func FormatBytes(bytes uint64) string {
 	)
 }
 
+// FormatInt returns the given integer in a english representation (like 123,456,789)
 func FormatInt(number int) string {
 	p := message.NewPrinter(language.English)
 
