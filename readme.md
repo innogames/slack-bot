@@ -12,7 +12,7 @@ But also custom commands, macros, crons and other project specific commands can 
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)
 
 # Installation
-## 1st) Create+prepare the Slack App:**
+## 1st) Create+prepare the Slack App:
 ### Recommended way: Use Manifest file as App template
 - Create a [Slack App](https://api.slack.com/apps?new_app=1)
 - Select "From an app manifest"
@@ -21,42 +21,42 @@ But also custom commands, macros, crons and other project specific commands can 
 <details>
     <summary>Click to expand!</summary>
 
-    ```yaml
-    _metadata:
-      major_version: 1
-      minor_version: 1
-    display_information:
-      name: slack_bot
-    features:
-      app_home:
-        messages_tab_enabled: true
-        messages_tab_read_only_enabled: false
-      bot_user:
-        display_name: bot
-        always_online: true
-    oauth_config:
-      scopes:
-        bot:
-          - app_mentions:read
-          - channels:read
-          - chat:write
-          - im:history
-          - im:write
-          - mpim:history
-          - reactions:read
-          - reactions:write
-          - users:read
-          - files:write
-    settings:
-      event_subscriptions:
-        bot_events:
-          - app_mention
-          - message.im
-      interactivity:
-        is_enabled: true
-      org_deploy_enabled: false
-      socket_mode_enabled: true
-    ```
+```yaml
+_metadata:
+  major_version: 1
+  minor_version: 1
+display_information:
+  name: slack_bot
+features:
+  app_home:
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: false
+  bot_user:
+    display_name: bot
+    always_online: true
+oauth_config:
+  scopes:
+    bot:
+      - app_mentions:read
+      - channels:read
+      - chat:write
+      - im:history
+      - im:write
+      - mpim:history
+      - reactions:read
+      - reactions:write
+      - users:read
+      - files:write
+settings:
+  event_subscriptions:
+    bot_events:
+      - app_mention
+      - message.im
+  interactivity:
+    is_enabled: true
+  org_deploy_enabled: false
+  socket_mode_enabled: true
+```
 </details>
 
  - Create the App!
@@ -71,7 +71,8 @@ But also custom commands, macros, crons and other project specific commands can 
 ### Alternative: Manual steps when **not** using the App Manifest
 <details>
     <summary>Expand steps!</summary>
-    
+    - Create a [Slack App](https://api.slack.com/apps?new_app=1)
+    - Select from scratch and choose a name and workspace.
     - Go to "Socket Mode" menu and activate it. 
     - - use any token name, like "Slack-Bot Socket Mode token"
     - - You will see a App-Level Token (beginning with xapp-). Sse it in the config.yaml as slack.socket_token.
