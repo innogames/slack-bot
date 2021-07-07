@@ -12,14 +12,15 @@ But also custom commands, macros, crons and other project specific commands can 
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)
 
 # Installation
-**1st) Create+prepare the Slack App:**
-## Recommended way: Use Manifest file as App template
+## 1st) Create+prepare the Slack App:**
+### Recommended way: Use Manifest file as App template
 - Create a [Slack App](https://api.slack.com/apps?new_app=1)
 - Select "From an app manifest"
 - Select your Workspace
 - Past this Yaml code:
 <details>
     <summary>Click to expand!</summary>
+
     ```yaml
     _metadata:
       major_version: 1
@@ -55,9 +56,10 @@ But also custom commands, macros, crons and other project specific commands can 
         is_enabled: true
       org_deploy_enabled: false
       socket_mode_enabled: true
-```
+    ```
 </details>
- - Crete the App!
+
+ - Create the App!
  - Go to "Basic Information"
  - -> in "App-Level Tokens", "Generate a Token" with the scope "connections:write"
  - -> You will see a App-Level Token (beginning with xapp-). Sse it in the config.yaml as slack.socket_token.
@@ -66,9 +68,10 @@ But also custom commands, macros, crons and other project specific commands can 
  - -> you should see a "Bot User OAuth Access Token" (beginning with "xoxb-"). Use it as slack.token in the config.yaml
  - start the bot! 
 
-## Alternative: Manual steps when **not** using the App Manifest
+### Alternative: Manual steps when **not** using the App Manifest
 <details>
     <summary>Expand steps!</summary>
+    
     - Go to "Socket Mode" menu and activate it. 
     - - use any token name, like "Slack-Bot Socket Mode token"
     - - You will see a App-Level Token (beginning with xapp-). Sse it in the config.yaml as slack.socket_token.
@@ -81,22 +84,21 @@ But also custom commands, macros, crons and other project specific commands can 
     - - in "Scopes" we need this permissions: "app_mentions:read", "channels:read", "chat:write", "im:history", "im:write", "users:read", "reactions:read", "reactions:write"
     - Go to "Install your App" and "Install your app to your workspace"
     - Back to "Install app" tab, the "Bot User OAuth Access Token" is visible (starts with "xoxb-"). You need this one in the config.yaml in slack->token.
-
 </details>
 
-
-**2nd) Run the bot - Quick steps:** (just use the bot via Docker)
+## 2nd) Run the bot 
+### Quick steps: just use the bot via Docker
 - [install Docker incl. docker-compose](https://docs.docker.com/get-docker/)
 - clone this repo or at least fetch the docker-compose.yaml
 - create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
 - add your Slack user id or user name in the "allowed_users:" section of the config.yaml
 - `docker-compose up`
 
-**2nd) Advanced** (when planning working on the bot core)
+## Advanced: (when planning working on the bot core)
 - install go (at least 1.14)
 - clone/fork this repo
 - create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
-- run `go run cmd/bot/main.go` to run the go application
+- run `go run cmd/bot/main.go` or `make run` to run the go application
 
 
 # Usage
