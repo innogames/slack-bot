@@ -3,7 +3,7 @@ module github.com/innogames/slack-bot
 go 1.15
 
 require (
-	github.com/alicebob/miniredis/v2 v2.14.5
+	github.com/alicebob/miniredis/v2 v2.15.1
 	github.com/andygrunwald/go-jira v1.13.0
 	github.com/bndr/gojenkins v1.1.0
 	github.com/fatih/color v1.9.0 // indirect
@@ -45,7 +45,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/texttheater/golang-levenshtein v1.0.1
 	github.com/trivago/tgo v1.0.7 // indirect
-	github.com/xanzy/go-gitlab v0.50.0
+	github.com/xanzy/go-gitlab v0.50.1
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
 	golang.org/x/oauth2 v0.0.0-20210615190721-d04028783cf1
 	golang.org/x/sys v0.0.0-20210616045830-e2b7044e8c71 // indirect
