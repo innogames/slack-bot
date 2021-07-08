@@ -17,8 +17,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gookit/color v1.4.2
 	github.com/gorilla/mux v1.8.0 // indirect
-	github.com/hackebrot/go-repr v0.1.0 // indirect
-	github.com/hackebrot/turtle v0.1.0
+	github.com/hackebrot/turtle v0.2.0
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v0.14.1 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.0 // indirect
@@ -45,7 +44,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/texttheater/golang-levenshtein v1.0.1
 	github.com/trivago/tgo v1.0.7 // indirect
-	github.com/xanzy/go-gitlab v0.50.0
+	github.com/xanzy/go-gitlab v0.50.1
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
 	golang.org/x/oauth2 v0.0.0-20210615190721-d04028783cf1
 	golang.org/x/sys v0.0.0-20210616045830-e2b7044e8c71 // indirect
