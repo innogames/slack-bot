@@ -44,7 +44,7 @@ func (c *jiraCommand) GetMatcher() matcher.Matcher {
 		matcher.NewRegexpMatcher("(?P<action>jira|issue|jql) (?P<text>.*)", c.run),
 		matcher.NewRegexpMatcher(
 			fmt.Sprintf(
-				"<%s\\/browse\\/(?P<text>.*)>",
+				"%s\\/browse\\/(?P<text>.*)",
 				regexp.QuoteMeta(strings.TrimRight(c.config.Host, "/")),
 			),
 			c.run,
