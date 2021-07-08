@@ -12,33 +12,94 @@ But also custom commands, macros, crons and other project specific commands can 
 [![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)
 
 # Installation
-**1st) Create+prepare the Slack App:**
-- Create a [Slack App](https://api.slack.com/app)
-- Go to "Socket Mode" menu and activate it. 
-- - use any token name, like "Slack-Bot Socket Mode token"
-- - You will see a App-Level Token (beginning with xapp-). Sse it in the config.yaml as slack.socket_token.
-- Enable "Interactivity & Shortcuts" 
-- Enable "Event Subscriptions":
-- - if you see a "Send events to my app using the new format" checkbox, check it (only for old migrated apps)  
-- - in "Subscribe to bot events", add "app_mention" and "message.im" events
-- Go to "OAuth & Permissions":
-- - use the "Bot User OAuth Access Token" (beginning with "xoxb-") as slack.token in the config.yaml
-- - in "Scopes" we need this permissions: "app_mentions:read", "channels:read", "chat:write", "im:history", "im:write", "users:read", "reactions:read", "reactions:write"
-- Go to "Install your App" and "Install your app to your workspace"
-- Back to "Install app" tab, the "Bot User OAuth Access Token" is visible (starts with "xoxb-"). You need this one in the config.yaml in slack->token.
+## 1st) Create+prepare the Slack App:
+### Recommended way: Use Manifest file as App template
+- Create a [Slack App](https://api.slack.com/apps?new_app=1)
+- Select "From an app manifest"
+- Select your Workspace
+- Past this Yaml code:
+<details>
+    <summary>Click to expand!</summary>
 
-**2nd) Run the bot - Quick steps:** (just use the bot via Docker)
+```yaml
+_metadata:
+  major_version: 1
+  minor_version: 1
+display_information:
+  name: slack_bot
+features:
+  app_home:
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: false
+  bot_user:
+    display_name: bot
+    always_online: true
+oauth_config:
+  scopes:
+    bot:
+      - app_mentions:read
+      - channels:read
+      - chat:write
+      - im:history
+      - im:write
+      - mpim:history
+      - reactions:read
+      - reactions:write
+      - users:read
+      - files:write
+settings:
+  event_subscriptions:
+    bot_events:
+      - app_mention
+      - message.im
+  interactivity:
+    is_enabled: true
+  org_deploy_enabled: false
+  socket_mode_enabled: true
+```
+</details>
+
+ - Create the App!
+ - Go to "Basic Information"
+ - -> in "App-Level Tokens", "Generate a Token" with the scope "connections:write"
+ - -> You will see a App-Level Token (beginning with xapp-). Sse it in the config.yaml as slack.socket_token.
+ - Go to "OAuth & Permissions":
+ - -> "Install to Workspace"
+ - -> you should see a "Bot User OAuth Access Token" (beginning with "xoxb-"). Use it as slack.token in the config.yaml
+ - start the bot! 
+
+### Alternative: Manual steps when **not** using the App Manifest
+<details>
+    <summary>Expand steps!</summary>
+    - Create a [Slack App](https://api.slack.com/apps?new_app=1)
+    - Select from scratch and choose a name and workspace.
+    - Go to "Socket Mode" menu and activate it. 
+    - - use any token name, like "Slack-Bot Socket Mode token"
+    - - You will see a App-Level Token (beginning with xapp-). Sse it in the config.yaml as slack.socket_token.
+    - Enable "Interactivity & Shortcuts" 
+    - Enable "Event Subscriptions":
+    - - if you see a "Send events to my app using the new format" checkbox, check it (only for old migrated apps)  
+    - - in "Subscribe to bot events", add "app_mention" and "message.im" events
+    - Go to "OAuth & Permissions":
+    - - use the "Bot User OAuth Access Token" (beginning with "xoxb-") as slack.token in the config.yaml
+    - - in "Scopes" we need this permissions: "app_mentions:read", "channels:read", "chat:write", "im:history", "im:write", "users:read", "reactions:read", "reactions:write"
+    - Go to "Install your App" and "Install your app to your workspace"
+    - Back to "Install app" tab, the "Bot User OAuth Access Token" is visible (starts with "xoxb-"). You need this one in the config.yaml in slack->token.
+</details>
+
+## 2nd) Run the bot 
+### Quick steps: just use the bot via Docker
 - [install Docker incl. docker-compose](https://docs.docker.com/get-docker/)
 - clone this repo or at least fetch the docker-compose.yaml
 - create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
 - add your Slack user id or user name in the "allowed_users:" section of the config.yaml
 - `docker-compose up`
 
-**2nd) Advanced** (when planning working on the bot core)
+## Advanced: (when planning working on the bot core)
 - install go (at least 1.14)
 - clone/fork this repo
 - create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
-- run `go run cmd/bot/main.go` to run the go application
+- run `go run cmd/bot/main.go` or `make run` to run the go application
 
 
 # Usage
@@ -175,7 +236,7 @@ It's possible to create buttons which are performing any bot action when pressin
 Configure user specific variables to customize bot behaviour. E.g. each developer has his own server environment.
 
 **Example:** Having this global config:
-```
+```yaml
 commands:
   - name: Deploy
     trigger: "deploy (?P<branch>.*)"
@@ -188,7 +249,7 @@ Here an advanced version which uses [Go templates](https://golang.org/pkg/text/t
 In the end the command will generate one subcommand, like:
 `reply <!here> demo for <https://jira.example.com/TEST-1234|TEST-1234: Example-Ticket>` which will post the link to the Slack channel.
 
-```
+```yaml
   - name: demo
     trigger: "demo (?P<ticketId>\\w+-\\d+)"
     commands:
@@ -227,7 +288,7 @@ It's possible to setup [OpenWeatherMap](https://openweathermap.org/) to get info
 ![Screenshot](./docs/weather.png)
 
 **Example config:**
-```
+```yaml
 open_weather:
   apikey: "612325WD623562376678"
   location: "Hamburg, DE"
@@ -253,7 +314,7 @@ They have a trigger (a regular expression) and have a list of sub commands which
 They take parameter groups from regexp into account - so they can be very flexible!
 
 One simple example to start two Jenkins jobs with a given branch name at the same time:
-```
+```yaml
 commands:
  - name: build clients
    trigger: "build clients (?P<branch>.*)"
@@ -340,7 +401,7 @@ jenkins:
 To be able to start a job, the job and it's parameters have to be defined in the config.
 
 A job without any parameter looks very simple:
-```
+```yaml
 jenkins:
   jobs:
     CleanupJob:
@@ -348,7 +409,7 @@ jenkins:
 Then you can use `trigger job CleanupJob` or `start job CleanupJob` to start the job. It will also notify you when the job succeeded or failed (incl. error log). 
 
 Next a job with two parameters:
-```
+```yaml
 jenkins:
   jobs:
     RunTests:
@@ -370,7 +431,7 @@ If you setup the VSC in the config, you don't have to pass the full branch name 
  - `start job JIRA-1224 unit` would try to find a matching branch for the ticket number. (Error message if there is no unique search result!)
         
 Now a more complex example with more magic: 
-```
+```yaml
 jenkins:
      jobs:
        DeployBranch:
@@ -398,7 +459,7 @@ In addition `onsuccess` and `onerror` is also available...e.g. to send custom er
 It's possible to define periodical commands via crons, using the [robfig/cron library](github.com/robfig/cron).
 
 **Example config**
-```
+```yaml
 crons:
   - schedule: "0 8 * * *"
     commands:
@@ -409,7 +470,7 @@ crons:
 
 ## VCS / Stash / Bitbucket
 To be able to resolve branch names in jenkins trigger, a VCS system can be configured (at the moment it's just Stash/Bitbucket).
-```
+```yaml
 vcs:
   type: bitbucket
   host: https://bitbucket.example.com
