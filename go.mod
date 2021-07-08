@@ -17,8 +17,7 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gookit/color v1.4.2
 	github.com/gorilla/mux v1.8.0 // indirect
-	github.com/hackebrot/go-repr v0.1.0 // indirect
-	github.com/hackebrot/turtle v0.1.0
+	github.com/hackebrot/turtle v0.2.0
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v0.14.1 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.0 // indirect
