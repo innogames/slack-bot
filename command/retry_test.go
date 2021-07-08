@@ -13,6 +13,9 @@ import (
 )
 
 func TestRetry(t *testing.T) {
+	lock := mocks.LockInternalMessages()
+	defer lock.Unlock()
+
 	client.InternalMessages = make(chan msg.Message, 2)
 	slackClient := &mocks.SlackClient{}
 	cfg := &config.Config{}

@@ -58,6 +58,9 @@ func TestMacro(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
+	lock := mocks.LockInternalMessages()
+	defer lock.Unlock()
+
 	client.InternalMessages = make(chan msg.Message, 2)
 	cfg := []config.Command{
 		{

@@ -23,6 +23,9 @@ func TestDelay(t *testing.T) {
 	command := bot.Commands{}
 	command.AddCommand(NewDelayCommand(base))
 
+	lock := mocks.LockInternalMessages()
+	defer lock.Unlock()
+
 	t.Run("Invalid command", func(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "I have a delay"

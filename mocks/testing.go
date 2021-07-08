@@ -11,9 +11,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
+
+// testLock is only used in integration test to avoid running some tests in parallel as we use one shared Message list
+var testLock sync.Mutex
 
 // AssertSlackMessage is a test helper to check for a given slack message
 func AssertSlackMessage(slackClient *SlackClient, ref msg.Ref, text string) {
@@ -98,6 +102,12 @@ func AssertContainsSlackBlocks(t *testing.T, slackClient *SlackClient, message m
 
 		return strings.Contains(string(givenJSON), string(expectedJSONBlock))
 	}), mock.Anything).Once().Return("")
+}
+
+func LockInternalMessages() *sync.Mutex {
+	testLock.Lock()
+
+	return &testLock
 }
 
 // WaitTillHavingInternalMessage blocks until there is a internal message queued
