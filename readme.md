@@ -14,10 +14,10 @@ But also custom commands, macros, crons and other project specific commands can 
 # Installation
 ## 1st) Create+prepare the Slack App:
 ### Recommended way: Use Manifest file as App template
-- Create a [Slack App](https://api.slack.com/apps?new_app=1)
-- Select "From an app manifest"
-- Select your Workspace
-- Past this Yaml code:
+1. Create a [Slack App](https://api.slack.com/apps?new_app=1)
+2. Select "From an app manifest"
+3. Select your Workspace
+4. Paste this Yaml code:
 <details>
     <summary>Click to expand!</summary>
 
@@ -59,14 +59,14 @@ settings:
 ```
 </details>
 
- - Create the App!
- - Go to "Basic Information"
- - -> in "App-Level Tokens", "Generate a Token" with the scope "connections:write"
- - -> You will see a App-Level Token (beginning with xapp-). Sse it in the config.yaml as slack.socket_token.
- - Go to "OAuth & Permissions":
- - -> "Install to Workspace"
- - -> you should see a "Bot User OAuth Access Token" (beginning with "xoxb-"). Use it as slack.token in the config.yaml
- - start the bot! 
+5. Create the App!
+6. Go to "Basic Information"
+7. -> in "App-Level Tokens", "Generate a Token" with the scope "connections:write"
+8. You will see a App-Level Token (beginning with xapp-). Sse it in the config.yaml as slack.socket_token.
+9. Go to "OAuth & Permissions":
+10. -> "Install to Workspace"
+11. -> you should see a "Bot User OAuth Access Token" (beginning with "xoxb-"). Use it as slack.token in the config.yaml
+12. start the bot! 
 
 ### Alternative: Manual steps when **not** using the App Manifest
 <details>
@@ -89,17 +89,17 @@ settings:
 
 ## 2nd) Run the bot 
 ### Quick steps: just use the bot via Docker
-- [install Docker incl. docker-compose](https://docs.docker.com/get-docker/)
-- clone this repo or at least fetch the docker-compose.yaml
-- create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
-- add your Slack user id or user name in the "allowed_users:" section of the config.yaml
-- `docker-compose up`
+1. [install Docker incl. docker-compose](https://docs.docker.com/get-docker/)
+2. clone this repo or at least fetch the docker-compose.yaml
+3. create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
+4. add your Slack user id or user name in the "allowed_users:" section of the config.yaml
+5. `docker-compose up`
 
 ## Advanced: (when planning working on the bot core)
-- install go (at least 1.14)
-- clone/fork this repo
-- create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
-- run `go run cmd/bot/main.go` or `make run` to run the go application
+1. install go (at least 1.15)
+2. clone/fork this repo
+3. create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
+4. run `go run cmd/bot/main.go` or `make run` to run the go application
 
 
 # Usage
