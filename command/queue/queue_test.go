@@ -25,6 +25,9 @@ func TestQueue(t *testing.T) {
 	command.AddCommand(NewQueueCommand(base))
 	command.AddCommand(NewListCommand(base))
 
+	lock := mocks.LockInternalMessages()
+	defer lock.Unlock()
+
 	t.Run("Invalid command", func(t *testing.T) {
 		message := msg.Message{}
 		actual := command.Run(message)

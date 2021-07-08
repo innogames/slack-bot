@@ -32,7 +32,7 @@ func (c *retryCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewTextMatcher(`retry`, c.retry),
 		matcher.NewTextMatcher(`repeat`, c.retry),
-		matcher.NewRegexpMatcher(`<?https://(.*)slack.com/archives/(?P<channel>\w+)/p(?P<timestamp>\d{16})>?`, c.slackMessage),
+		matcher.NewRegexpMatcher(`<?https://(.*?)\.slack\.com/archives/(?P<channel>\w+)/p(?P<timestamp>\d{16})>?`, c.slackMessage),
 		matcher.WildcardMatcher(c.storeLastCommand),
 	)
 }

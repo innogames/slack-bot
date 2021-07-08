@@ -8,6 +8,8 @@ import (
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"strings"
 	"testing"
 )
 
@@ -78,7 +80,12 @@ func TestJiraSearch(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "jql FOO=BAR"
 
-		slackClient.On("SendMessage", message, "Field 'FOO' does not exist or this field cannot be viewed by anonymous users.: request failed. Please analyze the request body for more details. Status code: 400").Return("")
+		slackClient.On(
+			"SendMessage",
+			message,
+			mock.MatchedBy(func(message string) bool {
+				return strings.HasPrefix(message, "Field 'FOO' does not exist or")
+			})).Return("")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
