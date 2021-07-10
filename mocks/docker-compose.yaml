@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  gitlab:
+    # host: http://localhost:80
+    # user: root
+    # password: adminadmin
+    image: gitlab/gitlab-ee:latest
+    restart: always
+    container_name: slack-bot-gitlab
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost:80'
+        gitlab_rails['initial_root_password'] = 'adminadmin'
+      GITLAB_ROOT_PASSWORD: adminadmin
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - gitlab-data:/var/opt/gitlab
+
+  jenkins:
+    # see http://localhost:8082
+    image: jenkins/jenkins:lts
+    restart: always
+    user: root
+    ports:
+      - '8082:8080'
+    container_name: slack-bot-jenkins
+    volumes:
+      - jenkins-data:/var/jenkins_home
+
+volumes:
+  gitlab-config:
+  gitlab-data:
+  gitlab-logs:
+  jenkins-data:
