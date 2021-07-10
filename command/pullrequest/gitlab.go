@@ -1,6 +1,7 @@
 package pullrequest
 
 import (
+	log "github.com/sirupsen/logrus"
 	"regexp"
 	"strings"
 	"text/template"
@@ -69,20 +70,14 @@ func (c *gitlabFetcher) getStatus(pr *gitlab.MergeRequest) prStatus {
 func (c *gitlabFetcher) getApprovers(rawPullRequest *gitlab.MergeRequest, prNumber int) []string {
 	approvers := make([]string, 0)
 
-	if rawPullRequest.Upvotes > 0 {
-		emojis, resp, _ := c.client.AwardEmoji.ListMergeRequestAwardEmoji(
-			rawPullRequest.SourceProjectID,
-			prNumber,
-			&gitlab.ListAwardEmojiOptions{},
-		)
-		if resp != nil {
-			resp.Body.Close()
-		}
-		for _, emoji := range emojis {
-			if emoji.Name == "thumbsup" {
-				approvers = append(approvers, emoji.User.Username)
-			}
-		}
+	state, _, err := c.client.MergeRequestApprovals.GetConfiguration(rawPullRequest.SourceProjectID, prNumber)
+	if err != nil {
+		log.Errorf("error in gitlab.GetApprovalState: %s", err)
+		return approvers
+	}
+
+	for _, approver := range state.ApprovedBy {
+		approvers = append(approvers, approver.User.Username)
 	}
 
 	return approvers
@@ -104,7 +99,7 @@ func (c *gitlabFetcher) getHelp() []bot.Help {
 		{
 			Command:     "gitlab pull request",
 			Category:    category,
-			Description: "tracks the state of gitlab pull requests",
+			Description: "tracks the state of Gitlab pull requests",
 			Examples: []string{
 				"https://gitlab.example.com/home-assistant/home-assistant/merge_requests/13958",
 			},
