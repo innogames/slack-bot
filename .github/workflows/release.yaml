@@ -29,4 +29,5 @@ jobs:
           goarch: ${{ matrix.goarch }}
           binary_name: slack-bot
           project_path: "./cmd/bot"
-          ldflags: -trimpath -ldflags="-s -w -X github.com/innogames/slack-bot/bot.Version=${{ github.event.release.tag_name }}"
+          build_flags: "-trimpath"
+          ldflags: "-s -w -X github.com/innogames/slack-bot/bot.Version=${{ github.event.release.tag_name }}"
