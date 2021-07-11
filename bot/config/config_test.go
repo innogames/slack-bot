@@ -55,7 +55,7 @@ func TestLoadFile(t *testing.T) {
 
 	t.Run("loadFile", func(t *testing.T) {
 		err := loadFile(viper.New(), "sdsd.yaml")
-		assert.Equal(t, "open sdsd.yaml: no such file or directory", err.Error())
+		assert.Contains(t, err.Error(), "open sdsd.yaml: ")
 	})
 }
 
