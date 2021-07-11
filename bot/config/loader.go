@@ -12,22 +12,21 @@ import (
 
 // Load all yaml config from a directory or a single .yaml file
 func Load(configFile string) (Config, error) {
-	v := viper.NewWithOptions(viper.KeyDelimiter("-"), viper.KeyPreserveCase())
+	// don't use '.' or '_' etc as delimiter, as it will block having this chars as map keys
+	var keyDelimiter = "§"
+	v := viper.NewWithOptions(viper.KeyDelimiter(keyDelimiter), viper.KeyPreserveCase())
 
 	v.SetConfigType("yaml")
 	v.AllowEmptyEnv(true)
 	v.SetEnvPrefix("BOT")
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", keyDelimiter, "_"))
 	v.AutomaticEnv()
 
 	cfg := DefaultConfig
 
 	// workaround to take all keys from struct available
 	defaultYaml, _ := yaml.Marshal(DefaultConfig)
-	err := v.ReadConfig(bytes.NewBuffer(defaultYaml))
-	if err != nil {
-		return cfg, err
-	}
+	_ = v.ReadConfig(bytes.NewBuffer(defaultYaml))
 
 	fileInfo, err := os.Stat(configFile)
 	if err != nil {
