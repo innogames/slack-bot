@@ -13,7 +13,7 @@ type Config struct {
 	Gitlab      struct {
 		AccessToken string
 		Host        string
-	}
+	} `mapstructure:"gitlab"`
 
 	Commands []Command `mapstructure:"commands"`
 	Crons    []Cron    `mapstructure:"crons"`
