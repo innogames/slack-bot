@@ -31,11 +31,11 @@ func (c *commentCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c *commentCommand) addComment(match matcher.Result, message msg.Message) {
-	ticketID := match.GetString("ticketID")
+	ticketID := match.GetString("ticketId")
 	issue, _, err := c.jira.Issue.Get(ticketID, nil)
 
 	if err != nil {
-		c.slackClient.ReplyError(message, err)
+		c.slackClient.ReplyError(message, fmt.Errorf("invalid ticket: %s", ticketID))
 		return
 	}
 
@@ -46,7 +46,7 @@ func (c *commentCommand) addComment(match matcher.Result, message msg.Message) {
 		userName,
 		match.GetString("comment"),
 	)
-	_, _, err = c.jira.Issue.AddComment(issue.ID, &jira.Comment{
+	_, _, err = c.jira.Issue.AddComment(issue.Key, &jira.Comment{
 		Body: comment,
 	})
 	if err != nil {
