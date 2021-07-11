@@ -2,7 +2,7 @@
 slack:
   token: # use xoxb-1234567-secret
   socket_token: # needed for Socket mode, starts with "xapp-"
-  debug: false # some more slack information
+  debug: false # some more slack debug information
 
 # list of trusted slack users: allows the user-id and the name
 allowed_users:
@@ -24,53 +24,34 @@ commands:
       - reply I deployed {{.branch}}
       - add link "Open Admintool" https://project.example.com/admintool/
 
-  - name: List open Jira bugs
-    trigger: "open (?P<project>(backend|mobile|frontend)) bugs"
-    description: "Lists open Jira bugs from a given component"
-    category: QA
-    commands:
-      - "add reaction :bug:"
-      - jql issuetype = Bug AND component = "{{.project}}" AND resolution = Unresolved ORDER BY priority DESC, created DESC
-    examples:
-      - open backend bugs
-      - open mobile bugs
-      - open frontend bugs
-
-  - name: demo
-    trigger: "demo (?P<ticketId>\\w+-\\d+)"
-    commands:
-      - |
-        {{ $ticket := jiraTicket .ticketId }}
-        {{ if $ticket }}
-          reply <!here> demo for <{{ jiraTicketUrl $ticket.Key }}|{{ $ticket.Key }}: {{ $ticket.Fields.Summary }}>
-        {{ else }}
-          reply Ticket {{ .ticketId }} not found :white_frowning_face:
-        {{ end }}
-    description: Informs the current channel about a demo of a Jira ticket. It directly posts a link to the ticket
-    examples:
-      - demo XYZ-1232
+#  - name: List open Jira bugs
+#    trigger: "open (?P<project>(backend|mobile|frontend)) bugs"
+#    description: "Lists open Jira bugs from a given component"
+#    category: QA
+#    commands:
+#      - "add reaction :bug:"
+#      - jql issuetype = Bug AND component = "{{.project}}" AND resolution = Unresolved ORDER BY priority DESC, created DESC
+#    examples:
+#      - open backend bugs
+#      - open mobile bugs
+#      - open frontend bugs
 
 # optional Jenkins integration
-jenkins:
-  host: #https://jenkins.example.com
-  username: username
-  password: secret
-  jobs:
-    BackendTests:
-      parameters:
-        - name: BRANCH
-          default: master
-          type: branch
-    BuildMobileClient:
-      parameters:
-        - name: BRANCH
-          default: master
-          type: branch
-    BuildFrontendClient:
-      parameters:
-        - name: BRANCH
-          default: master
-          type: branch
+#jenkins:
+#  host: https://jenkins.example.com
+#  username: username
+#  password: secret
+#  jobs:
+#    BackendTests:
+#      parameters:
+#        - name: BRANCH
+#          default: master
+#          type: branch
+#    BuildFrontendClient:
+#      parameters:
+#        - name: BRANCH
+#          default: master
+#          type: branch
 
 # optional Jira integration
 jira:
@@ -84,12 +65,12 @@ github:
   access_token: # optional when using github features
 
 # optional Gitlab integration to watch merge request state
-gitlab:
+#gitlab:
 #  host: https://gitlab.example.de
-#  accesstoken: # optional when using gitlab features
+#  accesstoken: # needed for the API
 
 
-# used for the "weather" command to fetch current weather information from openweathermap.org
+# used for the "weather" command to fetch current weather information from https://openweathermap.org/api
 #open_weathermap:
 #  apikey: iamtheapifromopenweathermap
 #  location: Hamburg

@@ -5,6 +5,7 @@ import (
 	"path"
 	"testing"
 
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -51,6 +52,11 @@ func TestLoadFile(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, cfg.Slack)
 	assert.Equal(t, "info", cfg.Logger.Level)
+
+	t.Run("loadFile", func(t *testing.T) {
+		err := loadFile(viper.New(), "sdsd.yaml")
+		assert.Equal(t, "open sdsd.yaml: no such file or directory", err.Error())
+	})
 }
 
 func TestEnvironment(t *testing.T) {
