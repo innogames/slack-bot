@@ -2,6 +2,11 @@ package bot
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/bot/stats"
@@ -10,18 +15,16 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
-	"regexp"
-	"strings"
-	"sync"
-	"time"
 )
 
-var linkRegexp = regexp.MustCompile(`<\S+?\|(.*?)>`)
-var cleanMessage = strings.NewReplacer(
-	"‘", "'",
-	"’", "'",
-	"“", "\"",
-	"”", "\"",
+var (
+	linkRegexp   = regexp.MustCompile(`<\S+?\|(.*?)>`)
+	cleanMessage = strings.NewReplacer(
+		"‘", "'",
+		"’", "'",
+		"“", "\"",
+		"”", "\"",
+	)
 )
 
 // NewBot created main Bot struct which holds the slack connection and dispatch messages to commands
@@ -225,6 +228,8 @@ func (b *Bot) handleMessage(message msg.Message, fromUserContext bool) {
 			message.User,
 			strings.Join(b.config.AdminUsers, ", "),
 		))
+		b.slackClient.AddReaction(util.UnicodeToReaction("❌"), message)
+
 		stats.IncreaseOne(stats.UnauthorizedCommands)
 		return
 	}

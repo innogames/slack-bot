@@ -3,6 +3,10 @@ package main
 import (
 	"bufio"
 	"flag"
+	"io"
+	"os"
+	"strings"
+
 	"github.com/gookit/color"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
@@ -10,9 +14,6 @@ import (
 	"github.com/innogames/slack-bot/bot/tester"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/innogames/slack-bot/client"
-	"io"
-	"os"
-	"strings"
 )
 
 // starts a interactive shell to communicate with a mocked slack server and execute real commands

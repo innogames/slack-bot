@@ -1,13 +1,14 @@
 package jenkins
 
 import (
+	"testing"
+
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/client"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestGetClient(t *testing.T) {

@@ -42,7 +42,7 @@ func TestBot(t *testing.T) {
 		message.Text = "test"
 		message.User = "U888"
 		message.Channel = "C123"
-		bot.handleMessage(message, false)
+		bot.handleMessage(message, true)
 	})
 
 	t.Run("handle valid message", func(t *testing.T) {

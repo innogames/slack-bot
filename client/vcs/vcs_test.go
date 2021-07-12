@@ -38,7 +38,7 @@ func TestInitBranchWatcher(t *testing.T) {
 		assert.Equal(t, "test.git", fetcher.(git).repoURL)
 	})
 
-	t.Run("Bitbucket", func(t *testing.T) {
+	t.Run("Bitbucket with invalid config", func(t *testing.T) {
 		cfg := &config.Config{}
 		cfg.BranchLookup.Type = "bitbucket"
 
@@ -46,6 +46,17 @@ func TestInitBranchWatcher(t *testing.T) {
 
 		// we expect a null-fetcher as we don't have valid bitbucket config
 		assert.IsType(t, null{}, fetcher)
+	})
+
+	t.Run("Bitbucket", func(t *testing.T) {
+		cfg := &config.Config{}
+		cfg.BranchLookup.Type = "bitbucket"
+		cfg.Bitbucket.Host = "https://bitbucket.example.com"
+		cfg.Bitbucket.APIKey = "iamsecret"
+
+		fetcher := createBranchFetcher(cfg)
+
+		assert.IsType(t, &bitbucket{}, fetcher)
 	})
 }
 

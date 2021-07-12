@@ -1,13 +1,14 @@
 package main
 
 import (
+	"io"
+	"testing"
+	"time"
+
 	"github.com/gookit/color"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/util"
 	"github.com/stretchr/testify/assert"
-	"io"
-	"testing"
-	"time"
 )
 
 func TestAll(t *testing.T) {
@@ -25,7 +26,7 @@ func TestAll(t *testing.T) {
 	go startCli(ctx, input, output, cfg)
 
 	testCommand("reply it works", "it works", input, expectedOutput)
-	testCommand("wtf", "Oops! Command `wtf` not found...try `help`.", input, expectedOutput)
+	testCommand("wtf", "❓\nOops! Command `wtf` not found...try `help`.", input, expectedOutput)
 	testCommand("add reaction :smile:", "😄", input, expectedOutput)
 
 	// delay

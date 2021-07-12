@@ -2,6 +2,8 @@ package bot
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/util"
+	"github.com/slack-go/slack"
 	"math"
 	"strings"
 
@@ -17,7 +19,19 @@ func (b *Bot) sendFallbackMessage(message msg.Message) {
 	bestMatching := getBestMatchingHelp(b, message.Text)
 
 	if bestMatching.Command == "" {
-		b.slackClient.SendMessage(message, "Oops! Command `"+message.Text+"` not found...try `help`.")
+		b.slackClient.AddReaction(util.UnicodeToReaction("❓"), message)
+
+		blocks := []slack.Block{
+			client.GetTextBlock(
+				"Oops! Command `" + message.Text + "` not found...try `help`.",
+			),
+			slack.NewActionBlock(
+				"",
+				client.GetInteractionButton("Help!", "help"),
+			),
+		}
+		b.slackClient.SendBlockMessage(message, blocks)
+
 		return
 	}
 
