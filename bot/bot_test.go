@@ -174,8 +174,7 @@ func BenchmarkShouldHandle(b *testing.B) {
 	})
 }
 
-type testCommand2 struct {
-}
+type testCommand2 struct{}
 
 func (c testCommand2) GetMatcher() matcher.Matcher {
 	return matcher.NewTextMatcher("test", func(match matcher.Result, message msg.Message) {

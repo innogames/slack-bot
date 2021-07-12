@@ -2,8 +2,9 @@ package util
 
 import (
 	"fmt"
-	"github.com/hackebrot/turtle"
 	"strings"
+
+	"github.com/hackebrot/turtle"
 )
 
 // Reaction representation for a reaction/emoji

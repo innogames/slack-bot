@@ -1,8 +1,9 @@
 package util
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestReaction(t *testing.T) {
@@ -22,7 +23,7 @@ func TestEmojiToReaction(t *testing.T) {
 	assert.Equal(t, ":smile:", smile.FullName())
 	assert.Equal(t, "😄", smile.GetChar())
 
-	unknown := Reaction("empty")
-	assert.Equal(t, "empty", unknown.ToSlackReaction())
+	unknown := UnicodeToReaction("empty")
+	assert.Equal(t, "?", unknown.ToSlackReaction())
 	assert.Equal(t, "?", unknown.GetChar())
 }
