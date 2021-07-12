@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"testing"
+
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/msg"
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestStartBuild(t *testing.T) {

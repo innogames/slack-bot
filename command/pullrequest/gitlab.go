@@ -1,10 +1,11 @@
 package pullrequest
 
 import (
-	log "github.com/sirupsen/logrus"
 	"regexp"
 	"strings"
 	"text/template"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"

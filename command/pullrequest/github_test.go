@@ -1,6 +1,10 @@
 package pullrequest
 
 import (
+	"os"
+	"testing"
+	"time"
+
 	"github.com/google/go-github/github"
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
@@ -10,9 +14,6 @@ import (
 	"github.com/innogames/slack-bot/mocks"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
-	"os"
-	"testing"
-	"time"
 )
 
 func TestGithub(t *testing.T) {

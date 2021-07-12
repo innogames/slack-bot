@@ -9,14 +9,12 @@ require (
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gfleury/go-bitbucket-v1 v0.0.0-20210707202713-7d616f7c18ac
-	github.com/gfleury/go-bitbucket-v1/test/bb-mock-server v0.0.0-20210119103841-412cc3323e5e
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/go-test/deep v1.0.7 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gookit/color v1.4.2
-	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/hackebrot/turtle v0.2.0
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v0.14.1 // indirect

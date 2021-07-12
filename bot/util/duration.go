@@ -7,10 +7,12 @@ import (
 	"time"
 )
 
-var stripDecimalPlace = regexp.MustCompile(`(\d+)\.\d+([µa-z]+)`)
-var durationReplacer = strings.NewReplacer(
-	"min", "m",
-	"sec", "s",
+var (
+	stripDecimalPlace = regexp.MustCompile(`(\d+)\.\d+([µa-z]+)`)
+	durationReplacer  = strings.NewReplacer(
+		"min", "m",
+		"sec", "s",
+	)
 )
 
 // ParseDuration also allows other duration modifier like "min" or "sec"

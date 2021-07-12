@@ -1,6 +1,10 @@
 package pullrequest
 
 import (
+	"net"
+	"text/template"
+	"time"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/matcher"
@@ -11,9 +15,6 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
-	"net"
-	"text/template"
-	"time"
 )
 
 const (
@@ -72,7 +73,6 @@ func (c command) GetMatcher() matcher.Matcher {
 
 func (c command) execute(match matcher.Result, message msg.Message) {
 	_, err := c.fetcher.getPullRequest(match)
-
 	if err != nil {
 		c.AddReaction(c.cfg.Reactions.Error, message)
 		c.ReplyError(message, err)

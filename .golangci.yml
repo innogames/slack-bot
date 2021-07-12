@@ -23,10 +23,12 @@ linters:
     - gocritic
     - gocyclo
     - gofmt
+    - gofumpt
     - goprintffuncname
     - gosec
     - gosimple
     - govet
+    - importas
     - ineffassign
     - makezero
     - megacheck
@@ -46,5 +48,6 @@ linters:
     - unparam
     - unused
     - varcheck
+    - wastedassign
     - whitespace
   fast: false

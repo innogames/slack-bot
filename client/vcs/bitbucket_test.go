@@ -1,25 +1,21 @@
 package vcs
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
-	"time"
 
-	bitbucketServer "github.com/gfleury/go-bitbucket-v1/test/bb-mock-server/go"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/client"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBitbucketLoader(t *testing.T) {
-	go bitbucketServer.RunServer(7991)
-
-	// todo(matze) defer shutdown
-	// todo(matze) wait till server active
-
-	time.Sleep(time.Millisecond * 200)
+	server := spawnBitbucketTestServer()
+	defer server.Close()
 
 	cfg := config.Bitbucket{
-		Host:       "http://localhost:7991",
+		Host:       server.URL,
 		Project:    "myProject",
 		Repository: "myRepo",
 		APIKey:     "0815",
@@ -33,6 +29,26 @@ func TestBitbucketLoader(t *testing.T) {
 	t.Run("Load branches", func(t *testing.T) {
 		branches, err := fetcher.LoadBranches()
 		assert.Nil(t, err)
-		assert.Equal(t, []string{"feature/branch"}, branches)
+		assert.Equal(t, []string{"master", "release"}, branches)
 	})
+}
+
+func spawnBitbucketTestServer() *httptest.Server {
+	mux := http.NewServeMux()
+
+	// 1337: merged pr
+	mux.HandleFunc("/rest/api/1.0/projects/myProject/repos/myRepo/branches", func(res http.ResponseWriter, req *http.Request) {
+		res.Write([]byte(`{
+			"values": [
+				{
+					"displayId": "master"
+				},
+				{
+					"displayId": "release"
+				}
+			]
+		}`))
+	})
+
+	return httptest.NewServer(mux)
 }

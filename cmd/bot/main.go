@@ -3,6 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/innogames/slack-bot/bot"
 	"github.com/innogames/slack-bot/bot/config"
 	"github.com/innogames/slack-bot/bot/storage"
@@ -11,12 +16,6 @@ import (
 	"github.com/innogames/slack-bot/client/vcs"
 	"github.com/innogames/slack-bot/command"
 	log "github.com/sirupsen/logrus"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
-	_ "net/http/pprof"
 )
 
 // main entry point for the bot application. Listens on incoming slack messages and handles them
@@ -68,7 +67,7 @@ func main() {
 	// start main loop!
 	go b.ListenForMessages(ctx)
 
-	var stopChan = make(chan os.Signal, 2)
+	stopChan := make(chan os.Signal, 2)
 
 	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 

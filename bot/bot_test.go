@@ -42,7 +42,7 @@ func TestBot(t *testing.T) {
 		message.Text = "test"
 		message.User = "U888"
 		message.Channel = "C123"
-		bot.handleMessage(message, false)
+		bot.handleMessage(message, true)
 	})
 
 	t.Run("handle valid message", func(t *testing.T) {
@@ -174,8 +174,7 @@ func BenchmarkShouldHandle(b *testing.B) {
 	})
 }
 
-type testCommand2 struct {
-}
+type testCommand2 struct{}
 
 func (c testCommand2) GetMatcher() matcher.Matcher {
 	return matcher.NewTextMatcher("test", func(match matcher.Result, message msg.Message) {

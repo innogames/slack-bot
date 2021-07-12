@@ -2,8 +2,9 @@ package pullrequest
 
 import (
 	"context"
-	"github.com/pkg/errors"
 	"text/template"
+
+	"github.com/pkg/errors"
 
 	"github.com/google/go-github/github"
 	"github.com/innogames/slack-bot/bot"
