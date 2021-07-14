@@ -8,12 +8,12 @@ import (
 	"strings"
 
 	"github.com/gookit/color"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/storage"
-	"github.com/innogames/slack-bot/bot/tester"
-	"github.com/innogames/slack-bot/bot/util"
-	"github.com/innogames/slack-bot/client"
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot/storage"
+	"github.com/innogames/slack-bot.v2/bot/tester"
+	"github.com/innogames/slack-bot.v2/bot/util"
+	"github.com/innogames/slack-bot.v2/client"
 )
 
 // starts a interactive shell to communicate with a mocked slack server and execute real commands

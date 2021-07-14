@@ -2,11 +2,12 @@ package client
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/msg"
+	"testing"
+
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/bot/msg"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestGetSlackClient(t *testing.T) {

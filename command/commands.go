@@ -1,19 +1,19 @@
 package command
 
 import (
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/client"
-	"github.com/innogames/slack-bot/command/admin"
-	"github.com/innogames/slack-bot/command/cron"
-	"github.com/innogames/slack-bot/command/custom"
-	"github.com/innogames/slack-bot/command/games"
-	"github.com/innogames/slack-bot/command/jenkins"
-	"github.com/innogames/slack-bot/command/jira"
-	"github.com/innogames/slack-bot/command/pullrequest"
-	"github.com/innogames/slack-bot/command/queue"
-	"github.com/innogames/slack-bot/command/variables"
-	"github.com/innogames/slack-bot/command/weather"
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/client"
+	"github.com/innogames/slack-bot.v2/command/admin"
+	"github.com/innogames/slack-bot.v2/command/cron"
+	"github.com/innogames/slack-bot.v2/command/custom"
+	"github.com/innogames/slack-bot.v2/command/games"
+	"github.com/innogames/slack-bot.v2/command/jenkins"
+	"github.com/innogames/slack-bot.v2/command/jira"
+	"github.com/innogames/slack-bot.v2/command/pullrequest"
+	"github.com/innogames/slack-bot.v2/command/queue"
+	"github.com/innogames/slack-bot.v2/command/variables"
+	"github.com/innogames/slack-bot.v2/command/weather"
 )
 
 // GetCommands returns the list of default command which are available

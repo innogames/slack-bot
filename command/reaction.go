@@ -1,10 +1,10 @@
 package command
 
 import (
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/util"
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/matcher"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot/util"
 )
 
 // NewReactionCommand simply adds a reaction to the current message...used in "commands" and other internal commands

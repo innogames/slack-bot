@@ -1,8 +1,8 @@
 package variables
 
 import (
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/matcher"
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/matcher"
 )
 
 // GetCommand returns a set of all commands to manage user specific variables

@@ -2,22 +2,22 @@ package bot
 
 import (
 	"encoding/json"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/stats"
-	"github.com/innogames/slack-bot/client"
+	"testing"
+	"time"
+
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/bot/matcher"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot/stats"
+	"github.com/innogames/slack-bot.v2/client"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"github.com/slack-go/slack/socketmode"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 // dummy command which set "called" flag when a command was called with the text "dummy"
-type dummyCommand struct {
-}
+type dummyCommand struct{}
 
 func (d dummyCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewTextMatcher("dummy", func(match matcher.Result, message msg.Message) {

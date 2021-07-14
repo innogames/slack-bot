@@ -1,8 +1,9 @@
 package tester
 
 import (
-	"github.com/gookit/color"
 	"testing"
+
+	"github.com/gookit/color"
 
 	"github.com/stretchr/testify/assert"
 )

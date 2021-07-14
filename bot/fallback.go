@@ -2,13 +2,14 @@ package bot
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot/bot/util"
-	"github.com/slack-go/slack"
 	"math"
 	"strings"
 
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
+	"github.com/innogames/slack-bot.v2/bot/util"
+	"github.com/slack-go/slack"
+
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/client"
 	"github.com/texttheater/golang-levenshtein/levenshtein"
 )
 
@@ -44,7 +45,7 @@ func (b *Bot) sendFallbackMessage(message msg.Message) {
 
 // find the best matching command bases on the given strings...using levenstein to fetch the best one
 func getBestMatchingHelp(b *Bot, eventText string) Help {
-	var distance = math.MaxInt32
+	distance := math.MaxInt32
 	var bestMatching Help
 
 	eventText = strings.ToLower(eventText)

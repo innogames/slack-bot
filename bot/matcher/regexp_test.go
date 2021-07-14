@@ -3,14 +3,14 @@ package matcher
 import (
 	"testing"
 
-	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot/msg"
 	"github.com/stretchr/testify/assert"
 )
 
 var testRunner = func(match Result, message msg.Message) {}
 
 func TestRegexp(t *testing.T) {
-	var matchTest = []struct {
+	matchTest := []struct {
 		regexp   string
 		input    string
 		expected bool

@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/util"
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/bot/util"
 	"github.com/stretchr/testify/assert"
 )
 

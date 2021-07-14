@@ -3,13 +3,13 @@ package matcher
 import (
 	"testing"
 
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/util"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPrefix(t *testing.T) {
-	var matchTest = []struct {
+	matchTest := []struct {
 		prefix   string
 		input    string
 		expected bool

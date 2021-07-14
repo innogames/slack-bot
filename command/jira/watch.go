@@ -5,12 +5,12 @@ import (
 	"time"
 
 	"github.com/andygrunwald/go-jira"
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
-	"github.com/innogames/slack-bot/command/queue"
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/bot/matcher"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/client"
+	"github.com/innogames/slack-bot.v2/command/queue"
 )
 
 // newWatchCommand will inform the user abut the first ticket state change
@@ -35,7 +35,6 @@ func (c *watchCommand) GetMatcher() matcher.Matcher {
 func (c *watchCommand) run(match matcher.Result, message msg.Message) {
 	ticketID := match.GetString("ticketId")
 	issue, _, err := c.jira.Issue.Get(ticketID, nil)
-
 	if err != nil {
 		c.slackClient.SendMessage(message, err.Error())
 		return

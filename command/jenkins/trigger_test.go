@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/innogames/slack-bot/mocks"
 	"testing"
 
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/innogames/slack-bot.v2/mocks"
+
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/bot/msg"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

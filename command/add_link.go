@@ -1,12 +1,13 @@
 package command
 
 import (
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
-	"github.com/slack-go/slack"
 	"strings"
+
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/matcher"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/client"
+	"github.com/slack-go/slack"
 )
 
 // NewAddLinkCommand is more or less internal command to add a link button to the posted message

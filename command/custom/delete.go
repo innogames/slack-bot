@@ -3,8 +3,8 @@ package custom
 import (
 	"fmt"
 
-	"github.com/innogames/slack-bot/bot/matcher"
-	msg "github.com/innogames/slack-bot/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot/matcher"
+	"github.com/innogames/slack-bot.v2/bot/msg"
 )
 
 func (c command) delete(match matcher.Result, message msg.Message) {

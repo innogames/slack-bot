@@ -13,7 +13,7 @@ import (
 // Load all yaml config from a directory or a single .yaml file
 func Load(configFile string) (Config, error) {
 	// don't use '.' or '_' etc as delimiter, as it will block having this chars as map keys
-	var keyDelimiter = "§"
+	keyDelimiter := "§"
 	v := viper.NewWithOptions(viper.KeyDelimiter(keyDelimiter), viper.KeyPreserveCase())
 
 	v.SetConfigType("yaml")

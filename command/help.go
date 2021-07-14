@@ -6,9 +6,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/matcher"
+	"github.com/innogames/slack-bot.v2/bot/msg"
 )
 
 type helpCommand struct {
@@ -53,7 +53,7 @@ func (t *helpCommand) showAll(match matcher.Result, message msg.Message) {
 	text += "Hello <@" + message.User + ">, I’m your friendly slack-bot. You want me to show you around? :smile: \n"
 	text += "I currently listen to the following commands:\n"
 
-	var lastCategory = bot.Category{}
+	lastCategory := bot.Category{}
 	for _, commandHelp := range t.sortedCommands {
 		// print new category header
 		if commandHelp.Category.Name != "" && lastCategory != commandHelp.Category {

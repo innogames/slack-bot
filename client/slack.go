@@ -7,9 +7,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/util"
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot/util"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
@@ -155,7 +155,6 @@ func (s *Slack) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption
 		ref.GetChannel(),
 		options...,
 	)
-
 	if err != nil {
 		log.
 			WithField("user", ref.GetUser()).

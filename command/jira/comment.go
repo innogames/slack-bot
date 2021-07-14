@@ -4,11 +4,11 @@ import (
 	"fmt"
 
 	"github.com/andygrunwald/go-jira"
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/bot/matcher"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/client"
 )
 
 // newCommentCommand adds a comment to the given ticket
@@ -33,7 +33,6 @@ func (c *commentCommand) GetMatcher() matcher.Matcher {
 func (c *commentCommand) addComment(match matcher.Result, message msg.Message) {
 	ticketID := match.GetString("ticketId")
 	issue, _, err := c.jira.Issue.Get(ticketID, nil)
-
 	if err != nil {
 		c.slackClient.ReplyError(message, fmt.Errorf("invalid ticket: %s", ticketID))
 		return
