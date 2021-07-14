@@ -31,7 +31,7 @@ func FormatDuration(duration time.Duration) string {
 	// extract days out of duration
 	fullDays := int(duration.Hours() / 24)
 	if fullDays > 0 {
-		duration -= time.Duration(int(time.Hour) * 24 * fullDays)
+		duration -= time.Hour * 24 * time.Duration(fullDays)
 		output += fmt.Sprintf("%dd", fullDays)
 	}
 	output += duration.String()
