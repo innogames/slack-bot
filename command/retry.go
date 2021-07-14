@@ -80,7 +80,7 @@ func (c *retryCommand) slackMessage(match matcher.Result, message msg.Message) {
 		Limit:     1,
 	})
 	if err != nil {
-		c.ReplyError(message, err)
+		c.ReplyError(message, fmt.Errorf("can't load original message: %w", err))
 		return
 	}
 	historyMessage := msg.FromSlackEvent(&slack.MessageEvent{

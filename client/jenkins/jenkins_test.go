@@ -37,32 +37,44 @@ func TestJenkinsParameters(t *testing.T) {
 		Parameters: []config.JobParameter{
 			{Name: "NAME"},
 			{Name: "VALUE"},
+			{
+				Name: "UPPER",
+				Type: "upperCase",
+			},
+			{
+				Name: "LOWER",
+				Type: "lowerCase",
+			},
 		},
 	}
 
 	params := &Parameters{}
 	err := ParseParameters(jobConfig, "", *params)
 	assert.Equal(t, &Parameters{}, params)
-	assert.Equal(t, "sorry, you have to pass 2 parameters (NAME, VALUE)", err.Error())
+	assert.Equal(t, "sorry, you have to pass 4 parameters (NAME, VALUE, UPPER, LOWER)", err.Error())
 
 	params = &Parameters{}
 	err = ParseParameters(jobConfig, "test ", *params)
-	assert.Equal(t, "sorry, you have to pass 2 parameters (NAME, VALUE)", err.Error())
+	assert.Equal(t, "sorry, you have to pass 4 parameters (NAME, VALUE, UPPER, LOWER)", err.Error())
 
 	params = &Parameters{}
-	err = ParseParameters(jobConfig, "testname testvalue", *params)
+	err = ParseParameters(jobConfig, `testname testvalue "" ""`, *params)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, &Parameters{
 		"NAME":  "testname",
 		"VALUE": "testvalue",
+		"UPPER": "",
+		"LOWER": "",
 	}, params)
 
 	params = &Parameters{}
-	err = ParseParameters(jobConfig, "testname \"test value\"", *params)
+	err = ParseParameters(jobConfig, "testname \"test value\" uPper lOwer", *params)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, &Parameters{
 		"NAME":  "testname",
 		"VALUE": "test value",
+		"UPPER": "UPPER",
+		"LOWER": "lower",
 	}, params)
 }
 
@@ -114,6 +126,9 @@ func TestParseWords(t *testing.T) {
 
 	actual = parseWords("test \"der test")
 	assert.Equal(t, []string{"test", "der test"}, actual)
+
+	actual = parseWords(`testname "test value" uPper lOwer`)
+	assert.Equal(t, []string{"testname", "test value", "uPper", "lOwer"}, actual)
 }
 
 func TestWatch(t *testing.T) {
@@ -131,7 +146,7 @@ func TestHook(t *testing.T) {
 			"reply foo",
 			"reply {{.var1}}",
 		}
-		params := map[string]string{
+		params := Parameters{
 			"var1": "bar",
 		}
 		processHooks(commands, ref, params)
@@ -143,7 +158,7 @@ func TestHook(t *testing.T) {
 		commands := []string{
 			"reply {{.var1}",
 		}
-		params := map[string]string{}
+		params := Parameters{}
 
 		processHooks(commands, ref, params)
 		assert.Empty(t, client.InternalMessages)

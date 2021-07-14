@@ -103,7 +103,7 @@ func TestRetry(t *testing.T) {
 			Once().
 			Return(nil, err)
 
-		slackClient.On("ReplyError", message, err)
+		mocks.AssertError(slackClient, message, fmt.Errorf("can't load original message: %w", err))
 		actual := retry.Run(message)
 
 		assert.True(t, actual)

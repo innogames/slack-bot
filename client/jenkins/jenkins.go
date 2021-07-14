@@ -63,14 +63,14 @@ func WatchBuild(build *gojenkins.Build) <-chan JobResult {
 	return resultChan
 }
 
-func processHooks(commands []string, ref msg.Ref, params map[string]string) {
+func processHooks(commands []string, ref msg.Ref, params Parameters) {
 	for _, command := range commands {
 		temp, err := util.CompileTemplate(command)
 		if err != nil {
 			log.Warn(err)
 			continue
 		}
-		text, _ := util.EvalTemplate(temp, params)
+		text, _ := util.EvalTemplate(temp, util.Parameters(params))
 		client.HandleMessage(ref.WithText(text))
 	}
 }
