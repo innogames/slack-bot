@@ -3,8 +3,8 @@ package matcher
 import (
 	"regexp"
 
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/util"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot/util"
 )
 
 // NewRegexpMatcher matches a command based on a given regexp. 2 additional rules:

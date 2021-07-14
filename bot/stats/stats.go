@@ -3,7 +3,7 @@ package stats
 import (
 	"sync"
 
-	"github.com/innogames/slack-bot/bot/storage"
+	"github.com/innogames/slack-bot.v2/bot/storage"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )

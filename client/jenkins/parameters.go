@@ -2,11 +2,11 @@ package jenkins
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot/bot/util"
+	"github.com/innogames/slack-bot.v2/bot/util"
 	"strings"
 
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/client/vcs"
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/client/vcs"
 )
 
 // Parameters is a simple string map of all build parameters

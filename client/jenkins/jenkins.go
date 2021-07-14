@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/bndr/gojenkins"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/util"
-	"github.com/innogames/slack-bot/client"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot/util"
+	"github.com/innogames/slack-bot.v2/client"
 	log "github.com/sirupsen/logrus"
 )
 

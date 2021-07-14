@@ -3,10 +3,10 @@ package bot
 import (
 	"sync"
 
-	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/util"
-	"github.com/innogames/slack-bot/client"
+	"github.com/innogames/slack-bot.v2/bot/matcher"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot/util"
+	"github.com/innogames/slack-bot.v2/client"
 )
 
 var lock sync.Mutex

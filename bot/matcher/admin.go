@@ -3,9 +3,9 @@ package matcher
 import (
 	"errors"
 
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/client"
 )
 
 // NewAdminMatcher is a wrapper to only executable by a whitelisted admins user

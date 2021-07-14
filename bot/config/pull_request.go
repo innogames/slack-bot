@@ -1,6 +1,6 @@
 package config
 
-import "github.com/innogames/slack-bot/bot/util"
+import "github.com/innogames/slack-bot.v2/bot/util"
 
 // PullRequest special configuration to change the pull request behavior
 type PullRequest struct {

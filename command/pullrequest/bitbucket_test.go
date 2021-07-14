@@ -7,12 +7,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/util"
-	"github.com/innogames/slack-bot/command/queue"
-	"github.com/innogames/slack-bot/mocks"
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot/util"
+	"github.com/innogames/slack-bot.v2/command/queue"
+	"github.com/innogames/slack-bot.v2/mocks"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 )

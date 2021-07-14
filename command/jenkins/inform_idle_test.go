@@ -3,14 +3,15 @@ package jenkins
 import (
 	"context"
 	"encoding/json"
-	"github.com/innogames/slack-bot/mocks"
 	"testing"
 	"time"
 
+	"github.com/innogames/slack-bot.v2/mocks"
+
 	"github.com/bndr/gojenkins"
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/command/queue"
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/command/queue"
 	"github.com/stretchr/testify/assert"
 )
 

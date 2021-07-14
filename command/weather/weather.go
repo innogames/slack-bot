@@ -6,11 +6,11 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/bot/matcher"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/client"
 	"github.com/pkg/errors"
 	"github.com/slack-go/slack"
 )
@@ -71,7 +71,7 @@ func (c *command) getWeather(match matcher.Result, message msg.Message) {
 		return
 	}
 
-	var fields = [][]string{
+	fields := [][]string{
 		{
 			fmt.Sprintf("*:thermometer: TEMPERATURE:*  *Current:* %2.fC°", record.Main.Temp),
 			fmt.Sprintf(":arrow_down_small: *Min:* %2.fC°\t\t:arrow_up_small: *Max:* %2.fC°", record.Main.TempMin, record.Main.TempMax),

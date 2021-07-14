@@ -2,7 +2,7 @@ package client
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot/bot/version"
+	"github.com/innogames/slack-bot.v2/bot/version"
 	"net/http"
 	"time"
 )

@@ -1,7 +1,7 @@
 package tester
 
 import (
-	"github.com/innogames/slack-bot/bot/util"
+	"github.com/innogames/slack-bot.v2/bot/util"
 	"regexp"
 	"strings"
 

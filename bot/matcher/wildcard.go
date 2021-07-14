@@ -1,7 +1,7 @@
 package matcher
 
 import (
-	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot/msg"
 )
 
 // WildcardMatcher will pass all messages into the runner. The runner needs to check if the event is relevant or not

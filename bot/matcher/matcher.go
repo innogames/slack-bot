@@ -1,7 +1,7 @@
 package matcher
 
 import (
-	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot/msg"
 )
 
 // Runner contains the actual logic of the executed command. gets the actual slack MessageEvent and the matched parameters of the message

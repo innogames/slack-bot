@@ -5,10 +5,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/util"
-	"github.com/innogames/slack-bot/mocks"
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/bot/util"
+	"github.com/innogames/slack-bot.v2/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/xanzy/go-gitlab"
 )

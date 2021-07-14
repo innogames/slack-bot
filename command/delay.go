@@ -3,16 +3,17 @@ package command
 import (
 	"errors"
 	"fmt"
-	"github.com/slack-go/slack"
 	"sync"
 	"time"
 
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/util"
-	"github.com/innogames/slack-bot/client"
-	"github.com/innogames/slack-bot/command/queue"
+	"github.com/slack-go/slack"
+
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/matcher"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot/util"
+	"github.com/innogames/slack-bot.v2/client"
+	"github.com/innogames/slack-bot.v2/command/queue"
 )
 
 // NewDelayCommand delays the command execution by the given time

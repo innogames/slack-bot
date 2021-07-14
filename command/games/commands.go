@@ -1,7 +1,7 @@
 package games
 
 import (
-	"github.com/innogames/slack-bot/bot"
+	"github.com/innogames/slack-bot.v2/bot"
 )
 
 var category = bot.Category{

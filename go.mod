@@ -1,4 +1,4 @@
-module github.com/innogames/slack-bot
+module github.com/innogames/slack-bot.v2
 
 go 1.15
 

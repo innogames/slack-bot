@@ -3,22 +3,25 @@ package games
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/slack-go/slack"
 	"html"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"strconv"
 
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/client"
+	"github.com/slack-go/slack"
+
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/matcher"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/client"
 	"github.com/pkg/errors"
 )
 
-const maxQuestions = 50 // api limit is 50
-const apiURL = "https://opentdb.com/api.php"
+const (
+	maxQuestions = 50 // api limit is 50
+	apiURL       = "https://opentdb.com/api.php"
+)
 
 // NewQuizCommand returns a new quizCommand which is a small quiz game
 func NewQuizCommand(base bot.BaseCommand) bot.Command {
@@ -55,6 +58,7 @@ func (c *quizCommand) GetMatcher() matcher.Matcher {
 		matcher.NewRegexpMatcher(`answer (?P<answer>[\w\s]+)`, c.answer),
 	)
 }
+
 func (c *quizCommand) IsActive() bool {
 	return c.CanHandleInteractions()
 }

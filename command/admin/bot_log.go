@@ -5,10 +5,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/bot/matcher"
+	"github.com/innogames/slack-bot.v2/bot/msg"
 )
 
 const logChars = 4000

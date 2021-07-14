@@ -5,8 +5,8 @@ package jenkins
 import (
 	"context"
 	"github.com/bndr/gojenkins"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/client"
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/client"
 )
 
 // Client is a interface of gojenkins.Jenkins

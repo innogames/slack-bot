@@ -2,18 +2,18 @@ package admin
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot/bot/version"
 	"runtime"
 	"strings"
 	"time"
 
-	"github.com/innogames/slack-bot/bot"
-	"github.com/innogames/slack-bot/bot/config"
-	"github.com/innogames/slack-bot/bot/matcher"
-	"github.com/innogames/slack-bot/bot/msg"
-	"github.com/innogames/slack-bot/bot/stats"
-	"github.com/innogames/slack-bot/bot/util"
-	"github.com/innogames/slack-bot/command/queue"
+	"github.com/innogames/slack-bot.v2/bot"
+	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot.v2/bot/matcher"
+	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot.v2/bot/stats"
+	"github.com/innogames/slack-bot.v2/bot/util"
+	"github.com/innogames/slack-bot.v2/bot/version"
+	"github.com/innogames/slack-bot.v2/command/queue"
 )
 
 // bots uptime
