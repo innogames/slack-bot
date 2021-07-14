@@ -2,6 +2,7 @@ package jenkins
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/bot/util"
 	"strings"
 
 	"github.com/innogames/slack-bot/bot/config"
@@ -11,12 +12,35 @@ import (
 // Parameters is a simple string map of all build parameters
 type Parameters map[string]string
 
+func (p Parameters) String() string {
+	out := ""
+	for key, value := range p {
+		if key == slackUserParameter || key == util.FullMatch {
+			continue
+		}
+
+		out += key + ": '" + value + "' "
+	}
+
+	if out == "" {
+		return "-none-"
+	}
+
+	return strings.TrimSpace(out)
+}
+
 // ParameterModifier are functions to mutate given Jenkins parameters
 // e.g. ensure the parameter is a real "boolean" value
 type ParameterModifier func(string) (string, error)
 
 var parameterModifier = map[string]ParameterModifier{
 	"branch": vcs.GetMatchingBranch,
+	"lowerCase": func(input string) (string, error) {
+		return strings.ToLower(input), nil
+	},
+	"upperCase": func(input string) (string, error) {
+		return strings.ToUpper(input), nil
+	},
 	"bool": func(value string) (string, error) {
 		switch value {
 		case "false", "FALSE", "0", "null", "", " ":
@@ -89,7 +113,9 @@ func parseWords(parameterString string) []string {
 			}
 		case c == ' ' && !isQuoted:
 			// next param
-			parameters = append(parameters, string(param))
+			if len(param) > 0 {
+				parameters = append(parameters, string(param))
+			}
 			param = make([]byte, 0)
 		default:
 			// append char to current param

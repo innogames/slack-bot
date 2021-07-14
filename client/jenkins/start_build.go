@@ -22,7 +22,7 @@ var mu sync.Mutex
 // TriggerJenkinsJob starts a new build with given parameters
 // it will return when the job was started successfully
 // in the background it will watch the current build state and will update the state in the original slack message
-func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[string]string, slackClient client.SlackClient, jenkins Client, message msg.Message) error {
+func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams Parameters, slackClient client.SlackClient, jenkins Client, message msg.Message) error {
 	log.Infof("%s started started job %s: %s", message.GetUser(), jobName, jobParams)
 	_, jobParams[slackUserParameter] = client.GetUserIDAndName(message.GetUser())
 
@@ -32,7 +32,7 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams map[strin
 	ctx := context.Background()
 	build, err := startJob(ctx, jenkins, jobName, jobParams)
 	if err != nil {
-		return errors.Wrapf(err, "Job *%s* could not start job", jobName)
+		return errors.Wrapf(err, "Job *%s* could not start build with parameters: %s", jobName, jobParams)
 	}
 
 	slackClient.RemoveReaction(iconPending, message)
@@ -99,7 +99,7 @@ func sendBuildStartedMessage(build *gojenkins.Build, slackClient client.SlackCli
 }
 
 // startJob starts a job and waits until job is not queued anymore
-func startJob(ctx context.Context, jenkins Client, jobName string, jobParams map[string]string) (*gojenkins.Build, error) {
+func startJob(ctx context.Context, jenkins Client, jobName string, jobParams Parameters) (*gojenkins.Build, error) {
 	// avoid nasty racing conditions when two people are starting the same job
 	mu.Lock()
 	defer mu.Unlock()
