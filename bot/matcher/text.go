@@ -3,7 +3,7 @@ package matcher
 import (
 	"strings"
 
-	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/msg"
 )
 
 // NewTextMatcher match messages by full text (case insensitive)

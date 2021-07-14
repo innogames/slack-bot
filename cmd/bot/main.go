@@ -8,13 +8,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/innogames/slack-bot.v2/bot"
-	"github.com/innogames/slack-bot.v2/bot/config"
-	"github.com/innogames/slack-bot.v2/bot/storage"
-	"github.com/innogames/slack-bot.v2/bot/util"
-	"github.com/innogames/slack-bot.v2/client"
-	"github.com/innogames/slack-bot.v2/client/vcs"
-	"github.com/innogames/slack-bot.v2/command"
+	"github.com/innogames/slack-bot/v2/bot"
+	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/storage"
+	"github.com/innogames/slack-bot/v2/bot/util"
+	"github.com/innogames/slack-bot/v2/client"
+	"github.com/innogames/slack-bot/v2/client/vcs"
+	"github.com/innogames/slack-bot/v2/command"
 	log "github.com/sirupsen/logrus"
 )
 

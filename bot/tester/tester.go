@@ -11,11 +11,11 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/innogames/slack-bot.v2/bot"
-	"github.com/innogames/slack-bot.v2/bot/config"
-	"github.com/innogames/slack-bot.v2/bot/util"
-	"github.com/innogames/slack-bot.v2/client"
-	"github.com/innogames/slack-bot.v2/command"
+	"github.com/innogames/slack-bot/v2/bot"
+	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/util"
+	"github.com/innogames/slack-bot/v2/client"
+	"github.com/innogames/slack-bot/v2/command"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slacktest"
 )

@@ -5,12 +5,12 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/innogames/slack-bot.v2/bot"
-	"github.com/innogames/slack-bot.v2/bot/config"
-	"github.com/innogames/slack-bot.v2/bot/matcher"
-	"github.com/innogames/slack-bot.v2/bot/msg"
-	"github.com/innogames/slack-bot.v2/bot/util"
-	"github.com/innogames/slack-bot.v2/client/jenkins"
+	"github.com/innogames/slack-bot/v2/bot"
+	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/matcher"
+	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/util"
+	"github.com/innogames/slack-bot/v2/client/jenkins"
 )
 
 // command to trigger/start jenkins jobs

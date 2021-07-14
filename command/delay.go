@@ -8,12 +8,12 @@ import (
 
 	"github.com/slack-go/slack"
 
-	"github.com/innogames/slack-bot.v2/bot"
-	"github.com/innogames/slack-bot.v2/bot/matcher"
-	"github.com/innogames/slack-bot.v2/bot/msg"
-	"github.com/innogames/slack-bot.v2/bot/util"
-	"github.com/innogames/slack-bot.v2/client"
-	"github.com/innogames/slack-bot.v2/command/queue"
+	"github.com/innogames/slack-bot/v2/bot"
+	"github.com/innogames/slack-bot/v2/bot/matcher"
+	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/util"
+	"github.com/innogames/slack-bot/v2/client"
+	"github.com/innogames/slack-bot/v2/command/queue"
 )
 
 // NewDelayCommand delays the command execution by the given time

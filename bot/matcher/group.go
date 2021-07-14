@@ -1,7 +1,7 @@
 package matcher
 
 import (
-	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/msg"
 )
 
 // NewGroupMatcher is a matcher that iterates through the list of specified sub-matchers ...just define multiple matcher in a chain/group

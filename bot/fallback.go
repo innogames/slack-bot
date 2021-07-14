@@ -5,11 +5,11 @@ import (
 	"math"
 	"strings"
 
-	"github.com/innogames/slack-bot.v2/bot/util"
+	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/slack-go/slack"
 
-	"github.com/innogames/slack-bot.v2/bot/msg"
-	"github.com/innogames/slack-bot.v2/client"
+	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/client"
 	"github.com/texttheater/golang-levenshtein/levenshtein"
 )
 

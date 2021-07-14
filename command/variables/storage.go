@@ -1,8 +1,8 @@
 package variables
 
 import (
-	"github.com/innogames/slack-bot.v2/bot/msg"
-	"github.com/innogames/slack-bot.v2/bot/storage"
+	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/storage"
 	log "github.com/sirupsen/logrus"
 )
 

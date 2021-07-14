@@ -2,7 +2,7 @@ package vcs
 
 import (
 	bitbucketApi "github.com/gfleury/go-bitbucket-v1"
-	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/config"
 )
 
 type bitbucket struct {

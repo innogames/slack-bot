@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/innogames/slack-bot.v2/bot/config"
-	"github.com/innogames/slack-bot.v2/bot/util"
-	"github.com/innogames/slack-bot.v2/client"
+	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/util"
+	"github.com/innogames/slack-bot/v2/client"
 	log "github.com/sirupsen/logrus"
 )
 

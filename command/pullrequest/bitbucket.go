@@ -6,10 +6,10 @@ import (
 	"text/template"
 
 	bitbucket "github.com/gfleury/go-bitbucket-v1"
-	"github.com/innogames/slack-bot.v2/bot"
-	"github.com/innogames/slack-bot.v2/bot/config"
-	"github.com/innogames/slack-bot.v2/bot/matcher"
-	"github.com/innogames/slack-bot.v2/client"
+	"github.com/innogames/slack-bot/v2/bot"
+	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/matcher"
+	"github.com/innogames/slack-bot/v2/client"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )

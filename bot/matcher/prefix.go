@@ -3,8 +3,8 @@ package matcher
 import (
 	"strings"
 
-	"github.com/innogames/slack-bot.v2/bot/msg"
-	"github.com/innogames/slack-bot.v2/bot/util"
+	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/util"
 )
 
 // NewPrefixMatcher accepts command which starts with the given prefix

@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/innogames/slack-bot.v2/bot/util"
+	"github.com/innogames/slack-bot/v2/bot/util"
 
 	"github.com/gookit/color"
 )

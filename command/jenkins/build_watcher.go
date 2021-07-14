@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/bndr/gojenkins"
-	"github.com/innogames/slack-bot.v2/bot"
-	"github.com/innogames/slack-bot.v2/bot/matcher"
-	"github.com/innogames/slack-bot.v2/bot/msg"
-	"github.com/innogames/slack-bot.v2/bot/util"
-	"github.com/innogames/slack-bot.v2/client/jenkins"
-	"github.com/innogames/slack-bot.v2/command/queue"
+	"github.com/innogames/slack-bot/v2/bot"
+	"github.com/innogames/slack-bot/v2/bot/matcher"
+	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/util"
+	"github.com/innogames/slack-bot/v2/client/jenkins"
+	"github.com/innogames/slack-bot/v2/command/queue"
 	"github.com/slack-go/slack"
 )
 

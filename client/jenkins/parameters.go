@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/innogames/slack-bot.v2/bot/util"
+	"github.com/innogames/slack-bot/v2/bot/util"
 
-	"github.com/innogames/slack-bot.v2/bot/config"
-	"github.com/innogames/slack-bot.v2/client/vcs"
+	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/client/vcs"
 )
 
 // Parameters is a simple string map of all build parameters

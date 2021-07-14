@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	bitbucket "github.com/gfleury/go-bitbucket-v1"
-	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/config"
 )
 
 // GetBitbucketClient initialized a API client based on the given config

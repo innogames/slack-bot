@@ -1,7 +1,7 @@
 package matcher
 
 import (
-	"github.com/innogames/slack-bot.v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/msg"
 )
 
 // NewVoidMatcher just do nothing (might be useful when a command is not loadable because dependencies are not configures)

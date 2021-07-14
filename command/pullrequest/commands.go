@@ -1,8 +1,8 @@
 package pullrequest
 
 import (
-	"github.com/innogames/slack-bot.v2/bot"
-	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot"
+	"github.com/innogames/slack-bot/v2/bot/config"
 )
 
 var category = bot.Category{

@@ -2,7 +2,7 @@ package client
 
 import (
 	"github.com/andygrunwald/go-jira"
-	"github.com/innogames/slack-bot.v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/config"
 )
 
 // GetJiraClient created a jira client based on github.com/andygrunwald/go-jira"

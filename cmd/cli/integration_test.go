@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/gookit/color"
-	"github.com/innogames/slack-bot.v2/bot/config"
-	"github.com/innogames/slack-bot.v2/bot/util"
+	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/stretchr/testify/assert"
 )
 
