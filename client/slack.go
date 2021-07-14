@@ -155,7 +155,6 @@ func (s *Slack) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption
 		ref.GetChannel(),
 		options...,
 	)
-
 	if err != nil {
 		log.
 			WithField("user", ref.GetUser()).

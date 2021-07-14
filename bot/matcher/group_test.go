@@ -28,7 +28,7 @@ func TestGroup(t *testing.T) {
 	)
 
 	t.Run("Match simple", func(t *testing.T) {
-		var matchTest = []struct {
+		matchTest := []struct {
 			input    string
 			expected bool
 		}{

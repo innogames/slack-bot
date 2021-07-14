@@ -9,7 +9,7 @@ import (
 )
 
 func TestPrefix(t *testing.T) {
-	var matchTest = []struct {
+	matchTest := []struct {
 		prefix   string
 		input    string
 		expected bool

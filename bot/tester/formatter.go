@@ -1,15 +1,18 @@
 package tester
 
 import (
-	"github.com/innogames/slack-bot.v2/bot/util"
 	"regexp"
 	"strings"
+
+	"github.com/innogames/slack-bot.v2/bot/util"
 
 	"github.com/gookit/color"
 )
 
-var boldRe = regexp.MustCompile(`\*.+\*`)
-var emojiRe = regexp.MustCompile(`:.+:`)
+var (
+	boldRe  = regexp.MustCompile(`\*.+\*`)
+	emojiRe = regexp.MustCompile(`:.+:`)
+)
 
 func formatSlackMessage(msg string) string {
 	msg = boldRe.ReplaceAllStringFunc(msg, func(part string) string {

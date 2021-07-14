@@ -9,8 +9,7 @@ func NewVoidMatcher() Matcher {
 	return voidMatcher{}
 }
 
-type voidMatcher struct {
-}
+type voidMatcher struct{}
 
 func (m voidMatcher) Match(message msg.Message) (Runner, Result) {
 	return nil, nil

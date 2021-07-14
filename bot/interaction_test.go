@@ -2,6 +2,9 @@ package bot
 
 import (
 	"encoding/json"
+	"testing"
+	"time"
+
 	"github.com/innogames/slack-bot.v2/bot/config"
 	"github.com/innogames/slack-bot.v2/bot/matcher"
 	"github.com/innogames/slack-bot.v2/bot/msg"
@@ -11,13 +14,10 @@ import (
 	"github.com/slack-go/slack/slackevents"
 	"github.com/slack-go/slack/socketmode"
 	"github.com/stretchr/testify/assert"
-	"testing"
-	"time"
 )
 
 // dummy command which set "called" flag when a command was called with the text "dummy"
-type dummyCommand struct {
-}
+type dummyCommand struct{}
 
 func (d dummyCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewTextMatcher("dummy", func(match matcher.Result, message msg.Message) {

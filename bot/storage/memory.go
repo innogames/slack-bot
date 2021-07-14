@@ -57,7 +57,7 @@ func (s *memoryStorage) GetKeys(collection string) ([]string, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	var keys = make([]string, 0, len(s.storage[collection]))
+	keys := make([]string, 0, len(s.storage[collection]))
 
 	for key := range s.storage[collection] {
 		keys = append(keys, key)

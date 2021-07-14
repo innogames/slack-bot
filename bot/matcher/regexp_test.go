@@ -10,7 +10,7 @@ import (
 var testRunner = func(match Result, message msg.Message) {}
 
 func TestRegexp(t *testing.T) {
-	var matchTest = []struct {
+	matchTest := []struct {
 		regexp   string
 		input    string
 		expected bool

@@ -9,23 +9,22 @@ import (
 	"net/http"
 	"net/url"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/innogames/slack-bot.v2/bot"
 	"github.com/innogames/slack-bot.v2/bot/config"
 	"github.com/innogames/slack-bot.v2/bot/util"
 	"github.com/innogames/slack-bot.v2/client"
 	"github.com/innogames/slack-bot.v2/command"
-	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slacktest"
-	"io"
-	"io/ioutil"
-	"net/http"
-	"net/url"
 )
 
 // TestChannel is just a test channel name which is used for testing
-const TestChannel = "#dev"
-const botID = "W12345"
+const (
+	TestChannel = "#dev"
+	botID       = "W12345"
+)
 
 // StartBot will start this bot against the fake slack instance
 func StartBot(cfg config.Config) *bot.Bot {
@@ -61,7 +60,7 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 				Members: []slack.User{},
 			}
 			bytes, _ := json.Marshal(users)
-			w.Write(bytes)
+			_, _ = w.Write(bytes)
 		})
 		c.Handle("/chat.postMessage", func(w http.ResponseWriter, r *http.Request) {
 			payload, _ := ioutil.ReadAll(r.Body)
@@ -72,28 +71,28 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 			if text == "" {
 				blockJSON := query.Get("blocks")
 				var blocks []slack.SectionBlock
-				json.Unmarshal([]byte(blockJSON), &blocks)
+				_ = json.Unmarshal([]byte(blockJSON), &blocks)
 
 				text = blocks[0].Text.Text
 			}
 
-			fmt.Fprintf(output, formatSlackMessage(text)+"\n")
+			_, _ = fmt.Fprintf(output, formatSlackMessage(text)+"\n")
 
 			response := slack.Message{}
 			response.Text = text
 			bytes, _ := json.Marshal(response)
-			w.Write(bytes)
+			_, _ = w.Write(bytes)
 		})
 		c.Handle("/reactions.add", func(w http.ResponseWriter, r *http.Request) {
 			payload, _ := ioutil.ReadAll(r.Body)
 			query, _ := url.ParseQuery(string(payload))
 			emoji := query.Get("name")
-			fmt.Fprintln(output, util.Reaction(emoji).GetChar())
+			_, _ = fmt.Fprintln(output, util.Reaction(emoji).GetChar())
 
 			response := slack.SlackResponse{}
 			response.Ok = true
 			bytes, _ := json.Marshal(response)
-			w.Write(bytes)
+			_, _ = w.Write(bytes)
 		})
 	}
 

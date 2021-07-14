@@ -2,9 +2,10 @@ package client
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot.v2/bot/version"
 	"net/http"
 	"time"
+
+	"github.com/innogames/slack-bot.v2/bot/version"
 )
 
 // GetHTTPClient returns a default http client for this bot to use the default go-client with a Timeout

@@ -8,7 +8,7 @@ import (
 )
 
 func TestText(t *testing.T) {
-	var matchTest = []struct {
+	matchTest := []struct {
 		prefix   string
 		input    string
 		expected bool

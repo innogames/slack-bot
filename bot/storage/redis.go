@@ -2,6 +2,7 @@ package storage
 
 import (
 	"encoding/json"
+
 	"github.com/go-redis/redis/v7"
 )
 
@@ -29,7 +30,6 @@ func (s redisStorage) Write(collection, key string, v interface{}) error {
 
 func (s redisStorage) Read(collection, key string, v interface{}) error {
 	res, err := s.client.HGet(collection, key).Result()
-
 	if err != nil {
 		return err
 	}
