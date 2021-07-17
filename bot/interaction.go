@@ -78,6 +78,7 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
 
 	ref := msg.MessageRef{
 		Channel:        payload.Container.ChannelID,
+		Thread:         payload.Container.ThreadTs,
 		User:           payload.User.ID,
 		Timestamp:      payload.Message.Timestamp,
 		UpdatedMessage: true,
