@@ -59,7 +59,7 @@ func TestCommentJira(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "add comment to ticket TEST-1234 that's true!"
 
-		mocks.AssertReaction(slackClient, "white_check_mark", message)
+		mocks.AssertReaction(slackClient, "✅", message)
 
 		mux.HandleFunc("/rest/api/2/issue/TEST-1234/comment", func(res http.ResponseWriter, req *http.Request) {
 			assert.Equal(t, "POST", req.Method)

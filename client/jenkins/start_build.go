@@ -181,7 +181,7 @@ func getAttachment(build *gojenkins.Build, message string) slack.Attachment {
 	}
 
 	attachment.Actions = []slack.AttachmentAction{
-		client.GetSlackLink(fmt.Sprintf("Build :%s:", icon), build.GetUrl()),
+		client.GetSlackLink(fmt.Sprintf("Build :%s:", util.Reaction(icon).ToSlackReaction()), build.GetUrl()),
 		client.GetSlackLink("Console :page_with_curl:", build.GetUrl()+"console"),
 	}
 
