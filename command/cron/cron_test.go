@@ -23,6 +23,10 @@ func TestCron(t *testing.T) {
 			Commands: []string{
 				"reply foo",
 				"reply bar",
+				`
+					reply bar1",
+					reply bar2",
+				`,
 			},
 		},
 		{
@@ -30,6 +34,7 @@ func TestCron(t *testing.T) {
 			Schedule: "0 0 * * *",
 			Commands: []string{
 				"{{.Name}}",
+				"{{Name}}",
 				"{{}}",
 			},
 		},
@@ -66,7 +71,8 @@ func TestCron(t *testing.T) {
 		baseMessage.User = "cron"
 
 		mocks.AssertQueuedMessage(t, baseMessage.WithText("reply foo"))
-		mocks.AssertQueuedMessage(t, baseMessage.WithText("reply bar"))
+		mocks.AssertQueuedMessage(t, baseMessage.WithText("reply bar1"))
+		mocks.AssertQueuedMessage(t, baseMessage.WithText("reply bar2"))
 	})
 
 	t.Run("Test help", func(t *testing.T) {
