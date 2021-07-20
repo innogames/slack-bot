@@ -27,7 +27,6 @@ func AssertSlackMessage(slackClient *SlackClient, ref msg.Ref, text string) {
 
 // AssertReaction is a test helper to expect a given slack reaction to be added
 func AssertReaction(slackClient *SlackClient, reaction string, ref msg.Ref) {
-	// todo
 	slackClient.On("AddReaction", mock.MatchedBy(func(actualReaction util.Reaction) bool {
 		return util.Reaction(reaction).ToSlackReaction() == actualReaction.ToSlackReaction()
 	}), ref).Once()
