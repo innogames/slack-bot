@@ -132,9 +132,23 @@ func (s *Slack) RemoveReaction(reaction util.Reaction, ref msg.Ref) {
 	}
 }
 
+func (s *Slack) SendEphemeralMessage(ref msg.Ref, text string, options ...slack.MsgOption) {
+	_, err := s.Client.PostEphemeral(
+		ref.GetChannel(),
+		ref.GetUser(),
+		slack.MsgOptionAsUser(true),
+		slack.MsgOptionTS(ref.GetThread()), // send in current thread by default
+		slack.MsgOptionText(text, false),
+	)
+	if err != nil {
+		log.Warn(errors.Wrapf(err, "Error while sending Ephemeral message %s", err))
+	}
+}
+
 // SendMessage is the "slow" reply via POST request, needed for Attachment or MsgRef
 func (s *Slack) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption) string {
 	if ref.GetChannel() == "" {
+		log.Warnf("no channel given: %s", ref)
 		return ""
 	}
 
