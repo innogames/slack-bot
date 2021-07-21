@@ -2,6 +2,7 @@ package queue
 
 import (
 	"fmt"
+	"text/template"
 	"time"
 
 	"github.com/innogames/slack-bot/v2/bot"
@@ -137,6 +138,32 @@ func (c *listCommand) getReactions(ref msg.Ref) string {
 		formattedReactions += ":" + reaction.Name + ":"
 	}
 	return formattedReactions
+}
+
+func (c *listCommand) GetTemplateFunction() template.FuncMap {
+	return template.FuncMap{
+		"countBackgroundJobs": func() int {
+			keys, _ := storage.GetKeys(storageKey)
+
+			return len(keys)
+		},
+		"countBackgroundJobsInChannel": func(channel string) int {
+			count := 0
+			keys, _ := storage.GetKeys(storageKey)
+			var queuedEvent msg.Message
+			for _, key := range keys {
+				if err := storage.Read(storageKey, key, &queuedEvent); err != nil {
+					continue
+				}
+				if queuedEvent.Channel != channel {
+					continue
+				}
+				count++
+			}
+
+			return count
+		},
+	}
 }
 
 func (c *listCommand) GetHelp() []bot.Help {

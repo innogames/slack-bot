@@ -1,6 +1,7 @@
 package queue
 
 import (
+	"github.com/innogames/slack-bot/v2/bot/util"
 	"strconv"
 	"testing"
 	"time"
@@ -20,6 +21,7 @@ func TestQueue(t *testing.T) {
 
 	message := msg.Message{}
 	message.User = "testUser1"
+	message.Channel = "C1234"
 
 	command := bot.Commands{}
 	command.AddCommand(NewQueueCommand(base))
@@ -60,6 +62,16 @@ func TestQueue(t *testing.T) {
 		actual := command.Run(message)
 		assert.True(t, actual)
 		assert.Empty(t, client.InternalMessages)
+
+		t.Run("Render template with not open PR", func(t *testing.T) {
+			tpl, err := util.CompileTemplate(`{{$count1 := countBackgroundJobs}}{{$count2 := countBackgroundJobsInChannel "C1234"}}{{$count1}} - {{$count2}}`)
+			assert.Nil(t, err)
+
+			res, err := util.EvalTemplate(tpl, util.Parameters{})
+			assert.Nil(t, err)
+
+			assert.Equal(t, "0 - 0", res)
+		})
 	})
 
 	t.Run("Test queue command", func(t *testing.T) {
@@ -112,8 +124,17 @@ func TestQueue(t *testing.T) {
 		actual = command.Run(message)
 		assert.True(t, actual)
 
-		runningCommand.Done()
+		t.Run("Render template with not open PR", func(t *testing.T) {
+			tpl, err := util.CompileTemplate(`{{$count1 := countBackgroundJobs}}{{$count2 := countBackgroundJobsInChannel "C1234"}}{{$count3 := countBackgroundJobsInChannel "C4321"}}{{$count1}} - {{$count2}} - {{$count3}}`)
+			assert.Nil(t, err)
 
+			res, err := util.EvalTemplate(tpl, util.Parameters{})
+			assert.Nil(t, err)
+
+			assert.Equal(t, "1 - 1 - 0", res)
+		})
+
+		runningCommand.Done()
 		mocks.WaitTillHavingInternalMessage()
 
 		handledEvent := <-client.InternalMessages
@@ -122,6 +143,7 @@ func TestQueue(t *testing.T) {
 		expectedMessage.Timestamp = message.Timestamp
 		expectedMessage.User = "testUser1"
 		expectedMessage.Text = "reply test"
+		expectedMessage.Channel = "C1234"
 		assert.Equal(t, handledEvent, expectedMessage)
 	})
 
