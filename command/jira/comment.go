@@ -53,7 +53,7 @@ func (c *commentCommand) addComment(match matcher.Result, message msg.Message) {
 		return
 	}
 
-	c.slackClient.AddReaction("white_check_mark", message)
+	c.slackClient.AddReaction("✅", message)
 }
 
 func (c *commentCommand) GetHelp() []bot.Help {

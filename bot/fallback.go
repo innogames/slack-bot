@@ -5,11 +5,9 @@ import (
 	"math"
 	"strings"
 
-	"github.com/innogames/slack-bot/v2/bot/util"
-	"github.com/slack-go/slack"
-
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/client"
+	"github.com/slack-go/slack"
 	"github.com/texttheater/golang-levenshtein/levenshtein"
 )
 
@@ -20,7 +18,7 @@ func (b *Bot) sendFallbackMessage(message msg.Message) {
 	bestMatching := getBestMatchingHelp(b, message.Text)
 
 	if bestMatching.Command == "" {
-		b.slackClient.AddReaction(util.UnicodeToReaction("❓"), message)
+		b.slackClient.AddReaction("❓", message)
 
 		blocks := []slack.Block{
 			client.GetTextBlock(

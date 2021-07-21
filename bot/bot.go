@@ -228,7 +228,7 @@ func (b *Bot) handleMessage(message msg.Message, fromUserContext bool) {
 			message.User,
 			strings.Join(b.config.AdminUsers, ", "),
 		))
-		b.slackClient.AddReaction(util.UnicodeToReaction("❌"), message)
+		b.slackClient.AddReaction("❌", message)
 
 		stats.IncreaseOne(stats.UnauthorizedCommands)
 		return

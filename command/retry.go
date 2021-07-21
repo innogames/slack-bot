@@ -8,7 +8,6 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/storage"
-	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
@@ -93,7 +92,7 @@ func (c *retryCommand) slackMessage(match matcher.Result, message msg.Message) {
 		c.SendMessage(message, "this is not your message")
 		return
 	}
-	c.AddReaction(util.UnicodeToReaction("✅"), message)
+	c.AddReaction("✅", message)
 	client.HandleMessage(historyMessage)
 }
 

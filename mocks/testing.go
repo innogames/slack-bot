@@ -3,6 +3,11 @@ package mocks
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
@@ -10,10 +15,6 @@ import (
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"strings"
-	"sync"
-	"testing"
-	"time"
 )
 
 // testLock is only used in integration test to avoid running some tests in parallel as we use one shared Message list
@@ -26,7 +27,9 @@ func AssertSlackMessage(slackClient *SlackClient, ref msg.Ref, text string) {
 
 // AssertReaction is a test helper to expect a given slack reaction to be added
 func AssertReaction(slackClient *SlackClient, reaction string, ref msg.Ref) {
-	slackClient.On("AddReaction", util.Reaction(reaction), ref).Once()
+	slackClient.On("AddReaction", mock.MatchedBy(func(actualReaction util.Reaction) bool {
+		return util.Reaction(reaction).ToSlackReaction() == actualReaction.ToSlackReaction()
+	}), ref).Once()
 }
 
 // AssertRemoveReaction is a test helper to expect a given slack reaction to be removed

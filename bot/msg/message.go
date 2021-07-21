@@ -7,7 +7,7 @@ import "sync"
 type Message struct {
 	MessageRef
 	Text string          `json:"text,omitempty"`
-	Done *sync.WaitGroup `json:"-"`
+	Done *sync.WaitGroup `json:"-"` // WaitGroup gets unlocked when the message was processed
 }
 
 // GetText returns the attached text of the message

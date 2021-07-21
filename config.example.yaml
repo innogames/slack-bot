@@ -76,9 +76,11 @@ github:
 #  location: Hamburg
 
 # able to set a custom "approved" reactions. E.g to see directly who or which component/department approved a pullrequest
+# you can use the name of the reaction or the Unicode character directoy
 #pullrequest:
 #  reactions:
 #    merged: custom_merge_arrow
+#    review: 👀
 #  custom_approve_reaction:
 #    nerdydev: "approved_backend"
 #    iamamobiledev: "approved_mobile"

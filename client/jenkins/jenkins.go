@@ -13,10 +13,10 @@ import (
 
 const (
 	// iconRunning and the other ones are jenkins specific Slack reactions which are used for different kind of commands
-	iconRunning = "arrows_counterclockwise"
-	iconSuccess = "white_check_mark"
-	iconFailed  = "x"
-	iconPending = "coffee"
+	iconRunning = "🔄"
+	iconSuccess = "✅"
+	iconFailed  = "❌"
+	iconPending = "☕"
 	iconAborted = "black_circle_for_record"
 
 	// we are polling the job every 10s-5min with a increasing delay

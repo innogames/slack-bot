@@ -94,7 +94,7 @@ type SlackClient interface {
 	// SendBlockMessage will send Slack Blocks/Sections to the target
 	SendBlockMessage(ref msg.Ref, blocks []slack.Block, options ...slack.MsgOption) string
 
-	// send a message to a user, using "@username or @U12334"
+	// SendToUser sends a simple text message to a user, using "@username or @U12334"
 	SendToUser(user string, text string)
 
 	RemoveReaction(reaction util.Reaction, ref msg.Ref)

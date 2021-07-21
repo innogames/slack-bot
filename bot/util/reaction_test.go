@@ -9,7 +9,6 @@ import (
 func TestReaction(t *testing.T) {
 	smile := Reaction(":smile:")
 	assert.Equal(t, "smile", smile.ToSlackReaction())
-	assert.Equal(t, ":smile:", smile.FullName())
 	assert.Equal(t, "😄", smile.GetChar())
 
 	unknown := Reaction(":unknown:")
@@ -18,12 +17,7 @@ func TestReaction(t *testing.T) {
 }
 
 func TestEmojiToReaction(t *testing.T) {
-	smile := UnicodeToReaction("😄")
+	smile := Reaction("😄")
 	assert.Equal(t, "smile", smile.ToSlackReaction())
-	assert.Equal(t, ":smile:", smile.FullName())
 	assert.Equal(t, "😄", smile.GetChar())
-
-	unknown := UnicodeToReaction("empty")
-	assert.Equal(t, "?", unknown.ToSlackReaction())
-	assert.Equal(t, "?", unknown.GetChar())
 }

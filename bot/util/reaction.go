@@ -1,41 +1,42 @@
 package util
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/hackebrot/turtle"
 )
 
-// Reaction representation for a reaction/emoji
+// Reaction representation for a reaction/emoji. It can be the "id" of the reaction (like "smile", or the actual Unicode char, like "😄")
 type Reaction string
 
-// ToSlackReaction trims potential ":"
+// ToSlackReaction uses the "id" of the reaction/Emoji, like "smile". It trims potential ":"
 func (r Reaction) ToSlackReaction() string {
-	return strings.Trim(string(r), ":")
-}
+	emoji := r.getEmoji()
+	if emoji == nil {
+		return strings.Trim(string(r), ":")
+	}
 
-// FullName with surrounding ":"
-func (r Reaction) FullName() string {
-	return fmt.Sprintf(":%s:", r.ToSlackReaction())
+	return emoji.Name
 }
 
 // GetChar get the real string/unicode representation of the current reaction/emoji
 func (r Reaction) GetChar() string {
-	name := strings.Trim(string(r), ":")
-	emoji, ok := turtle.Emojis[name]
-	if !ok {
+	emoji := r.getEmoji()
+	if emoji == nil {
 		return "?"
 	}
+
 	return emoji.Char
 }
 
-// UnicodeToReaction transform a unicode char, like "😄" into a Reaction type
-func UnicodeToReaction(inputChar string) Reaction {
-	emoji, ok := turtle.EmojisByChar[inputChar]
-	if !ok {
-		return "?"
+func (r Reaction) getEmoji() *turtle.Emoji {
+	name := strings.Trim(string(r), ":")
+	if emoji, ok := turtle.Emojis[name]; ok {
+		return emoji
+	}
+	if emoji, ok := turtle.EmojisByChar[name]; ok {
+		return emoji
 	}
 
-	return Reaction(emoji.Name)
+	return nil
 }
