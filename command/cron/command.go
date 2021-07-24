@@ -1,6 +1,8 @@
 package cron
 
 import (
+	"strings"
+
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
@@ -56,11 +58,13 @@ func (c *command) getCallback(cron config.Cron) func() {
 				continue
 			}
 
-			newMessage := msg.Message{}
-			newMessage.User = "cron"
-			newMessage.Channel, _ = client.GetChannelIDAndName(cron.Channel)
-			newMessage.Text = text
-			client.HandleMessage(newMessage)
+			for _, line := range strings.Split(text, "\n") {
+				newMessage := msg.Message{}
+				newMessage.User = "cron"
+				newMessage.Channel, _ = client.GetChannelIDAndName(cron.Channel)
+				newMessage.Text = line
+				client.HandleMessage(newMessage)
+			}
 		}
 	}
 }
