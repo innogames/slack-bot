@@ -22,10 +22,9 @@ func TestCron(t *testing.T) {
 			Schedule: "0 0 * * *",
 			Commands: []string{
 				"reply foo",
-				"reply bar",
 				`
-					reply bar1",
-					reply bar2",
+					reply bar1
+					reply bar2
 				`,
 			},
 		},

@@ -22,6 +22,10 @@ var InternalMessages = make(chan msg.Message, 50)
 
 // HandleMessage will register the given message in the queue...and returns a sync.WaitGroup which can be used to see when the message is handled
 func HandleMessage(message msg.Message) {
+	message.Text = strings.TrimSpace(message.Text)
+	if message.Text == "" {
+		return
+	}
 	InternalMessages <- message
 }
 

@@ -1,13 +1,13 @@
 package queue
 
 import (
-	"github.com/innogames/slack-bot/v2/bot/util"
 	"strconv"
 	"testing"
 	"time"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/slack-go/slack"

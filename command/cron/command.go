@@ -1,6 +1,8 @@
 package cron
 
 import (
+	"strings"
+
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
@@ -8,7 +10,6 @@ import (
 	"github.com/innogames/slack-bot/v2/client"
 	cronLib "github.com/robfig/cron/v3"
 	log "github.com/sirupsen/logrus"
-	"strings"
 )
 
 // NewCronCommand registers cron which are configurable in the yaml config
