@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	iconStatusOnline  = ":white_check_mark:"
-	iconStatusOffline = ":red_circle:"
+	iconStatusOnline  = "✔"
+	iconStatusOffline = "🔴"
 )
 
 type nodesCommand struct {
