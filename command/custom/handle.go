@@ -8,6 +8,7 @@ import (
 	"github.com/innogames/slack-bot/v2/client"
 )
 
+// check if the current user has a alias for the current message, if yes, execute the commands
 func (c command) handle(ref msg.Ref, text string) bool {
 	var commands string
 
