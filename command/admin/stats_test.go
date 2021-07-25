@@ -21,7 +21,7 @@ func TestStatsLog(t *testing.T) {
 		"UADMIN",
 	}
 
-	statsCommand := NewStatsCommand(base, cfg)
+	statsCommand := newStatsCommand(base, cfg)
 
 	command := bot.Commands{}
 	command.AddCommand(statsCommand)

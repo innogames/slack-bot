@@ -32,6 +32,7 @@ func (m adminMatcher) Match(message msg.Message) (Runner, Result) {
 	}
 
 	return func(match Result, message msg.Message) {
+		m.slackClient.AddReaction("❌", message)
 		m.slackClient.ReplyError(
 			message,
 			errors.New("sorry, you are no admin and not allowed to execute this command"),

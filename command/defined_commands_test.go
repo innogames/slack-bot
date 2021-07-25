@@ -42,7 +42,7 @@ func TestInvalidMacro(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "list template functions"
 
-		mocks.AssertSlackMessage(slackClient, message, "This 2 are available template functions:\n- makeSlice\n- slice\n")
+		mocks.AssertSlackMessage(slackClient, message, "*This 2 are available template functions:*\n• makeSlice(...interface {}) []interface {}\n• slice(string, int, int) string\n")
 
 		actual := command.Run(message)
 		assert.True(t, actual)
