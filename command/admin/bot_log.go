@@ -13,8 +13,8 @@ import (
 
 const logChars = 4000
 
-// NewBotLogCommand prints the recent bot.log as slack command
-func NewBotLogCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
+// newBotLogCommand prints the recent bot.log as slack command
+func newBotLogCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 	return &botLogCommand{
 		base,
 		cfg,

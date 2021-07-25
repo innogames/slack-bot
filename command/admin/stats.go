@@ -19,8 +19,8 @@ import (
 // bots uptime
 var startTime = time.Now()
 
-// NewStatsCommand shows a bunch of runtime statistics of the bot (admin-only)
-func NewStatsCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
+// newStatsCommand shows a bunch of runtime statistics of the bot (admin-only)
+func newStatsCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 	return &statsCommand{base, cfg}
 }
 

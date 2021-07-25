@@ -35,9 +35,6 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 		NewRandomCommand(base),
 		NewHelpCommand(base, commands),
 
-		admin.NewBotLogCommand(base, &cfg),
-		admin.NewStatsCommand(base, &cfg),
-
 		weather.NewWeatherCommand(base, cfg.OpenWeather),
 
 		cron.NewCronCommand(base, cfg.Crons),
@@ -48,6 +45,8 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 		custom.GetCommand(base),
 		variables.GetCommand(base),
 	)
+
+	commands.Merge(admin.GetCommands(base, &cfg))
 
 	// games
 	commands.Merge(games.GetCommands(base))

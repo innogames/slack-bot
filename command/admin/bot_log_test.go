@@ -22,7 +22,7 @@ func TestBotLog(t *testing.T) {
 		"UADMIN",
 	}
 
-	botLog := NewBotLogCommand(base, cfg)
+	botLog := newBotLogCommand(base, cfg)
 
 	command := bot.Commands{}
 	command.AddCommand(botLog)

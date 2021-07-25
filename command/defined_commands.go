@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"reflect"
 	"regexp"
 	"sort"
 	"strings"
@@ -103,9 +104,14 @@ func (c *definedCommand) listTemplateFunction(match matcher.Result, message msg.
 
 	sort.Strings(functionNames)
 
-	text := fmt.Sprintf("This %d are available template functions:\n", len(functions))
+	text := fmt.Sprintf("*This %d are available template functions:*\n", len(functions))
 	for _, name := range functionNames {
-		text += fmt.Sprintf("- %s\n", name)
+		signature := reflect.ValueOf(functions[name]).Type()
+		text += fmt.Sprintf(
+			"• %s%s\n",
+			name,
+			strings.TrimPrefix(signature.String(), "func"),
+		)
 	}
 
 	c.SendMessage(message, text)

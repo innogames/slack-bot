@@ -25,6 +25,7 @@ func TestAdmin(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "test"
 
+		mocks.AssertReaction(slackClient, "❌", message)
 		mocks.AssertError(slackClient, message, "sorry, you are no admin and not allowed to execute this command")
 
 		runner, match := subject.Match(message)
