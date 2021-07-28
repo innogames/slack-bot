@@ -14,7 +14,7 @@ import (
 )
 
 func TestWatchJob(t *testing.T) {
-	server := spawnJenkinsTestServer()
+	server := spawnJobWatcherServer()
 	defer server.Close()
 
 	cfg := config.Jenkins{
@@ -29,7 +29,7 @@ func TestWatchJob(t *testing.T) {
 		stop := make(chan bool, 1)
 		builds, err := WatchJob(ctx, client, "notExistingJob", stop)
 
-		assert.Equal(t, fmt.Errorf("404"), err)
+		assert.Equal(t, fmt.Errorf("404-fail"), err)
 		assert.Nil(t, builds)
 	})
 
@@ -47,9 +47,21 @@ func TestWatchJob(t *testing.T) {
 		stop <- true
 		assert.Len(t, builds, 0)
 	})
+
+	t.Run("Watch Job with invalid build", func(t *testing.T) {
+		ctx := context.Background()
+		client, err := GetClient(cfg)
+		assert.Nil(t, err)
+
+		stop := make(chan bool, 1)
+		builds, err := WatchJob(ctx, client, "testJob2", stop)
+
+		assert.Equal(t, fmt.Errorf("404-fail"), err)
+		assert.Len(t, builds, 0)
+	})
 }
 
-func spawnJenkinsTestServer() *httptest.Server {
+func spawnJobWatcherServer() *httptest.Server {
 	mux := http.NewServeMux()
 
 	// test connection
@@ -67,7 +79,18 @@ func spawnJenkinsTestServer() *httptest.Server {
 		encoder.Encode(job)
 	})
 
+	mux.HandleFunc("/job/testJob2/api/json", func(w http.ResponseWriter, r *http.Request) {
+		job := gojenkins.JobResponse{}
+		job.Name = "test"
+		job.LastBuild = gojenkins.JobBuild{
+			Number: 42,
+		}
+		encoder := json.NewEncoder(w)
+		encoder.Encode(job)
+	})
+
 	mux.HandleFunc("/job/notExistingJob/api/json", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("X-Error", "404-fail")
 		w.WriteHeader(404)
 	})
 
@@ -78,6 +101,11 @@ func spawnJenkinsTestServer() *httptest.Server {
 
 		encoder := json.NewEncoder(w)
 		encoder.Encode(build)
+	})
+
+	mux.HandleFunc("/job/testJob2/42/api/json", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("X-Error", "404-fail")
+		w.WriteHeader(404)
 	})
 
 	return httptest.NewServer(mux)

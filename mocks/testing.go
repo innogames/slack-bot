@@ -107,6 +107,7 @@ func AssertContainsSlackBlocks(t *testing.T, slackClient *SlackClient, message m
 	}), mock.Anything).Once().Return("")
 }
 
+// LockInternalMessages uses mutex to block other tests dealing with the central message queue
 func LockInternalMessages() *sync.Mutex {
 	testLock.Lock()
 
