@@ -168,8 +168,7 @@ func TestSendBuildStartedMessage(t *testing.T) {
 func spawnJenkinsServer() *httptest.Server {
 	mux := http.NewServeMux()
 
-	var buildNumber int64
-	buildNumber = 42
+	buildNumber := 42
 
 	// test connection
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -180,7 +179,7 @@ func spawnJenkinsServer() *httptest.Server {
 		job := gojenkins.JobResponse{}
 		job.Name = "test"
 		job.LastBuild = gojenkins.JobBuild{
-			Number: buildNumber,
+			Number: int64(buildNumber),
 		}
 		encoder := json.NewEncoder(w)
 		encoder.Encode(job)
