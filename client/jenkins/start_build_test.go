@@ -4,13 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"net/http"
+	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestStartBuild(t *testing.T) {
@@ -30,6 +34,32 @@ func TestStartBuild(t *testing.T) {
 		err := TriggerJenkinsJob(cfg, jobName, params, slackClient, client, message)
 
 		assert.EqualError(t, err, "Job *TestJob* could not start build with parameters: -none-: 404")
+	})
+
+	t.Run("start job", func(t *testing.T) {
+		server := spawnJenkinsServer()
+		defer server.Close()
+
+		cfg := config.Jenkins{
+			Host: server.URL,
+		}
+
+		jobCfg := config.JobConfig{}
+		client, err := GetClient(cfg)
+		assert.Nil(t, err)
+
+		jobName := "testJob"
+		params := Parameters{
+			"foo": "bar",
+		}
+
+		mocks.AssertReaction(slackClient, iconPending, message)
+		mocks.AssertRemoveReaction(slackClient, iconPending, message)
+		slackClient.On("SendMessage", message, "", mock.Anything).Once().Return("")
+
+		err = TriggerJenkinsJob(jobCfg, jobName, params, slackClient, client, message)
+		time.Sleep(time.Millisecond * 100)
+		assert.Nil(t, err)
 	})
 
 	t.Run("format finish build", func(t *testing.T) {
@@ -133,4 +163,44 @@ func TestSendBuildStartedMessage(t *testing.T) {
 
 	msgTimestamp := sendBuildStartedMessage(build, slackClient, ref)
 	assert.Equal(t, "", msgTimestamp)
+}
+
+func spawnJenkinsServer() *httptest.Server {
+	mux := http.NewServeMux()
+
+	buildNumber := 42
+
+	// test connection
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`ok`))
+	})
+
+	mux.HandleFunc("/job/testJob/api/json", func(w http.ResponseWriter, r *http.Request) {
+		job := gojenkins.JobResponse{}
+		job.Name = "test"
+		job.LastBuild = gojenkins.JobBuild{
+			Number: int64(buildNumber),
+		}
+		encoder := json.NewEncoder(w)
+		encoder.Encode(job)
+	})
+
+	mux.HandleFunc("/job/notExistingJob/api/json", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(404)
+	})
+
+	mux.HandleFunc("/job/testJob/42/api/json", func(w http.ResponseWriter, r *http.Request) {
+		build := gojenkins.BuildResponse{}
+		build.Number = 42
+		build.Building = true
+
+		encoder := json.NewEncoder(w)
+		encoder.Encode(build)
+	})
+	mux.HandleFunc("/job/testJob/build", func(w http.ResponseWriter, r *http.Request) {
+		buildNumber++
+		w.Header().Set("Location", "http://foo.bar/job/testJob/111")
+	})
+
+	return httptest.NewServer(mux)
 }

@@ -33,7 +33,7 @@ func InitLogger(cfg config.Logger) {
 func (b *Bot) getUserBasedLogger(ref msg.Ref) *log.Entry {
 	_, username := client.GetUserIDAndName(ref.GetUser())
 
-	channel := ""
+	var channel string
 	if strings.HasPrefix(ref.GetChannel(), "D") {
 		channel = "@" + username
 	} else {
