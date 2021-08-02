@@ -1,0 +1,19 @@
+# live reload: https://github.com/cosmtrek/air/
+
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  bin = "./tmp/main"
+  cmd = "go build -o ./tmp/main cmd/bot/main.go"
+  delay = 2500
+  exclude_dir = ["storage", "tmp", "vendor"]
+  exclude_file = []
+  exclude_regex = ["_test.go"]
+  exclude_unchanged = false
+  follow_symlink = false
+  full_bin = ""
+  include_dir = []
+  include_ext = ["go"]
+  kill_delay = "0s"
+  log = "build-errors.log"

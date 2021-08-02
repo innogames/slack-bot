@@ -494,10 +494,10 @@ If no config is provided, there is no automated branch lookup and the "branch" p
 # Development
 
 ## File structure
-- `bot` contains the code classes of the bot: connection to slack, user management, command matching
-- `cmd` entry points aka main.go for the bot and the CLI test tool
-- `command` real command implementing the bot.Command interface
-- `client` communication interfaces for Slack, Jenkins, Jira etc...
+- `bot/` contains the code classes of the bot: connection to slack, user management, command matching...
+- `cmd/bot/` entry points aka main.go for the bot and the CLI test tool
+- `command/` real command implementing the bot.Command interface
+- `client/` communication interfaces for Slack, Jenkins, Jira etc...
 
 ## Create a new (native) command
 If you need a new command, which is not implementable with a "command" command, you have to write to write go code.
@@ -515,6 +515,9 @@ There is a handy CLI application which emulates the Slack application...just cha
 ```
 make run-cli
 ```
+
+## Auto live reload
+`make air` to use the ["air auto reload tool"](https://github.com/cosmtrek/air).
 
 ## Testing
 There are a bunch of tests which can be executed via:
