@@ -1,5 +1,5 @@
 
-.PHONY: clean docker-build test test-coverage test-bench mocks run dep lint
+.PHONY: clean docker-build test test-coverage test-bench mocks run dep lint air
 
 all: clean dep test build/slack-bot
 
@@ -18,6 +18,7 @@ run-cli: dep
 clean:
 	rm -rf build/
 
+# download go dependencies into ./vendor/
 dep:
 	go mod vendor
 
@@ -39,6 +40,12 @@ test-coverage: dep
 	go tool cover -html=./build/cover.out -o ./build/cover.html
 	echo see ./build/cover.html
 
+# build mocks for testable interfaces into ./mocks/ directory
 mocks: dep
 	go get github.com/vektra/mockery/v2/.../
 	go generate ./...
+
+# live reload
+air:
+	command -v air || curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin
+	air
