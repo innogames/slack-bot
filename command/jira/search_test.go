@@ -103,23 +103,21 @@ func TestJiraSearch(t *testing.T) {
 	})
 
 	t.Run("Render template with jiraTicket()", func(t *testing.T) {
-		tpl, err := util.CompileTemplate(`{{$ticket := jiraTicket "ZOOKEEPER-3455"}}ID: {{$ticket.ID}} Key: {{$ticket.Key}}`)
-		assert.Nil(t, err)
-
-		res, err := util.EvalTemplate(tpl, util.Parameters{})
-		assert.Nil(t, err)
-
-		assert.Equal(t, "ID: 13242741 Key: ZOOKEEPER-3455", res)
+		mocks.AssertRenderedTemplate(
+			t,
+			`{{$ticket := jiraTicket "ZOOKEEPER-3455"}}ID: {{$ticket.ID}} Key: {{$ticket.Key}}`,
+			"ID: 13242741 Key: ZOOKEEPER-3455",
+			util.Parameters{},
+		)
 	})
 
 	t.Run("Render template with jiraTicketUrl()", func(t *testing.T) {
-		tpl, err := util.CompileTemplate(`{{ jiraTicketUrl "ZOOKEEPER-3455"}}`)
-		assert.Nil(t, err)
-
-		res, err := util.EvalTemplate(tpl, util.Parameters{})
-		assert.Nil(t, err)
-
-		assert.Equal(t, "https://issues.apache.org/jira/browse/ZOOKEEPER-3455", res)
+		mocks.AssertRenderedTemplate(
+			t,
+			`{{ jiraTicketUrl "ZOOKEEPER-3455"}}`,
+			"https://issues.apache.org/jira/browse/ZOOKEEPER-3455",
+			util.Parameters{},
+		)
 	})
 
 	t.Run("Test help", func(t *testing.T) {

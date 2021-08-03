@@ -28,7 +28,7 @@ func TestInvalidMacro(t *testing.T) {
 	}
 
 	command := bot.Commands{}
-	command.AddCommand(NewCommands(base, cfg))
+	command.AddCommand(NewCommands(base, cfg, []config.TemplateFunction{}))
 
 	t.Run("invalid command", func(t *testing.T) {
 		message := msg.Message{}
@@ -42,8 +42,7 @@ func TestInvalidMacro(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "list template functions"
 
-		mocks.AssertSlackMessage(slackClient, message, "*This 2 are available template functions:*\n• makeSlice(...interface {}) []interface {}\n• slice(string, int, int) string\n")
-
+		mocks.AssertSlackMessage(slackClient, message, "*This 3 are available template functions:*\n• makeSlice(...interface {}) []interface {}\n• now() time.Time\n• slice(string, int, int) string\n")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -81,7 +80,7 @@ func TestMacro(t *testing.T) {
 	}
 
 	command := bot.Commands{}
-	command.AddCommand(NewCommands(base, cfg))
+	command.AddCommand(NewCommands(base, cfg, []config.TemplateFunction{}))
 
 	t.Run("invalid macro", func(t *testing.T) {
 		message := msg.Message{}

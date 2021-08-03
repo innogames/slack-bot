@@ -15,9 +15,10 @@ type Config struct {
 		Host        string
 	} `mapstructure:"gitlab"`
 
-	Commands []Command `mapstructure:"commands"`
-	Crons    []Cron    `mapstructure:"crons"`
-	Logger   Logger    `mapstructure:"logger"`
+	Commands          []Command          `mapstructure:"commands"`
+	TemplateFunctions []TemplateFunction `mapstructure:"template_functions"`
+	Crons             []Cron             `mapstructure:"crons"`
+	Logger            Logger             `mapstructure:"logger"`
 
 	// @deprecated
 	BranchLookup struct {
@@ -78,6 +79,12 @@ type Command struct {
 	Category    string
 	Commands    []string
 	Examples    []string
+}
+
+type TemplateFunction struct {
+	Name      string
+	Arguments []string
+	Template  string
 }
 
 // Bitbucket credentials/options. Either add Username+Password OR a APIKey

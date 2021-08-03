@@ -49,6 +49,18 @@ func AssertError(slackClient *SlackClient, ref msg.Ref, errorIn interface{}) {
 	slackClient.On("ReplyError", ref, err).Once()
 }
 
+func AssertRenderedTemplate(t *testing.T, template string, expected string, params util.Parameters) {
+	t.Helper()
+
+	tpl, err := util.CompileTemplate(template)
+	assert.Nil(t, err)
+
+	res, err := util.EvalTemplate(tpl, params)
+	assert.Nil(t, err)
+
+	assert.Equal(t, expected, res)
+}
+
 // AssertQueuedMessage checks if a given internal message was queued
 func AssertQueuedMessage(t *testing.T, expected msg.Message) {
 	t.Helper()

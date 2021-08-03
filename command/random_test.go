@@ -32,7 +32,7 @@ func TestRandom(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "random"
 
-		slackClient.On("SendMessage", message, "You have to pass more arguments").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "You have to pass more arguments")
 
 		actual := command.Run(message)
 		assert.True(t, actual)
@@ -42,7 +42,7 @@ func TestRandom(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "random 1"
 
-		slackClient.On("SendMessage", message, "1").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "1")
 
 		actual := command.Run(message)
 		assert.True(t, actual)
@@ -55,7 +55,7 @@ func TestRandom(t *testing.T) {
 		message.Text = "random 4 5 6"
 
 		// seed was chosen to pick the "3" every time
-		slackClient.On("SendMessage", message, "4").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "4")
 
 		actual := command.Run(message)
 		assert.True(t, actual)

@@ -18,7 +18,7 @@ import (
 
 // NewCommands defines custom commands by defining a trigger (regexp) and a list of commands which should be executed
 // it also supports placeholders by {{ .param }} using the regexp group name
-func NewCommands(base bot.BaseCommand, macros []config.Command) bot.Command {
+func NewCommands(base bot.BaseCommand, macros []config.Command, templateFunctions []config.TemplateFunction) bot.Command {
 	commands := make([]command, len(macros))
 
 	for i, macro := range macros {
@@ -31,6 +31,7 @@ func NewCommands(base bot.BaseCommand, macros []config.Command) bot.Command {
 	return &definedCommand{
 		base,
 		commands,
+		templateFunctions,
 	}
 }
 
@@ -39,6 +40,8 @@ type definedCommand struct {
 
 	// precompiled regexp and list of commands
 	commands []command
+
+	templateFunctions []config.TemplateFunction
 }
 
 type command struct {

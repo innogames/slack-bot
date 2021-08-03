@@ -3,6 +3,7 @@ package util
 import (
 	"bytes"
 	"text/template"
+	"time"
 )
 
 // TemplateFunctionProvider can be provided by Commands to register template functions to the internal parser.
@@ -14,6 +15,7 @@ type TemplateFunctionProvider interface {
 // Parameters is a wrapper for a map[string]string which is the default set of passing template variables
 type Parameters map[string]string
 
+// some more template functions which are available in all templates
 var functions = template.FuncMap{
 	// creates a slice out of argument
 	"makeSlice": func(args ...interface{}) []interface{} {
@@ -21,6 +23,9 @@ var functions = template.FuncMap{
 	},
 	"slice": func(str string, start int, end int) string {
 		return str[start:end]
+	},
+	"now": func() time.Time {
+		return time.Now()
 	},
 }
 
