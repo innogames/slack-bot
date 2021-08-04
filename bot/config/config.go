@@ -82,9 +82,9 @@ type Command struct {
 }
 
 type TemplateFunction struct {
-	Name      string
-	Arguments []string
-	Template  string
+	Name      string   `mapstructure:"name"`
+	Arguments []string `mapstructure:"arguments"`
+	Template  string   `mapstructure:"template"`
 }
 
 // Bitbucket credentials/options. Either add Username+Password OR a APIKey
