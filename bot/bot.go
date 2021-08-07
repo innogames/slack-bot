@@ -8,6 +8,7 @@ import (
 
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/plugins"
 	"github.com/innogames/slack-bot/v2/bot/stats"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
@@ -79,7 +80,7 @@ func (b *Bot) Init() (err error) {
 		go b.slackClient.RTM.ManageConnection()
 	}
 
-	loadPlugins(b.config.Plugins)
+	plugins.LoadPlugins(b.config.Plugins)
 
 	log.Infof("Loaded %d allowed users and %d channels", len(b.allowedUsers), len(client.Channels))
 	log.Infof("Bot user: %s with ID %s on workspace %s", b.auth.User, b.auth.UserID, b.auth.URL)
