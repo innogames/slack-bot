@@ -235,6 +235,7 @@ func (b *Bot) handleMessage(message msg.Message, fromUserContext bool) {
 		return
 	}
 
+	// actual command execution!
 	if !b.commands.Run(message) {
 		logger.Infof("Unknown command: %s", message.Text)
 		stats.IncreaseOne(stats.UnknownCommands)
@@ -246,8 +247,17 @@ func (b *Bot) handleMessage(message msg.Message, fromUserContext bool) {
 		message.Done.Done()
 	}
 
+	logFields := log.Fields{
+		// needed time of the actual command...until here
+		"duration": util.FormatDuration(time.Since(start)),
+	}
+
+	// log the whole time from: client -> slack server -> bot server -> handle message
+	if !message.IsInternalMessage() {
+		logFields["durationWithLatency"] = util.FormatDuration(time.Since(message.GetTime()))
+	}
+
 	logger.
-		WithField("duration", util.FormatDuration(time.Since(start))).
-		WithField("durationWithLatency", util.FormatDuration(time.Since(message.GetTime()))).
+		WithFields(logFields).
 		Infof("handled message: %s", message.Text)
 }
