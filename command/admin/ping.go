@@ -2,11 +2,12 @@ package admin
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/util"
-	"time"
 )
 
 // newPingCommand just prints a PING with the needed time from client->slack->bot server

@@ -68,8 +68,11 @@ func (msg MessageRef) GetTime() time.Time {
 		return time.Now()
 	}
 
-	timestamp, _ := strconv.ParseInt(msg.GetTimestamp()[0:10], 10, 64)
-	micro, _ := strconv.ParseInt(msg.GetTimestamp()[11:], 10, 64)
+	// looks like 1628614631.250000
+	parts := strings.SplitN(msg.GetTimestamp(), ".", 2)
+
+	timestamp, _ := strconv.ParseInt(parts[0], 10, 64)
+	micro, _ := strconv.ParseInt(parts[1], 10, 64)
 
 	return time.Unix(timestamp, micro*1000)
 }

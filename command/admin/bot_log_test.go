@@ -40,7 +40,7 @@ func TestBotLog(t *testing.T) {
 		message.Text = "bot log"
 		message.User = "UADMIN"
 
-		slackClient.On("SendMessage", message, "No logs so far").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "No logs so far")
 
 		actual := command.Run(message)
 		assert.True(t, actual)
