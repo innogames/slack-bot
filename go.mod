@@ -4,9 +4,8 @@ go 1.15
 
 require (
 	github.com/alicebob/miniredis/v2 v2.15.1
-	github.com/andygrunwald/go-jira v1.13.0
+	github.com/andygrunwald/go-jira v1.14.0
 	github.com/bndr/gojenkins v1.1.0
-	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gfleury/go-bitbucket-v1 v0.0.0-20210707202713-7d616f7c18ac
 	github.com/go-redis/redis/v7 v7.4.1
@@ -35,7 +34,6 @@ require (
 	github.com/stretchr/objx v0.3.0 // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/texttheater/golang-levenshtein/levenshtein v0.0.0-20200805054039-cae8b0eaed6c
-	github.com/trivago/tgo v1.0.7 // indirect
 	github.com/xanzy/go-gitlab v0.50.2
 	golang.org/x/net v0.0.0-20210716203947-853a461950ff // indirect
 	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
