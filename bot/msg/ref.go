@@ -67,9 +67,11 @@ func (msg MessageRef) GetTime() time.Time {
 	if msg.GetTimestamp() == "" {
 		return time.Now()
 	}
-	timestamp, _ := strconv.ParseInt(msg.GetTimestamp()[0:10], 10, 64)
 
-	return time.Unix(timestamp, 0)
+	timestamp, _ := strconv.ParseInt(msg.GetTimestamp()[0:10], 10, 64)
+	micro, _ := strconv.ParseInt(msg.GetTimestamp()[11:], 10, 64)
+
+	return time.Unix(timestamp, micro*1000)
 }
 
 // IsInternalMessage is set when the bot is generating internal messages which are handles (like from "cron" command)
