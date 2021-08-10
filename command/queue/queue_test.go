@@ -76,7 +76,7 @@ func TestQueue(t *testing.T) {
 
 	t.Run("Test queue command", func(t *testing.T) {
 		now := time.Now()
-		message.Timestamp = strconv.Itoa(int(now.Unix()))
+		message.Timestamp = strconv.Itoa(int(now.Unix())) + ".000000"
 		message.Text = "queue reply test"
 		runningCommand := AddRunningCommand(message, "test")
 		msgRef := slack.NewRefToMessage(message.Channel, message.Timestamp)

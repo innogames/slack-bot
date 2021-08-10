@@ -12,6 +12,7 @@ func GetCommands(base bot.BaseCommand, cfg *config.Config) bot.Commands {
 	commands.AddCommand(
 		newStatsCommand(base, cfg),
 		newBotLogCommand(base, cfg),
+		newPingCommand(base),
 	)
 
 	return commands

@@ -221,6 +221,7 @@ func (b *Bot) handleMessage(message msg.Message, fromUserContext bool) {
 
 	stats.IncreaseOne(stats.TotalCommands)
 
+	// check if user is allowed to interact with the bot
 	existing := b.allowedUsers.Contains(message.User)
 	if !existing && fromUserContext && b.config.Slack.TestEndpointURL == "" {
 		logger.Errorf("user %s is not allowed to execute message (missing in 'allowed_users' section): %s", message.User, message.Text)

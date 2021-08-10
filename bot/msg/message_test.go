@@ -34,14 +34,26 @@ func TestMessage(t *testing.T) {
 
 	t.Run("Get message time", func(t *testing.T) {
 		msg := Message{}
-		msg.Timestamp = "1355517523.000005"
+		msg.Timestamp = "1355517523.000000"
 
 		time.Local, _ = time.LoadLocation("Europe/Berlin")
 
 		actual := msg.GetTime()
 
 		expected := "2012-12-14T21:38:43+01:00"
-		assert.Equal(t, expected, actual.Format(time.RFC3339))
+		assert.Equal(t, expected, actual.Format(time.RFC3339Nano))
+	})
+
+	t.Run("Get message time with micro", func(t *testing.T) {
+		msg := Message{}
+		msg.Timestamp = "1355517523.000005"
+
+		time.Local, _ = time.LoadLocation("Europe/Berlin")
+
+		actual := msg.GetTime()
+
+		expected := "2012-12-14T21:38:43.000005+01:00"
+		assert.Equal(t, expected, actual.Format(time.RFC3339Nano))
 	})
 
 	t.Run("Get Key", func(t *testing.T) {
