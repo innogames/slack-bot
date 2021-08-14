@@ -60,7 +60,7 @@ func Load(configFile string) (Config, error) {
 
 func loadFile(v *viper.Viper, configFile string) error {
 	// read a single yaml file
-	file, err := os.Open(configFile)
+	file, err := os.Open(configFile) // #nosec
 	if err != nil {
 		return err
 	}

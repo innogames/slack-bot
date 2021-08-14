@@ -60,7 +60,7 @@ func (c *botLogCommand) GetHelp() []bot.Help {
 // get the last X characters from the given file
 func (c *botLogCommand) readFile(filename string, chars int64) []byte {
 	buf := make([]byte, chars)
-	file, err := os.Open(filename)
+	file, err := os.Open(filename) // #nosec
 	if err != nil {
 		return buf
 	}

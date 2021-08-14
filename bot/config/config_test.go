@@ -13,7 +13,6 @@ func TestLoadExampleConfig(t *testing.T) {
 	cfg, err := Load("../../config.example.yaml")
 	assert.Nil(t, err)
 	assert.NotNil(t, cfg.Slack)
-	assert.NotEmpty(t, cfg.Commands)
 
 	assert.Equal(t, false, cfg.Jenkins.IsEnabled())
 	assert.Equal(t, false, cfg.Jira.IsEnabled())

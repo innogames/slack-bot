@@ -178,6 +178,22 @@ If you just paste a link to a Github/Gitlab/Bitbucket/Stash Pull request, the bo
 - When the reviewer approved the ticket, a checkmark is added
 - After merging the pull request, it will add a "merge" reaction
 
+You're also able to set custom "approved" reactions. E.g to see directly who or which component/department approved a pull request you can use the name of the reaction or the Unicode character directory
+<details>
+    <summary>Expand example!</summary>
+
+```yaml
+pullrequest:
+  reactions:
+    merged: custom_merge_arrow
+    review: 👀
+  custom_approve_reaction:
+    nerdydev: "approved_backend"
+    iamamobiledev: "approved_mobile"
+    iamamobiledev2: "approved_mobile"
+```
+</details>
+
 ![Screenshot](./docs/pull-request.png)
 
 **Extra Features:**

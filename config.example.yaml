@@ -16,14 +16,17 @@ admin_users:
 # define a custom set of own commands: They match a regular expression any can call a set of other internal/custom commands
 # here just some examples:
 commands:
-  - name: Deploy
-    trigger: "deploy (?P<branch>[\\w\\d\\-_\\.\\/]+)"
-    commands:
-      - trigger job BuildClients {{.branch}}
-      - trigger job Deploy {{.branch}}
-      - reply I deployed {{.branch}}
-      - add link "Open Admintool" https://project.example.com/admintool/
 
+# Jenkins example: "deploy feature-1234" will build clients, deploy it and prints a link after success.
+#  - name: Deploy
+#    trigger: "deploy (?P<branch>[\\w\\d\\-_\\.\\/]+)"
+#    commands:
+#      - trigger job BuildClients {{.branch}}
+#      - trigger job Deploy {{.branch}}
+#      - reply I deployed {{.branch}}
+#      - add link "Open Admintool" https://project.example.com/admintool/
+
+# Jira example: "open backend bugs" will print a list of all matching Jira issues
 #  - name: List open Jira bugs
 #    trigger: "open (?P<project>(backend|mobile|frontend)) bugs"
 #    description: "Lists open Jira bugs from a given component"
@@ -47,11 +50,6 @@ commands:
 #        - name: BRANCH
 #          default: master
 #          type: branch
-#    BuildFrontendClient:
-#      parameters:
-#        - name: BRANCH
-#          default: master
-#          type: branch
 
 # optional Jira integration
 jira:
@@ -69,15 +67,14 @@ github:
 #  host: https://gitlab.example.de
 #  accesstoken: # needed for the API
 
-
 #crons:
-# Cron example: 3 times a day check in the given channel if there are more than 10 background jobs, which might be watched pull requests
+# Cron example: 3 times a day check in the given channel if there are more than 5 background jobs, which might be watched pull requests
 # - schedule: "CRON_TZ=Europe/Berlin 0 9,13,16 * * * MON-FRI"
-#   channel: "#backend-pr"
+#   channel: "#pull-requests"
 #   commands:
 #    - |
 #      {{$prs := countBackgroundJobsInChannel "C12121"}}
-#      {{$allowedPrs := 10}}
+#      {{$allowedPrs := 5}}
 #      {{if gt $prs $allowedPrs }}
 #        reply <@devs> There are *{{$prs}}* pull requests open...please take a look! :scream:
 #      {{end}}
@@ -86,17 +83,6 @@ github:
 #open_weathermap:
 #  apikey: iamtheapifromopenweathermap
 #  location: Hamburg
-
-# able to set a custom "approved" reactions. E.g to see directly who or which component/department approved a pullrequest
-# you can use the name of the reaction or the Unicode character directoy
-#pullrequest:
-#  reactions:
-#    merged: custom_merge_arrow
-#    review: 👀
-#  custom_approve_reaction:
-#    nerdydev: "approved_backend"
-#    iamamobiledev: "approved_mobile"
-#    iamamobiledev2: "approved_mobile"
 
 logger:
   level: info
