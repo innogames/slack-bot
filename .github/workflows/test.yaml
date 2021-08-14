@@ -56,6 +56,15 @@ jobs:
         with:
           version: v1.41.1
           only-new-issues: true
+  gosec:
+    name: GoSec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Gosec Security Scanner
+        uses: securego/gosec@master
+        with:
+          args: -exclude=G404,G307,G104 ./...
   docker:
     name: Build Docker image
     runs-on: ubuntu-latest
