@@ -96,7 +96,7 @@ settings:
 5. `docker-compose up`
 
 ## Advanced: (when planning working on the bot core)
-1. install go (at least 1.15)
+1. install go (at least 1.16)
 2. clone/fork this repo
 3. create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
 4. run `go run cmd/bot/main.go` or `make run` to run the go application
