@@ -1,18 +1,18 @@
 package bot
 
 import (
+	"github.com/innogames/slack-bot/v2/client"
 	"plugin"
 	"text/template"
 
-	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	log "github.com/sirupsen/logrus"
 )
 
-func LoadPlugins(cfg *config.Config) Commands {
+func LoadPlugins(b *Bot) Commands {
 	commands := Commands{}
 
-	for _, pluginPath := range cfg.Plugins {
+	for _, pluginPath := range b.config.Plugins {
 		log.Infof("Load plugin %s...", pluginPath)
 
 		plug, err := plugin.Open(pluginPath)
@@ -28,7 +28,7 @@ func LoadPlugins(cfg *config.Config) Commands {
 
 		commandFunction, err := plug.Lookup("GetCommands")
 		if err == nil {
-			commands.Merge(loadCommands(commandFunction, cfg))
+			commands.Merge(loadCommands(commandFunction, b))
 		}
 	}
 
@@ -47,13 +47,12 @@ func loadTemplateFunctions(templateFunctions plugin.Symbol) {
 	log.Infof("Loaded %d template functions", len(functions))
 }
 
-func loadCommands(commandFunctionsLookup plugin.Symbol, cfg *config.Config) Commands {
-	commandFunctions, ok := commandFunctionsLookup.(func(*config.Config) Commands)
+func loadCommands(commandFunctionsLookup plugin.Symbol, b *Bot) Commands {
+	commandFunctions, ok := commandFunctionsLookup.(func(*Bot, client.SlackClient) Commands)
 	if !ok {
-		log.Error("Can't convert GetCommands to 'func(*config.Config) bot.Commands'")
+		log.Error("Can't convert GetCommands to 'func(*Bot, client.SlackClient) bot.Commands'")
 		return Commands{}
 	}
 
-	return commandFunctions(cfg)
-
+	return commandFunctions(b, b.slackClient)
 }
