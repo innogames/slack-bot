@@ -6,7 +6,7 @@ all: clean dep test build/slack-bot
 FLAGS = -trimpath -ldflags="-s -w -X github.com/innogames/slack-bot/v2/bot/version.Version=$(shell git describe --tags)"
 
 build/slack-bot: dep
-	mkdir -p build/
+	@mkdir -p build/
 	go build $(FLAGS) -o build/slack-bot cmd/bot/main.go
 
 run: dep
@@ -35,10 +35,10 @@ test-bench:
 	go test -bench . ./... -benchmem
 
 test-coverage: dep
-	mkdir -p build
+	@mkdir -p build
 	go test ./... -coverpkg=./... -cover -coverprofile=./build/cover.out -covermode=atomic
 	go tool cover -html=./build/cover.out -o ./build/cover.html
-	echo see ./build/cover.html
+	@echo see ./build/cover.html
 
 # build mocks for testable interfaces into ./mocks/ directory
 mocks: dep

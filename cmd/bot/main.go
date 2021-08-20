@@ -6,15 +6,14 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/storage"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
-	"github.com/innogames/slack-bot/v2/client/vcs"
 	"github.com/innogames/slack-bot/v2/command"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -49,15 +48,7 @@ func main() {
 	slackClient, err := client.GetSlackClient(cfg.Slack)
 	checkError(err)
 
-	ctx := util.NewServerContext()
-	go vcs.InitBranchWatcher(&cfg, ctx) // todo move into some command to init branch watcher
-
-	// set global default timezone
-	if cfg.Timezone != "" {
-		time.Local, err = time.LoadLocation(cfg.Timezone)
-		checkError(err)
-	}
-
+	// get the list of all default commands
 	commands := command.GetCommands(slackClient, cfg)
 
 	b := bot.NewBot(cfg, slackClient, commands)
@@ -65,7 +56,8 @@ func main() {
 	checkError(err)
 
 	// start main loop!
-	go b.ListenForMessages(ctx)
+	ctx := util.NewServerContext()
+	go b.Run(ctx)
 
 	stopChan := make(chan os.Signal, 2)
 

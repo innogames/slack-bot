@@ -98,7 +98,7 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
 	}
 
 	// execute the command which is stored for this interaction
-	go b.handleMessage(ref.WithText(command), true)
+	go b.processMessage(ref.WithText(command), true)
 
 	stats.IncreaseOne(stats.Interactions)
 

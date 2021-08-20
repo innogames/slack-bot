@@ -2,6 +2,7 @@ package bot
 
 import (
 	"testing"
+	"time"
 
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
@@ -33,7 +34,7 @@ func TestBot(t *testing.T) {
 		message := msg.Message{}
 		message.Text = ""
 		message.Channel = "C123"
-		bot.handleMessage(message, true)
+		bot.processMessage(message, true)
 	})
 
 	t.Run("handle unauthenticated message", func(t *testing.T) {
@@ -42,7 +43,7 @@ func TestBot(t *testing.T) {
 		message.Text = "test"
 		message.User = "U888"
 		message.Channel = "C123"
-		bot.handleMessage(message, true)
+		bot.processMessage(message, true)
 	})
 
 	t.Run("handle valid message", func(t *testing.T) {
@@ -51,7 +52,7 @@ func TestBot(t *testing.T) {
 		message.Text = "test"
 		message.User = "U123"
 		message.Channel = "C123"
-		bot.handleMessage(message, true)
+		bot.processMessage(message, true)
 	})
 
 	t.Run("Init with invalid token", func(t *testing.T) {
@@ -59,6 +60,26 @@ func TestBot(t *testing.T) {
 
 		err := bot.Init()
 		assert.EqualError(t, err, "auth error: invalid_auth")
+	})
+
+	t.Run("Init with invalid timezone", func(t *testing.T) {
+		bot.config.Timezone = "Europe/Nope"
+
+		err := bot.Init()
+		assert.EqualError(t, err, "unknown time zone Europe/Nope")
+	})
+
+	t.Run("Init with custom timezone", func(t *testing.T) {
+		bot.config.Timezone = "Europe/Berlin"
+
+		_ = bot.Init()
+		assert.Equal(t, "Europe/Berlin", time.Local.String())
+	})
+
+	t.Run("Load channels without token", func(t *testing.T) {
+		channels, err := bot.loadChannels()
+		assert.Len(t, channels, 0)
+		assert.Contains(t, err.Error(), "invalid_auth")
 	})
 }
 
