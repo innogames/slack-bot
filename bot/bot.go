@@ -123,15 +123,6 @@ func (b *Bot) loadChannels() (map[string]string, error) {
 	return channels, nil
 }
 
-// disconnectRTM will do a clean shutdown and kills all connections
-func (b *Bot) disconnectRTM() error {
-	if b.slackClient.RTM != nil {
-		return b.slackClient.RTM.Disconnect()
-	}
-
-	return nil
-}
-
 // load the public channels and list of all users from current space
 func (b *Bot) loadSlackData() error {
 	// whitelist users by group

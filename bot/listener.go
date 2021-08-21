@@ -1,6 +1,10 @@
 package bot
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/innogames/slack-bot/v2/client/vcs"
@@ -12,9 +16,6 @@ import (
 
 // Run is blocking method to handle new incoming events...from different sources
 func (b *Bot) Run(ctx *util.ServerContext) {
-	ctx.RegisterChild()
-	defer ctx.ChildDone()
-
 	// listen for old/deprecated RTM connection
 	// https://api.slack.com/rtm
 	var rtmChan chan slack.RTMEvent
@@ -32,6 +33,10 @@ func (b *Bot) Run(ctx *util.ServerContext) {
 
 	// fetch all branches regularly
 	go vcs.InitBranchWatcher(&b.config, ctx)
+
+	// graceful shutdown via sigterm/sigint
+	stopChan := make(chan os.Signal, 2)
+	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 
 	for {
 		select {
@@ -53,10 +58,16 @@ func (b *Bot) Run(ctx *util.ServerContext) {
 			// -> will post in same channel as the user posted the original command
 			message.InternalMessage = true
 			go b.processMessage(message, false)
-		case <-ctx.Done():
-			if err := b.disconnectRTM(); err != nil {
-				log.Error(err)
+		case <-stopChan:
+			// wait until other services are properly shut down
+			ctx.StopTheWorld()
+
+			if b.slackClient.RTM != nil {
+				if err := b.slackClient.RTM.Disconnect(); err != nil {
+					log.Error(err)
+				}
 			}
+
 			return
 		}
 	}

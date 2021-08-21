@@ -20,7 +20,7 @@ clean:
 
 # download go dependencies into ./vendor/
 dep:
-	go mod vendor
+	@go mod vendor
 
 lint:
 	golangci-lint run
