@@ -88,14 +88,20 @@ settings:
 </details>
 
 ## 2nd) Run the bot 
-### Quick steps: just use the bot via Docker
+
+### Option 1: run via go
+1. install go
+2. create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
+3. `go run github.com/innogames/slack-bot/v2/cmd/bot`
+
+### Option 2: via Docker
 1. [install Docker incl. docker-compose](https://docs.docker.com/get-docker/)
 2. clone this repo or at least fetch the docker-compose.yaml
 3. create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
 4. add your Slack user id or user name in the "allowed_users:" section of the config.yaml
 5. `docker-compose up`
 
-## Advanced: (when planning working on the bot core)
+### Option 3: Advanced:when planning working on the bot core
 1. install go (at least 1.16)
 2. clone/fork this repo
 3. create a config.yaml (at least a slack token is required) or take a look in config-example.yaml

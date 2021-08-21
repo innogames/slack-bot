@@ -1,0 +1,9 @@
+commands:
+  - name: bot feedback
+    description: Send issues/suggestions etc. to the bot maintainer
+    examples:
+      - "bot feedback: I miss a command to order a pizza online!"
+    trigger: "bot feedback:? (?P<feedback>.*)"
+    commands:
+      - "reply thanks for your feedback :thumbsup:"
+      - "send message to <@U12345> We got feedback: {{.feedback}}"

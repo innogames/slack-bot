@@ -1,0 +1,7 @@
+crons:
+  - schedule: "CRON_TZ=Europe/Berlin 0 8 * * MON-FRI"
+    commands:
+      - "reply :loudspeaker: List of open PRs! please take a look and get it reviewed/demoed/merged"
+      - list queue in channel
+    channel: "#pull-requests"
+

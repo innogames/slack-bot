@@ -1,0 +1,6 @@
+slack:
+  socket_token: xapp-1-AXXX
+  token: xoxb-XXXX
+
+allowed_users:
+  - XXXX
