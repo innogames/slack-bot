@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"syscall"
 	"testing"
 	"time"
 
@@ -40,7 +41,7 @@ func TestAll(t *testing.T) {
 
 	time.Sleep(time.Second * 2)
 
-	ctx.StopTheWorld()
+	syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 
 	assert.Equal(t, expectedOutput.String(), output.String())
 }

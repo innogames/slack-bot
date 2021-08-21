@@ -35,9 +35,6 @@ func main() {
 }
 
 func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg config.Config) {
-	ctx.RegisterChild()
-	defer ctx.ChildDone()
-
 	// set an empty storage -> just store data in Ram
 	_ = storage.InitStorage("")
 
@@ -46,31 +43,32 @@ func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg co
 	defer fakeSlack.Stop()
 
 	realBot := tester.StartBot(cfg)
-	go realBot.Run(ctx)
 
 	color.SetOutput(output)
 	color.Red.Print("Type in your command:\n")
 	reader := bufio.NewReader(input)
 
 	// loop to send stdin input to slack bot
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-			text, err := reader.ReadString('\n')
-			if err != nil {
-				continue
+	go func() {
+		for {
+			select {
+			default:
+				text, err := reader.ReadString('\n')
+				if err != nil {
+					continue
+				}
+
+				color.Blue.Printf(">>>> %s\n", strings.TrimSuffix(text, "\n"))
+
+				message := msg.Message{}
+				message.Text = text
+				message.Channel = tester.TestChannel
+				message.User = "cli"
+
+				client.HandleMessageWithDoneHandler(message).Wait()
 			}
-
-			color.Blue.Printf(">>>> %s\n", strings.TrimSuffix(text, "\n"))
-
-			message := msg.Message{}
-			message.Text = text
-			message.Channel = tester.TestChannel
-			message.User = "cli"
-
-			client.HandleMessageWithDoneHandler(message).Wait()
 		}
-	}
+	}()
+
+	realBot.Run(ctx)
 }

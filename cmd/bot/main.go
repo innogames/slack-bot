@@ -4,8 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -57,17 +55,7 @@ func main() {
 
 	// start main loop!
 	ctx := util.NewServerContext()
-	go b.Run(ctx)
-
-	stopChan := make(chan os.Signal, 2)
-
-	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
-
-	// listen for messages until we receive sigterm/sigint
-	<-stopChan
-
-	ctx.StopTheWorld()
-	log.Infof("Shutdown done, bye bye!")
+	b.Run(ctx)
 }
 
 func checkError(err error) {
