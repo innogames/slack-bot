@@ -51,22 +51,19 @@ func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg co
 	// loop to send stdin input to slack bot
 	go func() {
 		for {
-			select {
-			default:
-				text, err := reader.ReadString('\n')
-				if err != nil {
-					continue
-				}
-
-				color.Blue.Printf(">>>> %s\n", strings.TrimSuffix(text, "\n"))
-
-				message := msg.Message{}
-				message.Text = text
-				message.Channel = tester.TestChannel
-				message.User = "cli"
-
-				client.HandleMessageWithDoneHandler(message).Wait()
+			text, err := reader.ReadString('\n')
+			if err != nil {
+				continue
 			}
+
+			color.Blue.Printf(">>>> %s\n", strings.TrimSuffix(text, "\n"))
+
+			message := msg.Message{}
+			message.Text = text
+			message.Channel = tester.TestChannel
+			message.User = "cli"
+
+			client.HandleMessageWithDoneHandler(message).Wait()
 		}
 	}()
 

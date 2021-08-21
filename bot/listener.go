@@ -62,8 +62,10 @@ func (b *Bot) Run(ctx *util.ServerContext) {
 			// wait until other services are properly shut down
 			ctx.StopTheWorld()
 
-			if err := b.disconnectRTM(); err != nil {
-				log.Error(err)
+			if b.slackClient.RTM != nil {
+				if err := b.slackClient.RTM.Disconnect(); err != nil {
+					log.Error(err)
+				}
 			}
 
 			return
