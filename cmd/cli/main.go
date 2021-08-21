@@ -46,7 +46,7 @@ func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg co
 	defer fakeSlack.Stop()
 
 	realBot := tester.StartBot(cfg)
-	go realBot.ListenForMessages(ctx)
+	go realBot.Run(ctx)
 
 	color.SetOutput(output)
 	color.Red.Print("Type in your command:\n")

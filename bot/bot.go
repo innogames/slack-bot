@@ -52,6 +52,14 @@ type Bot struct {
 
 // Init establishes the slack connection and load allowed users
 func (b *Bot) Init() (err error) {
+	// set global default timezone
+	if b.config.Timezone != "" {
+		time.Local, err = time.LoadLocation(b.config.Timezone)
+		if err != nil {
+			return err
+		}
+	}
+
 	log.Info("Connecting to slack...")
 	b.auth, err = b.slackClient.AuthTest()
 	if err != nil {
@@ -69,6 +77,7 @@ func (b *Bot) Init() (err error) {
 	}
 
 	if b.slackClient.RTM != nil {
+		log.Warn("You're using the deprecated Slack RTM API...we prefer using the Socket Mode API")
 		go b.slackClient.RTM.ManageConnection()
 	}
 
@@ -114,8 +123,8 @@ func (b *Bot) loadChannels() (map[string]string, error) {
 	return channels, nil
 }
 
-// DisconnectRTM will do a clean shutdown and kills all connections
-func (b *Bot) DisconnectRTM() error {
+// disconnectRTM will do a clean shutdown and kills all connections
+func (b *Bot) disconnectRTM() error {
 	if b.slackClient.RTM != nil {
 		return b.slackClient.RTM.Disconnect()
 	}
@@ -160,11 +169,11 @@ func (b *Bot) loadSlackData() error {
 // - find the matching command and execute it
 func (b *Bot) HandleMessage(message *slack.MessageEvent) {
 	if b.canHandleMessage(message) {
-		go b.handleMessage(msg.FromSlackEvent(message), true)
+		go b.processMessage(msg.FromSlackEvent(message), true)
 	}
 }
 
-// check if a user message was targeted to @bot or is a direct message to the bot
+// check if a user message was targeted to @bot or is a direct message to the bot. We also block traffic from other bots.
 func (b *Bot) canHandleMessage(event *slack.MessageEvent) bool {
 	// exclude all Bot traffic
 	if event.User == "" || event.User == b.auth.UserID || event.SubType == "bot_message" {
@@ -184,7 +193,7 @@ func (b *Bot) canHandleMessage(event *slack.MessageEvent) bool {
 	return false
 }
 
-// remove @Bot prefix of message and cleans the message
+// remove @Bot prefix of message and cleans unwanted characters from the message
 func (b *Bot) cleanMessage(text string, fromUserContext bool) string {
 	text = strings.ReplaceAll(text, "<@"+b.auth.UserID+">", "")
 	text = cleanMessage.Replace(text)
@@ -200,8 +209,8 @@ func (b *Bot) cleanMessage(text string, fromUserContext bool) string {
 	return text
 }
 
-// handleMessage process the incoming message and respond appropriately
-func (b *Bot) handleMessage(message msg.Message, fromUserContext bool) {
+// processMessage process the incoming message and respond appropriately
+func (b *Bot) processMessage(message msg.Message, fromUserContext bool) {
 	message.Text = b.cleanMessage(message.Text, fromUserContext)
 	if message.Text == "" {
 		return

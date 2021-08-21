@@ -3,14 +3,15 @@ package bot
 import (
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
+	"github.com/innogames/slack-bot/v2/client/vcs"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"github.com/slack-go/slack/socketmode"
 )
 
-// ListenForMessages is blocking method to handle new incoming events...from different sources
-func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
+// Run is blocking method to handle new incoming events...from different sources
+func (b *Bot) Run(ctx *util.ServerContext) {
 	ctx.RegisterChild()
 	defer ctx.ChildDone()
 
@@ -28,6 +29,9 @@ func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
 		go b.slackClient.Socket.Run()
 		socketChan = b.slackClient.Socket.Events
 	}
+
+	// fetch all branches regularly
+	go vcs.InitBranchWatcher(&b.config, ctx)
 
 	for {
 		select {
@@ -48,9 +52,9 @@ func (b *Bot) ListenForMessages(ctx *util.ServerContext) {
 			// e.g. triggered by "delay" or "macro" command. They are still executed in original event context
 			// -> will post in same channel as the user posted the original command
 			message.InternalMessage = true
-			go b.handleMessage(message, false)
+			go b.processMessage(message, false)
 		case <-ctx.Done():
-			if err := b.DisconnectRTM(); err != nil {
+			if err := b.disconnectRTM(); err != nil {
 				log.Error(err)
 			}
 			return
