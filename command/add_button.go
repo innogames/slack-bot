@@ -41,6 +41,7 @@ func (c *addButtonCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "add button",
+			Category:    helperCategory,
 			Description: "adds a button to the message which then performs any command",
 			Examples: []string{
 				"add button \"Start job\" \"trigger job XYZ\"",

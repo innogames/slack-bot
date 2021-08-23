@@ -38,6 +38,7 @@ func (c *reactionCommand) GetHelp() []bot.Help {
 		{
 			Command:     "add reaction",
 			Description: "add a reaction on a message",
+			Category:    helperCategory,
 			Examples: []string{
 				"add reaction :white_check_mark:",
 			},
@@ -45,6 +46,7 @@ func (c *reactionCommand) GetHelp() []bot.Help {
 		{
 			Command:     "remove reaction",
 			Description: "remove a reaction on a message",
+			Category:    helperCategory,
 			Examples: []string{
 				"remove reaction :white_check_mark:",
 			},

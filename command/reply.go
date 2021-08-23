@@ -48,6 +48,7 @@ func (c *replyCommand) GetHelp() []bot.Help {
 		{
 			Command:     "reply",
 			Description: "just reply the given message",
+			Category:    helperCategory,
 			Examples: []string{
 				"reply Hello, how are you?",
 			},
@@ -55,6 +56,7 @@ func (c *replyCommand) GetHelp() []bot.Help {
 		{
 			Command:     "comment",
 			Description: "comment the message in a new thread on this message",
+			Category:    helperCategory,
 			Examples: []string{
 				"comment Hello, how are you?",
 			},

@@ -16,6 +16,11 @@ import (
 	"github.com/innogames/slack-bot/v2/command/weather"
 )
 
+var helperCategory = bot.Category{
+	Name:        "Helper",
+	Description: "usable e.g. in 'commands' or 'crons'",
+}
+
 // GetCommands returns the list of default command which are available
 func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Commands {
 	base := bot.BaseCommand{SlackClient: slackClient}

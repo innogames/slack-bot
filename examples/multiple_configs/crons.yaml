@@ -5,3 +5,13 @@ crons:
       - list queue in channel
     channel: "#pull-requests"
 
+  # Cron example: 3 times a day check in the given channel if there are more than 5 background jobs, which might be watched pull requests
+  - schedule: "CRON_TZ=Europe/Berlin 0 9,13,16 * * * MON-FRI"
+    channel: "#pull-requests"
+    commands:
+     - |
+       {{$prs := countBackgroundJobsInChannel "C12121"}}
+       {{$allowedPrs := 5}}
+       {{if gt $prs $allowedPrs }}
+         reply <@devs> There are *{{$prs}}* pull requests open...please take a look! :scream:
+       {{end}}

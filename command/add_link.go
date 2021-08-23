@@ -20,7 +20,7 @@ type addLinkCommand struct {
 }
 
 func (c *addLinkCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher("add link (?P<name>.*) <(?P<link>https:.*)>", c.addLink)
+	return matcher.NewRegexpMatcher(`add link (?P<name>.*) <?(?P<link>https:.*)>?`, c.addLink)
 }
 
 func (c *addLinkCommand) addLink(match matcher.Result, message msg.Message) {
@@ -31,7 +31,7 @@ func (c *addLinkCommand) addLink(match matcher.Result, message msg.Message) {
 		Actions: []slack.AttachmentAction{
 			client.GetSlackLink(
 				strings.Trim(name, "'\""),
-				link,
+				strings.Trim(link, "<>"),
 			),
 		},
 	}
@@ -44,9 +44,10 @@ func (c *addLinkCommand) GetHelp() []bot.Help {
 		{
 			Command:     "add link",
 			Description: "adds a link button to the message",
+			Category:    helperCategory,
 			Examples: []string{
 				"add link Google https://google.com",
-				"add link Review https://stash.example.com/pr/12/review",
+				"add link 'Review this' https://stash.example.com/pr/12/review",
 			},
 		},
 	}

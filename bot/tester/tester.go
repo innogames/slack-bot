@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/innogames/slack-bot/v2/bot/msg"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/innogames/slack-bot/v2/bot"
@@ -22,9 +24,11 @@ import (
 
 // TestChannel is just a test channel name which is used for testing
 const (
-	TestChannel = "#dev"
+	TestChannel = "dev"
 	botID       = "W12345"
 )
+
+var FakeServerUrl string
 
 // StartBot will start this bot against the fake slack instance
 func StartBot(cfg config.Config) *bot.Bot {
@@ -70,13 +74,15 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 			// extract text from TextBlock
 			if text == "" {
 				blockJSON := query.Get("blocks")
-				var blocks []slack.SectionBlock
+				var blocks []map[string]interface{}
 				_ = json.Unmarshal([]byte(blockJSON), &blocks)
 
-				text = blocks[0].Text.Text
+				for _, block := range blocks {
+					text += formatBlock(block) + "\n"
+				}
 			}
 
-			_, _ = fmt.Fprintf(output, formatSlackMessage(text)+"\n")
+			_, _ = fmt.Fprint(output, formatSlackMessage(text)+"\n")
 
 			response := slack.Message{}
 			response.Text = text
@@ -84,6 +90,7 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 			_, _ = w.Write(bytes)
 		})
 		c.Handle("/reactions.add", func(w http.ResponseWriter, r *http.Request) {
+			// post the given reaction as unicode character in the terminal
 			payload, _ := ioutil.ReadAll(r.Body)
 			query, _ := url.ParseQuery(string(payload))
 			emoji := query.Get("name")
@@ -93,6 +100,14 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 			response.Ok = true
 			bytes, _ := json.Marshal(response)
 			_, _ = w.Write(bytes)
+		})
+		c.Handle("/command", func(writer http.ResponseWriter, request *http.Request) {
+			// fake the buttons: pass the command in a hyper link
+			commandText := request.URL.Query().Get("command")
+
+			fmt.Fprintln(output, formatSlackMessage(fmt.Sprintf("Clicked link with message: *%s*", commandText)))
+			writer.Write([]byte(fmt.Sprintf("Executed command '%s'. You can close the browser and go back to the terminal.", commandText)))
+			HandleMessage(commandText)
 		})
 	}
 
@@ -106,8 +121,62 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 	cfg.AllowedUsers = []string{
 		"W012A3CDE",
 	}
+	FakeServerUrl = fakeSlack.GetAPIURL()
 
 	return fakeSlack
+}
+
+func HandleMessage(text string) {
+	message := msg.Message{}
+	message.Text = text
+	message.Channel = TestChannel
+	message.User = "cli"
+
+	client.HandleMessageWithDoneHandler(message).Wait()
+}
+
+func formatBlock(block map[string]interface{}) string {
+	text := ""
+
+	switch block["type"] {
+	case "section":
+		return extractText(block)
+	case "actions":
+		for _, element := range block["elements"].([]interface{}) {
+			buttonText := extractText(element.(map[string]interface{}))
+			buttonValue := element.(map[string]interface{})["value"].(string)
+
+			return fmt.Sprintf("<%scommand?command=%s|%s>", FakeServerUrl, buttonValue, buttonText)
+		}
+	default:
+		return fmt.Sprintf("invalid block: %v", block)
+	}
+
+	return text
+}
+
+// bit hacky way to extract the text from some kind of block element
+func extractText(block map[string]interface{}) string {
+	if fields, ok := block["fields"]; ok {
+		result := ""
+		for _, field := range fields.([]interface{}) {
+			result += extractText(field.(map[string]interface{}))
+		}
+		return result
+	}
+
+	// contains "text" element
+	if txt, ok := block["text"].(string); ok {
+		return txt
+	} else if txt, ok := block["text"].(map[string]interface{}); ok {
+		if value, ok := txt["value"]; ok {
+			return value.(map[string]interface{})["text"].(string)
+		}
+
+		return txt["text"].(string)
+	}
+
+	return fmt.Sprintf("unknown: %v", block)
 }
 
 func checkError(err error) {

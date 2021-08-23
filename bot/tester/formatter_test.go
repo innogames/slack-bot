@@ -24,8 +24,20 @@ func TestPrintSlackMessage(t *testing.T) {
 			"Hallo 😄",
 		},
 		{
+			"Hallo :smile:: how are you? :",
+			"Hallo 😄: how are you? :",
+		},
+		{
+			"Click <https://example.com|here>",
+			"Click \x1b[34m\x1b]8;;https://example.com\ahere\x1b]8;;\a\x1b[0m",
+		},
+		{
 			"*Hallo* :smile:",
 			"\x1b[1mHallo\x1b[0m 😄",
+		},
+		{
+			"_italic_ _ no italic _",
+			"\x1b[3mitalic\x1b[0m _ no italic _",
 		},
 	}
 	for _, tt := range tests {

@@ -3,6 +3,7 @@
 package main
 
 import (
+	"github.com/innogames/slack-bot/v2/bot/tester"
 	"io"
 	"syscall"
 	"testing"
@@ -27,13 +28,14 @@ func TestAll(t *testing.T) {
 	expectedOutput.Write([]byte("Type in your command:\n"))
 
 	go startCli(ctx, input, output, cfg)
+	time.Sleep(time.Millisecond * 100)
 
 	testCommand("reply it works", "it works", input, expectedOutput)
-	testCommand("wtf", "❓\nOops! Command `wtf` not found...try `help`.", input, expectedOutput)
+	testCommand("wtf", "❓\nOops! Command `wtf` not found...try `help`.\n<"+tester.FakeServerUrl+"command?command=help|Help!>\n", input, expectedOutput)
 	testCommand("add reaction :smile:", "😄", input, expectedOutput)
 
 	// delay
-	testCommand("delay 10m reply I'm delayed", "I queued the command `reply I'm delayed` for 10m0s. Use `stop timer 0` to stop the timer", input, expectedOutput)
+	testCommand("delay 10m reply I'm delayed", "I queued the command `reply I'm delayed` for 10m0s. Use `stop timer 0` to stop the timer\n", input, expectedOutput)
 	testCommand("stop timer 0", "Stopped timer!", input, expectedOutput)
 	testCommand("stop timer 0", "invalid timer", input, expectedOutput)
 
@@ -50,7 +52,5 @@ func TestAll(t *testing.T) {
 
 func testCommand(command string, expectedOutput string, input io.Writer, output io.Writer) {
 	input.Write([]byte(command + "\n"))
-
-	output.Write([]byte(">>>> " + command + "\n"))
 	output.Write([]byte(expectedOutput + "\n"))
 }
