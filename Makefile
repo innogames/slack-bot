@@ -1,7 +1,7 @@
 
-.PHONY: clean docker-build test test-coverage test-bench mocks run dep lint air
+.PHONY: clean docker-build test test-coverage test-bench mocks run run-cli dep lint air
 
-all: clean dep test build/slack-bot
+all: test build/slack-bot
 
 FLAGS = -trimpath -ldflags="-s -w -X github.com/innogames/slack-bot/v2/bot/version.Version=$(shell git describe --tags)"
 

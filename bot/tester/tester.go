@@ -28,7 +28,8 @@ const (
 	botID       = "W12345"
 )
 
-var FakeServerUrl string
+// FakeServerURL is the host for the fake Slack server endpoint. It can be also used to send fake responses.
+var FakeServerURL string
 
 // StartBot will start this bot against the fake slack instance
 func StartBot(cfg config.Config) *bot.Bot {
@@ -106,7 +107,7 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 			commandText := request.URL.Query().Get("command")
 
 			fmt.Fprintln(output, formatSlackMessage(fmt.Sprintf("Clicked link with message: *%s*", commandText)))
-			writer.Write([]byte(fmt.Sprintf("Executed command '%s'. You can close the browser and go back to the terminal.", commandText)))
+			_, _ = writer.Write([]byte(fmt.Sprintf("Executed command '%s'. You can close the browser and go back to the terminal.", commandText)))
 			HandleMessage(commandText)
 		})
 	}
@@ -121,7 +122,7 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 	cfg.AllowedUsers = []string{
 		"W012A3CDE",
 	}
-	FakeServerUrl = fakeSlack.GetAPIURL()
+	FakeServerURL = fakeSlack.GetAPIURL()
 
 	return fakeSlack
 }
@@ -146,7 +147,7 @@ func formatBlock(block map[string]interface{}) string {
 			buttonText := extractText(element.(map[string]interface{}))
 			buttonValue := element.(map[string]interface{})["value"].(string)
 
-			return fmt.Sprintf("<%scommand?command=%s|%s>", FakeServerUrl, buttonValue, buttonText)
+			return fmt.Sprintf("<%scommand?command=%s|%s>", FakeServerURL, buttonValue, buttonText)
 		}
 	default:
 		return fmt.Sprintf("invalid block: %v", block)

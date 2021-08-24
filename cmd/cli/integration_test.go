@@ -3,14 +3,16 @@
 package main
 
 import (
-	"github.com/innogames/slack-bot/v2/bot/tester"
 	"io"
+	"io/ioutil"
+	"net/http"
 	"syscall"
 	"testing"
 	"time"
 
 	"github.com/gookit/color"
 	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/tester"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/stretchr/testify/assert"
 )
@@ -31,7 +33,7 @@ func TestAll(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 
 	testCommand("reply it works", "it works", input, expectedOutput)
-	testCommand("wtf", "❓\nOops! Command `wtf` not found...try `help`.\n<"+tester.FakeServerUrl+"command?command=help|Help!>\n", input, expectedOutput)
+	testCommand("wtf", "❓\nOops! Command `wtf` not found...try `help`.\n<"+tester.FakeServerURL+"command?command=help|Help!>\n", input, expectedOutput)
 	testCommand("add reaction :smile:", "😄", input, expectedOutput)
 
 	// delay
@@ -43,7 +45,19 @@ func TestAll(t *testing.T) {
 	testCommand("add command 'wtf' 'reply bar'", "Added command: `reply bar`. Just use `wtf` in future.", input, expectedOutput)
 	testCommand("wtf", "executing command: `reply bar`\nbar", input, expectedOutput)
 
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Second * 1)
+
+	testURL := tester.FakeServerURL + "command?command=reply%20X"
+	r, err := http.Get(testURL) //nolint:gosec
+	assert.Nil(t, err)
+
+	resp, _ := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+	assert.Equal(t, "Executed command 'reply X'. You can close the browser and go back to the terminal.", string(resp))
+	expectedOutput.Write([]byte("Clicked link with message: reply X\n"))
+	expectedOutput.Write([]byte("X\n"))
+
+	time.Sleep(time.Millisecond * 500)
 
 	syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 

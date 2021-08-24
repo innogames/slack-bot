@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"strings"
@@ -74,5 +75,5 @@ func (c *botLogCommand) readFile(filename string, chars int64) []byte {
 
 	file.ReadAt(buf, start)
 
-	return buf
+	return bytes.Trim(buf, "\x00")
 }
