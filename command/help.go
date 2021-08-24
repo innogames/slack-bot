@@ -15,7 +15,6 @@ type helpCommand struct {
 	bot.BaseCommand
 	commands       *bot.Commands
 	sortedCommands []bot.Help
-	commandHelp    map[string]bot.Help
 	once           sync.Once
 }
 
@@ -36,8 +35,11 @@ func (t *helpCommand) GetHelp() []bot.Help {
 		{
 			Command:     "help",
 			Description: "displays all available commands",
+		},
+		{
+			Command:     "help <category>",
+			Description: "displays more information about one category",
 			Examples: []string{
-				"help",
 				"help jira",
 			},
 		},
@@ -99,20 +101,26 @@ func (t *helpCommand) showSingleCommand(match matcher.Result, message msg.Messag
 
 	command := strings.TrimSpace(match.GetString("command"))
 
-	commandHelp, ok := t.commandHelp[command]
-	if !ok {
+	var matchedCommand bot.Help
+	for _, cmd := range t.sortedCommands {
+		if strings.HasPrefix(cmd.Command, command) {
+			matchedCommand = cmd
+			break
+		}
+	}
+	if matchedCommand.Command == "" {
 		t.SendMessage(message, fmt.Sprintf("Invalid command: `%s`", command))
 		return
 	}
 
-	text := fmt.Sprintf("*%s command*:\n", commandHelp.Command)
-	if commandHelp.Description != "" {
-		text += commandHelp.Description + "\n"
+	text := fmt.Sprintf("*%s*:\n", matchedCommand.Command)
+	if matchedCommand.Description != "" {
+		text += matchedCommand.Description + "\n"
 	}
 
-	if len(commandHelp.Examples) > 0 {
+	if len(matchedCommand.Examples) > 0 {
 		text += "*Some examples:*\n"
-		for _, example := range commandHelp.Examples {
+		for _, example := range matchedCommand.Examples {
 			text += " - " + example + "\n"
 		}
 	}
@@ -123,12 +131,7 @@ func (t *helpCommand) showSingleCommand(match matcher.Result, message msg.Messag
 // generate the list of all commands only once and sort them by category/name
 func (t *helpCommand) prebuildHelp() {
 	allCommands := make([]bot.Help, 0)
-	commandMap := map[string]bot.Help{}
-
-	for _, commandHelp := range t.commands.GetHelp() {
-		commandMap[commandHelp.Command] = commandHelp
-		allCommands = append(allCommands, commandHelp)
-	}
+	allCommands = append(allCommands, t.commands.GetHelp()...)
 
 	sort.Slice(allCommands, func(i, j int) bool {
 		if allCommands[i].Category.Name == allCommands[j].Category.Name {
@@ -138,5 +141,4 @@ func (t *helpCommand) prebuildHelp() {
 	})
 
 	t.sortedCommands = allCommands
-	t.commandHelp = commandMap
 }

@@ -1,0 +1,10 @@
+jenkins:
+  host: https://jenkins.example.com
+  username: username
+  password: secret
+  jobs:
+    BackendTests:
+      parameters:
+        - name: BRANCH
+          default: master
+          type: branch

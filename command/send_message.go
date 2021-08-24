@@ -45,7 +45,7 @@ func (c *sendMessageCommand) sendMessage(match matcher.Result, message msg.Messa
 func (c *sendMessageCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "send message",
+			Command:     "send message <message> to <who>",
 			Description: "sends a message to given user/channel",
 			Examples: []string{
 				"send message #dev-backend PANIC MODE!!!",

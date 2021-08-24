@@ -3,31 +3,52 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/gookit/color"
+	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
-	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/storage"
 	"github.com/innogames/slack-bot/v2/bot/tester"
 	"github.com/innogames/slack-bot/v2/bot/util"
-	"github.com/innogames/slack-bot/v2/client"
+	log "github.com/sirupsen/logrus"
 )
 
 // starts a interactive shell to communicate with a mocked slack server and execute real commands
 func main() {
-	var verbose bool
-	flag.BoolVar(&verbose, "verbose", false, "More verbose output")
-
-	// todo add path to config
+	configFile := flag.String("config", "", "Path to config.yaml. Can be a directory which will load all '*.yaml' inside")
+	verbose := flag.Bool("verbose", false, "More verbose output")
 	flag.Parse()
 
-	cfg := config.Config{}
-	if verbose {
+	color.Info.Println("Hey! I'm your Slack Emulator. Call 'help' to get a list of all supported commands")
+
+	var cfg config.Config
+	var err error
+	if *configFile == "" {
+		fmt.Println("Hint: You can pass a custom config file by using '-config config.yaml'")
+		cfg = config.DefaultConfig
+	} else {
+		cfg, err = config.Load(*configFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	cfg.Slack = config.Slack{}
+	cfg.Slack.SocketToken = "xapp-something"
+
+	cfg.Logger.Level = "error"
+	if *verbose {
 		cfg.Logger.Level = "debug"
 	}
+
+	cfg.AdminUsers = config.UserList{
+		"cli",
+	}
+
+	bot.InitLogger(cfg.Logger)
 
 	ctx := util.NewServerContext()
 
@@ -45,7 +66,7 @@ func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg co
 	realBot := tester.StartBot(cfg)
 
 	color.SetOutput(output)
-	color.Red.Print("Type in your command:\n")
+	color.Note.Print("Type in your command:\n")
 	reader := bufio.NewReader(input)
 
 	// loop to send stdin input to slack bot
@@ -56,14 +77,7 @@ func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg co
 				continue
 			}
 
-			color.Blue.Printf(">>>> %s\n", strings.TrimSuffix(text, "\n"))
-
-			message := msg.Message{}
-			message.Text = text
-			message.Channel = tester.TestChannel
-			message.User = "cli"
-
-			client.HandleMessageWithDoneHandler(message).Wait()
+			tester.HandleMessage(text)
 		}
 	}()
 

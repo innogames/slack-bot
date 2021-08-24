@@ -26,9 +26,20 @@ func TestAddLink(t *testing.T) {
 
 	t.Run("add link", func(t *testing.T) {
 		message := msg.Message{}
-		message.Text = "add link google <https://google.com>"
+		message.Text = "add link example <https://example.com>"
 
-		expected := `[{"actions":[{"name":"","text":"google","style":"default","type":"button","url":"https://google.com"}],"blocks":null}]`
+		expected := `[{"actions":[{"name":"","text":"example","style":"default","type":"button","url":"https://example.com"}],"blocks":null}]`
+		mocks.AssertSlackJSON(t, slackClient, message, expected)
+
+		actual := command.Run(message)
+		assert.True(t, actual)
+	})
+
+	t.Run("add plain link", func(t *testing.T) {
+		message := msg.Message{}
+		message.Text = "add link google https://sub.google.com"
+
+		expected := `[{"actions":[{"name":"","text":"google","style":"default","type":"button","url":"https://sub.google.com"}],"blocks":null}]`
 		mocks.AssertSlackJSON(t, slackClient, message, expected)
 
 		actual := command.Run(message)
@@ -37,9 +48,9 @@ func TestAddLink(t *testing.T) {
 
 	t.Run("add link with quotes", func(t *testing.T) {
 		message := msg.Message{}
-		message.Text = "add link 'google' <https://google.com>"
+		message.Text = "add link 'to test google' <https://test.google.com>"
 
-		expected := `[{"actions":[{"name":"","text":"google","style":"default","type":"button","url":"https://google.com"}],"blocks":null}]`
+		expected := `[{"actions":[{"name":"","text":"to test google","style":"default","type":"button","url":"https://test.google.com"}],"blocks":null}]`
 		mocks.AssertSlackJSON(t, slackClient, message, expected)
 
 		actual := command.Run(message)

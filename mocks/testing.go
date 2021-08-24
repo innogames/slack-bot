@@ -69,9 +69,7 @@ func AssertSlackJSON(t *testing.T, slackClient *SlackClient, message msg.Ref, ex
 			option,
 		)
 
-		assert.Equal(t, expected, values.Get("attachments"))
-
-		return true
+		return expected == values.Get("attachments")
 	})).Once().Return("")
 }
 

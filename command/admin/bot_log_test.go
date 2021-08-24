@@ -1,6 +1,8 @@
 package admin
 
 import (
+	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/innogames/slack-bot/v2/bot"
@@ -41,6 +43,20 @@ func TestBotLog(t *testing.T) {
 		message.User = "UADMIN"
 
 		mocks.AssertSlackMessage(slackClient, message, "No logs so far")
+
+		actual := command.Run(message)
+		assert.True(t, actual)
+	})
+
+	t.Run("display log history", func(t *testing.T) {
+		ioutil.WriteFile(testFile, []byte("test\nfoo\nbar"), 0o600)
+		defer os.Remove(testFile)
+
+		message := msg.Message{}
+		message.Text = "bot log"
+		message.User = "UADMIN"
+
+		mocks.AssertSlackMessage(slackClient, message, "The most recent messages:\n```foo\nbar```")
 
 		actual := command.Run(message)
 		assert.True(t, actual)

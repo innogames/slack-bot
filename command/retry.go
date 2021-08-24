@@ -3,6 +3,8 @@ package command
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
@@ -43,7 +45,11 @@ func (c *retryCommand) retry(match matcher.Result, message msg.Message) {
 	key := message.GetUniqueKey()
 
 	var lastCommand string
-	_ = storage.Read(storageKey, key, &lastCommand)
+	err := storage.Read(storageKey, key, &lastCommand)
+	if err != nil {
+		log.Warn(errors.Wrap(err, "error while loading user history"))
+	}
+
 	if lastCommand != "" {
 		c.SendMessage(message, fmt.Sprintf("Executing command: %s", lastCommand))
 
@@ -99,7 +105,7 @@ func (c *retryCommand) slackMessage(match matcher.Result, message msg.Message) {
 func (c *retryCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "repeat",
+			Command:     "repeat (or retry)",
 			Description: "repeat the last executed command",
 			Examples: []string{
 				"retry",

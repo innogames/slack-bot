@@ -266,6 +266,10 @@ commands:
       - deploy {{.branch}} to {{ customVariable "defaultServer" }}
 ``` 
 
+Each developer can now call ONCE this commands like: `set variable defaultSerer foobarX.local`  to register the custom "defaultServer". 
+
+When now calling `deploy mater`, it will deploy the `master` branch to `foobarX.local` server.
+
 **Another example**
 Here an advanced version which uses [Go templates](https://golang.org/pkg/text/template/).
 In the end the command will generate one subcommand, like:
@@ -319,10 +323,10 @@ open_weather:
 
 ## Custom command
 Every user is able to define own command aliases. 
-This is a handy feature to avoid tying the same command every day.
+This is a handy feature to avoid typing the same command every day.
 
-**Commands**
-- `list commands`
+**Example usage**
+- `list commands` to just list the defined commands for the current user
 - `add command 'myCommand' 'trigger job RestoreWorld 7` -> then just call `myCommand` later
 - `add command 'build master' 'trigger job Deploy master ; then trigger job DeployClient master'`
 - `delete command 'build master'`

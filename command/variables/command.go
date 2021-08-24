@@ -25,8 +25,29 @@ func (c command) GetMatcher() matcher.Matcher {
 func (c command) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:  "custom variables",
-			Examples: []string{},
+			Command: "set variable",
+			Examples: []string{
+				"set variable 'server' 'foo.prod.local'",
+			},
+			Category: category,
+		},
+		{
+			Command: "delete variable",
+			Examples: []string{
+				"remove variable 'server'",
+			},
+			Category: category,
+		},
+		{
+			Command:  "list variables",
+			Examples: []string{"list variables"},
+			Category: category,
 		},
 	}
+}
+
+var category = bot.Category{
+	Name:        "Custom Variables",
+	Description: "usable e.g. in 'commands' or 'crons'",
+	HelpURL:     "https://github.com/innogames/slack-bot#custom-variables",
 }

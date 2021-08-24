@@ -4,7 +4,6 @@ issues:
     - path: _test\.go
       linters:
         - errcheck
-        - forbidigo
 
 linters:
   enable:
@@ -18,7 +17,6 @@ linters:
     - errorlint
     - exhaustive
     - exportloopref
-    - forbidigo
     - gochecknoinits
     - gocritic
     - gocyclo

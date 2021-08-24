@@ -56,7 +56,7 @@ func (c *thenCommand) run(match matcher.Result, message msg.Message) {
 func (c *thenCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "queue",
+			Command:     "then (or queue)",
 			Description: "queue a command which is executed when the current task is done",
 			Examples: []string{
 				"queue reply My job is ready",
