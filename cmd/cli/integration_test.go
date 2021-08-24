@@ -47,6 +47,8 @@ func TestAll(t *testing.T) {
 
 	time.Sleep(time.Second * 1)
 
+	time.Sleep(time.Second * 1)
+
 	testURL := tester.FakeServerURL + "command?command=reply%20X"
 	r, err := http.Get(testURL) //nolint:gosec
 	assert.Nil(t, err)

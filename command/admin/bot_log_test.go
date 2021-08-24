@@ -49,7 +49,7 @@ func TestBotLog(t *testing.T) {
 	})
 
 	t.Run("display log history", func(t *testing.T) {
-		ioutil.WriteFile(testFile, []byte("test\nfoo\nbar"), 0o600)
+		ioutil.WriteFile(testFile, []byte("test\nfoo\nbar"), 0600)
 		defer os.Remove(testFile)
 
 		message := msg.Message{}
