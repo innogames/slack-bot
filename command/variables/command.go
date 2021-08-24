@@ -49,4 +49,5 @@ func (c command) GetHelp() []bot.Help {
 var category = bot.Category{
 	Name:        "Custom Variables",
 	Description: "usable e.g. in 'commands' or 'crons'",
+	HelpURL:     "https://github.com/innogames/slack-bot#custom-variables",
 }
