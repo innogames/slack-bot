@@ -45,7 +45,7 @@ func TestHelp(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "help reply"
 
-		slackClient.On("SendMessage", message, "*reply command*:\njust reply the given message\n*Some examples:*\n - reply Hello, how are you?\n").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "*reply <text>*:\njust reply the given message\n*Some examples:*\n - reply Hello, how are you?\n")
 		actual := help.Run(message)
 		assert.True(t, actual)
 	})

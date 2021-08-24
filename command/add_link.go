@@ -42,7 +42,7 @@ func (c *addLinkCommand) addLink(match matcher.Result, message msg.Message) {
 func (c *addLinkCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "add link",
+			Command:     "add link <text> <link>",
 			Description: "adds a link button to the message",
 			Category:    helperCategory,
 			Examples: []string{

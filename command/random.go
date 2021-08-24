@@ -55,7 +55,7 @@ func (c *randomCommand) GetTemplateFunction() template.FuncMap {
 func (c *randomCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "random",
+			Command:     "random <whatever...>",
 			Description: "returns a random element of the given parameters",
 			Examples: []string{
 				"random 1 2 3 3 4",

@@ -173,6 +173,12 @@ func (c *listCommand) GetHelp() []bot.Help {
 			Description: "list all queued commands",
 			Examples: []string{
 				"list queue",
+			},
+		},
+		{
+			Command:     "list queue in channel",
+			Description: "list queued commands in current channel",
+			Examples: []string{
 				"list queue in channel",
 			},
 		},

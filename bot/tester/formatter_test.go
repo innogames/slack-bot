@@ -28,6 +28,10 @@ func TestPrintSlackMessage(t *testing.T) {
 			"Hallo 😄: how are you? :",
 		},
 		{
+			"<@here> is some `code`",
+			"\x1b[1m@here\x1b[0m is some \x1b[100mcode\x1b[0m",
+		},
+		{
 			"Click <https://example.com|here>",
 			"Click \x1b[34m\x1b]8;;https://example.com\ahere\x1b]8;;\a\x1b[0m",
 		},

@@ -102,14 +102,15 @@ func (c *delayCommand) Stop(match matcher.Result, message msg.Message) {
 }
 
 var delayCategory = bot.Category{
-	Name:    "Delay",
-	HelpURL: "https://github.com/innogames/slack-bot#delay",
+	Name:        "Delay",
+	Description: "Delay any command by the given time",
+	HelpURL:     "https://github.com/innogames/slack-bot#delay",
 }
 
 func (c *delayCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "delay",
+			Command:     "delay <duration> <command>",
 			Description: "delay a command by the given offset",
 			Examples: []string{
 				"delay 1h rely remind me to go to toilet",
@@ -119,7 +120,7 @@ func (c *delayCommand) GetHelp() []bot.Help {
 			Category: delayCategory,
 		},
 		{
-			Command:     "stop delay",
+			Command:     "stop timer <timerId>",
 			Description: "cancel a planned delayCommand",
 			Examples: []string{
 				"stop timer 1243",

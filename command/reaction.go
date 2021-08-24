@@ -36,7 +36,7 @@ func (c *reactionCommand) Remove(match matcher.Result, message msg.Message) {
 func (c *reactionCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "add reaction",
+			Command:     "add reaction <reaction>",
 			Description: "add a reaction on a message",
 			Category:    helperCategory,
 			Examples: []string{
@@ -44,7 +44,7 @@ func (c *reactionCommand) GetHelp() []bot.Help {
 			},
 		},
 		{
-			Command:     "remove reaction",
+			Command:     "remove reaction <reaction>",
 			Description: "remove a reaction on a message",
 			Category:    helperCategory,
 			Examples: []string{

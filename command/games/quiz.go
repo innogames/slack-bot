@@ -173,7 +173,7 @@ func (c *quizCommand) getCurrentAnswers() []string {
 func (c *quizCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "quiz",
+			Command:     "start quiz",
 			Description: "small quiz for a nice break",
 			Category:    category,
 			Examples: []string{

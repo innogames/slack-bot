@@ -46,7 +46,7 @@ func (c *replyCommand) commentInNewThread(match matcher.Result, message msg.Mess
 func (c *replyCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "reply",
+			Command:     "reply <text>",
 			Description: "just reply the given message",
 			Category:    helperCategory,
 			Examples: []string{
@@ -54,7 +54,7 @@ func (c *replyCommand) GetHelp() []bot.Help {
 			},
 		},
 		{
-			Command:     "comment",
+			Command:     "comment <text>",
 			Description: "comment the message in a new thread on this message",
 			Category:    helperCategory,
 			Examples: []string{

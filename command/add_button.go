@@ -40,7 +40,7 @@ func (c *addButtonCommand) IsEnabled() bool {
 func (c *addButtonCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "add button",
+			Command:     `add button "<text>" "<command>"`,
 			Category:    helperCategory,
 			Description: "adds a button to the message which then performs any command",
 			Examples: []string{

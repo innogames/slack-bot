@@ -7,14 +7,13 @@ import (
 	"io"
 	"os"
 
-	"github.com/innogames/slack-bot/v2/bot"
-	log "github.com/sirupsen/logrus"
-
 	"github.com/gookit/color"
+	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/storage"
 	"github.com/innogames/slack-bot/v2/bot/tester"
 	"github.com/innogames/slack-bot/v2/bot/util"
+	log "github.com/sirupsen/logrus"
 )
 
 // starts a interactive shell to communicate with a mocked slack server and execute real commands
