@@ -243,15 +243,22 @@ func getAssignee(user *jira.User) string {
 func (c *jiraCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "jira",
+			Command:     "jira <ticket|search>",
 			Description: "list jira ticket information or performs jira searches. It uses the configured jira project by default to display/search tickets",
 			Category:    category,
 			Examples: []string{
-				"jql status=\"In Progress\"",
 				"issue 43234",
 				fmt.Sprintf("%s/browse/PROJ-1234", strings.TrimRight(c.config.Host, "/")),
 				"issue PROJ-23123",
 				"issue \"second city\"",
+			},
+		},
+		{
+			Command:     "jql <query>",
+			Description: "list jira tickets based on the given JQL",
+			Category:    category,
+			Examples: []string{
+				"jql status=\"In Progress\"",
 			},
 		},
 	}

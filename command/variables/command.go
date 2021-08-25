@@ -25,23 +25,26 @@ func (c command) GetMatcher() matcher.Matcher {
 func (c command) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command: "set variable",
+			Command:     "set variable <key> <value>",
+			Description: "Set a custom variable for just the current user",
 			Examples: []string{
 				"set variable 'server' 'foo.prod.local'",
 			},
 			Category: category,
 		},
 		{
-			Command: "delete variable",
+			Command:     "delete variable <key>",
+			Description: "Remove a custom variable (for current user only)",
 			Examples: []string{
 				"remove variable 'server'",
 			},
 			Category: category,
 		},
 		{
-			Command:  "list variables",
-			Examples: []string{"list variables"},
-			Category: category,
+			Command:     "list variables",
+			Description: "List you custom variables",
+			Examples:    []string{"list variables"},
+			Category:    category,
 		},
 	}
 }

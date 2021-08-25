@@ -72,7 +72,7 @@ func (c *retryCommand) GetHelp() []bot.Help {
 
 	var help []bot.Help
 	help = append(help, bot.Help{
-		Command:     "retry job",
+		Command:     "retry job <job> [<build>]",
 		Description: "restart the most recent jenkins build of the given job",
 		Examples:    examples,
 		Category:    category,

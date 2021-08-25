@@ -85,7 +85,7 @@ func (c *watchCommand) watchTicket(message msg.Message, issue *jira.Issue) {
 func (c *watchCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "watch jira",
+			Command:     "watch ticket <ticket>",
 			Description: "inform you about changes jira states",
 			Category:    category,
 			Examples: []string{

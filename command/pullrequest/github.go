@@ -118,7 +118,7 @@ func (c *githubFetcher) getHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "github pull request",
-			Description: "tracks the state of github pull requests",
+			Description: "tracks the state of Github pull requests",
 			Category:    category,
 			Examples: []string{
 				"https://github.com/home-assistant/home-assistant/pull/13958",

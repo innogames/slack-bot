@@ -58,6 +58,11 @@ type Slack struct {
 	TestEndpointURL string `mapstructure:"-"`
 }
 
+// IsFakeServer is set for the "cli" tool which is spawning a fake test server which is mocking parts of the Slack API
+func (s Slack) IsFakeServer() bool {
+	return s.TestEndpointURL != ""
+}
+
 // CanHandleInteractions checks if the slack config supports interaction/event via "Socket Mode" API
 // in this case some commands are adding buttons to messages which are more advanced
 func (s Slack) CanHandleInteractions() bool {

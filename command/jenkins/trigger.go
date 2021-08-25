@@ -143,7 +143,7 @@ func (c *triggerCommand) GetHelp() []bot.Help {
 		help = append(help, commandHelp)
 	}
 	help = append(help, bot.Help{
-		Command:     "jenkins",
+		Command:     "trigger job <job> [<parameters...>]",
 		Description: "start a jenkins build",
 		Examples:    examples,
 		Category:    category,

@@ -37,7 +37,7 @@ func Increase(key string, count uint) {
 	defer mu.Unlock()
 
 	var value uint
-	storage.Read(collection, key, &value)
+	_ = storage.Read(collection, key, &value)
 
 	value += count
 

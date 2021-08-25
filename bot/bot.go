@@ -97,7 +97,7 @@ func (b *Bot) loadChannels() (map[string]string, error) {
 	channels := make(map[string]string)
 
 	// in CLI context we don't have to channels
-	if b.config.Slack.TestEndpointURL != "" {
+	if b.config.Slack.IsFakeServer() {
 		return channels, nil
 	}
 
@@ -160,7 +160,7 @@ func (b *Bot) loadSlackData() error {
 // - find the matching command and execute it
 func (b *Bot) HandleMessage(message *slack.MessageEvent) {
 	if b.canHandleMessage(message) {
-		go b.processMessage(msg.FromSlackEvent(message), true)
+		go b.ProcessMessage(msg.FromSlackEvent(message), true)
 	}
 }
 
@@ -200,8 +200,8 @@ func (b *Bot) cleanMessage(text string, fromUserContext bool) string {
 	return text
 }
 
-// processMessage process the incoming message and respond appropriately
-func (b *Bot) processMessage(message msg.Message, fromUserContext bool) {
+// ProcessMessage process the incoming message and respond appropriately
+func (b *Bot) ProcessMessage(message msg.Message, fromUserContext bool) {
 	message.Text = b.cleanMessage(message.Text, fromUserContext)
 	if message.Text == "" {
 		return
@@ -223,7 +223,7 @@ func (b *Bot) processMessage(message msg.Message, fromUserContext bool) {
 
 	// check if user is allowed to interact with the bot
 	existing := b.allowedUsers.Contains(message.User)
-	if !existing && fromUserContext && b.config.Slack.TestEndpointURL == "" {
+	if !existing && fromUserContext && !b.config.Slack.IsFakeServer() {
 		logger.Errorf("user %s is not allowed to execute message (missing in 'allowed_users' section): %s", message.User, message.Text)
 		b.slackClient.SendMessage(message, fmt.Sprintf(
 			"Sorry <@%s>, you are not whitelisted yet. Please ask a slack-bot admin to get access: %s",
