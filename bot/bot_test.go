@@ -33,7 +33,7 @@ func TestBot(t *testing.T) {
 		message := msg.Message{}
 		message.Text = ""
 		message.Channel = "C123"
-		bot.processMessage(message, true)
+		bot.ProcessMessage(message, true)
 	})
 
 	t.Run("handle unauthenticated message", func(t *testing.T) {
@@ -42,7 +42,7 @@ func TestBot(t *testing.T) {
 		message.Text = "test"
 		message.User = "U888"
 		message.Channel = "C123"
-		bot.processMessage(message, true)
+		bot.ProcessMessage(message, true)
 	})
 
 	t.Run("handle valid message", func(t *testing.T) {
@@ -51,7 +51,7 @@ func TestBot(t *testing.T) {
 		message.Text = "test"
 		message.User = "U123"
 		message.Channel = "C123"
-		bot.processMessage(message, true)
+		bot.ProcessMessage(message, true)
 	})
 
 	t.Run("Init with invalid token", func(t *testing.T) {

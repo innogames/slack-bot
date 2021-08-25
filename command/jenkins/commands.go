@@ -4,6 +4,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/client/jenkins"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -30,7 +31,7 @@ func GetCommands(cfg config.Jenkins, base bot.BaseCommand) bot.Commands {
 
 	jenkinsClient, err := jenkins.GetClient(cfg)
 	if err != nil {
-		log.Error(err)
+		log.Error(errors.Wrap(err, "Error while getting Jenkins client"))
 		return commands
 	}
 

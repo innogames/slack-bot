@@ -28,7 +28,7 @@ type Conditional interface {
 
 // HelpProvider can be provided by a command to add information within "help" command
 type HelpProvider interface {
-	// each command should provide information, like a description or examples
+	// GetHelp each command should provide information, like a description or examples
 	GetHelp() []Help
 }
 

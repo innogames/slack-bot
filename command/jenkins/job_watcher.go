@@ -73,8 +73,17 @@ func (c *watcherCommand) run(match matcher.Result, message msg.Message) {
 func (c *watcherCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "watch job",
+			Command:     "watch job <job>",
 			Description: "watch jenkins jobs and informs about successful/error jobs",
+			Examples: []string{
+				"watch MyJobName",
+				"unwatch MyJobName",
+			},
+			Category: category,
+		},
+		{
+			Command:     "unwatch job <job>",
+			Description: "unwatch jenkins jobs and informs about successful/error jobs",
 			Examples: []string{
 				"watch MyJobName",
 				"unwatch MyJobName",

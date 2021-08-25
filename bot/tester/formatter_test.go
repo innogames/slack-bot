@@ -36,6 +36,10 @@ func TestPrintSlackMessage(t *testing.T) {
 			"Click \x1b[34m\x1b]8;;https://example.com\ahere\x1b]8;;\a\x1b[0m",
 		},
 		{
+			"Click <https://example.com|here> or <https://example.com|here>",
+			"Click \x1b[34m\x1b]8;;https://example.com\ahere\x1b]8;;\a\x1b[0m or \x1b[34m\x1b]8;;https://example.com\ahere\x1b]8;;\a\x1b[0m",
+		},
+		{
 			"*Hallo* :smile:",
 			"\x1b[1mHallo\x1b[0m 😄",
 		},

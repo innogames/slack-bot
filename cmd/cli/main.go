@@ -10,6 +10,7 @@ import (
 	"github.com/gookit/color"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/storage"
 	"github.com/innogames/slack-bot/v2/bot/tester"
 	"github.com/innogames/slack-bot/v2/bot/util"
@@ -45,7 +46,7 @@ func main() {
 	}
 
 	cfg.AdminUsers = config.UserList{
-		"cli",
+		tester.User,
 	}
 
 	bot.InitLogger(cfg.Logger)
@@ -56,7 +57,7 @@ func main() {
 }
 
 func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg config.Config) {
-	// set an empty storage -> just store data in Ram
+	// set an empty storage -> just store data in RAM
 	_ = storage.InitStorage("")
 
 	// starts a local http server which is mocking the needed Slack API
@@ -71,13 +72,16 @@ func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg co
 
 	// loop to send stdin input to slack bot
 	go func() {
+		message := msg.Message{}
+		message.Channel = tester.TestChannel
+		message.User = tester.User
+
 		for {
 			text, err := reader.ReadString('\n')
 			if err != nil {
 				continue
 			}
-
-			tester.HandleMessage(text)
+			realBot.ProcessMessage(message.WithText(text), true)
 		}
 	}()
 

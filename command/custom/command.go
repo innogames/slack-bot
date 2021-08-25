@@ -36,11 +36,11 @@ func (c command) GetHelp() []bot.Help {
 			Description: "list all your defined custom commands, which are only available for you",
 			Category:    category,
 			Examples: []string{
-				"`list commands`",
+				"list commands",
 			},
 		},
 		{
-			Command:     "add command",
+			Command:     "add command '<alias>' '<command>'",
 			Description: "add a custom command/alias which is only available for you",
 			Category:    category,
 			Examples: []string{
@@ -49,11 +49,11 @@ func (c command) GetHelp() []bot.Help {
 			},
 		},
 		{
-			Command:     "delete command",
+			Command:     "delete command '<alias>'",
 			Description: "define a custom alias",
 			Category:    category,
 			Examples: []string{
-				"`delete command 'build master'`",
+				"delete command 'build master'",
 			},
 		},
 	}

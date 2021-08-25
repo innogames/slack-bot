@@ -57,7 +57,7 @@ func (b *Bot) Run(ctx *util.ServerContext) {
 			// e.g. triggered by "delay" or "macro" command. They are still executed in original event context
 			// -> will post in same channel as the user posted the original command
 			message.InternalMessage = true
-			go b.processMessage(message, false)
+			go b.ProcessMessage(message, false)
 		case <-stopChan:
 			// wait until other services are properly shut down
 			ctx.StopTheWorld()

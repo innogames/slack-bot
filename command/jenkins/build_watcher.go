@@ -119,7 +119,7 @@ func getBuild(ctx context.Context, job jenkins.Job, buildNumber int) (*gojenkins
 func (c *buildWatcherCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "notify build",
+			Command:     "notify build <job> [<build>]",
 			Description: "inform you when a running jenkins build finishes",
 			Examples: []string{
 				"inform me about build AtcBrowser #1233",
@@ -129,7 +129,7 @@ func (c *buildWatcherCommand) GetHelp() []bot.Help {
 			Category: category,
 		},
 		{
-			Command:     "inform job",
+			Command:     "inform <job> [<build>]",
 			Description: "inform you when a running jenkins build finishes",
 			Examples: []string{
 				"inform me about build AtcBrowser #1233",

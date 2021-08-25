@@ -84,7 +84,7 @@ func (c *numberGuesserCommand) guess(match matcher.Result, message msg.Message) 
 func (c *numberGuesserCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "number guesser",
+			Command:     "start number guesser",
 			Description: "small game to guess a random number",
 			Category:    category,
 			Examples: []string{

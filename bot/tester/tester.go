@@ -25,6 +25,7 @@ import (
 // TestChannel is just a test channel name which is used for testing
 const (
 	TestChannel = "dev"
+	User        = "cli"
 	botID       = "W12345"
 )
 
@@ -131,7 +132,7 @@ func HandleMessage(text string) {
 	message := msg.Message{}
 	message.Text = text
 	message.Channel = TestChannel
-	message.User = "cli"
+	message.User = User
 
 	client.HandleMessageWithDoneHandler(message).Wait()
 }

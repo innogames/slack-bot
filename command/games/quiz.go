@@ -55,7 +55,7 @@ func (c *quizCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewTextMatcher(`start quiz`, c.startQuiz),
 		matcher.NewRegexpMatcher(`start quiz (?P<questions>\d+)`, c.startQuiz),
-		matcher.NewRegexpMatcher(`answer (?P<answer>[\w\s]+)`, c.answer),
+		matcher.NewRegexpMatcher(`answer (?P<answer>[\w\s\-]+)`, c.answer),
 	)
 }
 

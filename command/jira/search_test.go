@@ -124,7 +124,7 @@ func TestJiraSearch(t *testing.T) {
 
 	t.Run("Test help", func(t *testing.T) {
 		help := command.GetHelp()
-		assert.Equal(t, 1, len(help))
+		assert.GreaterOrEqual(t, len(help), 1)
 	})
 }
 
