@@ -29,7 +29,7 @@ func TestPing(t *testing.T) {
 		message.Timestamp = fmt.Sprintf("%d.000000", msgTime.Unix())
 
 		fmt.Println(message.Timestamp)
-		mocks.AssertSlackMessage(slackClient, message, "PONG in 1m0s")
+		mocks.AssertSlackMessageRegexp(slackClient, message, `^PONG in 1m`)
 
 		actual := command.Run(message)
 		assert.True(t, actual)

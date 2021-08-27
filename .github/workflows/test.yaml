@@ -27,8 +27,10 @@ jobs:
         run: make test
         env:
           BOT_GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build
+      - name: Build Bot
         run: make build/slack-bot
+      - name: Build CLI
+        run: make build/cli
   test-coverage:
     name: Generate test coverage
     runs-on: "ubuntu-latest"

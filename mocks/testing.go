@@ -3,6 +3,7 @@ package mocks
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 	"sync"
 	"testing"
@@ -23,6 +24,14 @@ var testLock sync.Mutex
 // AssertSlackMessage is a test helper to check for a given slack message
 func AssertSlackMessage(slackClient *SlackClient, ref msg.Ref, text string) {
 	slackClient.On("SendMessage", ref, text).Once().Return("")
+}
+
+// AssertSlackMessageRegexp is a test helper to check for a given slack message based on a regular expression
+func AssertSlackMessageRegexp(slackClient *SlackClient, ref msg.Ref, pattern string) {
+	slackClient.On("SendMessage", ref, mock.MatchedBy(func(text string) bool {
+		re := regexp.MustCompile(pattern)
+		return re.MatchString(text)
+	})).Once().Return("")
 }
 
 // AssertReaction is a test helper to expect a given slack reaction to be added
