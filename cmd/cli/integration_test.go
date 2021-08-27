@@ -35,17 +35,17 @@ func TestAll(t *testing.T) {
 	testCommand("reply it works", "it works", input, expectedOutput)
 	testCommand("wtf", "❓\nOops! Command wtf not found...try help.\n<"+tester.FakeServerURL+"command?command=help|Help!>\n", input, expectedOutput)
 	testCommand("add reaction :smile:", "😄", input, expectedOutput)
+	testCommand("add link EXAMPLE https://example.com", "Attachment-actions are not supported yet:\nmap[name: style:default text:EXAMPLE type:button url?//example.com]\n", input, expectedOutput)
+	testCommand("add button \"text\" \"reply test\"", "<"+tester.FakeServerURL+"command?command=reply test|text>\n", input, expectedOutput)
 
 	// delay
-	testCommand("delay 10m reply I'm delayed", "I queued the command reply I'm delayed for 10m0s. Use stop timer 0 to stop the timer\n", input, expectedOutput)
+	testCommand("delay 10m reply I'm delayed", "I queued the command reply I'm delayed for 10m0s. Use stop timer 0 to stop the timer\n<"+tester.FakeServerURL+"command?command=stop timer 0|Stop timer!>\n", input, expectedOutput)
 	testCommand("stop timer 0", "Stopped timer!", input, expectedOutput)
 	testCommand("stop timer 0", "invalid timer", input, expectedOutput)
 
 	// custom commands
 	testCommand("add command 'wtf' 'reply bar'", "Added command: reply bar. Just use wtf in future.", input, expectedOutput)
 	testCommand("wtf", "executing command: reply bar\nbar", input, expectedOutput)
-
-	time.Sleep(time.Second * 1)
 
 	time.Sleep(time.Second * 1)
 

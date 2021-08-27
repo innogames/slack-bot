@@ -83,7 +83,17 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 				}
 			} else if text == "" && query.Get("attachments") != "" {
 				attachmentJSON := query.Get("attachments")
-				text = fmt.Sprintf("Attachments are not supported. Plain JSON:\n\n%s", attachmentJSON)
+				var attachments []map[string]interface{}
+				_ = json.Unmarshal([]byte(attachmentJSON), &attachments)
+
+				for _, attachment := range attachments {
+					if txt, ok := attachment["title"].(string); ok {
+						text += txt + "\n"
+					}
+					for _, action := range attachment["actions"].([]interface{}) {
+						text += fmt.Sprintf("Attachment-actions are not supported yet:\n%v\n", action)
+					}
+				}
 			}
 
 			_, _ = fmt.Fprint(output, formatSlackMessage(text)+"\n")
