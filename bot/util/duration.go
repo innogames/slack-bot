@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	stripDecimalPlace = regexp.MustCompile(`(\d+)\.\d+([µa-z]+)`)
+	stripDecimalPlace = regexp.MustCompile(`(\d+)\.(\d)\d*([µa-z]+)`)
 	durationReplacer  = strings.NewReplacer(
 		"min", "m",
 		"sec", "s",
@@ -36,5 +36,5 @@ func FormatDuration(duration time.Duration) string {
 	}
 	output += duration.String()
 
-	return stripDecimalPlace.ReplaceAllString(output, "$1$2")
+	return stripDecimalPlace.ReplaceAllString(output, "$1.$2$3")
 }

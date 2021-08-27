@@ -4,20 +4,19 @@ package tester
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 
-	"github.com/innogames/slack-bot/v2/bot/msg"
-
-	log "github.com/sirupsen/logrus"
-
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/innogames/slack-bot/v2/command"
+	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slacktest"
 )
@@ -74,7 +73,7 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 			text := query.Get("text")
 
 			// extract text from TextBlock
-			if text == "" {
+			if text == "" && query.Get("blocks") != "" {
 				blockJSON := query.Get("blocks")
 				var blocks []map[string]interface{}
 				_ = json.Unmarshal([]byte(blockJSON), &blocks)
@@ -82,6 +81,9 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 				for _, block := range blocks {
 					text += formatBlock(block) + "\n"
 				}
+			} else if text == "" && query.Get("attachments") != "" {
+				attachmentJson := query.Get("attachments")
+				text = fmt.Sprintf("Attachments are not supported. Plain JSON:\n\n%s", attachmentJson)
 			}
 
 			_, _ = fmt.Fprint(output, formatSlackMessage(text)+"\n")
@@ -108,7 +110,10 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 			commandText := request.URL.Query().Get("command")
 
 			fmt.Fprintln(output, formatSlackMessage(fmt.Sprintf("Clicked link with message: *%s*", commandText)))
-			_, _ = writer.Write([]byte(fmt.Sprintf("Executed command '%s'. You can close the browser and go back to the terminal.", commandText)))
+			_, _ = writer.Write([]byte(fmt.Sprintf(
+				"Executed command '%s'. You can close the browser and go back to the terminal.",
+				html.EscapeString(commandText),
+			)))
 			HandleMessage(commandText)
 		})
 	}

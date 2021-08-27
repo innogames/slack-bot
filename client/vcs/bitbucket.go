@@ -3,6 +3,7 @@ package vcs
 import (
 	bitbucketApi "github.com/gfleury/go-bitbucket-v1"
 	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/pkg/errors"
 )
 
 type bitbucket struct {
@@ -21,7 +22,7 @@ func (f *bitbucket) LoadBranches() (branchNames []string, err error) {
 
 	branches, err := bitbucketApi.GetBranchesResponse(branchesRaw)
 	if err != nil {
-		return branchNames, err
+		return branchNames, errors.Wrap(err, "Can't load branched from Bitbucket")
 	}
 
 	branchNames = make([]string, 0, len(branches))

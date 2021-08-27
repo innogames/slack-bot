@@ -1,7 +1,7 @@
 
 .PHONY: clean docker-build test test-coverage test-bench mocks run run-cli dep lint air
 
-all: test build/slack-bot
+all: test build/slack-bot build/cli
 
 FLAGS = -trimpath -ldflags="-s -w -X github.com/innogames/slack-bot/v2/bot/version.Version=$(shell git describe --tags)"
 
@@ -9,11 +9,18 @@ build/slack-bot: dep
 	@mkdir -p build/
 	go build $(FLAGS) -o build/slack-bot cmd/bot/main.go
 
+build/cli: dep
+	@mkdir -p build/
+	go build $(FLAGS) -o build/cli cmd/cli/main.go
+
 run: dep
 	go run $(FLAGS) cmd/bot/main.go
 
-run-cli: dep
+run-cli:
 	go run cmd/cli/main.go
+
+run-cli-config:
+	go run cmd/cli/main.go -config config.yaml
 
 clean:
 	rm -rf build/
