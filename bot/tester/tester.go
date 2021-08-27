@@ -82,8 +82,8 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 					text += formatBlock(block) + "\n"
 				}
 			} else if text == "" && query.Get("attachments") != "" {
-				attachmentJson := query.Get("attachments")
-				text = fmt.Sprintf("Attachments are not supported. Plain JSON:\n\n%s", attachmentJson)
+				attachmentJSON := query.Get("attachments")
+				text = fmt.Sprintf("Attachments are not supported. Plain JSON:\n\n%s", attachmentJSON)
 			}
 
 			_, _ = fmt.Fprint(output, formatSlackMessage(text)+"\n")
