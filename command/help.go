@@ -55,7 +55,7 @@ func (t *helpCommand) showAll(match matcher.Result, message msg.Message) {
 	var text string
 
 	text += "Hello <@" + message.User + ">, I’m your friendly slack-bot. You want me to show you around? :smile: \n"
-	text += "I currently listen to the following commands:\n"
+	text += fmt.Sprintf("I currently listen to the following *%d* commands:\n", len(t.sortedCommands))
 
 	lastCategory := bot.Category{}
 	for _, commandHelp := range t.sortedCommands {
