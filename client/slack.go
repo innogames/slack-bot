@@ -95,6 +95,10 @@ type SlackClient interface {
 	ReplyError(ref msg.Ref, err error)
 	// SendMessage is the extended version of Reply and accepts any slack.MsgOption
 	SendMessage(ref msg.Ref, text string, options ...slack.MsgOption) string
+
+	// SendEphemeralMessage sends a message just visible to the current user
+	SendEphemeralMessage(ref msg.Ref, text string, options ...slack.MsgOption)
+
 	// SendBlockMessage will send Slack Blocks/Sections to the target
 	SendBlockMessage(ref msg.Ref, blocks []slack.Block, options ...slack.MsgOption) string
 

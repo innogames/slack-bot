@@ -68,40 +68,10 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 			_, _ = w.Write(bytes)
 		})
 		c.Handle("/chat.postMessage", func(w http.ResponseWriter, r *http.Request) {
-			payload, _ := ioutil.ReadAll(r.Body)
-			query, _ := url.ParseQuery(string(payload))
-			text := query.Get("text")
-
-			// extract text from TextBlock
-			if text == "" && query.Get("blocks") != "" {
-				blockJSON := query.Get("blocks")
-				var blocks []map[string]interface{}
-				_ = json.Unmarshal([]byte(blockJSON), &blocks)
-
-				for _, block := range blocks {
-					text += formatBlock(block) + "\n"
-				}
-			} else if text == "" && query.Get("attachments") != "" {
-				attachmentJSON := query.Get("attachments")
-				var attachments []map[string]interface{}
-				_ = json.Unmarshal([]byte(attachmentJSON), &attachments)
-
-				for _, attachment := range attachments {
-					if txt, ok := attachment["title"].(string); ok {
-						text += txt + "\n"
-					}
-					for _, action := range attachment["actions"].([]interface{}) {
-						text += fmt.Sprintf("Attachment-actions are not supported yet:\n%v\n", action)
-					}
-				}
-			}
-
-			_, _ = fmt.Fprint(output, formatSlackMessage(text)+"\n")
-
-			response := slack.Message{}
-			response.Text = text
-			bytes, _ := json.Marshal(response)
-			_, _ = w.Write(bytes)
+			messageHandler(w, r, output)
+		})
+		c.Handle("/chat.postEphemeral", func(w http.ResponseWriter, r *http.Request) {
+			messageHandler(w, r, output)
 		})
 		c.Handle("/reactions.add", func(w http.ResponseWriter, r *http.Request) {
 			// post the given reaction as unicode character in the terminal
@@ -150,6 +120,44 @@ func HandleMessage(text string) {
 	message.User = User
 
 	client.HandleMessageWithDoneHandler(message).Wait()
+}
+
+// kinda dirty grown function to format a /chat.postMessage /chat.postEphemeral message on the command like...somehow
+func messageHandler(w http.ResponseWriter, r *http.Request, output io.Writer) {
+	payload, _ := ioutil.ReadAll(r.Body)
+	query, _ := url.ParseQuery(string(payload))
+	text := query.Get("text")
+
+	// extract text from TextBlock
+	if text == "" && query.Get("blocks") != "" {
+		blockJSON := query.Get("blocks")
+		var blocks []map[string]interface{}
+		_ = json.Unmarshal([]byte(blockJSON), &blocks)
+
+		for _, block := range blocks {
+			text += formatBlock(block) + "\n"
+		}
+	} else if text == "" && query.Get("attachments") != "" {
+		attachmentJSON := query.Get("attachments")
+		var attachments []map[string]interface{}
+		_ = json.Unmarshal([]byte(attachmentJSON), &attachments)
+
+		for _, attachment := range attachments {
+			if txt, ok := attachment["title"].(string); ok {
+				text += txt + "\n"
+			}
+			for _, action := range attachment["actions"].([]interface{}) {
+				text += fmt.Sprintf("Attachment-actions are not supported yet:\n%v\n", action)
+			}
+		}
+	}
+
+	_, _ = fmt.Fprint(output, formatSlackMessage(text)+"\n")
+
+	response := slack.Message{}
+	response.Text = text
+	bytes, _ := json.Marshal(response)
+	_, _ = w.Write(bytes)
 }
 
 func formatBlock(block map[string]interface{}) string {

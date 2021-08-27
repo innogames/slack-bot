@@ -50,6 +50,8 @@ func (t *helpCommand) GetHelp() []bot.Help {
 func (t *helpCommand) showAll(match matcher.Result, message msg.Message) {
 	t.once.Do(t.prebuildHelp)
 
+	t.AddReaction("💡", message)
+
 	var text string
 
 	text += "Hello <@" + message.User + ">, I’m your friendly slack-bot. You want me to show you around? :smile: \n"
@@ -74,8 +76,7 @@ func (t *helpCommand) showAll(match matcher.Result, message msg.Message) {
 		text += "\n"
 	}
 
-	text += "With *help <command>* I can provide you with more details!"
-	t.SendMessage(message, text)
+	t.SendEphemeralMessage(message, text)
 }
 
 func (t *helpCommand) printCategoryHeader(commandHelp bot.Help) (text string) {
@@ -109,7 +110,7 @@ func (t *helpCommand) showSingleCommand(match matcher.Result, message msg.Messag
 		}
 	}
 	if matchedCommand.Command == "" {
-		t.SendMessage(message, fmt.Sprintf("Invalid command: `%s`", command))
+		t.SendEphemeralMessage(message, fmt.Sprintf("Invalid command: `%s`", command))
 		return
 	}
 
@@ -125,7 +126,7 @@ func (t *helpCommand) showSingleCommand(match matcher.Result, message msg.Messag
 		}
 	}
 
-	t.SendMessage(message, text)
+	t.SendEphemeralMessage(message, text)
 }
 
 // generate the list of all commands only once and sort them by category/name

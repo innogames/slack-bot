@@ -36,7 +36,8 @@ func TestHelp(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "help"
 
-		slackClient.On("SendMessage", message, mock.AnythingOfType("string")).Return("")
+		mocks.AssertReaction(slackClient, "💡", message)
+		slackClient.On("SendEphemeralMessage", message, mock.AnythingOfType("string"))
 		actual := help.Run(message)
 		assert.True(t, actual)
 	})
@@ -45,7 +46,7 @@ func TestHelp(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "help reply"
 
-		mocks.AssertSlackMessage(slackClient, message, "*reply <text>*:\njust reply the given message\n*Some examples:*\n - reply Hello, how are you?\n")
+		slackClient.On("SendEphemeralMessage", message, "*reply <text>*:\njust reply the given message\n*Some examples:*\n - reply Hello, how are you?\n")
 		actual := help.Run(message)
 		assert.True(t, actual)
 	})
@@ -54,7 +55,7 @@ func TestHelp(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "help sdsadasdasd"
 
-		mocks.AssertSlackMessage(slackClient, message, "Invalid command: `sdsadasdasd`")
+		slackClient.On("SendEphemeralMessage", message, "Invalid command: `sdsadasdasd`")
 
 		actual := help.Run(message)
 		assert.True(t, actual)
