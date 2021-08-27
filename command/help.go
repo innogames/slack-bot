@@ -95,7 +95,7 @@ func (t *helpCommand) printCategoryHeader(commandHelp bot.Help) (text string) {
 	return
 }
 
-// ShowSingleCommand prints details of a specific command
+// prints details of a specific command
 func (t *helpCommand) showSingleCommand(match matcher.Result, message msg.Message) {
 	// compile help only once
 	t.once.Do(t.prebuildHelp)
