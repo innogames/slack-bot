@@ -113,6 +113,7 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 	return fakeSlack
 }
 
+// HandleMessage is used in the CLI context to process the given message test for the "cli" user
 func HandleMessage(text string) {
 	message := msg.Message{}
 	message.Text = text
