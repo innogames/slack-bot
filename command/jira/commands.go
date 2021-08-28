@@ -33,5 +33,5 @@ func GetCommands(cfg *config.Jira, slackClient client.SlackClient) bot.Commands 
 var category = bot.Category{
 	Name:        "Jira",
 	Description: "Search/Watch Jira tickets",
-	HelpURL:     "https://github.com/innogames/slack-bot#jira",
+	HelpURL:     "https://github.com/innogames/slack-bot#jira-optional",
 }

@@ -121,7 +121,7 @@ With `help *command*` you'll get a short description and some examples for a sin
 
 ![Screenshot](./docs/help.png)
 
-## Jenkins
+## Jenkins (optional)
 The bot is able to start and monitor jenkins job on a simple but powerful way.
 
 By default the commands are not available and not visible in the "help", till the "jenkins.host" is defined in the config file.
@@ -221,7 +221,7 @@ Example following scenario: you have a build job (which might take some minutes)
 To see all running background commands (like Jenkins jobs or PR watcher) use this command:
 - `list queue`
 
-## Jira
+## Jira (optional)
 The bot is able to query information from Jira, either from a single ticket, or a whole list of tickets.
 
 By default the commands are not available and not visible in the "help", till the "jira.host" is defined in the config file.
@@ -308,7 +308,7 @@ The questions are from different categories and difficult levels and are either 
 
 ![Quiz game](./docs/quiz.png)
 
-## Weather command
+## Weather command (optional)
 It's possible to setup [OpenWeatherMap](https://openweathermap.org/) to get information about the current weather at your location.
 
 ![Screenshot](./docs/weather.png)

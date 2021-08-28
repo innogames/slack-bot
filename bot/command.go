@@ -79,19 +79,21 @@ func (c *Commands) AddCommand(commands ...Command) {
 			continue
 		}
 
-		// register template function defined in commands
-		if provider, ok := command.(util.TemplateFunctionProvider); ok {
-			util.RegisterFunctions(provider.GetTemplateFunction())
-		}
-
 		if condition, ok := command.(Conditional); ok {
 			if !condition.IsEnabled() {
 				// command is disabled!
 				continue
 			}
 		}
+
+		// register template function defined in commands
+		if provider, ok := command.(util.TemplateFunctionProvider); ok {
+			util.RegisterFunctions(provider.GetTemplateFunction())
+		}
+
 		c.commands = append(c.commands, command)
 	}
+
 	c.compiled = false
 }
 

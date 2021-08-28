@@ -60,6 +60,23 @@ func TestReply(t *testing.T) {
 		assert.True(t, actual)
 	})
 
+	t.Run("simple hidden reply without text", func(t *testing.T) {
+		message := msg.Message{}
+		message.Text = "hidden reply"
+
+		actual := command.Run(message)
+		assert.True(t, actual)
+	})
+
+	t.Run("simple hidden reply", func(t *testing.T) {
+		message := msg.Message{}
+		message.Text = "hidden reply it's secret"
+
+		slackClient.On("SendEphemeralMessage", message, "it's secret").Once()
+		actual := command.Run(message)
+		assert.True(t, actual)
+	})
+
 	t.Run("comment without text", func(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "comment"

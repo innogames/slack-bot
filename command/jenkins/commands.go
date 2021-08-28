@@ -12,7 +12,7 @@ import (
 var category = bot.Category{
 	Name:        "Jenkins",
 	Description: "Interact with Jenkins jobs: Trigger builds, check job status or watch builds",
-	HelpURL:     "https://github.com/innogames/slack-bot#jenkins",
+	HelpURL:     "https://github.com/innogames/slack-bot#jenkins-optional",
 }
 
 // base command to access Slack+Jenkins directly

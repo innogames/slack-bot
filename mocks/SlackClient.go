@@ -112,6 +112,18 @@ func (_m *SlackClient) SendBlockMessage(ref msg.Ref, blocks []slack.Block, optio
 	return r0
 }
 
+// SendEphemeralMessage provides a mock function with given fields: ref, text, options
+func (_m *SlackClient) SendEphemeralMessage(ref msg.Ref, text string, options ...slack.MsgOption) {
+	_va := make([]interface{}, len(options))
+	for _i := range options {
+		_va[_i] = options[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ref, text)
+	_ca = append(_ca, _va...)
+	_m.Called(_ca...)
+}
+
 // SendMessage provides a mock function with given fields: ref, text, options
 func (_m *SlackClient) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption) string {
 	_va := make([]interface{}, len(options))
