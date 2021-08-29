@@ -5,7 +5,7 @@ import (
 	"path"
 	"testing"
 
-	"github.com/spf13/viper"
+	"github.com/brainexe/viper"
 	"github.com/stretchr/testify/assert"
 )
 
