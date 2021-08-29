@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/spf13/viper"
+	"github.com/brainexe/viper"
 	"gopkg.in/yaml.v3"
 )
 
