@@ -148,7 +148,17 @@ func messageHandler(w http.ResponseWriter, r *http.Request, output io.Writer) {
 				text += txt + "\n"
 			}
 			for _, action := range attachment["actions"].([]interface{}) {
-				text += fmt.Sprintf("Attachment-actions are not supported yet:\n%v\n", action)
+				actionMap := action.(map[string]interface{})
+
+				if actionMap["type"] == "button" {
+					text += fmt.Sprintf(
+						"%s: %s\n",
+						actionMap["text"],
+						actionMap["url"],
+					)
+				} else {
+					text += fmt.Sprintf("Attachment-actions are not supported yet:\n%v\n", action)
+				}
 			}
 		}
 	}
