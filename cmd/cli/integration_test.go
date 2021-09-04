@@ -36,7 +36,7 @@ func TestAll(t *testing.T) {
 	testCommand("reply it works", "it works", input, expectedOutput)
 	testCommand("wtf", "❓\nOops! Command wtf not found...try help.\n<"+tester.FakeServerURL+"command?command=help|Help!>\n", input, expectedOutput)
 	testCommand("add reaction :smile:", "😄", input, expectedOutput)
-	testCommand("add link EXAMPLE https://example.com", "EXAMPLE: https://example.com\n", input, expectedOutput)
+	testCommand("add link EXAMPLE https://example.com", "<https://example.com|EXAMPLE>\n", input, expectedOutput)
 	testCommand("add button \"text\" \"reply test\"", "<"+tester.FakeServerURL+"command?command=reply test|text>\n", input, expectedOutput)
 
 	// delay

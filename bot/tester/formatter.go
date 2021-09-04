@@ -1,6 +1,7 @@
 package tester
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -48,4 +49,8 @@ func formatSlackMessage(msg string) string {
 	})
 
 	return msg
+}
+
+func commandButton(text string, command string) string {
+	return fmt.Sprintf("<%scommand?command=%s|%s>", FakeServerURL, command, text)
 }
