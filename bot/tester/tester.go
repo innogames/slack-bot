@@ -4,21 +4,19 @@ package tester
 import (
 	"encoding/json"
 	"fmt"
-	"html"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 
+	"github.com/gookit/color"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
-	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/innogames/slack-bot/v2/command"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
-	"github.com/slack-go/slack/slacktest"
 )
 
 // TestChannel is just a test channel name which is used for testing
@@ -49,68 +47,12 @@ func StartBot(cfg config.Config) *bot.Bot {
 	err = realBot.Init()
 	checkError(err)
 
+	color.Info.Printf(
+		"Hey! I'm your Slack Emulator. Call or click '%s' to get a list of all supported commands\n",
+		formatSlackMessage(commandButton("help", "help")),
+	)
+
 	return realBot
-}
-
-type usersResponse struct {
-	Members []slack.User
-}
-
-// StartFakeSlack will start a http server which implements the basic Slack API
-func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
-	// handle requests sto the mocked slack server and react on them for the "cli" tool
-	handler := func(c slacktest.Customize) {
-		c.Handle("/users.list", func(w http.ResponseWriter, _ *http.Request) {
-			users := usersResponse{
-				Members: []slack.User{},
-			}
-			bytes, _ := json.Marshal(users)
-			_, _ = w.Write(bytes)
-		})
-		c.Handle("/chat.postMessage", func(w http.ResponseWriter, r *http.Request) {
-			messageHandler(w, r, output)
-		})
-		c.Handle("/chat.postEphemeral", func(w http.ResponseWriter, r *http.Request) {
-			messageHandler(w, r, output)
-		})
-		c.Handle("/reactions.add", func(w http.ResponseWriter, r *http.Request) {
-			// post the given reaction as unicode character in the terminal
-			payload, _ := ioutil.ReadAll(r.Body)
-			query, _ := url.ParseQuery(string(payload))
-			emoji := query.Get("name")
-			_, _ = fmt.Fprintln(output, util.Reaction(emoji).GetChar())
-
-			response := slack.SlackResponse{}
-			response.Ok = true
-			bytes, _ := json.Marshal(response)
-			_, _ = w.Write(bytes)
-		})
-		c.Handle("/command", func(writer http.ResponseWriter, request *http.Request) {
-			// fake the buttons: pass the command in a hyper link
-			commandText := request.URL.Query().Get("command")
-
-			fmt.Fprintln(output, formatSlackMessage(fmt.Sprintf("Clicked link with message: *%s*", commandText)))
-			_, _ = writer.Write([]byte(fmt.Sprintf(
-				"Executed command '%s'. You can close the browser and go back to the terminal.",
-				html.EscapeString(commandText),
-			)))
-			HandleMessage(commandText)
-		})
-	}
-
-	fakeSlack := slacktest.NewTestServer(handler)
-	fakeSlack.SetBotName("MyBotName")
-	fakeSlack.BotID = botID
-	fakeSlack.Start()
-
-	cfg.Slack.Token = "xoxb-fake"
-	cfg.Slack.TestEndpointURL = fakeSlack.GetAPIURL()
-	cfg.AllowedUsers = []string{
-		"W012A3CDE",
-	}
-	FakeServerURL = fakeSlack.GetAPIURL()
-
-	return fakeSlack
 }
 
 // HandleMessage is used in the CLI context to process the given message test for the "cli" user
@@ -121,6 +63,10 @@ func HandleMessage(text string) {
 	message.User = User
 
 	client.HandleMessageWithDoneHandler(message).Wait()
+}
+
+type usersResponse struct {
+	Members []slack.User
 }
 
 // kinda dirty grown function to format a /chat.postMessage /chat.postEphemeral message on the command like...somehow
@@ -148,7 +94,17 @@ func messageHandler(w http.ResponseWriter, r *http.Request, output io.Writer) {
 				text += txt + "\n"
 			}
 			for _, action := range attachment["actions"].([]interface{}) {
-				text += fmt.Sprintf("Attachment-actions are not supported yet:\n%v\n", action)
+				actionMap := action.(map[string]interface{})
+
+				if actionMap["type"] == "button" {
+					text += fmt.Sprintf(
+						"<%s|%s>\n",
+						actionMap["url"],
+						actionMap["text"],
+					)
+				} else {
+					text += fmt.Sprintf("Attachment-actions are not supported yet:\n%v\n", action)
+				}
 			}
 		}
 	}
@@ -172,7 +128,7 @@ func formatBlock(block map[string]interface{}) string {
 			buttonText := extractText(element.(map[string]interface{}))
 			buttonValue := element.(map[string]interface{})["value"].(string)
 
-			return fmt.Sprintf("<%scommand?command=%s|%s>", FakeServerURL, buttonValue, buttonText)
+			return commandButton(buttonText, buttonValue)
 		}
 	default:
 		return fmt.Sprintf("invalid block: %v", block)

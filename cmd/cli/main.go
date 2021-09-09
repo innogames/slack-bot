@@ -25,21 +25,7 @@ func main() {
 
 	color.Info.Println("Hey! I'm your Slack Emulator. Call 'help' to get a list of all supported commands")
 
-	var cfg config.Config
-	var err error
-	if *configFile == "" {
-		fmt.Println("Hint: You can pass a custom config file by using '-config config.yaml'")
-		cfg = config.DefaultConfig
-	} else {
-		cfg, err = config.Load(*configFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
-	cfg.Slack = config.Slack{}
-	cfg.Slack.SocketToken = "xapp-something"
-
+	cfg := loadConfig(configFile)
 	cfg.Logger.Level = "error"
 	if *verbose {
 		cfg.Logger.Level = "debug"
@@ -64,7 +50,7 @@ func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg co
 	fakeSlack := tester.StartFakeSlack(&cfg, output)
 	defer fakeSlack.Stop()
 
-	realBot := tester.StartBot(cfg)
+	slackBot := tester.StartBot(cfg)
 
 	color.SetOutput(output)
 	color.Note.Print("Type in your command:\n")
@@ -81,9 +67,28 @@ func startCli(ctx *util.ServerContext, input io.Reader, output io.Writer, cfg co
 			if err != nil {
 				continue
 			}
-			realBot.ProcessMessage(message.WithText(text), true)
+			slackBot.ProcessMessage(message.WithText(text), true)
 		}
 	}()
 
-	realBot.Run(ctx)
+	slackBot.Run(ctx)
+}
+
+func loadConfig(configFile *string) config.Config {
+	var cfg config.Config
+	var err error
+	if *configFile == "" {
+		fmt.Println("Hint: You can pass a custom config file by using '-config config.yaml'")
+		cfg = config.DefaultConfig
+	} else {
+		cfg, err = config.Load(*configFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	cfg.Slack = config.Slack{}
+	cfg.Slack.SocketToken = "xapp-something"
+
+	return cfg
 }
