@@ -72,7 +72,7 @@ func TestStartBuild(t *testing.T) {
 		build.Raw.URL = "https://jenkins.example.com/job/test/12/"
 
 		actual := getFinishBuildText(build, "user123", "testJob")
-		expected := "<@user123> *FAILURE:* testJob #1233 took 3m0s: <https://jenkins.example.com/job/test/12/|Build> <https://jenkins.example.com/job/test/12/console/|Console>\nRetry the build by using `retry build testJob #1233`"
+		expected := "<@user123> *FAILURE:* testJob #1233 took 3m0s: <https://jenkins.example.com/job/test/12/|Build> <https://jenkins.example.com/job/test/12/console|Console>\nRetry the build by using `retry build testJob #1233`"
 
 		assert.Equal(t, expected, actual)
 	})
