@@ -204,7 +204,7 @@ func getFinishBuildText(build *gojenkins.Build, user string, jobName string) str
 	duration := time.Duration(build.GetDuration()) * time.Millisecond
 
 	text := fmt.Sprintf(
-		"<@%s> *%s:* %s #%d took %s: <%s|Build> <%sconsole/|Console>",
+		"<@%s> *%s:* %s #%d took %s: <%s|Build> <%sconsole|Console>",
 		user,
 		build.GetResult(),
 		jobName,
