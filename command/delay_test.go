@@ -89,7 +89,6 @@ func TestDelay(t *testing.T) {
 		}
 
 		assert.Equal(t, handledEvent, msg.FromSlackEvent(expectedEvent))
-		assert.Equal(t, 0, queue.CountCurrentJobs())
 	})
 
 	t.Run("Test stop", func(t *testing.T) {
