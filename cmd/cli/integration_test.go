@@ -11,6 +11,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/innogames/slack-bot/v2/mocks"
+
 	"github.com/gookit/color"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/tester"
@@ -24,6 +26,9 @@ func TestAll(t *testing.T) {
 
 	color.Enable = false
 	cfg := config.Config{}
+
+	lock := mocks.LockInternalMessages()
+	defer lock.Unlock()
 
 	ctx := util.NewServerContext()
 

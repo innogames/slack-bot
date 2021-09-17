@@ -118,21 +118,24 @@ func AssertContainsSlackBlocks(t *testing.T, slackClient *SlackClient, message m
 func LockInternalMessages() *sync.Mutex {
 	testLock.Lock()
 
+	// empty the queue in case there was previous leftover
+	close(client.InternalMessages)
+	client.InternalMessages = make(chan msg.Message, 10)
+
 	return &testLock
 }
 
-// WaitTillHavingInternalMessage blocks until there is a internal message queued
-func WaitTillHavingInternalMessage() {
-	deadline := time.Now().Add(time.Second * 2)
-	for {
-		if len(client.InternalMessages) >= 1 {
-			return
-		}
+// WaitTillHavingInternalMessage blocks until there is a internal message queued. If there is no message after 2s -> exit!
+func WaitTillHavingInternalMessage() msg.Message {
+	deadline := time.Second * 2
+	timeout := time.NewTimer(deadline)
 
-		if time.Now().After(deadline) {
-			log.Fatalf("No new internal message after 2 seconds!")
-		}
+	select {
+	case <-timeout.C:
+		log.Fatalf("No new internal message after %s!", deadline)
+		return msg.Message{}
+	case message := <-client.InternalMessages:
 
-		time.Sleep(time.Millisecond * 10)
+		return message
 	}
 }

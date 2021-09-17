@@ -135,9 +135,7 @@ func TestQueue(t *testing.T) {
 		})
 
 		runningCommand.Done()
-		mocks.WaitTillHavingInternalMessage()
-
-		handledEvent := <-client.InternalMessages
+		handledEvent := mocks.WaitTillHavingInternalMessage()
 
 		expectedMessage := msg.Message{}
 		expectedMessage.Timestamp = message.Timestamp

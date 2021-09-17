@@ -61,9 +61,8 @@ func TestDelay(t *testing.T) {
 		assert.Empty(t, client.InternalMessages)
 		assert.Equal(t, 1, queue.CountCurrentJobs())
 
-		mocks.WaitTillHavingInternalMessage()
+		handledEvent := mocks.WaitTillHavingInternalMessage()
 
-		handledEvent := <-client.InternalMessages
 		expectedEvent := msg.Message{
 			Text: "my command",
 		}
@@ -82,9 +81,7 @@ func TestDelay(t *testing.T) {
 		assert.True(t, actual)
 		assert.Empty(t, client.InternalMessages)
 
-		mocks.WaitTillHavingInternalMessage()
-
-		handledEvent := <-client.InternalMessages
+		handledEvent := mocks.WaitTillHavingInternalMessage()
 		expectedEvent := &slack.MessageEvent{
 			Msg: slack.Msg{
 				Text: "my command",
