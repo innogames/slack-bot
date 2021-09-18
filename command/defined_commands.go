@@ -81,9 +81,10 @@ func (c *definedCommand) execute(ref msg.Ref, text string) bool {
 				continue
 			}
 
-			// each line is interpreted as command
+			// each line is interpreted as separate command and is execute the a blocking mode
 			for _, part := range strings.Split(text, "\n") {
-				client.HandleMessage(ref.WithText(part))
+				message := client.HandleMessageWithDoneHandler(ref.WithText(part))
+				message.Wait()
 			}
 		}
 
