@@ -18,9 +18,7 @@ var (
 func GetHTTPClient() *http.Client {
 	getHTTPClient.Do(func() {
 		transport := http.DefaultTransport.(*http.Transport).Clone()
-		transport.MaxConnsPerHost = 2
-		transport.MaxIdleConns = 5
-		transport.MaxIdleConnsPerHost = 5
+		transport.MaxConnsPerHost = 3
 
 		httpClient = &http.Client{
 			Timeout:   time.Second * 10,
