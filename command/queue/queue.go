@@ -78,6 +78,11 @@ func CountCurrentJobs() int {
 
 func executeFallbackCommand() {
 	keys, _ := storage.GetKeys(storageKey)
+	if len(keys) == 0 {
+		return
+	}
+
+	log.Infof("[Queue] Booted! I'll trigger %d command now", len(keys))
 
 	var event msg.Message
 	for _, key := range keys {
@@ -86,7 +91,6 @@ func executeFallbackCommand() {
 			continue
 		}
 
-		log.Infof("[Queue] Booted! I'll trigger this command now: `%s`", event.Text)
 		client.HandleMessage(event)
 	}
 

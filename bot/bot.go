@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -35,7 +34,6 @@ func NewBot(cfg config.Config, slackClient *client.Slack, commands *Commands) *B
 		slackClient:  slackClient,
 		commands:     commands,
 		allowedUsers: config.UserMap{},
-		userLocks:    map[string]*sync.Mutex{},
 	}
 }
 
@@ -47,7 +45,6 @@ type Bot struct {
 	auth         *slack.AuthTestResponse
 	commands     *Commands
 	allowedUsers config.UserMap
-	userLocks    map[string]*sync.Mutex
 }
 
 // Init establishes the slack connection and load allowed users
@@ -216,8 +213,8 @@ func (b *Bot) ProcessMessage(message msg.Message, fromUserContext bool) {
 	}
 
 	// prevent messages from one user processed in parallel (usual + internal ones)
-	if message.Done != nil {
-		lock := b.getUserLock(message.User)
+	if message.Done == nil {
+		lock := getUserLock(message.User)
 		defer lock.Unlock()
 	}
 

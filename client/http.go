@@ -3,29 +3,40 @@ package client
 import (
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/innogames/slack-bot/v2/bot/version"
 )
 
-// GetHTTPClient returns a default http client for this bot to use the default go-client with a Timeout
-func GetHTTPClient() *http.Client {
-	transport := http.DefaultTransport.(*http.Transport).Clone()
-	transport.MaxConnsPerHost = 3
-	transport.MaxIdleConns = 5
-	transport.IdleConnTimeout = time.Second * 15
+var (
+	httpClient    *http.Client
+	getHTTPClient sync.Once
+)
 
-	return &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: &setUserAgentHeader{transport},
-	}
+// GetHTTPClient returns the http client for this bot to use the default go-client with a Timeout of 10s
+func GetHTTPClient() *http.Client {
+	getHTTPClient.Do(func() {
+		transport := http.DefaultTransport.(*http.Transport).Clone()
+		transport.MaxConnsPerHost = 2
+		transport.MaxIdleConns = 5
+		transport.MaxIdleConnsPerHost = 5
+
+		httpClient = &http.Client{
+			Timeout:   time.Second * 10,
+			Transport: &botTransport{transport},
+		}
+	})
+
+	return httpClient
 }
 
-type setUserAgentHeader struct {
+// custom http.Transport to set a custom user-agent
+type botTransport struct {
 	roundTripper http.RoundTripper
 }
 
-func (t *setUserAgentHeader) RoundTrip(req *http.Request) (*http.Response, error) {
+func (t *botTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	userAgent := fmt.Sprintf("slack-bot/%s", version.Version)
 	req.Header.Add("User-Agent", userAgent)
 

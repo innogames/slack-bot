@@ -33,7 +33,12 @@ func HandleMessage(message msg.Message) {
 func HandleMessageWithDoneHandler(message msg.Message) *sync.WaitGroup {
 	done := message.AddDoneHandler()
 
-	HandleMessage(message)
+	if message.Text != "" {
+		HandleMessage(message)
+	} else {
+		// if we have no text, mark the message as processed to avoid open lock
+		done.Done()
+	}
 
 	return done
 }
