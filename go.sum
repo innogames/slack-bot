@@ -60,8 +60,8 @@ github.com/bketelsen/crypt v0.0.3-0.20200106085610-5cbc8cc4026c/go.mod h1:MKsuJm
 github.com/bketelsen/crypt v0.0.4/go.mod h1:aI6NrJ0pMGgvZKL1iVgXLnfIFJtfV+bKCoqOes/6LfM=
 github.com/bndr/gojenkins v1.1.0 h1:TWyJI6ST1qDAfH33DQb3G4mD8KkrBfyfSUoZBHQAvPI=
 github.com/bndr/gojenkins v1.1.0/go.mod h1:QeskxN9F/Csz0XV/01IC8y37CapKKWvOHa0UHLLX1fM=
-github.com/brainexe/viper v1.7.2 h1:/BqeK+jbjjxLjSBtLgEjTdURLb6grlGDvF3nk1WDupY=
-github.com/brainexe/viper v1.7.2/go.mod h1:9r/mF5P6NWDqk/MshWrY30UeeFDtUgXp/YmvGDGniF0=
+github.com/brainexe/viper v1.8.2 h1:eVe3+kSoy7OgYtz6tyMFU13QZ8Qe2zaalskPfw5RBDc=
+github.com/brainexe/viper v1.8.2/go.mod h1:9r/mF5P6NWDqk/MshWrY30UeeFDtUgXp/YmvGDGniF0=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cespare/xxhash v1.1.0/go.mod h1:XrSqR1VqqWfGrhpAt58auRo0WTKS1nRRg3ghfAqPWnc=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=

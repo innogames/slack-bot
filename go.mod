@@ -6,7 +6,7 @@ require (
 	github.com/alicebob/miniredis/v2 v2.15.1
 	github.com/andygrunwald/go-jira v1.14.0
 	github.com/bndr/gojenkins v1.1.0
-	github.com/brainexe/viper v1.7.2
+	github.com/brainexe/viper v1.8.2
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gfleury/go-bitbucket-v1 v0.0.0-20210707202713-7d616f7c18ac
 	github.com/go-redis/redis/v7 v7.4.1
