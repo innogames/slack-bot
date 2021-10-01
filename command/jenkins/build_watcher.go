@@ -42,7 +42,7 @@ func (c *buildWatcherCommand) run(match matcher.Result, message msg.Message) {
 	jobName := match.GetString("job")
 	buildNumber := match.GetInt("build")
 
-	ctx := context.TODO()
+	ctx := context.Background()
 	job, err := c.jenkins.GetJob(ctx, jobName)
 	if err != nil {
 		c.SendMessage(message, fmt.Sprintf("Job *%s* does not exist", jobName))
@@ -51,7 +51,7 @@ func (c *buildWatcherCommand) run(match matcher.Result, message msg.Message) {
 
 	build, err := getBuild(ctx, job, buildNumber)
 	if err != nil {
-		c.ReplyError(message, err)
+		c.SendMessage(message, fmt.Sprintf("Build *%s#%d* does not exist", jobName, buildNumber))
 		return
 	}
 
