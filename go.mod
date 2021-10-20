@@ -34,6 +34,7 @@ require (
 	github.com/jcelliott/lumber v0.0.0-20160324203708-dd349441af25 // indirect
 	github.com/spf13/viper v1.9.0 // indirect
 	github.com/stretchr/objx v0.3.0 // indirect
+	github.com/vektra/mockery/v2 v2.9.4 // indirect
 	golang.org/x/net v0.0.0-20210929193557-e81a3d93ecf6 // indirect
 	golang.org/x/sys v0.0.0-20210930212924-f542c8878de8 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect

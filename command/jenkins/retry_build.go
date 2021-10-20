@@ -25,7 +25,7 @@ func newRetryCommand(
 }
 
 func (c *retryCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher("retry (job|build) (?P<job>[\\w\\-_]+)( #?(?P<build>\\d+))?", c.run)
+	return matcher.NewRegexpMatcher(`retry (job|build) (?P<job>[\w\-_\\/]+)( #?(?P<build>\d+))?`, c.run)
 }
 
 func (c *retryCommand) IsEnabled() bool {
