@@ -31,7 +31,7 @@ func newBuildWatcherCommand(base jenkinsCommand) bot.Command {
 }
 
 func (c *buildWatcherCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher(`(notify|inform)( me about)? (job|build) ?(?P<job>[\w\-_]*)( #?(?P<build>\d+))?`, c.run)
+	return matcher.NewRegexpMatcher(`(notify|inform)( me about)? (job|build) ?(?P<job>[\w\-_\\/]*)( #?(?P<build>\d+))?`, c.run)
 }
 
 func (c *buildWatcherCommand) IsEnabled() bool {

@@ -29,7 +29,7 @@ type watcherCommand struct {
 }
 
 func (c *watcherCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher(`(?P<action>watch|unwatch) (?P<job>[\w\-_]+)`, c.run)
+	return matcher.NewRegexpMatcher(`(?P<action>watch|unwatch) (?P<job>[\w\-_\\/]+)`, c.run)
 }
 
 func (c *watcherCommand) run(match matcher.Result, message msg.Message) {
