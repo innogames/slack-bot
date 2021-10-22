@@ -62,16 +62,16 @@ func TestQueue(t *testing.T) {
 		actual := command.Run(message)
 		assert.True(t, actual)
 		assert.Empty(t, client.InternalMessages)
+	})
 
-		t.Run("Render template with not open PR", func(t *testing.T) {
-			tpl, err := util.CompileTemplate(`{{$count1 := countBackgroundJobs}}{{$count2 := countBackgroundJobsInChannel "C1234"}}{{$count1}} - {{$count2}}`)
-			assert.Nil(t, err)
+	t.Run("Render template with not open PR", func(t *testing.T) {
+		tpl, err := util.CompileTemplate(`{{$count1 := countBackgroundJobs}}{{$count2 := countBackgroundJobsInChannel "C1234"}}{{$count1}} - {{$count2}}`)
+		assert.Nil(t, err)
 
-			res, err := util.EvalTemplate(tpl, util.Parameters{})
-			assert.Nil(t, err)
+		res, err := util.EvalTemplate(tpl, util.Parameters{})
+		assert.Nil(t, err)
 
-			assert.Equal(t, "0 - 0", res)
-		})
+		assert.Equal(t, "0 - 0", res)
 	})
 
 	t.Run("Test queue command", func(t *testing.T) {
@@ -143,11 +143,15 @@ func TestQueue(t *testing.T) {
 		expectedMessage.Text = "reply test"
 		expectedMessage.Channel = "C1234"
 		assert.Equal(t, handledEvent, expectedMessage)
+
+		assert.Empty(t, client.InternalMessages)
 	})
 
 	t.Run("Test refresh queue command", func(t *testing.T) {
 		message.Text = "list queue"
 		message.UpdatedMessage = true
+
+		assert.Empty(t, client.InternalMessages)
 
 		mocks.AssertReaction(slackClient, processingReaction, message)
 		mocks.AssertRemoveReaction(slackClient, processingReaction, message)
