@@ -110,7 +110,14 @@ func AssertContainsSlackBlocks(t *testing.T, slackClient *SlackClient, message m
 		expectedJSONBlock, err := json.Marshal(block)
 		assert.Nil(t, err)
 
-		return strings.Contains(string(givenJSON), string(expectedJSONBlock))
+		if strings.Contains(string(givenJSON), string(expectedJSONBlock)) {
+			// all good!
+			return true
+		}
+
+		fmt.Println("not matching:", string(givenJSON), string(expectedJSONBlock))
+
+		return false
 	}), mock.Anything).Once().Return("")
 }
 
