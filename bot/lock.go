@@ -13,13 +13,14 @@ func getUserLock(userID string) *sync.Mutex {
 	var userLock *sync.Mutex
 
 	globalLock.Lock()
-	defer globalLock.Unlock()
 
 	userLock, ok := userLocks[userID]
 	if !ok {
 		userLock = &sync.Mutex{}
 		userLocks[userID] = userLock
 	}
+
+	globalLock.Unlock()
 
 	userLock.Lock()
 
