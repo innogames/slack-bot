@@ -164,7 +164,7 @@ func (b *Bot) HandleMessage(message *slack.MessageEvent) {
 // check if a user message was targeted to @bot or is a direct message to the bot. We also block traffic from other bots.
 func (b *Bot) canHandleMessage(event *slack.MessageEvent) bool {
 	// exclude all Bot traffic
-	if event.User == "" || event.User == b.auth.UserID || event.SubType == "bot_message" {
+	if event.User == "" || event.User == b.auth.UserID || event.SubType == slack.MsgSubTypeBotMessage {
 		return false
 	}
 
