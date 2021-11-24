@@ -3,7 +3,7 @@ module github.com/innogames/slack-bot/v2
 go 1.16
 
 require (
-	github.com/alicebob/miniredis/v2 v2.16.0
+	github.com/alicebob/miniredis/v2 v2.16.1
 	github.com/andygrunwald/go-jira v1.14.0
 	github.com/bndr/gojenkins v1.1.0
 	github.com/brainexe/viper v1.8.2
@@ -27,10 +27,7 @@ require (
 )
 
 require (
-	github.com/aws/aws-sdk-go v1.42.6 // indirect
-	github.com/aws/aws-sdk-go-v2 v1.11.0 // indirect
-	github.com/aws/aws-sdk-go-v2/config v1.10.1 // indirect
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.8.0 // indirect
+	github.com/aws/aws-sdk-go v1.42.6
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
