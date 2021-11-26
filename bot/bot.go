@@ -123,12 +123,21 @@ func (b *Bot) loadChannels() (map[string]string, error) {
 // load the public channels and list of all users from current space
 func (b *Bot) loadSlackData() error {
 	// whitelist users by group
-	for _, groupName := range b.config.Slack.AllowedGroups {
-		group, err := b.slackClient.GetUserGroupMembers(groupName)
-		if err != nil {
-			return errors.Wrap(err, "error fetching user of group. You need a user token with 'usergroups:read' scope permission")
+	allGroups, err := b.slackClient.GetUserGroups()
+	if err != nil {
+		return errors.Wrap(err, "error fetching groups")
+	}
+
+	for _, group := range allGroups {
+		for _, allowedGroup := range b.config.Slack.AllowedGroups {
+			if allowedGroup == group.ID || allowedGroup == group.Name {
+				group, err := b.slackClient.GetUserGroupMembers(group.ID)
+				if err != nil {
+					return errors.Wrap(err, "error fetching user of group. You need a user token with 'usergroups:read' scope permission")
+				}
+				b.config.AllowedUsers = append(b.config.AllowedUsers, group...)
+			}
 		}
-		b.config.AllowedUsers = append(b.config.AllowedUsers, group...)
 	}
 
 	// load user list
@@ -137,11 +146,17 @@ func (b *Bot) loadSlackData() error {
 		return errors.Wrap(err, "error fetching users")
 	}
 
-	for _, user := range allUsers {
-		for _, allowedUserName := range b.config.AllowedUsers {
-			if allowedUserName == user.Name || allowedUserName == user.ID {
-				b.allowedUsers[user.ID] = user.Name
-				break
+	if len(b.config.AllowedUsers) == 0 {
+		for _, user := range allUsers {
+			b.allowedUsers[user.ID] = user.Name
+		}
+	} else {
+		for _, user := range allUsers {
+			for _, allowedUserName := range b.config.AllowedUsers {
+				if allowedUserName == user.Name || allowedUserName == user.ID {
+					b.allowedUsers[user.ID] = user.Name
+					break
+				}
 			}
 		}
 	}

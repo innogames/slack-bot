@@ -69,6 +69,10 @@ type usersResponse struct {
 	Members []slack.User
 }
 
+type userGroupsResponse struct {
+	Groups []slack.UserGroup
+}
+
 // kinda dirty grown function to format a /chat.postMessage /chat.postEphemeral message on the command like...somehow
 func messageHandler(w http.ResponseWriter, r *http.Request, output io.Writer) {
 	payload, _ := ioutil.ReadAll(r.Body)

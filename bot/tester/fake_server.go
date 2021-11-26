@@ -26,6 +26,13 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 			bytes, _ := json.Marshal(users)
 			_, _ = w.Write(bytes)
 		})
+		c.Handle("/usergroups.list", func(w http.ResponseWriter, _ *http.Request) {
+			groups := userGroupsResponse{
+				Groups: []slack.UserGroup{},
+			}
+			bytes, _ := json.Marshal(groups)
+			_, _ = w.Write(bytes)
+		})
 		c.Handle("/chat.postMessage", func(w http.ResponseWriter, r *http.Request) {
 			messageHandler(w, r, output)
 		})
