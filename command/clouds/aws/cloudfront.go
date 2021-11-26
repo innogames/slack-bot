@@ -39,7 +39,7 @@ func (c *cloudFrontCommand) distributions(match matcher.Result, message msg.Mess
 	// show list
 	blocks := []slack.Block{}
 	for _, v := range c.cfg {
-		txtObj := slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("\"%s\": %s\n", v.Id, v.Name), false, false)
+		txtObj := slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("\"%s\": %s\n", v.ID, v.Name), false, false)
 		if err := txtObj.Validate(); err != nil {
 			fmt.Println(err.Error())
 			return
@@ -53,8 +53,8 @@ func (c *cloudFrontCommand) clearCache(match matcher.Result, message msg.Message
 	dist := match.GetString("DIST")
 	paths := []*string{}
 	for _, v := range strings.Split(match.GetString("PATH"), ",") {
-		fmt.Println(v)
-		paths = append(paths, &v)
+		_tempVal := v
+		paths = append(paths, &_tempVal)
 	}
 	quantity := int64(len(paths))
 	ref := strconv.FormatInt(time.Now().Unix(), 10)
@@ -86,7 +86,6 @@ func (c *cloudFrontCommand) clearCache(match matcher.Result, message msg.Message
 
 		return
 	}
-
 }
 
 func (c *cloudFrontCommand) GetHelp() []bot.Help {

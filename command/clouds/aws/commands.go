@@ -26,6 +26,10 @@ type awsCommand struct {
 func GetCommands(cfg config.Aws, base bot.BaseCommand) bot.Commands {
 	var commands bot.Commands
 
+	if !cfg.IsEnabled() {
+		return commands
+	}
+
 	session, err := aws.GetSession()
 	if nil != err {
 		log.Error(errors.Wrap(err, "Error while getting aws sdk session"))
@@ -51,10 +55,9 @@ func setCloudFrontDistributions(cfg config.Aws) []config.AwsCfDistribution {
 
 	for _, v := range cfg.CloudFront {
 		c = append(c, config.AwsCfDistribution{
-			Id:   v.Id,
+			ID:   v.ID,
 			Name: v.Name,
 		})
 	}
 	return c
-
 }
