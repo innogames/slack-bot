@@ -5,6 +5,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/innogames/slack-bot/v2/command/admin"
+	"github.com/innogames/slack-bot/v2/command/clouds/aws"
 	"github.com/innogames/slack-bot/v2/command/cron"
 	"github.com/innogames/slack-bot/v2/command/custom"
 	"github.com/innogames/slack-bot/v2/command/games"
@@ -59,6 +60,9 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 
 	// pull-request
 	commands.Merge(pullrequest.GetCommands(base, &cfg))
+
+	// aws
+	commands.Merge(aws.GetCommands(cfg.Aws, base))
 
 	return commands
 }
