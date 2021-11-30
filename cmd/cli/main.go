@@ -23,8 +23,6 @@ func main() {
 	verbose := flag.Bool("verbose", false, "More verbose output")
 	flag.Parse()
 
-	color.Info.Println("Hey! I'm your Slack Emulator. Call 'help' to get a list of all supported commands")
-
 	cfg := loadConfig(configFile)
 	cfg.Logger.Level = "error"
 	if *verbose {

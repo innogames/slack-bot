@@ -6,7 +6,7 @@ crons:
     channel: "#pull-requests"
 
   # Cron example: 3 times a day check in the given channel if there are more than 5 background jobs, which might be watched pull requests
-  - schedule: "CRON_TZ=Europe/Berlin 0 9,13,16 * * * MON-FRI"
+  - schedule: "CRON_TZ=Europe/Berlin 0 9,13,16 * * MON-FRI"
     channel: "#pull-requests"
     commands:
      - |
