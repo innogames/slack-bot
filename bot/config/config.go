@@ -14,7 +14,7 @@ type Config struct {
 		AccessToken string
 		Host        string
 	} `mapstructure:"gitlab"`
-
+	Aws      Aws       `mapstructure:"aws"`
 	Commands []Command `mapstructure:"commands"`
 	Crons    []Cron    `mapstructure:"crons"`
 	Logger   Logger    `mapstructure:"logger"`
