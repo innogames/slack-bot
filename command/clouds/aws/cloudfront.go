@@ -31,7 +31,7 @@ func newCloudFrontCommands(cfg []config.AwsCfDistribution, base awsCommand) bot.
 func (c *cloudFrontCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewTextMatcher("aws cf list", c.distributions),
-		matcher.NewRegexpMatcher(`aws cf clean (?P<DIST>[\w|\d]+) at (?P<PATH>[\w|\d|\W]+)`, c.clearCache),
+		matcher.NewRegexpMatcher(`aws cf clean (?P<DIST>[\w|\d|\W]+) at (?P<PATH>[\w|\d|\W]+)`, c.clearCache),
 	)
 }
 
@@ -39,7 +39,7 @@ func (c *cloudFrontCommand) distributions(match matcher.Result, message msg.Mess
 	// show list
 	blocks := []slack.Block{}
 	for _, v := range c.cfg {
-		txtObj := slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("\"%s\": %s\n", v.ID, v.Name), false, false)
+		txtObj := slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("%s\n", v.Name), false, false)
 		if err := txtObj.Validate(); err != nil {
 			fmt.Println(err.Error())
 			return
@@ -50,7 +50,24 @@ func (c *cloudFrontCommand) distributions(match matcher.Result, message msg.Mess
 }
 
 func (c *cloudFrontCommand) clearCache(match matcher.Result, message msg.Message) {
-	dist := match.GetString("DIST")
+	_dist := match.GetString("DIST")
+	dist := ""
+	for _, v := range c.cfg {
+		if v.Name == _dist {
+			dist = v.ID
+			break
+		}
+	}
+	if dist == "" {
+		blocks := []slack.Block{
+			client.GetTextBlock(
+				"Oops! Command `" + message.GetText() + "` failed..." + "There is no cache named " + _dist,
+			),
+		}
+		c.SendBlockMessage(message, blocks)
+		return
+	}
+
 	paths := []*string{}
 	for _, v := range strings.Split(match.GetString("PATH"), ",") {
 		_tempVal := v
@@ -73,8 +90,7 @@ func (c *cloudFrontCommand) clearCache(match matcher.Result, message msg.Message
 	output, err := c.service.CreateInvalidation(invalidation)
 
 	if nil != output.Invalidation {
-		fmt.Println(output.String())
-		c.SendMessage(message, fmt.Sprintf("cache %s cleared", dist))
+		c.SendMessage(message, fmt.Sprintf("cache %s cleared", _dist))
 	} else {
 		fmt.Println(err.Error())
 		blocks := []slack.Block{
@@ -83,8 +99,6 @@ func (c *cloudFrontCommand) clearCache(match matcher.Result, message msg.Message
 			),
 		}
 		c.SendBlockMessage(message, blocks)
-
-		return
 	}
 }
 
