@@ -125,21 +125,21 @@ func (b *Bot) loadSlackData() error {
 	// whitelist users by group
 	allGroups, err := b.slackClient.GetUserGroups()
 	if err != nil {
-		return errors.Wrap(err, "error fetching groups")
-	}
-
-	for _, group := range allGroups {
-		for _, allowedGroup := range b.config.Slack.AllowedGroups {
-			if allowedGroup == group.ID || allowedGroup == group.Name {
-				group, err := b.slackClient.GetUserGroupMembers(group.ID)
-				if err != nil {
-					return errors.Wrap(err, "error fetching user of group. You need a user token with 'usergroups:read' scope permission")
+		log.Warnf("You have a problem with scope `usergroup:read`. Skip adding users by groups: %v", err)
+	} else {
+		for _, group := range allGroups {
+			for _, allowedGroup := range b.config.Slack.AllowedGroups {
+				if allowedGroup == group.ID || allowedGroup == group.Name {
+					group, err := b.slackClient.GetUserGroupMembers(group.ID)
+					if err != nil {
+						log.Warnf("Skip to add users in usergroup %s: %v", allowedGroup, err)
+						continue
+					}
+					b.config.AllowedUsers = append(b.config.AllowedUsers, group...)
 				}
-				b.config.AllowedUsers = append(b.config.AllowedUsers, group...)
 			}
 		}
 	}
-
 	// load user list
 	allUsers, err := b.slackClient.GetUsers()
 	if err != nil {
