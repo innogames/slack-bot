@@ -3,7 +3,7 @@ module github.com/innogames/slack-bot/v2
 go 1.16
 
 require (
-	github.com/alicebob/miniredis/v2 v2.16.1
+	github.com/alicebob/miniredis/v2 v2.17.0
 	github.com/andygrunwald/go-jira v1.14.0
 	github.com/bndr/gojenkins v1.1.0
 	github.com/brainexe/viper v1.8.2
