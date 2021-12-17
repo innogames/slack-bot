@@ -147,6 +147,7 @@ func (c *definedCommand) GetHelp() []bot.Help {
 	help = append(help, bot.Help{
 		Command:     "list template functions",
 		Description: "lists all available template functions for custom commands (global ones and user specific ones)",
+		Category:    helperCategory,
 	})
 
 	return help

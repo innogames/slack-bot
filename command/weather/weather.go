@@ -34,7 +34,7 @@ type command struct {
 func (c *command) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewTextMatcher("weather", c.getWeather),
-		matcher.NewRegexpMatcher(`weather in (?P<location>\w\s+)`, c.getWeather),
+		matcher.NewRegexpMatcher(`weather in (?P<location>[\w\s]+)`, c.getWeather),
 	)
 }
 
@@ -124,10 +124,14 @@ func (c *command) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "weather",
-			Description: "returns the current weather information",
+			Description: "returns the current weather information for: " + c.cfg.Location,
+		},
+		{
+			Command:     "weather in <location>",
+			Description: "returns the current weather information for the given location.",
 			Examples: []string{
-				"weather",
-				"weather in Berlin",
+				"weather in New York",
+				"weather in Hamburg",
 			},
 		},
 	}

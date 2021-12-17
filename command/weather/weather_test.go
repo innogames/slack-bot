@@ -69,7 +69,7 @@ func TestWeather(t *testing.T) {
 
 	t.Run("Test help", func(t *testing.T) {
 		help := command.GetHelp()
-		assert.Equal(t, 1, len(help))
+		assert.Equal(t, 2, len(help))
 	})
 
 	t.Run("Fetch with invalid API-Key", func(t *testing.T) {

@@ -32,7 +32,7 @@ func TestInformIdle(t *testing.T) {
 		// we don't have time to wait some minutes for the second check...
 		trigger.checkInterval = time.Millisecond * 1
 
-		ctx := context.TODO()
+		ctx := context.Background()
 		// first call: ne job is idle...the other one is still busy
 		jenkins.On("GetAllNodes", ctx).Return([]*gojenkins.Node{
 			getNodeWithExecutors(0, 1),
@@ -64,12 +64,14 @@ func TestInformIdle(t *testing.T) {
 		message.Text = "wait until jenkins is idle"
 
 		// we have 2 nodes with only idle executors
-		ctx := context.TODO()
+		mocks.AssertReaction(slackClient, doneReaction, message)
+
+		ctx := context.Background()
 		jenkins.On("GetAllNodes", ctx).Return([]*gojenkins.Node{
 			getNodeWithExecutors(0, 1),
 			getNodeWithExecutors(0, 2),
 		}, nil)
-		slackClient.On("SendMessage", message, "There are no jobs running right now!").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "There are no jobs running right now!")
 
 		actual := command.Run(message)
 		assert.True(t, actual)

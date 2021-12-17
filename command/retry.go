@@ -107,6 +107,7 @@ func (c *retryCommand) GetHelp() []bot.Help {
 		{
 			Command:     "repeat (or retry)",
 			Description: "retires the last executed command",
+			Category:    helperCategory,
 			Examples: []string{
 				"retry",
 				"repeat",

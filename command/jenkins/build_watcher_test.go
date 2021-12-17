@@ -7,6 +7,7 @@ import (
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,7 +31,7 @@ func TestBuildWatcher(t *testing.T) {
 
 		ctx := context.TODO()
 		jenkinsClient.On("GetJob", ctx, "TestJob").Return(nil, fmt.Errorf(""))
-		slackClient.On("SendMessage", message, "Job *TestJob* does not exist").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "Job *TestJob* does not exist")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
