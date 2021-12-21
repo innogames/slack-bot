@@ -109,7 +109,6 @@ type SlackClient interface {
 
 	// SendToUser sends a simple text message to a user, using "@username or @U12334"
 	SendToUser(user string, text string)
-
 	RemoveReaction(reaction util.Reaction, ref msg.Ref)
 	AddReaction(reaction util.Reaction, ref msg.Ref)
 	GetReactions(item slack.ItemRef, params slack.GetReactionsParameters) ([]slack.ItemReaction, error)

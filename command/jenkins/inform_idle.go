@@ -32,6 +32,7 @@ func (c *idleWatcherCommand) GetMatcher() matcher.Matcher {
 
 func (c *idleWatcherCommand) run(match matcher.Result, message msg.Message) {
 	if !c.hasRunningBuild(message) {
+		c.AddReaction(doneReaction, message)
 		c.SendMessage(
 			message,
 			"There are no jobs running right now!",

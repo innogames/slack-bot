@@ -8,6 +8,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -40,7 +41,7 @@ func TestJobStatus(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "enable job InvalidJob"
 
-		slackClient.On("SendMessage", message, "Sorry, job *InvalidJob* is not whitelisted").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "Sorry, job *InvalidJob* is not whitelisted")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})

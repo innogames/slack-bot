@@ -80,6 +80,7 @@ func (t *helpCommand) showAll(match matcher.Result, message msg.Message) {
 }
 
 func (t *helpCommand) printCategoryHeader(commandHelp bot.Help) (text string) {
+	text = "\n"
 	if commandHelp.Category.HelpURL != "" {
 		text += fmt.Sprintf("*<%s|%s>*", commandHelp.Category.HelpURL, commandHelp.Category.Name)
 	} else {
