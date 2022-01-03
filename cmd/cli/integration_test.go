@@ -11,12 +11,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/innogames/slack-bot/v2/mocks"
-
 	"github.com/gookit/color"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/tester"
 	"github.com/innogames/slack-bot/v2/bot/util"
+	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -52,6 +51,8 @@ func TestAll(t *testing.T) {
 	// custom commands
 	testCommand("add command 'wtf' 'reply bar'", "Added command: reply bar. Just use wtf in future.", input, expectedOutput)
 	testCommand("wtf", "executing command: reply bar\nbar", input, expectedOutput)
+	testCommand("add command 'timer-test' 'delay 100ms quiet reply foo; delay 1ms quiet reply bar'", "Added command: delay 100ms quiet reply foo; delay 1ms quiet reply bar. Just use timer-test in future.", input, expectedOutput)
+	testCommand("timer-test", "executing command: delay 100ms quiet reply foo; delay 1ms quiet reply bar\nbar\nfoo", input, expectedOutput)
 
 	time.Sleep(time.Second * 1)
 

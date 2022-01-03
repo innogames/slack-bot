@@ -66,6 +66,50 @@ func AssertQueuedMessage(t *testing.T, expected msg.Message) {
 	assert.Equal(t, actual, expected)
 }
 
+// WaitForQueuedMessages waits until all "count" messages are queued and returns them in the returned function.
+// We get a failed test when there are more messages than expected or not enough messages after 1 second of timeout.
+func WaitForQueuedMessages(t *testing.T, count int) func() []msg.Message {
+	t.Helper()
+
+	wg := &sync.WaitGroup{}
+	wg.Add(count)
+
+	assert.Empty(t, client.InternalMessages)
+
+	messages := make([]msg.Message, 0, count)
+
+	go func() {
+		for message := range client.InternalMessages {
+			// mark as handled -> the command can add the next command
+			// just some time to test if the concurrency works
+			time.Sleep(time.Millisecond * 5)
+
+			message.Done.Done()
+			message.Done = nil
+			messages = append(messages, message)
+			wg.Done()
+		}
+	}()
+
+	return func() []msg.Message {
+		defer close(client.InternalMessages)
+
+		timer := time.NewTimer(time.Second)
+		go func() {
+			<-timer.C
+			t.Fail()
+		}()
+
+		wg.Wait()
+
+		timer.Stop()
+
+		assert.Len(t, messages, count)
+
+		return messages
+	}
+}
+
 // AssertSlackJSON is a test helper to assert full slack attachments
 func AssertSlackJSON(t *testing.T, slackClient *SlackClient, message msg.Ref, expected string) {
 	t.Helper()

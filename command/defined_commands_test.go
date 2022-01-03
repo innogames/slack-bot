@@ -1,9 +1,7 @@
 package command
 
 import (
-	"sync"
 	"testing"
-	"time"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -104,30 +102,15 @@ func TestDefinedCommands(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "start test"
 
-		// the command is pushing the messages in the client.InternalMessages and waits until the command is done
-		wg := &sync.WaitGroup{}
-		wg.Add(2) // we expect 2 commands to be called in the background
-		var actualMessages []msg.Message
-		go func() {
-			for message := range client.InternalMessages {
-				// mark as handled -> the command can add the next command
-				// just some time to test if the concurrency works
-				time.Sleep(time.Millisecond * 5)
-
-				message.Done.Done()
-				actualMessages = append(actualMessages, message)
-				wg.Done()
-			}
-		}()
+		getMessages := mocks.WaitForQueuedMessages(t, 2)
 
 		// run the command -> it's blocking until all sub-commands are handled
 		assert.Empty(t, client.InternalMessages)
 		actual := command.Run(message)
 		assert.True(t, actual)
 
-		wg.Wait()
+		actualMessages := getMessages()
 
-		assert.Len(t, actualMessages, 2)
 		assert.Equal(t, "macro 1", actualMessages[0].Text)
 		assert.Equal(t, "macro test", actualMessages[1].Text)
 	})
