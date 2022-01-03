@@ -19,7 +19,8 @@ func (c command) handle(ref msg.Ref, text string) bool {
 
 	c.SendMessage(ref, fmt.Sprintf("executing command: `%s`", commands))
 	for _, command := range strings.Split(commands, ";") {
-		client.HandleMessage(ref.WithText(command))
+		message := client.HandleMessageWithDoneHandler(ref.WithText(command))
+		message.Wait()
 	}
 
 	return true
