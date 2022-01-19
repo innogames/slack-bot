@@ -9,13 +9,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// help category to group all Jenkins command
-var category = bot.Category{
-	Name:        "Cloud-AWS",
-	Description: "Interact with AWS resources: Clear CF caches",
-	HelpURL:     "https://github.com/innogames/slack-bot",
-}
-
 // base command to access Slack+Jenkins directly
 type awsCommand struct {
 	bot.BaseCommand
@@ -41,22 +34,23 @@ func GetCommands(cfg config.Aws, base bot.BaseCommand) bot.Commands {
 		session,
 	}
 
-	distributions := setCloudFrontDistributions(cfg)
+	lambda := setAWSLambda(cfg)
 
 	commands.AddCommand(
-		newCloudFrontCommands(distributions, awsBase),
+		newLambdaCommands(lambda, awsBase),
 	)
 
 	return commands
 }
 
-func setCloudFrontDistributions(cfg config.Aws) []config.AwsCfDistribution {
-	c := []config.AwsCfDistribution{}
+func setAWSLambda(cfg config.Aws) []config.Lambda {
+	c := []config.Lambda{}
 
-	for _, v := range cfg.CloudFront {
-		c = append(c, config.AwsCfDistribution{
-			ID:   v.ID,
-			Name: v.Name,
+	for _, v := range cfg.Lambda {
+		c = append(c, config.Lambda{
+			Name:        v.Name,
+			Alias:       v.Alias,
+			Description: v.Description,
 		})
 	}
 	return c
