@@ -6,6 +6,9 @@ import (
 	"github.com/pkg/errors"
 )
 
+// by default bitbucket will only return the most recent 25 branches...
+const bitbucketBranchLimit = 1000
+
 type bitbucket struct {
 	client *bitbucketApi.DefaultApiService
 	cfg    config.Bitbucket
@@ -13,7 +16,9 @@ type bitbucket struct {
 
 // LoadBranches will load the branches from a stash/bitbucket server
 func (f *bitbucket) LoadBranches() (branchNames []string, err error) {
-	branchesRaw, err := f.client.GetBranches(f.cfg.Project, f.cfg.Repository, nil)
+	branchesRaw, err := f.client.GetBranches(f.cfg.Project, f.cfg.Repository, map[string]interface{}{
+		"limit": bitbucketBranchLimit,
+	})
 	if err != nil {
 		return
 	}

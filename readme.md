@@ -62,7 +62,7 @@ settings:
 5. Create the App!
 6. Go to "Basic Information"
 7. -> in "App-Level Tokens", "Generate a Token" with the scope "connections:write"
-8. You will see a App-Level Token (beginning with xapp-). Sse it in the config.yaml as slack.socket_token.
+8. You will see a App-Level Token (beginning with xapp-). Set it in the config.yaml as slack.socket_token.
 9. Go to "OAuth & Permissions":
 10. -> "Install to Workspace"
 11. -> you should see a "Bot User OAuth Access Token" (beginning with "xoxb-"). Use it as slack.token in the config.yaml

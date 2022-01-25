@@ -7,7 +7,7 @@ require (
 	github.com/andygrunwald/go-jira v1.14.0
 	github.com/bndr/gojenkins v1.1.0
 	github.com/brainexe/viper v1.8.2
-	github.com/gfleury/go-bitbucket-v1 v0.0.0-20210826163055-dff2223adeac
+	github.com/gfleury/go-bitbucket-v1 v0.0.0-20220125132502-90a950f9bcba
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/gookit/color v1.5.0
@@ -27,14 +27,17 @@ require (
 )
 
 require (
-	github.com/aws/aws-sdk-go v1.42.25
+	github.com/aws/aws-sdk-go v1.42.40
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.0 // indirect
 	github.com/jcelliott/lumber v0.0.0-20160324203708-dd349441af25 // indirect
+	github.com/mitchellh/mapstructure v1.4.3 // indirect
+	github.com/spf13/afero v1.8.0 // indirect
 	github.com/spf13/viper v1.9.0 // indirect
 	github.com/stretchr/objx v0.3.0 // indirect
-	golang.org/x/sys v0.0.0-20211116061358-0a5406a5449c // indirect
-	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
-	gopkg.in/ini.v1 v1.64.0 // indirect
+	golang.org/x/net v0.0.0-20220121210141-e204ce36a2ba // indirect
+	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
+	golang.org/x/time v0.0.0-20211116232009-f0f3c7e86c11 // indirect
+	gopkg.in/ini.v1 v1.66.3 // indirect
 )
