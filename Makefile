@@ -17,7 +17,7 @@ run: dep
 	go run $(FLAGS) cmd/bot/main.go
 
 run-cli:
-	go run cmd/cli/main.go
+	go run $(FLAGS) cmd/cli/main.go
 
 run-cli-config:
 	go run cmd/cli/main.go -config config.yaml
