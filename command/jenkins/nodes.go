@@ -12,11 +12,6 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/msg"
 )
 
-const (
-	iconStatusOnline  = "✔"
-	iconStatusOffline = "🔴"
-)
-
 type nodesCommand struct {
 	jenkinsCommand
 	cfg config.Jenkins
@@ -28,7 +23,7 @@ func newNodesCommand(base jenkinsCommand, cfg config.Jenkins) bot.Command {
 }
 
 func (c *nodesCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewTextMatcher("jenkins nodes", c.run)
+	return matcher.NewTextMatcher("list jenkins nodes", c.run)
 }
 
 func (c *nodesCommand) IsEnabled() bool {
@@ -49,50 +44,58 @@ func (c *nodesCommand) run(match matcher.Result, message msg.Message) {
 	})
 
 	text := fmt.Sprintf("*<%s/computer/|%d Nodes>*\n", c.cfg.Host, len(nodes))
-	var statusIcon string
-	for _, node := range nodes {
-		offline := node.Raw.Offline
 
-		if offline {
-			statusIcon = iconStatusOffline
-		} else {
-			statusIcon = iconStatusOnline
-		}
+	totalJobsRunning := 0
+
+	for _, node := range nodes {
+		runningJobs := countBusyExecutors(node)
+		totalJobsRunning += runningJobs
 
 		text += fmt.Sprintf(
-			"• *<%s/computer/%s/|%s>* - status: %s - busy executors: %d/%d\n",
+			"• *<%s/computer/%s/|%s>* - %s - busy executors: %d/%d\n",
 			c.cfg.Host,
 			node.GetName(),
 			node.GetName(),
-			statusIcon,
-			c.countBusyExecutors(node),
-			len(node.Raw.Executors),
+			getNodeStatus(node),
+			runningJobs,
+			len(node.Raw.Executors)+len(node.Raw.OneOffExecutors),
 		)
 	}
+
+	text += fmt.Sprintf("\nIn total there are %d build(s) running right now", totalJobsRunning)
 
 	c.SendMessage(message, text)
 }
 
-func (c *nodesCommand) countBusyExecutors(node *gojenkins.Node) int {
-	busyNodes := 0
+func getNodeStatus(node *gojenkins.Node) string {
+	if node.Raw.Offline {
+		return "offline 🔴"
+	}
+	if node.Raw.TemporarilyOffline {
+		return "temporary offline ⏸"
+	}
+
+	return "online ✔"
+}
+
+func countBusyExecutors(node *gojenkins.Node) int {
+	busyExecutors := len(node.Raw.OneOffExecutors)
+
 	for _, executor := range node.Raw.Executors {
 		if executor.CurrentExecutable.Number != 0 {
-			busyNodes++
+			busyExecutors++
 		}
 	}
 
-	return busyNodes
+	return busyExecutors
 }
 
 func (c *nodesCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "jenkins nodes",
+			Command:     "list jenkins nodes",
 			Description: "Prints a list of all jenkins nodes",
-			Examples: []string{
-				"jenkins nodes",
-			},
-			Category: category,
+			Category:    category,
 		},
 	}
 }
