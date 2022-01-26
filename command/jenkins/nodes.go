@@ -26,10 +26,6 @@ func (c *nodesCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewTextMatcher("list jenkins nodes", c.run)
 }
 
-func (c *nodesCommand) IsEnabled() bool {
-	return c.jenkins != nil
-}
-
 func (c *nodesCommand) run(match matcher.Result, message msg.Message) {
 	ctx := context.TODO()
 	nodes, err := c.jenkins.GetAllNodes(ctx)

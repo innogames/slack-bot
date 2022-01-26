@@ -28,10 +28,6 @@ func (c *retryCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewRegexpMatcher(`retry (job|build) (?P<job>[\w\-_\\/]+)( #?(?P<build>\d+))?`, c.run)
 }
 
-func (c *retryCommand) IsEnabled() bool {
-	return c.jenkins != nil
-}
-
 func (c *retryCommand) run(match matcher.Result, message msg.Message) {
 	jobName := match.GetString("job")
 	if _, ok := c.jobs[jobName]; !ok {

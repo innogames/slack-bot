@@ -30,10 +30,6 @@ func (c *statusCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewRegexpMatcher(`(?P<action>enable|disable) job (?P<job>[\w\-_\\/]+)`, c.run)
 }
 
-func (c *statusCommand) IsEnabled() bool {
-	return c.jenkins != nil
-}
-
 func (c *statusCommand) run(match matcher.Result, message msg.Message) {
 	action := match.GetString("action")
 	jobName := match.GetString("job")
