@@ -34,10 +34,6 @@ func (c *buildWatcherCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewRegexpMatcher(`(notify|inform)( me about)? (job|build) ?(?P<job>[\w\-_\\/]*)( #?(?P<build>\d+))?`, c.run)
 }
 
-func (c *buildWatcherCommand) IsEnabled() bool {
-	return c.jenkins != nil
-}
-
 func (c *buildWatcherCommand) run(match matcher.Result, message msg.Message) {
 	jobName := match.GetString("job")
 	buildNumber := match.GetInt("build")

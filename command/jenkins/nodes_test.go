@@ -34,11 +34,11 @@ func TestNodes(t *testing.T) {
 
 	t.Run("Fetch with error", func(t *testing.T) {
 		message := msg.Message{}
-		message.Text = "jenkins nodes"
+		message.Text = "list jenkins nodes"
 
 		ctx := context.TODO()
 		jenkinsClient.On("GetAllNodes", ctx).Return(nil, fmt.Errorf("an error occurred")).Once()
-		slackClient.On("ReplyError", message, fmt.Errorf("an error occurred")).Return(true)
+		mocks.AssertError(slackClient, message, fmt.Errorf("an error occurred"))
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -60,17 +60,25 @@ func TestNodes(t *testing.T) {
 					Offline:     true,
 				},
 			},
+			{
+				Raw: &gojenkins.NodeResponse{
+					DisplayName:        "Node 3",
+					TemporarilyOffline: true,
+				},
+			},
 		}
 
 		message := msg.Message{}
-		message.Text = "jenkins nodes"
+		message.Text = "list jenkins nodes"
 
-		ctx := context.TODO()
+		ctx := context.Background()
 		jenkinsClient.On("GetAllNodes", ctx).Return(nodes, nil).Once()
-		mocks.AssertSlackMessage(slackClient, message, `*<https://jenkins.example.com/computer/|2 Nodes>*
-• *<https://jenkins.example.com/computer/Node 1/|Node 1>* - status: ✔ - busy executors: 0/0
-• *<https://jenkins.example.com/computer/Node 2/|Node 2>* - status: 🔴 - busy executors: 0/0
-`)
+		mocks.AssertSlackMessage(slackClient, message, `*<https://jenkins.example.com/computer/|3 Nodes>*
+• *<https://jenkins.example.com/computer/Node 1/|Node 1>* - online ✔ - busy executors: 0/0
+• *<https://jenkins.example.com/computer/Node 2/|Node 2>* - offline 🔴 - busy executors: 0/0
+• *<https://jenkins.example.com/computer/Node 3/|Node 3>* - temporary offline ⏸ - busy executors: 0/0
+
+In total there are 0 build(s) running right now`)
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -97,7 +105,7 @@ func TestRealNodes(t *testing.T) {
 		command.AddCommand(newNodesCommand(base, cfg))
 
 		message := msg.Message{}
-		message.Text = "jenkins nodes"
+		message.Text = "list jenkins nodes"
 
 		slackClient.On("SendMessage", message, mock.Anything).Return("")
 		actual := command.Run(message)
