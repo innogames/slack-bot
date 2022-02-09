@@ -50,6 +50,7 @@ func setAWSLambda(cfg config.Aws) []config.Lambda {
 		c = append(c, config.Lambda{
 			Name:        v.Name,
 			Alias:       v.Alias,
+			Outputs:     v.Outputs,
 			Description: v.Description,
 		})
 	}
