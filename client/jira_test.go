@@ -18,7 +18,7 @@ func TestJira(t *testing.T) {
 		assert.Equal(t, "jira.example.com", client.GetBaseURL().Host)
 	})
 
-	t.Run("with credentials", func(t *testing.T) {
+	t.Run("with password", func(t *testing.T) {
 		cfg := &config.Jira{
 			Host:     "https://jira.example.com",
 			Username: "foo",
@@ -28,5 +28,18 @@ func TestJira(t *testing.T) {
 
 		assert.Nil(t, err)
 		assert.False(t, client.Authentication.Authenticated())
+	})
+
+	t.Run("with access token", func(t *testing.T) {
+		cfg := &config.Jira{
+			Host:        "https://jira.example.com",
+			Username:    "foo",
+			AccessToken: "iamsecret",
+		}
+		client, err := GetJiraClient(cfg)
+
+		assert.Nil(t, err)
+		assert.False(t, client.Authentication.Authenticated())
+		client.Authentication.GetCurrentUser()
 	})
 }
