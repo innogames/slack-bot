@@ -2,11 +2,12 @@ package config
 
 // Jira configuration: credentials and custom formatting options
 type Jira struct {
-	Host     string
-	Username string
-	Password string
-	Project  string
-	Fields   []JiraField
+	Host        string
+	Username    string
+	Password    string
+	AccessToken string
+	Project     string
+	Fields      []JiraField
 }
 
 // JiraField are custom Jira issue fields which should be displayed in the search/output
