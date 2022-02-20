@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         # https://github.com/actions/go-versions/blob/main/versions-manifest.json
-        go-version: [1.17.x]
+        go-version: [1.17.x, 1.18.0-beta2]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -21,6 +21,7 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go-version }}
+          stable: false
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run tests
