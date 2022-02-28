@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/alicebob/miniredis/v2 v2.17.0
-	github.com/andygrunwald/go-jira v1.15.0
+	github.com/andygrunwald/go-jira v1.15.1
 	github.com/bndr/gojenkins v1.1.0
 	github.com/brainexe/viper v1.8.2
 	github.com/gfleury/go-bitbucket-v1 v0.0.0-20220125132502-90a950f9bcba
@@ -54,8 +54,6 @@ require (
 
 require (
 	github.com/aws/aws-sdk-go v1.43.2
-	github.com/gen2brain/dlgs v0.0.0-20211108104213-bade24837f0b
-	github.com/gopherjs/gopherjs v0.0.0-20220104163920-15ed2e8cf2bd // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.0 // indirect
