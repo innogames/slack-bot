@@ -20,7 +20,7 @@ require (
 	github.com/slack-go/slack v0.10.2
 	github.com/stretchr/testify v1.7.0
 	github.com/texttheater/golang-levenshtein/levenshtein v0.0.0-20200805054039-cae8b0eaed6c
-	github.com/xanzy/go-gitlab v0.55.1
+	github.com/xanzy/go-gitlab v0.56.0
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b
 	golang.org/x/text v0.3.7
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
@@ -54,8 +54,6 @@ require (
 
 require (
 	github.com/aws/aws-sdk-go v1.43.2
-	github.com/gen2brain/dlgs v0.0.0-20211108104213-bade24837f0b
-	github.com/gopherjs/gopherjs v0.0.0-20220104163920-15ed2e8cf2bd // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.0 // indirect
