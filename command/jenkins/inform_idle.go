@@ -2,6 +2,7 @@ package jenkins
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/bndr/gojenkins"
@@ -51,7 +52,8 @@ func (c *idleWatcherCommand) checkAllNodes(match matcher.Result, message msg.Mes
 }
 
 func (c *idleWatcherCommand) check(message msg.Message, nodeFilter func(node *gojenkins.Node) bool) {
-	if !c.hasRunningBuild(message, nodeFilter) {
+	buildCount := c.countRunningBuild(message, nodeFilter)
+	if buildCount == 0 {
 		c.AddReaction(doneReaction, message)
 		c.SendMessage(
 			message,
@@ -59,6 +61,11 @@ func (c *idleWatcherCommand) check(message msg.Message, nodeFilter func(node *go
 		)
 		return
 	}
+
+	c.SendMessage(
+		message,
+		fmt.Sprintf("There are %d builds running...", buildCount),
+	)
 
 	runningCommand := queue.AddRunningCommand(
 		message,
@@ -71,7 +78,7 @@ func (c *idleWatcherCommand) check(message msg.Message, nodeFilter func(node *go
 		defer timer.Stop()
 
 		for range timer.C {
-			if c.hasRunningBuild(message, nodeFilter) {
+			if c.countRunningBuild(message, nodeFilter) != 0 {
 				// still builds running...
 				continue
 			}
@@ -92,27 +99,25 @@ func (c *idleWatcherCommand) check(message msg.Message, nodeFilter func(node *go
 }
 
 // query all executors from jenkins with one request and check of any executor is busy
-func (c *idleWatcherCommand) hasRunningBuild(ref msg.Ref, nodeFilter func(build *gojenkins.Node) bool) bool {
+func (c *idleWatcherCommand) countRunningBuild(ref msg.Ref, nodeFilter func(build *gojenkins.Node) bool) int {
 	ctx := context.Background()
 	nodes, err := c.jenkins.GetAllNodes(ctx)
 	if err != nil {
 		c.ReplyError(ref, err)
-		return false
+		return 0
 	}
 
+	buildCount := 0
 	for _, node := range nodes {
 		if !nodeFilter(node) {
 			// current command is not interested in this node...
 			continue
 		}
 
-		if countBusyExecutors(node) > 0 {
-			// there is something running!
-			return true
-		}
+		buildCount += countBusyExecutors(node)
 	}
 
-	return false
+	return buildCount
 }
 
 func (c *idleWatcherCommand) GetHelp() []bot.Help {

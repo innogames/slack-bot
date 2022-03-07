@@ -48,6 +48,7 @@ func TestInformIdle(t *testing.T) {
 			getNodeWithExecutors(0, 2, "swarm2"),
 		}, nil).Once()
 
+		mocks.AssertSlackMessage(slackClient, message, "There are 1 builds running...")
 		mocks.AssertReaction(slackClient, waitingReaction, message)
 		mocks.AssertRemoveReaction(slackClient, waitingReaction, message)
 		mocks.AssertSlackMessage(slackClient, message, "No job is running anymore")
