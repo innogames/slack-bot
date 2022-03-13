@@ -52,7 +52,17 @@ func (c *lambdaCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c *lambdaCommand) showLambdas(match matcher.Result, message msg.Message) {
-	blocks := []slack.Block{}
+	MsgBlocks := []slack.Block{}
+
+	headerObj := slack.NewTextBlockObject("plain_text", "Cloud resource managing functions", false, false)
+	if err := headerObj.Validate(); err != nil {
+		c.ReplyError(message, err)
+		return
+	}
+	MsgBlocks = append(MsgBlocks, slack.NewHeaderBlock(headerObj))
+
+	MsgBlocks = append(MsgBlocks, slack.NewDividerBlock())
+
 	for _, v := range c.cfg {
 		var name string = v.Name
 		if v.Alias != "" {
@@ -62,72 +72,75 @@ func (c *lambdaCommand) showLambdas(match matcher.Result, message msg.Message) {
 		if v.Description != "" {
 			description = v.Description
 		}
-		txtObj := slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("\"%s\": %s\n", name, description), false, false)
-		if err := txtObj.Validate(); err != nil {
-			fmt.Println(err.Error())
+		lambdaDescObj := slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("• %s -> _%s_ \n", name, description), false, false)
+		if err := lambdaDescObj.Validate(); err != nil {
+			c.ReplyError(message, err)
 			return
 		}
-		blocks = append(blocks, slack.NewSectionBlock(txtObj, nil, nil))
+		MsgBlocks = append(MsgBlocks, slack.NewSectionBlock(lambdaDescObj, nil, nil))
 	}
-	c.SendBlockMessage(message, blocks)
+
+	c.SendBlockMessage(message, MsgBlocks)
 }
 
 func (c *lambdaCommand) invoke(match matcher.Result, message msg.Message) {
 	target := match.GetString("LAMBDA")
 	params := match.GetString("PARAMS")
 
-	lambdaConfig := getLambdaConfig(target, c.cfg)
-	if lambdaConfig == nil {
+	lambdaConf := getLambdaConfig(target, c.cfg)
+	if lambdaConf == nil {
 		c.ReplyError(message, errors.New("no match lambda function"))
 		return
 	}
-	// params-> distribution:E2YF41IFAE1JFI paths:/path1,/path2
-	var invokePayload []byte
-	if params != "" {
-		invokePayload = refineParams(params)
+	paramsList := strings.Fields(params)
+	payload := "{"
+	if len(lambdaConf.Inputs) > 0 {
+		for i, v := range lambdaConf.Inputs {
+			item := ""
+			if len(paramsList) > i {
+				item = fmt.Sprintf("\"%s\":\"%s\"", v, paramsList[i])
+			} else {
+				item = fmt.Sprintf("\"%s\":\"\"", v)
+			}
+			if i < len(lambdaConf.Inputs)-1 {
+				item += ","
+			}
+			payload += item
+		}
 	}
-	lambdaOutput, err := c.service.Invoke(&lambda.InvokeInput{
-		FunctionName: &lambdaConfig.Name,
-		Payload:      []byte(invokePayload),
+	payload += "}"
+	response, err := c.service.Invoke(&lambda.InvokeInput{
+		FunctionName: &lambdaConf.Name,
+		Payload:      []byte(payload),
 	})
 	if err != nil {
 		c.ReplyError(message, err)
 		return
 	}
-	unquotedOutput, err := strconv.Unquote(string(lambdaOutput.Payload))
+	unquote, err := strconv.Unquote(string(response.Payload))
 	if err != nil {
 		c.ReplyError(message, err)
 		return
 	}
-	var lambdaResponse = &config.LambdaReturnCode{}
-	err = json.Unmarshal([]byte(unquotedOutput), lambdaResponse)
+	var output = &config.LambdaOutput{}
+	err = json.Unmarshal([]byte(unquote), output)
 	if nil != err {
 		c.ReplyError(message, err)
 		return
 	}
 
-	switch lambdaResponse.Code {
+	switch output.Code {
 	case "500":
-		var resp struct {
-			config.LambdaReturnCode
-			config.LambdaFailedMessage
+		if output.Error != "" {
+			c.ReplyError(message, errors.New(output.Error))
+		} else {
+			c.ReplyError(message, errors.New("something went wrong"))
 		}
-		if err := json.Unmarshal([]byte(unquotedOutput), &resp); err != nil {
-			c.ReplyError(message, err)
-			return
-		}
+
 	case "200":
-		var resp struct {
-			config.LambdaReturnCode
-			config.LambdaSuccessMessage
-		}
-		if err := json.Unmarshal([]byte(unquotedOutput), &resp); err != nil {
-			c.ReplyError(message, err)
-			return
-		}
 		blocks := []slack.Block{}
-		for _, v := range resp.Message {
-			for _, key := range lambdaConfig.Outputs {
+		for _, v := range output.Message {
+			for _, key := range lambdaConf.Outputs {
 				txtObj := slack.NewTextBlockObject("mrkdwn", fmt.Sprintf("*\"%s\"*: %s\n", key, v[key]), false, false)
 				if err := txtObj.Validate(); err != nil {
 					c.ReplyError(message, err)
@@ -138,34 +151,18 @@ func (c *lambdaCommand) invoke(match matcher.Result, message msg.Message) {
 			blocks = append(blocks, slack.NewDividerBlock())
 		}
 		c.SendBlockMessage(message, blocks)
-
 	}
-}
-
-func refineParams(params string) []byte {
-	inputs := strings.Split(params, " ")
-	invokePayload := "{"
-	for k, v := range inputs {
-		item := strings.Split(v, ":")
-		tmp := fmt.Sprintf("\"%s\":\"%s\"", item[0], item[1])
-		if k < len(inputs)-1 {
-			tmp += ","
-		}
-		invokePayload += tmp
-	}
-	invokePayload += "}"
-	return []byte(invokePayload)
 }
 
 func getLambdaConfig(target string, lambdas []config.Lambda) *config.Lambda {
-	var lambdaConfig = &config.Lambda{}
+	var conf = &config.Lambda{}
 	for _, v := range lambdas {
 		if target == v.Name || target == v.Alias {
-			lambdaConfig = &v
+			conf = &v
 			break
 		}
 	}
-	return lambdaConfig
+	return conf
 }
 
 func (c *lambdaCommand) GetHelp() []bot.Help {

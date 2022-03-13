@@ -1,6 +1,8 @@
 package aws
 
 import (
+	"strings"
+
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -47,11 +49,13 @@ func setAWSLambda(cfg config.Aws) []config.Lambda {
 	c := []config.Lambda{}
 
 	for _, v := range cfg.Lambda {
+
 		c = append(c, config.Lambda{
 			Name:        v.Name,
 			Alias:       v.Alias,
+			Inputs:      v.Inputs,
 			Outputs:     v.Outputs,
-			Description: v.Description,
+			Description: strings.Trim(v.Description, "\n"),
 		})
 	}
 	return c

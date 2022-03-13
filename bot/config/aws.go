@@ -9,17 +9,12 @@ type Lambda struct {
 	Alias       string   `mapstructure:"alias,omitempty"`
 	Inputs      []string `mapstructure:"inputs,omitempty"`
 	Outputs     []string `mapstructure:"outputs"`
-	Description string   `mapstructure:"description"`
+	Description string   `mapstructure:"description,omitempty"`
 }
-type LambdaReturnCode struct {
-	Code string `json:"code"`
-}
-type LambdaSuccessMessage struct {
-	Message []map[string]interface{} `json:"message"`
-}
-
-type LambdaFailedMessage struct {
-	Message string `json:"message"`
+type LambdaOutput struct {
+	Code    string                   `json:"code"`
+	Message []map[string]interface{} `json:"message,omitempty"`
+	Error   string                   `json:"error,omitempty"`
 }
 
 func (c Aws) IsEnabled() bool {
