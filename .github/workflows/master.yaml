@@ -45,4 +45,4 @@ jobs:
       - name: Test
         run: make test-coverage
       - name: Upload Coverage
-        uses: codecov/codecov-action@v2.1.0
+        uses: codecov/codecov-action@v3
