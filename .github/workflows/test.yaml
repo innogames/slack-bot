@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go-version }}
           stable: false
@@ -37,7 +37,7 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Test
