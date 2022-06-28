@@ -3,6 +3,7 @@ module github.com/innogames/slack-bot/v2
 go 1.17
 
 require (
+	github.com/alicebob/miniredis/v2 v2.21.0
 	github.com/andygrunwald/go-jira v1.15.1
 	github.com/aws/aws-sdk-go v1.43.12
 	github.com/bndr/gojenkins v1.1.0
@@ -27,46 +28,42 @@ require (
 )
 
 require (
-<<<<<<< HEAD
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
+	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/golang-jwt/jwt/v4 v4.3.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/hashicorp/go-hclog v1.2.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.8.1 // indirect
-	github.com/subosito/gotenv v1.2.0 // indirect
+	github.com/spf13/viper v1.12.0 // indirect
+	github.com/subosito/gotenv v1.3.0 // indirect
 	github.com/trivago/tgo v1.0.7 // indirect
 	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
-	github.com/yuin/gopher-lua v0.0.0-20200816102855-ee81675732da // indirect
+	github.com/yuin/gopher-lua v0.0.0-20210529063254-f4c35e4016d9 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
 require (
-	github.com/alicebob/miniredis/v2 v2.18.0
-	github.com/fsnotify/fsnotify v1.5.1 // indirect
-	github.com/gorilla/websocket v1.5.0 // indirect
-=======
-	github.com/aws/aws-sdk-go v1.42.35
-	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
->>>>>>> origin/aws-enhancement
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.1 // indirect
 	github.com/jcelliott/lumber v0.0.0-20160324203708-dd349441af25 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
-	github.com/mitchellh/mapstructure v1.4.3 // indirect
-	github.com/pelletier/go-toml v1.9.4 // indirect
-	github.com/spf13/afero v1.8.1 // indirect
-	github.com/spf13/cast v1.4.1 // indirect
+	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/pelletier/go-toml v1.9.5 // indirect
+	github.com/spf13/afero v1.8.2 // indirect
+	github.com/spf13/cast v1.5.0 // indirect
 	github.com/stretchr/objx v0.4.0 // indirect
 	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2 // indirect
-	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9 // indirect
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	golang.org/x/time v0.0.0-20220411224347-583f2d630306 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
