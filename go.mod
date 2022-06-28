@@ -27,6 +27,7 @@ require (
 )
 
 require (
+<<<<<<< HEAD
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
@@ -51,6 +52,10 @@ require (
 	github.com/alicebob/miniredis/v2 v2.18.0
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
+=======
+	github.com/aws/aws-sdk-go v1.42.35
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+>>>>>>> origin/aws-enhancement
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.1 // indirect
 	github.com/jcelliott/lumber v0.0.0-20160324203708-dd349441af25 // indirect
