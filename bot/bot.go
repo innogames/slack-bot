@@ -2,10 +2,6 @@ package bot
 
 import (
 	"fmt"
-	"regexp"
-	"strings"
-	"time"
-
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/stats"
@@ -14,6 +10,10 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
+	"github.com/slack-go/slack/slackutilsx"
+	"regexp"
+	"strings"
+	"time"
 )
 
 var (
@@ -174,7 +174,7 @@ func (b *Bot) canHandleMessage(event *slack.MessageEvent) bool {
 	}
 
 	// Direct message channels always starts with 'D'
-	if strings.HasPrefix(event.Channel, "D") {
+	if slackutilsx.DetectChannelType(event.Channel) == slackutilsx.CTypeDM {
 		return true
 	}
 
