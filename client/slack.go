@@ -118,6 +118,8 @@ type SlackClient interface {
 
 	// CanHandleInteractions checks if we have a slack connections which can inform us about events/interactions, like pressed buttons?
 	CanHandleInteractions() bool
+
+	OpenView(id string, view slack.ModalViewRequest)
 }
 
 // Slack is wrapper to the slack.Client which also holds the RTM connection OR the socketmode.Client and all needed config
@@ -157,6 +159,20 @@ func (s *Slack) SendEphemeralMessage(ref msg.Ref, text string, options ...slack.
 	if err != nil {
 		log.Warn(errors.Wrapf(err, "Error while sending Ephemeral message %s", err))
 	}
+}
+
+// OpenView opens a modal view to current user
+func (s *Slack) OpenView(id string, view slack.ModalViewRequest) {
+
+	_, err := s.Client.OpenView(
+		id,
+		view,
+	)
+
+	if err != nil {
+		log.Warn(errors.Wrapf(err, "Error while sending modal view request %s", err))
+	}
+
 }
 
 // SendMessage is the "slow" reply via POST request, needed for Attachment or MsgRef

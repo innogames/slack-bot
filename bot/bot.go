@@ -181,6 +181,16 @@ func (b *Bot) canHandleMessage(event *slack.MessageEvent) bool {
 	return false
 }
 
+func (b *Bot) HandleViewResponse(msg msg.Message) {
+	// TODO: handling empty resp
+	// if ref.View == nil {
+	// 	logger.Errorf("empty view response")
+	// }
+
+	b.commands.Run(msg)
+
+}
+
 // remove @Bot prefix of message and cleans unwanted characters from the message
 func (b *Bot) cleanMessage(text string, fromUserContext bool) string {
 	text = strings.ReplaceAll(text, "<@"+b.auth.UserID+">", "")

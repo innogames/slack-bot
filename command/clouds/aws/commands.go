@@ -51,11 +51,10 @@ func setAWSLambda(cfg config.Aws) []config.Lambda {
 	for _, v := range cfg.Lambda {
 
 		c = append(c, config.Lambda{
-			Name:        v.Name,
-			Alias:       v.Alias,
-			Inputs:      v.Inputs,
-			Outputs:     v.Outputs,
-			Description: strings.Trim(v.Description, "\n"),
+			Name:     v.Name,
+			FuncName: v.FuncName,
+			Inputs:   v.Inputs,
+			Desc:     strings.Trim(v.Desc, "\n"),
 		})
 	}
 	return c

@@ -66,19 +66,19 @@ settings:
 9. Go to "OAuth & Permissions":
 10. -> "Install to Workspace"
 11. -> you should see a "Bot User OAuth Access Token" (beginning with "xoxb-"). Use it as slack.token in the config.yaml
-12. start the bot! 
+12. start the bot!
 
 ### Alternative: Manual steps when **not** using the App Manifest
 <details>
     <summary>Expand steps!</summary>
     - Create a [Slack App](https://api.slack.com/apps?new_app=1)
     - Select from scratch and choose a name and workspace.
-    - Go to "Socket Mode" menu and activate it. 
+    - Go to "Socket Mode" menu and activate it.
     - - use any token name, like "Slack-Bot Socket Mode token"
     - - You will see a App-Level Token (beginning with xapp-). Sse it in the config.yaml as slack.socket_token.
-    - Enable "Interactivity & Shortcuts" 
+    - Enable "Interactivity & Shortcuts"
     - Enable "Event Subscriptions":
-    - - if you see a "Send events to my app using the new format" checkbox, check it (only for old migrated apps)  
+    - - if you see a "Send events to my app using the new format" checkbox, check it (only for old migrated apps)
     - - in "Subscribe to bot events", add "app_mention" and "message.im" events
     - Go to "OAuth & Permissions":
     - - use the "Bot User OAuth Access Token" (beginning with "xoxb-") as slack.token in the config.yaml
@@ -87,7 +87,7 @@ settings:
     - Back to "Install app" tab, the "Bot User OAuth Access Token" is visible (starts with "xoxb-"). You need this one in the config.yaml in slack->token.
 </details>
 
-## 2nd) Run the bot 
+## 2nd) Run the bot
 
 ### Option 1: run via go
 1. install go
@@ -116,7 +116,7 @@ Additionally you can execute bot commands in channels by prefix your command wit
 
 # Bot Commands
 ## Help
-The `help` command just prints a list of all available commands of this bot. 
+The `help` command just prints a list of all available commands of this bot.
 With `help *command*` you'll get a short description and some examples for a single command.
 
 ![Screenshot](./docs/help.png)
@@ -179,7 +179,7 @@ When a build failed you are able to retry any build by:
 
 
 ## Pull Requests
-If you just paste a link to a Github/Gitlab/Bitbucket/Stash Pull request, the bot will track the state of the ticket! 
+If you just paste a link to a Github/Gitlab/Bitbucket/Stash Pull request, the bot will track the state of the ticket!
 - When a developer was added as reviewer, it will add a "eyes" reaction to show other devs that someone is already taking a look
 - When the reviewer approved the ticket, a checkmark is added
 - After merging the pull request, it will add a "merge" reaction
@@ -203,15 +203,15 @@ pullrequest:
 ![Screenshot](./docs/pull-request.png)
 
 **Extra Features:**
-For Bitbucket the bot is able to extract the current build status (e.g. from Jenkins/Bamboo etc) and show failed and running builds (fire reaction) as a reaction (circle arrow reaction). When the build is stable, the build reactions disappear.  
+For Bitbucket the bot is able to extract the current build status (e.g. from Jenkins/Bamboo etc) and show failed and running builds (fire reaction) as a reaction (circle arrow reaction). When the build is stable, the build reactions disappear.
 ![Screenshot](./docs/pull-request-build-status.png)
 
 ## Command Queue
-The `queue` command (with the alias `then`) is able to queue the given command, until the currently running command finished. 
+The `queue` command (with the alias `then`) is able to queue the given command, until the currently running command finished.
 
 Example following scenario: you have a build job (which might take some minutes) and a deploy job which relies of the build artifacts. Now you can do:
 - `trigger job Build feature1234` to start the Build job with given branch
-- `queue trigger job DeployBranch feature1234` 
+- `queue trigger job DeployBranch feature1234`
 - `queue reply Deployment is done!`
 
 **Other example:**
@@ -250,10 +250,10 @@ It's possible to create buttons which are performing any bot action when pressin
 **Examples:**
  - `add button "Start Deployment" "trigger job LiveDeployment"`
 
-**Note** 
+**Note**
  - only whitelisted users can click the button
  - each button is only active once
-  
+
 ## Custom variables
 Configure user specific variables to customize bot behaviour. E.g. each developer has his own server environment.
 
@@ -264,9 +264,9 @@ commands:
     trigger: "deploy (?P<branch>.*)"
     commands:
       - deploy {{.branch}} to {{ customVariable "defaultServer" }}
-``` 
+```
 
-Each developer can now call ONCE this commands like: `set variable defaultSerer foobarX.local`  to register the custom "defaultServer". 
+Each developer can now call ONCE this commands like: `set variable defaultSerer foobarX.local`  to register the custom "defaultServer".
 
 When now calling `deploy mater`, it will deploy the `master` branch to `foobarX.local` server.
 
@@ -290,7 +290,7 @@ In the end the command will generate one subcommand, like:
     examples:
       - demo XYZ-1232
 ```
-    
+
 User can define his default environment once by using `set variable serverEnvironment aws-02`.
 
 Then the `deploy feature-123` will deploy the branch to the defined `aws-02` environment.
@@ -299,11 +299,11 @@ Each user can define his own variables.
 
 ## Quiz command
 If you need a small break and want to play a little quiz game you can do so by calling this command.
-No more than 50 questions are allowed. 
+No more than 50 questions are allowed.
 The questions are from different categories and difficult levels and are either multiple choice or true/false questions.
 
 **Commands**
-- `quiz 10` to start a quiz with 10 questions 
+- `quiz 10` to start a quiz with 10 questions
 - `answer 1` to answer a question with the first answer
 
 ![Quiz game](./docs/quiz.png)
@@ -322,7 +322,7 @@ open_weather:
 ```
 
 ## Custom command
-Every user is able to define own command aliases. 
+Every user is able to define own command aliases.
 This is a handy feature to avoid typing the same command every day.
 
 **Example usage**
@@ -336,7 +336,7 @@ This is a handy feature to avoid typing the same command every day.
 ## Commands
 Defined "Commands" (former called "Macros") are very magical and can be defined in the yaml configuration files.
 
-They have a trigger (a regular expression) and have a list of sub commands which will be executed. 
+They have a trigger (a regular expression) and have a list of sub commands which will be executed.
 They take parameter groups from regexp into account - so they can be very flexible!
 
 One simple example to start two Jenkins jobs with a given branch name at the same time:
@@ -387,14 +387,46 @@ As reply you'll get a command to stop the queued job (like `stop timer 123456`).
 Simple command if you are not able to decide between different options
 
 **Examples**
-- `random Pizza Pasta` -> produce either "Pizza" or "Pasta" 
+- `random Pizza Pasta` -> produce either "Pizza" or "Pasta"
 - `random Peter Paul Tom Jan` -> who has to take about organizing food today?
+
+## Cloud functions
+Easily invoke simple serverless resources.
+### support cloud vendor
+* aws lambda
+### setup
+1. configuration
+```yaml
+aws:
+  enabled: true
+  lambdas:
+    - name: func_name_show_to_users
+      desc: lambda for listing all custom roles
+      funcName: my-chatops-customroles-abcdefg
+      inputs:
+        - key: input1
+          desc: description for input1
+        - key: input2
+          desc: description for input2
+```
+
+2. prepare aws lambda - https://github.com/aws/serverless-application-model
+
+**notes**
+> make sure your lambda returns json format body with below response.
+```json
+{
+  "message": "lambda return message",
+  "code": "200"
+}
+```
+![Screenshot](./docs/aws-lambda.png)
 
 # Installation
 1. Make sure Go version 1.12+ is installed
 2. clone the project
 3. create config file called `config.yaml` (you can take a look at `config.example.yaml`)
- 
+
 ## Run without docker
 This command will start the bot, using the `config.yaml` file by default. Use the `-config` argument to use the config file(s) from another location.
 ```
@@ -442,7 +474,7 @@ jenkins:
   jobs:
     CleanupJob:
 ```
-Then you can use `trigger job CleanupJob` or `start job CleanupJob` to start the job. It will also notify you when the job succeeded or failed (incl. error log). 
+Then you can use `trigger job CleanupJob` or `start job CleanupJob` to start the job. It will also notify you when the job succeeded or failed (incl. error log).
 
 Next a job with two parameters:
 ```yaml
@@ -459,14 +491,14 @@ jenkins:
 This job can handle two parameters:
  - BRANCH: VCS branch name, "master" as default
  - GROUP: optional parameter, using "all" as default
-        
+
 If you setup the VSC in the config, you don't have to pass the full branch name but can use the fuzzy search.
 
 **Example:**
  - `start job RunTests` would start "all" groups on master branch
  - `start job JIRA-1224 unit` would try to find a matching branch for the ticket number. (Error message if there is no unique search result!)
-        
-Now a more complex example with more magic: 
+
+Now a more complex example with more magic:
 ```yaml
 jenkins:
      jobs:
@@ -487,7 +519,7 @@ Then you can use `deploy bugfix-1234 to test` to start the jenkins job.
 
 **Note:** You can always start this job also via `start job DeployBranch master`. The `trigger` is just an alternative.
 
-The `onsuccess` is a hook which will be executed when a job ist started via this bot. 
+The `onsuccess` is a hook which will be executed when a job ist started via this bot.
 In addition `onsuccess` and `onerror` is also available...e.g. to send custom error messages.
 
 

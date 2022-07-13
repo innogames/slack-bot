@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/slack-go/slack"
 )
 
 // Ref is the context of a message: the author, channel, timestamp etc
@@ -20,12 +22,14 @@ type Ref interface {
 
 // MessageRef is holds meta information for an message, like author, creation date or channel
 type MessageRef struct {
-	Channel         string `json:"channel,omitempty"`
-	User            string `json:"user,omitempty"`
-	Timestamp       string `json:"ts,omitempty"`
-	Thread          string `json:"thread_ts,omitempty"`
-	InternalMessage bool   `json:"InternalMessage,omitempty"`
-	UpdatedMessage  bool   `json:"updated,omitempty"`
+	Channel         string     `json:"channel,omitempty"`
+	User            string     `json:"user,omitempty"`
+	Timestamp       string     `json:"ts,omitempty"`
+	Thread          string     `json:"thread_ts,omitempty"`
+	InternalMessage bool       `json:"InternalMessage,omitempty"`
+	UpdatedMessage  bool       `json:"updated,omitempty"`
+	Trigger         string     `json:"trigger_id,omitempty"`
+	View            slack.View `json:"view,omitempty"`
 }
 
 // GetChannel returns the channel id (usually starting with "C") of the current message
@@ -80,6 +84,11 @@ func (msg MessageRef) GetTime() time.Time {
 // IsInternalMessage is set when the bot is generating internal messages which are handles (like from "cron" command)
 func (msg MessageRef) IsInternalMessage() bool {
 	return msg.InternalMessage
+}
+
+// GetTriggerId returns a trigger id of a event
+func (msg MessageRef) GetTriggerId() string {
+	return msg.Trigger
 }
 
 // WithText attaches a text to a message

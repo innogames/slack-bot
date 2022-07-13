@@ -57,6 +57,19 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
 		return false
 	}
 
+	switch payload.Type {
+	case slack.InteractionTypeBlockActions:
+		return b.handleBlockActionsInteraction(payload)
+	case slack.InteractionTypeViewSubmission:
+		return b.handleViewSubmissionInteraction(payload)
+	default:
+		log.Infof("Unexpected event type received: %s\n", payload.Type)
+	}
+
+	return false
+}
+
+func (b *Bot) handleBlockActionsInteraction(payload slack.InteractionCallback) bool {
 	action := payload.ActionCallback.BlockActions[0]
 	command := action.Value
 
@@ -81,6 +94,7 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
 		Thread:         payload.Container.ThreadTs,
 		User:           payload.User.ID,
 		Timestamp:      payload.Message.Timestamp,
+		Trigger:        payload.TriggerID,
 		UpdatedMessage: true,
 	}
 
@@ -102,6 +116,34 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
 
 	stats.IncreaseOne(stats.Interactions)
 
+	return true
+}
+
+func (b *Bot) handleViewSubmissionInteraction(payload slack.InteractionCallback) bool {
+	interactionLock.Lock()
+	defer interactionLock.Unlock()
+	log.Infof(
+		"Received view response from user %s/%s ",
+		payload.User.ID,
+		payload.User.Name,
+	)
+
+	// golang sdk view playload has no requestUrls
+	ref := msg.MessageRef{
+		Channel:        payload.View.PrivateMetadata,
+		Thread:         payload.Container.ThreadTs,
+		User:           payload.User.ID,
+		Timestamp:      payload.Message.Timestamp,
+		Trigger:        payload.TriggerID,
+		UpdatedMessage: false,
+		View:           payload.View,
+	}
+	message := msg.Message{
+		MessageRef: ref,
+		Text:       payload.View.CallbackID,
+	}
+
+	b.HandleViewResponse(message)
 	return true
 }
 
