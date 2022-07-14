@@ -1,8 +1,6 @@
 package aws
 
 import (
-	"strings"
-
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -36,26 +34,24 @@ func GetCommands(cfg config.Aws, base bot.BaseCommand) bot.Commands {
 		session,
 	}
 
-	lambda := setAWSLambda(cfg)
-
 	commands.AddCommand(
-		newLambdaCommands(lambda, awsBase),
+		newLambdaCommands(cfg, awsBase),
 	)
 
 	return commands
 }
 
-func setAWSLambda(cfg config.Aws) []config.Lambda {
-	c := []config.Lambda{}
+// func setAWSLambda(cfg config.Aws) []config.Lambda {
+// 	c := []config.Lambda{}
 
-	for _, v := range cfg.Lambda {
+// 	for _, v := range cfg.Lambda {
 
-		c = append(c, config.Lambda{
-			Name:     v.Name,
-			FuncName: v.FuncName,
-			Inputs:   v.Inputs,
-			Desc:     strings.Trim(v.Desc, "\n"),
-		})
-	}
-	return c
-}
+// 		c = append(c, config.Lambda{
+// 			Name:     v.Name,
+// 			FuncName: v.FuncName,
+// 			Inputs:   v.Inputs,
+// 			Desc:     strings.Trim(v.Desc, "\n"),
+// 		})
+// 	}
+// 	return c
+// }

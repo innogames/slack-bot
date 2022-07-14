@@ -2,6 +2,7 @@ package config
 
 type Aws struct {
 	Enabled bool     `mapstructure:"enabled"`
+	Alias   string   `mapstructure:"alias,omitempty"`
 	Lambda  []Lambda `mapstructure:"lambdas"`
 }
 type Lambda struct {

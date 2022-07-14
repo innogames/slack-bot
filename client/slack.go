@@ -163,12 +163,10 @@ func (s *Slack) SendEphemeralMessage(ref msg.Ref, text string, options ...slack.
 
 // OpenView opens a modal view to current user
 func (s *Slack) OpenView(id string, view slack.ModalViewRequest) {
-
 	_, err := s.Client.OpenView(
 		id,
 		view,
 	)
-
 	if err != nil {
 		log.Warn(errors.Wrapf(err, "Error while sending modal view request %s", err))
 	}

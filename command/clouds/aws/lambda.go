@@ -26,7 +26,8 @@ var category = bot.Category{
 type lambdaCommand struct {
 	awsCommand
 	service *lambda.Lambda
-	cfg     []config.Lambda
+	cfg     config.Aws
+	alias   string
 }
 type LambdaResponse struct {
 	Code    string `json:"code"`
@@ -34,14 +35,18 @@ type LambdaResponse struct {
 }
 
 // NewAwsCommand is a command to interact with aws resources
-func newLambdaCommands(cfg []config.Lambda, base awsCommand) bot.Command {
+func newLambdaCommands(cfg config.Aws, base awsCommand) bot.Command {
 	svc := lambda.New(base.session)
-	return &lambdaCommand{base, svc, cfg}
+	cmd := "aws"
+	if cfg.Alias != "" {
+		cmd = cfg.Alias
+	}
+	return &lambdaCommand{base, svc, cfg, cmd}
 }
 
 func (c *lambdaCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewTextMatcher("aws show", c.showLambdas),
+		matcher.NewTextMatcher(fmt.Sprintf("%s show", c.alias), c.showLambdas),
 		matcher.NewRegexpMatcher(`choose (?P<choose>[\w\s\-]+)`, c.choose),
 		matcher.NewRegexpMatcher(`lambda_invoke (?P<invoke>[\w\s\-]+)`, c.invoke),
 	)
@@ -59,7 +64,7 @@ func (c *lambdaCommand) showLambdas(match matcher.Result, message msg.Message) {
 
 	msgBlock = append(msgBlock, slack.NewDividerBlock())
 
-	for _, v := range c.cfg {
+	for _, v := range c.cfg.Lambda {
 		name := v.Name
 		description := "no defined description"
 		if v.Desc != "" {
@@ -86,7 +91,7 @@ func (c *lambdaCommand) choose(match matcher.Result, message msg.Message) {
 	submitText := slack.NewTextBlockObject(slack.PlainTextType, "Submit", false, false)
 	var modalRequest slack.ModalViewRequest
 
-	for _, v := range c.cfg {
+	for _, v := range c.cfg.Lambda {
 		if v.FuncName == choose {
 			blocks := []slack.Block{}
 			for _, val := range v.Inputs {
@@ -151,7 +156,6 @@ func (c *lambdaCommand) invoke(match matcher.Result, message msg.Message) {
 	case "200":
 		c.SendMessage(message, fmt.Sprintf("Successfully run command %s with body %s", invoke, req))
 	default:
-		errors.New(fmt.Sprintf("Failed to run command %s with error %s", invoke, resp.Message))
 		c.ReplyError(message, errors.New(fmt.Sprintf("Failed to run command %s with code %s and error %s", invoke, resp.Code, resp.Message)))
 
 	}
@@ -159,12 +163,11 @@ func (c *lambdaCommand) invoke(match matcher.Result, message msg.Message) {
 
 func (c *lambdaCommand) GetHelp() []bot.Help {
 	examples := []string{
-		"aws show ",
+		fmt.Sprintf("%s show", c.alias),
 	}
-
 	help := make([]bot.Help, 0)
 	help = append(help, bot.Help{
-		Command:     "aws show ",
+		Command:     fmt.Sprintf("%s show", c.alias),
 		Description: "invoke selected AWS lambda with given parameters",
 		Examples:    examples,
 		Category:    category,

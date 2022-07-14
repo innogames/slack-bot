@@ -128,7 +128,7 @@ func TestInteraction(t *testing.T) {
 		assert.Equal(t, uint(1), commandsProcessed)
 	})
 
-	t.Run("handle interaction", func(t *testing.T) {
+	t.Run("handle block interaction", func(t *testing.T) {
 		messageEvent := &slack.MessageEvent{}
 		messageEvent.Channel = "D1234"
 		messageEvent.User = "user1"
@@ -139,6 +139,7 @@ func TestInteraction(t *testing.T) {
 		assert.Equal(t, "dummy", actionID)
 
 		callback := slack.InteractionCallback{
+			Type: slack.InteractionTypeBlockActions,
 			User: slack.User{
 				ID: "user1",
 			},
@@ -158,6 +159,24 @@ func TestInteraction(t *testing.T) {
 		callback.ActionCallback.BlockActions[0].Value = ""
 		success = bot.handleInteraction(callback)
 		assert.False(t, success)
+	})
+
+	t.Run("handle view interaction", func(t *testing.T) {
+		messageEvent := &slack.MessageEvent{}
+		messageEvent.Channel = "D1234"
+		messageEvent.User = "user1"
+
+		callback := slack.InteractionCallback{
+			Type: slack.InteractionTypeViewSubmission,
+			User: slack.User{
+				ID: "user1",
+			},
+			TriggerID: "T1234.5678",
+		}
+
+		success := bot.handleInteraction(callback)
+		assert.True(t, success)
+
 	})
 
 	t.Run("handle invalid interaction", func(t *testing.T) {

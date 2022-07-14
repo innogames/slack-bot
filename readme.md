@@ -399,6 +399,7 @@ Easily invoke simple serverless resources.
 ```yaml
 aws:
   enabled: true
+  alias: custom-lambda
   lambdas:
     - name: func_name_show_to_users
       desc: lambda for listing all custom roles
@@ -411,7 +412,7 @@ aws:
 ```
 
 2. prepare aws lambda - https://github.com/aws/serverless-application-model
-
+3. If you want to use other keyword to invoke aws lambda, please set `alias` what you want to use.
 **notes**
 > make sure your lambda returns json format body with below response.
 ```json
