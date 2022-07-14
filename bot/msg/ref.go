@@ -86,8 +86,8 @@ func (msg MessageRef) IsInternalMessage() bool {
 	return msg.InternalMessage
 }
 
-// GetTriggerId returns a trigger id of a event
-func (msg MessageRef) GetTriggerId() string {
+// GetTriggerID returns a trigger id of a event
+func (msg MessageRef) GetTriggerID() string {
 	return msg.Trigger
 }
 

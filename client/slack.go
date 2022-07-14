@@ -170,7 +170,6 @@ func (s *Slack) OpenView(id string, view slack.ModalViewRequest) {
 	if err != nil {
 		log.Warn(errors.Wrapf(err, "Error while sending modal view request %s", err))
 	}
-
 }
 
 // SendMessage is the "slow" reply via POST request, needed for Attachment or MsgRef

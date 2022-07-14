@@ -188,7 +188,6 @@ func (b *Bot) HandleViewResponse(msg msg.Message) {
 	// }
 
 	b.commands.Run(msg)
-
 }
 
 // remove @Bot prefix of message and cleans unwanted characters from the message

@@ -176,7 +176,6 @@ func TestInteraction(t *testing.T) {
 
 		success := bot.handleInteraction(callback)
 		assert.True(t, success)
-
 	})
 
 	t.Run("handle invalid interaction", func(t *testing.T) {

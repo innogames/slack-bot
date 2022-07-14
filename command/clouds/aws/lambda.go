@@ -12,7 +12,6 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/client"
-	"github.com/pkg/errors"
 	"github.com/slack-go/slack"
 )
 
@@ -114,7 +113,7 @@ func (c *lambdaCommand) choose(match matcher.Result, message msg.Message) {
 			modalRequest.CallbackID = fmt.Sprintf("lambda_invoke %s", choose)
 			modalRequest.PrivateMetadata = message.GetMessageRef().Channel
 
-			c.OpenView(message.GetTriggerId(), modalRequest)
+			c.OpenView(message.GetTriggerID(), modalRequest)
 			break
 		}
 
@@ -131,7 +130,7 @@ func (c *lambdaCommand) invoke(match matcher.Result, message msg.Message) {
 			partials = append(partials, fmt.Sprintf("\"%s\":\"%s\"", k, v.Value))
 		}
 	}
-	req := fmt.Sprintf("{%s}", strings.Join(partials[:], ","))
+	req := fmt.Sprintf("{%s}", strings.Join(partials, ","))
 	lambdaResp, err := c.service.Invoke(&lambda.InvokeInput{
 		FunctionName: &invoke,
 		Payload:      []byte(req),
@@ -156,8 +155,7 @@ func (c *lambdaCommand) invoke(match matcher.Result, message msg.Message) {
 	case "200":
 		c.SendMessage(message, fmt.Sprintf("Successfully run command %s with body %s", invoke, req))
 	default:
-		c.ReplyError(message, errors.New(fmt.Sprintf("Failed to run command %s with code %s and error %s", invoke, resp.Code, resp.Message)))
-
+		c.ReplyError(message, fmt.Errorf("failed to run command %s with code %s and error %s", invoke, resp.Code, resp.Message))
 	}
 }
 
