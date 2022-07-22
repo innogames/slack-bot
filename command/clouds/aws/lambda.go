@@ -2,6 +2,7 @@ package aws
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -92,28 +93,42 @@ func (c *lambdaCommand) choose(match matcher.Result, message msg.Message) {
 
 	for _, v := range c.cfg.Lambda {
 		if v.FuncName == choose {
-			blocks := []slack.Block{}
-			for _, val := range v.Inputs {
-				block := slack.NewInputBlock(
-					fmt.Sprintf("%s-block", val.Key),
-					slack.NewTextBlockObject(slack.PlainTextType, val.Key, false, false),
-					slack.NewTextBlockObject(slack.PlainTextType, val.Desc, false, false),
-					slack.NewPlainTextInputBlockElement(
+			if len(v.Inputs) != 0 {
+				blocks := []slack.Block{}
+				for _, val := range v.Inputs {
+					block := slack.NewInputBlock(
+						fmt.Sprintf("%s-block", val.Key),
+						slack.NewTextBlockObject(slack.PlainTextType, val.Key, false, false),
 						slack.NewTextBlockObject(slack.PlainTextType, val.Desc, false, false),
-						val.Key),
-				)
-				blocks = append(blocks, block)
-			}
-			modalRequest.Type = slack.ViewType("modal")
-			modalRequest.Title = slack.NewTextBlockObject(slack.PlainTextType, fmt.Sprintf("Run %s", v.Name), false, false)
-			modalRequest.Submit = submitText
-			modalRequest.Blocks = slack.Blocks{
-				BlockSet: blocks,
-			}
-			modalRequest.CallbackID = fmt.Sprintf("lambda_invoke %s", choose)
-			modalRequest.PrivateMetadata = message.GetMessageRef().Channel
+						slack.NewPlainTextInputBlockElement(
+							slack.NewTextBlockObject(slack.PlainTextType, val.Desc, false, false),
+							val.Key),
+					)
+					blocks = append(blocks, block)
+				}
+				modalRequest.Type = slack.ViewType("modal")
+				modalRequest.Title = slack.NewTextBlockObject(slack.PlainTextType, fmt.Sprintf("Run %s", v.Name), false, false)
+				modalRequest.Submit = submitText
+				modalRequest.Blocks = slack.Blocks{
+					BlockSet: blocks,
+				}
+				modalRequest.CallbackID = fmt.Sprintf("lambda_invoke %s", choose)
+				modalRequest.PrivateMetadata = message.GetMessageRef().Channel
 
-			c.OpenView(message.GetTriggerID(), modalRequest)
+				c.OpenView(message.GetTriggerID(), modalRequest)
+			} else {
+				resp, err := c.call(&choose, "")
+				if err != nil {
+					c.ReplyError(message, err)
+					return
+				}
+				switch resp.Code {
+				case "200":
+					c.SendMessage(message, resp.Message)
+				default:
+					c.ReplyError(message, fmt.Errorf("failed to run command %s with code %s and error %s", choose, resp.Code, resp.Message))
+				}
+			}
 			break
 		}
 
@@ -125,30 +140,20 @@ func (c *lambdaCommand) invoke(match matcher.Result, message msg.Message) {
 	invoke := match.GetString("invoke")
 	modalResp := message.MessageRef.View.State.Values
 	partials := []string{}
+	if len(modalResp) == 0 {
+		c.ReplyError(message, errors.New("empty modal response"))
+		return
+	}
 	for _, outer := range modalResp {
 		for k, v := range outer {
 			partials = append(partials, fmt.Sprintf("\"%s\":\"%s\"", k, v.Value))
 		}
 	}
 	req := fmt.Sprintf("{%s}", strings.Join(partials, ","))
-	lambdaResp, err := c.service.Invoke(&lambda.InvokeInput{
-		FunctionName: &invoke,
-		Payload:      []byte(req),
-	})
-
+	resp, err := c.call(&invoke, req)
 	if err != nil {
 		c.ReplyError(message, err)
 		return
-	}
-	unquote, err := strconv.Unquote(string(lambdaResp.Payload))
-	if err != nil {
-		c.ReplyError(message, err)
-		return
-	}
-	resp := &LambdaResponse{}
-	err = json.Unmarshal([]byte(unquote), resp)
-	if err != nil {
-		c.ReplyError(message, err)
 	}
 
 	switch resp.Code {
@@ -157,6 +162,28 @@ func (c *lambdaCommand) invoke(match matcher.Result, message msg.Message) {
 	default:
 		c.ReplyError(message, fmt.Errorf("failed to run command %s with code %s and error %s", invoke, resp.Code, resp.Message))
 	}
+}
+
+func (c *lambdaCommand) call(funcName *string, request string) (*LambdaResponse, error) {
+	lambdaResp, err := c.service.Invoke(&lambda.InvokeInput{
+		FunctionName: funcName,
+		Payload:      []byte(request),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	unquote, err := strconv.Unquote(string(lambdaResp.Payload))
+	if err != nil {
+		return nil, err
+	}
+	resp := &LambdaResponse{}
+	err = json.Unmarshal([]byte(unquote), resp)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+
 }
 
 func (c *lambdaCommand) GetHelp() []bot.Help {
