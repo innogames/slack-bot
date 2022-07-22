@@ -131,9 +131,7 @@ func (c *lambdaCommand) choose(match matcher.Result, message msg.Message) {
 			}
 			break
 		}
-
 	}
-
 }
 
 func (c *lambdaCommand) invoke(match matcher.Result, message msg.Message) {
@@ -169,7 +167,6 @@ func (c *lambdaCommand) call(funcName *string, request string) (*LambdaResponse,
 		FunctionName: funcName,
 		Payload:      []byte(request),
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +180,6 @@ func (c *lambdaCommand) call(funcName *string, request string) (*LambdaResponse,
 		return nil, err
 	}
 	return resp, nil
-
 }
 
 func (c *lambdaCommand) GetHelp() []bot.Help {
