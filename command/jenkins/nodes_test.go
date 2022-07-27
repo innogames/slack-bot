@@ -95,7 +95,7 @@ func TestRealNodes(t *testing.T) {
 
 	t.Run("Fetch real nodes", func(t *testing.T) {
 		cfg := config.Jenkins{
-			Host: "http://ci.jenkins-ci.org",
+			Host: "https://ci.jenkins.io",
 		}
 		client, err := jenkins.GetClient(cfg)
 		assert.Nil(t, err)

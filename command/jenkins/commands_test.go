@@ -31,7 +31,7 @@ func TestGetCommands(t *testing.T) {
 
 	t.Run("Jenkins is active", func(t *testing.T) {
 		cfg := config.Jenkins{}
-		cfg.Host = "http://ci.jenkins-ci.org"
+		cfg.Host = "https://ci.jenkins.io"
 		commands := GetCommands(cfg, base)
 		assert.Equal(t, 7, commands.Count())
 	})

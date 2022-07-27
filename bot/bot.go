@@ -14,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
+	"github.com/slack-go/slack/slackutilsx"
 )
 
 var (
@@ -174,7 +175,7 @@ func (b *Bot) canHandleMessage(event *slack.MessageEvent) bool {
 	}
 
 	// Direct message channels always starts with 'D'
-	if strings.HasPrefix(event.Channel, "D") {
+	if slackutilsx.DetectChannelType(event.Channel) == slackutilsx.CTypeDM {
 		return true
 	}
 
