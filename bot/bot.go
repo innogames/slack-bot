@@ -2,6 +2,10 @@ package bot
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+	"time"
+
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/stats"
@@ -11,9 +15,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackutilsx"
-	"regexp"
-	"strings"
-	"time"
 )
 
 var (

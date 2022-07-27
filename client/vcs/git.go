@@ -15,7 +15,7 @@ var gitBranchRe = regexp.MustCompile(`refs/(remotes/origin|heads)/(.*)\n`)
 // LoadBranches will load the branches from a (remote) git repository
 func (f git) LoadBranches() (branchNames []string, err error) {
 	/* #nosec */
-	cmd := exec.Command("git", "ls-remote", "--refs", f.repoURL) //nolint:gosec
+	cmd := exec.Command("git", "ls-remote", "--refs", f.repoURL)
 	output, err := cmd.Output()
 	if err != nil {
 		return

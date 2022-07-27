@@ -210,7 +210,7 @@ func TestReplaceClickedButton(t *testing.T) {
 	actual := replaceClickedButton((*slack.Message)(messageEvent), actionID, " (worked)")
 	jsonString, err := json.Marshal(actual)
 
-	expected := `{"replace_original":false,"delete_original":false,"blocks":[{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"my text (worked)","emoji":true},"action_id":"id","style":"danger"}]}]}`
+	expected := `{"replace_original":false,"delete_original":false,"metadata":{"event_type":"","event_payload":null},"blocks":[{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"my text (worked)","emoji":true},"action_id":"id","style":"danger"}]}]}`
 
 	assert.Nil(t, err)
 	assert.Equal(t, expected, string(jsonString))

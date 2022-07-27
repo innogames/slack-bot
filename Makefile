@@ -17,7 +17,8 @@ run: dep
 	go run $(FLAGS) cmd/bot/main.go
 
 run-cli:
-	go run $(FLAGS) cmd/cli/main.go
+	test -f config.yaml || echo "please create a config.yaml first. Hint: check the config.example.yaml" && exit 1
+	go run $(FLAGS) cmd/cli/main.go -config config.yaml
 
 run-cli-config:
 	go run cmd/cli/main.go -config config.yaml
@@ -36,6 +37,9 @@ docker-build:
 	docker build . --force-rm -t brainexe/slack-bot:latest
 
 test: dep
+	go test ./...
+
+test-race: dep
 	go test ./... -race
 
 test-bench:
