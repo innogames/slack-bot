@@ -183,6 +183,7 @@ func (b *Bot) canHandleMessage(event *slack.MessageEvent) bool {
 
 func (b *Bot) HandleViewResponse(msg msg.Message) {
 	// TODO: handling empty resp
+	// if msg.MessageRef.V
 	// if ref.View == nil {
 	// 	logger.Errorf("empty view response")
 	// }

@@ -40,18 +40,3 @@ func GetCommands(cfg config.Aws, base bot.BaseCommand) bot.Commands {
 
 	return commands
 }
-
-// func setAWSLambda(cfg config.Aws) []config.Lambda {
-// 	c := []config.Lambda{}
-
-// 	for _, v := range cfg.Lambda {
-
-// 		c = append(c, config.Lambda{
-// 			Name:     v.Name,
-// 			FuncName: v.FuncName,
-// 			Inputs:   v.Inputs,
-// 			Desc:     strings.Trim(v.Desc, "\n"),
-// 		})
-// 	}
-// 	return c
-// }
