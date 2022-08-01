@@ -126,7 +126,8 @@ func (c *quizCommand) answer(match matcher.Result, message msg.Message) {
 
 func (c *quizCommand) parseAnswers() {
 	for questionNr, question := range c.quiz.Questions {
-		answers := append(question.IncorrectAnswers, question.CorrectAnswer)
+		answers := question.IncorrectAnswers
+		answers = append(answers, question.CorrectAnswer)
 
 		rand.Shuffle(len(answers), func(i, j int) {
 			answers[i], answers[j] = answers[j], answers[i]

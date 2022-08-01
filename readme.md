@@ -90,7 +90,7 @@ settings:
 ## 2nd) Run the bot
 
 ### Option 1: run via go
-1. install go
+1. [install go (at least 1.18)](https://go.dev/doc/install)
 2. create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
 3. `go run github.com/innogames/slack-bot/v2/cmd/bot`
 

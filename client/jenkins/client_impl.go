@@ -15,12 +15,20 @@ type jenkinsClientImpl struct {
 }
 
 func createJenkinsClient(ctx context.Context, httpClient *http.Client, cfg config.Jenkins) (*jenkinsClientImpl, error) {
-	jenkins := gojenkins.CreateJenkins(
-		httpClient,
-		cfg.Host,
-		cfg.Username,
-		cfg.Password,
-	)
+	var jenkins *gojenkins.Jenkins
+	if cfg.Username == "" {
+		jenkins = gojenkins.CreateJenkins(
+			httpClient,
+			cfg.Host,
+		)
+	} else {
+		jenkins = gojenkins.CreateJenkins(
+			httpClient,
+			cfg.Host,
+			cfg.Username,
+			cfg.Password,
+		)
+	}
 
 	jenkinsClient, err := jenkins.Init(ctx)
 	if err != nil {
