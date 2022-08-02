@@ -17,7 +17,7 @@ type redisStorage struct {
 	client *redis.Client
 }
 
-func (s redisStorage) Write(collection, key string, v interface{}) error {
+func (s redisStorage) Write(collection, key string, v any) error {
 	data, err := json.Marshal(v)
 	if err != nil {
 		return err
@@ -28,7 +28,7 @@ func (s redisStorage) Write(collection, key string, v interface{}) error {
 	return nil
 }
 
-func (s redisStorage) Read(collection, key string, v interface{}) error {
+func (s redisStorage) Read(collection, key string, v any) error {
 	res, err := s.client.HGet(collection, key).Result()
 	if err != nil {
 		return err

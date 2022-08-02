@@ -13,8 +13,8 @@ var (
 
 // Storage is the main interface which is used to persist bot related data (like queued messages or user histories)
 type Storage interface {
-	Write(collection, key string, v interface{}) error
-	Read(collection, key string, v interface{}) error
+	Write(collection, key string, v any) error
+	Read(collection, key string, v any) error
 	GetKeys(collection string) ([]string, error)
 	Delete(collection, key string) error
 }
@@ -41,7 +41,7 @@ func SetStorage(storage Storage) {
 }
 
 // Write stores one value in the persistent Storage
-func Write(collection string, key string, v interface{}) error {
+func Write(collection string, key string, v any) error {
 	if err := validateKey(collection, key); err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func Write(collection string, key string, v interface{}) error {
 }
 
 // Read will load the stored data for one entry (using reference) to avoid allocation
-func Read(collection string, key string, v interface{}) error {
+func Read(collection string, key string, v any) error {
 	if err := validateKey(collection, key); err != nil {
 		return err
 	}

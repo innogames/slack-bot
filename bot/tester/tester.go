@@ -78,7 +78,7 @@ func messageHandler(w http.ResponseWriter, r *http.Request, output io.Writer) {
 	// extract text from TextBlock
 	if text == "" && query.Get("blocks") != "" {
 		blockJSON := query.Get("blocks")
-		var blocks []map[string]interface{}
+		var blocks []map[string]any
 		_ = json.Unmarshal([]byte(blockJSON), &blocks)
 
 		for _, block := range blocks {
@@ -86,15 +86,15 @@ func messageHandler(w http.ResponseWriter, r *http.Request, output io.Writer) {
 		}
 	} else if text == "" && query.Get("attachments") != "" {
 		attachmentJSON := query.Get("attachments")
-		var attachments []map[string]interface{}
+		var attachments []map[string]any
 		_ = json.Unmarshal([]byte(attachmentJSON), &attachments)
 
 		for _, attachment := range attachments {
 			if txt, ok := attachment["title"].(string); ok {
 				text += txt + "\n"
 			}
-			for _, action := range attachment["actions"].([]interface{}) {
-				actionMap := action.(map[string]interface{})
+			for _, action := range attachment["actions"].([]any) {
+				actionMap := action.(map[string]any)
 
 				if actionMap["type"] == "button" {
 					text += fmt.Sprintf(
@@ -117,16 +117,16 @@ func messageHandler(w http.ResponseWriter, r *http.Request, output io.Writer) {
 	_, _ = w.Write(bytes)
 }
 
-func formatBlock(block map[string]interface{}) string {
+func formatBlock(block map[string]any) string {
 	text := ""
 
 	switch block["type"] {
 	case "section":
 		return extractText(block)
 	case "actions":
-		for _, element := range block["elements"].([]interface{}) {
-			buttonText := extractText(element.(map[string]interface{}))
-			buttonValue := element.(map[string]interface{})["value"].(string)
+		for _, element := range block["elements"].([]any) {
+			buttonText := extractText(element.(map[string]any))
+			buttonValue := element.(map[string]any)["value"].(string)
 
 			return commandButton(buttonText, buttonValue)
 		}
@@ -138,11 +138,11 @@ func formatBlock(block map[string]interface{}) string {
 }
 
 // bit hacky way to extract the text from some kind of block element
-func extractText(block map[string]interface{}) string {
+func extractText(block map[string]any) string {
 	if fields, ok := block["fields"]; ok {
 		result := ""
-		for _, field := range fields.([]interface{}) {
-			result += extractText(field.(map[string]interface{}))
+		for _, field := range fields.([]any) {
+			result += extractText(field.(map[string]any))
 		}
 		return result
 	}
@@ -150,9 +150,9 @@ func extractText(block map[string]interface{}) string {
 	// contains "text" element
 	if txt, ok := block["text"].(string); ok {
 		return txt
-	} else if txt, ok := block["text"].(map[string]interface{}); ok {
+	} else if txt, ok := block["text"].(map[string]any); ok {
 		if value, ok := txt["value"]; ok {
-			return value.(map[string]interface{})["text"].(string)
+			return value.(map[string]any)["text"].(string)
 		}
 
 		return txt["text"].(string)
