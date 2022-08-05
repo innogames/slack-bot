@@ -16,7 +16,7 @@ type bitbucket struct {
 
 // LoadBranches will load the branches from a stash/bitbucket server
 func (f *bitbucket) LoadBranches() (branchNames []string, err error) {
-	branchesRaw, err := f.client.GetBranches(f.cfg.Project, f.cfg.Repository, map[string]interface{}{
+	branchesRaw, err := f.client.GetBranches(f.cfg.Project, f.cfg.Repository, map[string]any{
 		"limit": bitbucketBranchLimit,
 	})
 	if err != nil {

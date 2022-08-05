@@ -16,7 +16,7 @@ type Parameters map[string]string
 
 var functions = template.FuncMap{
 	// creates a slice out of argument
-	"makeSlice": func(args ...interface{}) []interface{} {
+	"makeSlice": func(args ...any) []any {
 		return args
 	},
 	"slice": func(str string, start int, end int) string {
