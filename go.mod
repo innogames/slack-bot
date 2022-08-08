@@ -21,7 +21,7 @@ require (
 	github.com/slack-go/slack v0.11.2
 	github.com/stretchr/testify v1.8.0
 	github.com/texttheater/golang-levenshtein/levenshtein v0.0.0-20200805054039-cae8b0eaed6c
-	github.com/xanzy/go-gitlab v0.70.0
+	github.com/xanzy/go-gitlab v0.71.0
 	golang.org/x/oauth2 v0.0.0-20220722155238-128564f6959c
 	golang.org/x/text v0.3.7
 	gopkg.in/yaml.v3 v3.0.1
@@ -56,11 +56,11 @@ require (
 	github.com/trivago/tgo v1.0.7 // indirect
 	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20210529063254-f4c35e4016d9 // indirect
-	golang.org/x/net v0.0.0-20220726230323-06994584191e // indirect
-	golang.org/x/sys v0.0.0-20220727055044-e65921a090b8 // indirect
+	golang.org/x/net v0.0.0-20220805013720-a33c5aa5df48 // indirect
+	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.28.0 // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
