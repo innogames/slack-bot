@@ -170,7 +170,7 @@ func TestFallbackQueue(t *testing.T) {
 	message := msg.Message{}
 	message.User = "testUser1"
 
-	// this command should get executed on next startup..ot when we initialize "NewQueueCommand
+	// this command should get executed on next startup, or when we initialize "NewQueueCommand
 	runningCommand := AddRunningCommand(message, "reply yep")
 
 	command := bot.Commands{}

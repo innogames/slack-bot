@@ -1,5 +1,5 @@
 # Slack Bot
-This Slack bot improves the workflow of development teams. Especially with focus on Jenkins, Github, Gitlab and Jira, as the integration is working out of the box.
+This Slack bot improves the workflow of development teams. Especially with focus on Jenkins, GitHub, GitLab and Jira, as the integration is working out of the box.
 But also custom commands, macros, crons and other project specific commands can be implemented in a simple and flexible way.
 
 [![Actions Status](https://github.com/innogames/slack-bot/workflows/Test/badge.svg)](https://github.com/innogames/slack-bot/actions)
@@ -62,7 +62,7 @@ settings:
 5. Create the App!
 6. Go to "Basic Information"
 7. -> in "App-Level Tokens", "Generate a Token" with the scope "connections:write"
-8. You will see a App-Level Token (beginning with xapp-). Set it in the config.yaml as slack.socket_token.
+8. You will see an App-Level Token (beginning with xapp-). Set it in the config.yaml as slack.socket_token.
 9. Go to "OAuth & Permissions":
 10. -> "Install to Workspace"
 11. -> you should see a "Bot User OAuth Access Token" (beginning with "xoxb-"). Use it as slack.token in the config.yaml
@@ -82,7 +82,7 @@ settings:
     - - in "Subscribe to bot events", add "app_mention" and "message.im" events
     - Go to "OAuth & Permissions":
     - - use the "Bot User OAuth Access Token" (beginning with "xoxb-") as slack.token in the config.yaml
-    - - in "Scopes" we need this permissions: "app_mentions:read", "channels:read", "chat:write", "im:history", "im:write", "users:read", "reactions:read", "reactions:write"
+    - - in "Scopes" we need these permissions: "app_mentions:read", "channels:read", "chat:write", "im:history", "im:write", "users:read", "reactions:read", "reactions:write"
     - Go to "Install your App" and "Install your app to your workspace"
     - Back to "Install app" tab, the "Bot User OAuth Access Token" is visible (starts with "xoxb-"). You need this one in the config.yaml in slack->token.
 </details>
@@ -91,26 +91,26 @@ settings:
 
 ### Option 1: run via go
 1. [install go (at least 1.18)](https://go.dev/doc/install)
-2. create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
+2. create a config.yaml (at least a Slack token is required) or take a look in config-example.yaml
 3. `go run github.com/innogames/slack-bot/v2/cmd/bot`
 
 ### Option 2: via Docker
 1. [install Docker incl. docker-compose](https://docs.docker.com/get-docker/)
 2. clone this repo or at least fetch the docker-compose.yaml
-3. create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
+3. create a config.yaml (at least a Slack token is required) or take a look in config-example.yaml
 4. add your Slack user id or user name in the "allowed_users:" section of the config.yaml
 5. `docker-compose up`
 
 ### Option 3: Advanced:when planning working on the bot core
 1. install go (at least 1.16)
 2. clone/fork this repo
-3. create a config.yaml (at least a slack token is required) or take a look in config-example.yaml
+3. create a config.yaml (at least a Slack token is required) or take a look in config-example.yaml
 4. run `go run cmd/bot/main.go` or `make run` to run the go application
 
 
 # Usage
-As slack user, you just have to send a private message to the bot user/app containing the command to execute.
-Additionally you can execute bot commands in channels by prefix your command with @bot_name, e.g. `@slack-bot start job DailyDeployment`
+As Slack user, you just have to send a private message to the bot user/app containing the command to execute.
+Additionally, you can execute bot commands in channels by prefix your command with @bot_name, e.g. `@slack-bot start job DailyDeployment`
 
 **Note:** You have to invite the bot into the channel to be able to handle commands.
 
@@ -122,17 +122,17 @@ With `help *command*` you'll get a short description and some examples for a sin
 ![Screenshot](./docs/help.png)
 
 ## Jenkins (optional)
-The bot is able to start and monitor jenkins job on a simple but powerful way.
+The bot is able to start and monitor Jenkins job in a simple but powerful way.
 
-By default the commands are not available and not visible in the "help", till the "jenkins.host" is defined in the config file.
+By default, the commands are not available and not visible in the "help", till the "jenkins.host" is defined in the config file.
 
 ### Start Jenkins jobs
 The `start job` command starts a Jenkins job and shows the current progress. **Attention:** only whitelisted jobs in the config are startable!
 
-In additions each job can have a configurable `trigger` which make it possible to create custom commands to start jobs. (it's a regexp which takes parameter names into account).
-E.g. "start daily deployment" could be the trigger for one jenkins job. Sending this text to the bot would start he job.
+In additions, each job can have a configurable `trigger` which make it possible to create custom commands to start jobs. (it's a regexp which takes parameter names into account).
+E.g. "start daily deployment" could be the trigger for one Jenkins job. Sending this text to the bot would start the job.
 
-After starting a job the bot will show the estimated build time and some action buttons. There you can open the logs or abort the build directly.
+After starting a job, the bot will show the estimated build time and some action buttons. There you can open the logs or abort the build directly.
 
 The bot is also able to parse parameters and lookup branch names using a fuzzy branch search.
 
@@ -145,7 +145,7 @@ The bot is also able to parse parameters and lookup branch names using a fuzzy b
 ![Screenshot](./docs/jenkins-trigger-2.png)
 
 ### Jenkins build notifications
-The bot has also the possibility to create one time notifications for jenkins builds. This might be useful for long running jobs where the devs is waiting for the result.
+The bot also has the possibility to create one time notifications for Jenkins builds. This might be useful for long-running jobs where the devs are waiting for the result.
 
 **Example:**
 - `inform me about build NightlyTests` (watches the most recent running build)
@@ -153,7 +153,7 @@ The bot has also the possibility to create one time notifications for jenkins bu
 - `inform job MyJobName` (alternative syntax)
 
 ### Jenkins job notifications
-Receive slack messages for all process builds for the given job:
+Receive Slack messages for all process builds for the given job:
 
 **Example:**
 - `watch JenkinsSelfCheck` notifies about any build of Job `JenkinsSelfCheck`
@@ -163,7 +163,7 @@ Receive slack messages for all process builds for the given job:
 Small command to disable/enable job execution on Jenkins side.
 
 **Example:**
-- `disable job NightlyTests` (disable job on jenkins)
+- `disable job NightlyTests` (disable job on Jenkins)
 - `enable job NightlyTests`
 
 ### Jenkins retry
@@ -179,8 +179,8 @@ When a build failed you are able to retry any build by:
 
 
 ## Pull Requests
-If you just paste a link to a Github/Gitlab/Bitbucket/Stash Pull request, the bot will track the state of the ticket! 
-- When a developer was added as reviewer, it will add a "eyes" reaction to show other devs that someone is already taking a look
+If you just paste a link to a GitHub/GitLab/Bitbucket/Stash Pull request, the bot will track the state of the ticket!
+- When a developer was added as reviewer, it will add an "eyes" reaction to show other devs that someone is already taking a look
 - When the reviewer approved the ticket, a checkmark is added
 - After merging the pull request, it will add a "merge" reaction
 
@@ -203,13 +203,13 @@ pullrequest:
 ![Screenshot](./docs/pull-request.png)
 
 **Extra Features:**
-For Bitbucket the bot is able to extract the current build status (e.g. from Jenkins/Bamboo etc) and show failed and running builds (fire reaction) as a reaction (circle arrow reaction). When the build is stable, the build reactions disappear.  
+For Bitbucket, the bot is able to extract the current build status (e.g. from Jenkins/Bamboo etc) and show failed and running builds (fire reaction) as a reaction (circle arrow reaction). When the build is stable, the build reactions disappear.
 ![Screenshot](./docs/pull-request-build-status.png)
 
 ## Command Queue
 The `queue` command (with the alias `then`) is able to queue the given command, until the currently running command finished. 
 
-Example following scenario: you have a build job (which might take some minutes) and a deploy job which relies of the build artifacts. Now you can do:
+Example following scenario: you have a build job (which might take some minutes) and a deploy job which relies on the build artifacts. Now you can do:
 - `trigger job Build feature1234` to start the Build job with given branch
 - `queue trigger job DeployBranch feature1234` 
 - `queue reply Deployment is done!`
@@ -224,7 +224,7 @@ To see all running background commands (like Jenkins jobs or PR watcher) use thi
 ## Jira (optional)
 The bot is able to query information from Jira, either from a single ticket, or a whole list of tickets.
 
-By default the commands are not available and not visible in the "help", till the "jira.host" is defined in the config file.
+By default, the commands are not available and not visible in the "help", till the "jira.host" is defined in the config file.
 
 **Examples**
 - `jira TEST-1234`
@@ -255,7 +255,7 @@ It's possible to create buttons which are performing any bot action when pressin
  - each button is only active once
   
 ## Custom variables
-Configure user specific variables to customize bot behaviour. E.g. each developer has his own server environment.
+Configure user specific variables to customize bot behavior. E.g. each developer has his own server environment.
 
 **Example:** Having this global config:
 ```yaml
@@ -272,7 +272,7 @@ When now calling `deploy mater`, it will deploy the `master` branch to `foobarX.
 
 **Another example**
 Here an advanced version which uses [Go templates](https://golang.org/pkg/text/template/).
-In the end the command will generate one subcommand, like:
+In the end, the command will generate one subcommand, like:
 `reply <!here> demo for <https://jira.example.com/TEST-1234|TEST-1234: Example-Ticket>` which will post the link to the Slack channel.
 
 ```yaml
@@ -298,7 +298,7 @@ Each user can define his own variables.
 
 
 ## Quiz command
-If you need a small break and want to play a little quiz game you can do so by calling this command.
+If you need a small break and want to play a little quiz game, you can do so by calling this command.
 No more than 50 questions are allowed. 
 The questions are from different categories and difficult levels and are either multiple choice or true/false questions.
 
@@ -330,7 +330,7 @@ This is a handy feature to avoid typing the same command every day.
 - `add command 'myCommand' 'trigger job RestoreWorld 7` -> then just call `myCommand` later
 - `add command 'build master' 'trigger job Deploy master ; then trigger job DeployClient master'`
 - `delete command 'build master'`
-- -> then you can execute `myCommand` to trigger this jenkins job
+- -> then you can execute `myCommand` to trigger this Jenkins job
 ![Screenshot](./docs/custom-commands.png)
 
 ## Commands
@@ -352,7 +352,7 @@ commands:
 ```
 ![Screenshot](./docs/macro-multiple-jobs.png)
 
-**Note**: In the commands you can use the full set of [template features of go](https://golang.org/pkg/text/template/) -> loops/conditions are possible!
+**Note**: In the commands, you can use the full set of [template features of go](https://golang.org/pkg/text/template/) -> loops/conditions are possible!
 
 ### Template functions
 Beside the usual [template features of go](https://golang.org/pkg/text/template/) a bunch of bot specific commands are available in the template scope.
@@ -364,20 +364,20 @@ A list of all available functions (with arguments and return types) can be gener
 - [Crons](#cron)
 - [Defined commands](#commands)  (via .yaml)
 - [Custom commands](#custom-command)  (defined per user)
-- [Jenkins hooks](#jenkins) (lik send custom message when a Job fails)
+- [Jenkins hooks](#jenkins) (like sending custom message when a Job fails)
 
 ## Retry
 With `retry` or `repeat` your last executed command will be re-executed. -> Useful when a failed Jenkins job got fixed.
 
 ## Delay
-A small command which might be useful in combination with `command` command or as hook for jenkins jobs.
+A small command which might be useful in combination with `command` command or as hook for Jenkins jobs.
 
 Example command: `delay 10m trigger job DeployWorldwide`
 
 As reply you'll get a command to stop the queued job (like `stop timer 123456`). As everyone can send the command, the command can be used to announce a deployment and in doubt, the execution can still be stopped by everyone.
 
 ## Reply / send message
-`reply` and `send message` are also small commands which are useful in combination with `command` or jenkins hooks.
+`reply` and `send message` are also small commands which are useful in combination with `command` or Jenkins hooks.
 
 **Examples:**
 - `send message to #backend The job failed :panic:`
@@ -411,21 +411,21 @@ docker-compose up
 # Configuration
 The configuration is managed via simple .yaml files which are storing the credentials for the external services and the custom commands etc.
 
-The easiest way is to just have one `config.yaml` file with all needed options included the `config.yaml` is loaded by default. It's also possible to split up the configuration into multiple files.
+The easiest way is to just have one `config.yaml` file with all needed options included, the `config.yaml` is loaded by default. It's also possible to split up the configuration into multiple files.
 
-**Example structure with mutiple config files:**
-- `secret.yaml` containing the credentials for the external services (slack, jenkins) - can be managed by puppet/ansible etc.
-- `jenkins.yaml` configuration of jenkins job and their parameters etc
+**Example structure with multiple config files:**
+- `secret.yaml` containing the credentials for the external services (Slack, Jenkins) - can be managed by puppet/ansible etc.
+- `jenkins.yaml` configuration of Jenkins job and their parameters etc
 - `project-X.yaml` custom commands for a specific team
 - `project-Y.yaml`
 
 To load the multiple config files, use `go run cmd/bot/main.go -config /path/to/config/*.yaml` which merged all configs together.
 
 ## Slack
-To run this bot, you need a "bot token" for your slack application. See the [installation](#installation) section how to create a proper app with the needed tokens.
+To run this bot, you need a "bot token" for your Slack application. See the [installation](#installation) section on how to create a proper app with the needed tokens.
 
 ## Jenkins config
-To be able to start or monitor jenkins jobs, you have to setup the host and the credentials first. The user needs read access to the jobs and the right to trigger jobs for your whitelisted jobs.
+To be able to start or monitor Jenkins jobs, you have to setup the host and the credentials first. The user needs read access to the jobs and the right to trigger jobs for your whitelisted jobs.
 ```
 jenkins:
      host: https://jenkins.example.de
@@ -434,7 +434,7 @@ jenkins:
 ```
 
 ### Jenkins jobs
-To be able to start a job, the job and it's parameters have to be defined in the config.
+To be able to start a job, the job and its parameters have to be defined in the config.
 
 A job without any parameter looks very simple:
 ```yaml
@@ -444,7 +444,7 @@ jenkins:
 ```
 Then you can use `trigger job CleanupJob` or `start job CleanupJob` to start the job. It will also notify you when the job succeeded or failed (incl. error log). 
 
-Next a job with two parameters:
+Next, a job with two parameters:
 ```yaml
 jenkins:
   jobs:
@@ -460,7 +460,7 @@ This job can handle two parameters:
  - BRANCH: VCS branch name, "master" as default
  - GROUP: optional parameter, using "all" as default
         
-If you setup the VSC in the config, you don't have to pass the full branch name but can use the fuzzy search.
+If you setup the VSC in the config, you don't have to pass the full branch name, but can use the fuzzy search.
 
 **Example:**
  - `start job RunTests` would start "all" groups on master branch
@@ -481,14 +481,14 @@ jenkins:
           - reply Tadaa: Take a look on http://{{ .ENVIRONMENT }}.example.com
 ```
 **Step by step:**
-The `trigger` is a regular expression to start the job which may contain named groups. The regexp groups will be matched to the job parameters automatically.
+The `trigger` is a regular expression to start the job, which may contain named groups. The regexp groups will be matched to the job parameters automatically.
 
-Then you can use `deploy bugfix-1234 to test` to start the jenkins job.
+Then you can use `deploy bugfix-1234 to test` to start the Jenkins job.
 
 **Note:** You can always start this job also via `start job DeployBranch master`. The `trigger` is just an alternative.
 
-The `onsuccess` is a hook which will be executed when a job ist started via this bot. 
-In addition `onsuccess` and `onerror` is also available...e.g. to send custom error messages.
+The `onsuccess` is a hook which will be executed when a job is started via this bot.
+In addition, `onsuccess` and `onerror` is also available...e.g. to send custom error messages.
 
 
 ### Cron
@@ -505,7 +505,7 @@ crons:
 ```
 
 ## VCS / Stash / Bitbucket
-To be able to resolve branch names in jenkins trigger, a VCS system can be configured (at the moment it's just Stash/Bitbucket).
+To be able to resolve branch names in Jenkins trigger, a VCS system can be configured (at the moment it's just Stash/Bitbucket).
 ```yaml
 vcs:
   type: bitbucket
@@ -515,25 +515,25 @@ vcs:
   project: MyProjectKey
   repository: repo_name
 ```
-If no config is provided, there is no automated branch lookup and the "branch" parameters are passed 1:1 to the jenkins job.
+If no config is provided, there is no automated branch lookup and the "branch" parameters are passed 1:1 to the Jenkins job.
 
 # Development
 
 ## File structure
-- `bot/` contains the code classes of the bot: connection to slack, user management, command matching...
+- `bot/` contains the code classes of the bot: connection to Slack, user management, command matching...
 - `cmd/bot/` entry points aka main.go for the bot and the CLI test tool
 - `command/` real command implementing the bot.Command interface
 - `client/` communication interfaces for Slack, Jenkins, Jira etc...
 
 ## Create a new (native) command
-If you need a new command, which is not implementable with a "command" command, you have to write to write go code.
+If you need a new command, which is not implementable with a "command" command, you have to write go code.
 - create a new file within the "commands/" directory or one submodule of it
 - create a new struct which fulfills the bot.Command interface. The service.SlackClient might be needed as dependency
 - GetMatcher() needs to provide the information which command text is matching our command
 - register the command in command/commands.go
 - restart the bot application
 - it's recommended to fulfill the bot.HelpProvider (your command will show up in `help)
-- it's also recommended to create a integration test for your command
+- it's also recommended to create an integration test for your command
 
 ## CLI tool
 There is a handy CLI application which emulates the Slack application...just chat with your local console without any Slack connection!

@@ -30,7 +30,7 @@ func testStorage(t *testing.T, storage Storage) {
 	assert.Error(t, err)
 	assert.Equal(t, "", stringValue)
 
-	// ket keys all
+	// get keys all
 	keys, err := storage.GetKeys(collection)
 	assert.Nil(t, err)
 	assert.Len(t, keys, 3)
