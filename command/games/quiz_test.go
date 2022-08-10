@@ -60,7 +60,7 @@ func TestQuiz(t *testing.T) {
 		message.Text = "answer 3"
 
 		expected = `[` +
-			`{"type":"section","text":{"type":"mrkdwn","text":"Next question (#2) is of *\"easy\" difficulty* from the category: \"*Math*\"\nWhats 1+4?\n"}},` +
+			`{"type":"section","text":{"type":"mrkdwn","text":"Next question (#2) is of *\"easy\" difficulty* from the category: \"*Math*\"\nWhat's 1+4?\n"}},` +
 			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"5","emoji":true},"action_id":"id","value":"answer 5"}]},` +
 			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"6","emoji":true},"action_id":"id","value":"answer 6"}]}` +
 			`]`

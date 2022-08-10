@@ -17,7 +17,7 @@
       "category": "Math",
       "type": "multiple",
       "difficulty": "easy",
-      "question": "Whats 1+4?",
+      "question": "What's 1+4?",
       "correct_answer": "5",
       "incorrect_answers": [
         "6"

@@ -1,4 +1,4 @@
-// Load application config, usually defined in config.yaml and overrideable y env vars
+// Load application config, usually defined in config.yaml and overridable y env vars
 
 package config
 
