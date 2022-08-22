@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/alicebob/miniredis/v2 v2.22.0
-	github.com/andygrunwald/go-jira v1.15.1
+	github.com/andygrunwald/go-jira v1.16.0
 	github.com/aws/aws-sdk-go v1.44.63
 	github.com/bndr/gojenkins v1.1.0
 	github.com/brainexe/viper v1.8.2
