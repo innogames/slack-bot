@@ -274,6 +274,7 @@ func (c command) getBuildStatusIcon(pr pullRequest) string {
 		return fmt.Sprintf(":%s:", c.cfg.Reactions.BuildSuccess)
 	case buildStatusFailed:
 		return fmt.Sprintf(":%s:", c.cfg.Reactions.BuildFailed)
+	case buildStatusUnknown:
 	}
 	return ""
 }

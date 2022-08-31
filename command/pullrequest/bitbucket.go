@@ -130,15 +130,12 @@ func (c *bitbucketFetcher) getBuildStatus(lastCommit string) buildStatus {
 			if status == buildStatusUnknown {
 				status = buildStatusSuccess
 			}
-			break
 		case "INPROGRESS":
 			status = buildStatusRunning
-			break
 		case "FAILED":
 			if status != buildStatusRunning {
 				status = buildStatusFailed
 			}
-			break
 		}
 	}
 
