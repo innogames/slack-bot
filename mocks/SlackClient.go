@@ -3,6 +3,7 @@
 package mocks
 
 import (
+	"fmt"
 	msg "github.com/innogames/slack-bot/v2/bot/msg"
 	mock "github.com/stretchr/testify/mock"
 
@@ -146,6 +147,6 @@ func (_m *SlackClient) SendMessage(ref msg.Ref, text string, options ...slack.Ms
 }
 
 // SendToUser provides a mock function with given fields: user, text
-func (_m *SlackClient) SendToUser(user string, text string) {
-	_m.Called(user, text)
+func (_m *SlackClient) SendToUser(user string, format string, parameter ...any) {
+	_m.Called(user, fmt.Sprintf(format, parameter...))
 }
