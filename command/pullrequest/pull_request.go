@@ -3,7 +3,6 @@ package pullrequest
 import (
 	"fmt"
 	"net"
-	"strings"
 	"text/template"
 	"time"
 
@@ -330,12 +329,8 @@ func (c command) notifyPullRequestStatus(prw *pullRequestWatch) {
 }
 
 func (c command) sendPrivateMessage(username string, format string, parameter ...any) {
-	pmChannel := username
-	if !strings.HasPrefix(username, "@") {
-		pmChannel = fmt.Sprintf("@%s", username)
-	}
 	message := fmt.Sprintf(format, parameter...)
-	c.SendToUser(pmChannel, message)
+	c.SendToUser(username, message)
 }
 
 func (c command) GetTemplateFunction() template.FuncMap {
