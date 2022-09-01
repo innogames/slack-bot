@@ -69,10 +69,22 @@ func (c *bitbucketFetcher) getPullRequest(match matcher.Result) (pullRequest, er
 		}
 	}
 
+	var author string
+	if rawPullRequest.Author != nil {
+		author = rawPullRequest.Author.User.Name
+	}
+
+	var link string
+	if len(rawPullRequest.Links.Self) > 0 {
+		link = rawPullRequest.Links.Self[0].Href
+	}
+
 	pr = pullRequest{
 		Name:        rawPullRequest.Title,
 		Status:      c.getStatus(&rawPullRequest),
 		BuildStatus: c.getBuildStatus(rawPullRequest.FromRef.LatestCommit),
+		Author:      author,
+		Link:        link,
 		Approvers:   approvers,
 	}
 
@@ -97,32 +109,37 @@ func (c *bitbucketFetcher) getStatus(pr *bitbucket.PullRequest) prStatus {
 
 // try to extract the current build Status from a PR, based on the recent commit
 func (c *bitbucketFetcher) getBuildStatus(lastCommit string) buildStatus {
-	buildStatus := buildStatusUnknown
+	status := buildStatusUnknown
 	if lastCommit == "" {
-		return buildStatus
+		return status
 	}
 
 	rawBuilds, err := c.bitbucketClient.GetCommitBuildStatuses(lastCommit)
 	if err != nil {
-		return buildStatus
+		return status
 	}
 
 	builds, err := bitbucket.GetBuildStatusesResponse(rawBuilds)
 	if err != nil {
-		return buildStatus
+		return status
 	}
+
 	for _, build := range builds {
 		switch build.State {
-		case "SUCCESS":
-			return buildStatusSuccess
+		case "SUCCESS", "SUCCESSFUL":
+			if status == buildStatusUnknown {
+				status = buildStatusSuccess
+			}
 		case "INPROGRESS":
-			return buildStatusRunning
+			status = buildStatusRunning
 		case "FAILED":
-			return buildStatusFailed
+			if status != buildStatusRunning {
+				status = buildStatusFailed
+			}
 		}
 	}
 
-	return buildStatus
+	return status
 }
 
 func (c *bitbucketFetcher) GetTemplateFunction() template.FuncMap {

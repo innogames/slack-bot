@@ -114,6 +114,8 @@ func (c *gitlabFetcher) convertToPullRequest(rawPullRequest *gitlab.MergeRequest
 		Name:        rawPullRequest.Title,
 		Approvers:   c.getApprovers(rawPullRequest, prNumber),
 		Status:      c.getStatus(rawPullRequest),
+		Author:      c.getAuthor(rawPullRequest),
+		Link:        rawPullRequest.WebURL,
 		BuildStatus: c.getPipelineStatus(rawPullRequest),
 	}
 }
@@ -135,4 +137,11 @@ func (c *gitlabFetcher) getPipelineStatus(pr *gitlab.MergeRequest) buildStatus {
 	default:
 		return buildStatusUnknown
 	}
+}
+
+func (c *gitlabFetcher) getAuthor(rawPullRequest *gitlab.MergeRequest) string {
+	if rawPullRequest.Author != nil {
+		return rawPullRequest.Author.Username
+	}
+	return ""
 }
