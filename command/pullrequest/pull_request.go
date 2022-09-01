@@ -3,6 +3,7 @@ package pullrequest
 import (
 	"fmt"
 	"net"
+	"strings"
 	"text/template"
 	"time"
 
@@ -293,13 +294,13 @@ func (c command) notifyBuildStatus(prw *pullRequestWatch) {
 	prw.LastBuildStatus = prw.PullRequest.BuildStatus
 
 	if c.cfg.Notifications.BuildStatusInProgress && prw.LastBuildStatus == buildStatusRunning {
-		c.SendToUser(fmt.Sprintf("@%s", prw.PullRequest.Author), "PR '%s'\nBuild Status: Started %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
+		c.sendPrivateMessage(prw.PullRequest.Author, "PR '%s'\nBuild Status: Started %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
 	}
 	if c.cfg.Notifications.BuildStatusSuccess && prw.PullRequest.BuildStatus == buildStatusSuccess {
-		c.SendToUser(fmt.Sprintf("@%s", prw.PullRequest.Author), "PR '%s'\nBuild Status: Success %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
+		c.sendPrivateMessage(prw.PullRequest.Author, "PR '%s'\nBuild Status: Success %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
 	}
 	if c.cfg.Notifications.BuildStatusFailed && prw.PullRequest.BuildStatus == buildStatusFailed {
-		c.SendToUser(fmt.Sprintf("@%s", prw.PullRequest.Author), "PR '%s'\nBuild Status: Failed %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
+		c.sendPrivateMessage(prw.PullRequest.Author, "PR '%s'\nBuild Status: Failed %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
 	}
 }
 
@@ -325,7 +326,16 @@ func (c command) notifyPullRequestStatus(prw *pullRequestWatch) {
 
 	prw.DidNotifyMergeable = true
 
-	c.SendToUser(fmt.Sprintf("@%s", prw.PullRequest.Author), "Your PR '%s' is ready to merge!%s", prw.PullRequest.Name, getPRLinkMessage(prw))
+	c.sendPrivateMessage(prw.PullRequest.Author, "Your PR '%s' is ready to merge!%s", prw.PullRequest.Name, getPRLinkMessage(prw))
+}
+
+func (c command) sendPrivateMessage(username string, format string, parameter ...any) {
+	pmChannel := username
+	if !strings.HasPrefix(username, "@") {
+		pmChannel = fmt.Sprintf("@%s", username)
+	}
+	message := fmt.Sprintf(format, parameter...)
+	c.SendToUser(pmChannel, message)
 }
 
 func (c command) GetTemplateFunction() template.FuncMap {

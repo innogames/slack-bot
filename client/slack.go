@@ -108,7 +108,7 @@ type SlackClient interface {
 	SendBlockMessage(ref msg.Ref, blocks []slack.Block, options ...slack.MsgOption) string
 
 	// SendToUser sends a simple text message to a user, using "@username or @U12334"
-	SendToUser(user string, format string, params ...any)
+	SendToUser(user string, text string)
 	RemoveReaction(reaction util.Reaction, ref msg.Ref)
 	AddReaction(reaction util.Reaction, ref msg.Ref)
 	GetReactions(item slack.ItemRef, params slack.GetReactionsParameters) ([]slack.ItemReaction, error)
@@ -210,7 +210,7 @@ func (s *Slack) ReplyError(ref msg.Ref, err error) {
 }
 
 // SendToUser sends a message to any user via IM channel
-func (s *Slack) SendToUser(user string, format string, params ...any) {
+func (s *Slack) SendToUser(user string, text string) {
 	// check if a real username was passed -> we need the user-id here
 	userID, _ := GetUserIDAndName(user)
 	if userID == "" {
@@ -231,7 +231,7 @@ func (s *Slack) SendToUser(user string, format string, params ...any) {
 	message := msg.Message{}
 	message.Channel = channel.ID
 
-	s.SendMessage(message, fmt.Sprintf(format, params...))
+	s.SendMessage(message, text)
 }
 
 // CanHandleInteractions checks if we have a slack connections which can inform us about events/interactions, like pressed buttons?
