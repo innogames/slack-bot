@@ -1,6 +1,7 @@
 package pullrequest
 
 import (
+	"fmt"
 	"net"
 	"text/template"
 	"time"
@@ -63,6 +64,12 @@ type pullRequest struct {
 	// status of a related CI build
 	BuildStatus buildStatus
 
+	// author of the PR
+	Author string
+
+	// link to the PR
+	Link string
+
 	// list of usernames which approved the PR
 	Approvers []string
 }
@@ -82,6 +89,13 @@ func (c command) execute(match matcher.Result, message msg.Message) {
 	go c.watch(match, message)
 }
 
+type pullRequestWatch struct {
+	DidNotifyMergeable bool
+	PullRequest        pullRequest
+	LastBuildStatus    buildStatus
+	PullRequestStatus  prStatus
+}
+
 func (c command) watch(match matcher.Result, message msg.Message) {
 	msgRef := slack.NewRefToMessage(message.Channel, message.Timestamp)
 	currentErrorCount := 0
@@ -92,11 +106,11 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 	delay := util.GetIncreasingDelay(minCheckInterval, maxCheckInterval)
 	currentReactions := c.getOwnReactions(msgRef)
 
-	var pr pullRequest
+	var prw pullRequestWatch
 	var err error
 
 	for {
-		pr, err = c.fetcher.getPullRequest(match)
+		prw.PullRequest, err = c.fetcher.getPullRequest(match)
 
 		// something failed while loading the PR data...retry if it was temporary, else quit watching
 		if err != nil {
@@ -123,10 +137,14 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 		}
 		currentErrorCount = 0
 
-		c.setPRReactions(pr, currentReactions, message)
+		c.setPRReactions(prw.PullRequest, currentReactions, message)
+
+		c.notifyBuildStatus(&prw)
+
+		c.notifyPullRequestStatus(&prw)
 
 		// stop watching!
-		if pr.Status == prStatusClosed || pr.Status == prStatusMerged {
+		if prw.PullRequest.Status == prStatusClosed || prw.PullRequest.Status == prStatusMerged {
 			return
 		}
 
@@ -239,6 +257,80 @@ func (c command) getApproveReactions(approvers []string) reactionMap {
 	}
 
 	return reactions
+}
+
+func getPRLinkMessage(prw *pullRequestWatch) string {
+	if len(prw.PullRequest.Link) > 0 {
+		return fmt.Sprintf("\nYou can check it here: %s", prw.PullRequest.Link)
+	}
+	return ""
+}
+
+func (c command) getBuildStatusIcon(pr pullRequest) string {
+	switch pr.BuildStatus {
+	case buildStatusRunning:
+		return fmt.Sprintf(":%s:", c.cfg.Reactions.BuildRunning)
+	case buildStatusSuccess:
+		return fmt.Sprintf(":%s:", c.cfg.Reactions.BuildSuccess)
+	case buildStatusFailed:
+		return fmt.Sprintf(":%s:", c.cfg.Reactions.BuildFailed)
+	case buildStatusUnknown:
+	}
+	return ""
+}
+
+func (c command) notifyBuildStatus(prw *pullRequestWatch) {
+	if len(prw.PullRequest.Author) == 0 {
+		// no author to notify
+		return
+	}
+
+	if prw.PullRequest.BuildStatus == prw.LastBuildStatus {
+		// build status didn't change
+		return
+	}
+
+	prw.LastBuildStatus = prw.PullRequest.BuildStatus
+
+	if c.cfg.Notifications.BuildStatusInProgress && prw.LastBuildStatus == buildStatusRunning {
+		c.sendPrivateMessage(prw.PullRequest.Author, "PR '%s'\nBuild Status: Started %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
+	}
+	if c.cfg.Notifications.BuildStatusSuccess && prw.PullRequest.BuildStatus == buildStatusSuccess {
+		c.sendPrivateMessage(prw.PullRequest.Author, "PR '%s'\nBuild Status: Success %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
+	}
+	if c.cfg.Notifications.BuildStatusFailed && prw.PullRequest.BuildStatus == buildStatusFailed {
+		c.sendPrivateMessage(prw.PullRequest.Author, "PR '%s'\nBuild Status: Failed %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
+	}
+}
+
+func (c command) notifyPullRequestStatus(prw *pullRequestWatch) {
+	if prw.DidNotifyMergeable {
+		return
+	}
+
+	if len(prw.PullRequest.Author) == 0 {
+		// no author to notify
+		return
+	}
+
+	if len(prw.PullRequest.Approvers) == 0 {
+		// prw isn't approved
+		return
+	}
+
+	if prw.PullRequest.BuildStatus != buildStatusSuccess {
+		// has still running or failed builds
+		return
+	}
+
+	prw.DidNotifyMergeable = true
+
+	c.sendPrivateMessage(prw.PullRequest.Author, "Your PR '%s' is ready to merge!%s", prw.PullRequest.Name, getPRLinkMessage(prw))
+}
+
+func (c command) sendPrivateMessage(username string, format string, parameter ...any) {
+	message := fmt.Sprintf(format, parameter...)
+	c.SendToUser(username, message)
 }
 
 func (c command) GetTemplateFunction() template.FuncMap {

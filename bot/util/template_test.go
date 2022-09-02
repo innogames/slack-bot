@@ -9,8 +9,8 @@ import (
 
 func TestFunctions(t *testing.T) {
 	t.Run("makeSlice", func(t *testing.T) {
-		actual := functions["makeSlice"].(func(args ...interface{}) []interface{})("1", "2", "3")
-		assert.Equal(t, []interface{}{"1", "2", "3"}, actual)
+		actual := functions["makeSlice"].(func(args ...any) []any)("1", "2", "3")
+		assert.Equal(t, []any{"1", "2", "3"}, actual)
 	})
 
 	t.Run("stringSlice", func(t *testing.T) {

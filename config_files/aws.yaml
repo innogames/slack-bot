@@ -1,0 +1,16 @@
+aws:
+  enabled: true
+  alias: gx
+  lambdas:
+    - name: clear_cf_cache
+      desc: with given distribution, make invalidation and clear cache
+      funcName: devops-chatops-CFInvalidationFunction-Mld0rlLu7KYs
+      inputs:
+        - key: distribution
+          desc: target distribution id
+        - key: path
+          desc: comma seperated path
+    - name: get_distributions
+      desc: get possible distributions
+      funcName: devops-chatops-CFShowDistributionFunction-QkvAge4in8RT
+      inputs: []

@@ -80,9 +80,21 @@ func (c *githubFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 		}
 	}
 
+	var author string
+	if rawPullRequest.User != nil && rawPullRequest.User.Login != nil {
+		author = *rawPullRequest.User.Login
+	}
+
+	var link string
+	if rawPullRequest.URL != nil {
+		link = *rawPullRequest.URL
+	}
+
 	pr = pullRequest{
 		Name:      rawPullRequest.GetTitle(),
 		Status:    c.getStatus(rawPullRequest, inReview),
+		Author:    author,
+		Link:      link,
 		Approvers: approvers,
 	}
 

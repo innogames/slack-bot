@@ -20,7 +20,7 @@ type memoryStorage struct {
 	mutex   sync.RWMutex
 }
 
-func (s *memoryStorage) Write(collection, key string, v interface{}) error {
+func (s *memoryStorage) Write(collection, key string, v any) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -38,7 +38,7 @@ func (s *memoryStorage) Write(collection, key string, v interface{}) error {
 	return nil
 }
 
-func (s *memoryStorage) Read(collection, key string, v interface{}) error {
+func (s *memoryStorage) Read(collection, key string, v any) error {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 

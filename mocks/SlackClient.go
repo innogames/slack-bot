@@ -151,8 +151,8 @@ func (_m *SlackClient) SendMessage(ref msg.Ref, text string, options ...slack.Ms
 }
 
 // SendToUser provides a mock function with given fields: user, text
-func (_m *SlackClient) SendToUser(user string, text string) {
-	_m.Called(user, text)
+func (_m *SlackClient) SendToUser(user string, message string) {
+	_m.Called(user, message)
 }
 
 type mockConstructorTestingTNewSlackClient interface {

@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         # https://github.com/actions/go-versions/blob/main/versions-manifest.json
-        go-version: [1.18.x]
+        go-version: [1.18.x, 1.19.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -40,6 +40,8 @@ jobs:
     steps:
       - name: Install Go
         uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Test
@@ -57,7 +59,6 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3.2.0
         with:
-          version: v1.47.0
           only-new-issues: true
   gosec:
     name: GoSec

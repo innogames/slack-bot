@@ -70,6 +70,8 @@ func TestGithub(t *testing.T) {
 
 		expected := pullRequest{
 			Name:      "Add weather command",
+			Author:    "pbojan",
+			Link:      "https://api.github.com/repos/innogames/slack-bot/pulls/1",
 			Status:    prStatusMerged,
 			Approvers: []string{},
 		}

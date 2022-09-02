@@ -1,0 +1,91 @@
+
+slack:
+  token: xoxb-1907859392083-2801180621986-Zz6t45mmdCZqtNK1l2tcTcug
+  socket_token: xapp-1-A02PXPX70PK-2803448126404-105f00a88c2048995db13ea5db31f4a55c9af201726671331535b4b66eed650c
+  debug: true # some more slack debug information
+  allowed_groups:
+    - test
+# list of trusted slack users: allows the user-id and the name
+allowed_users:
+  - jeff.kim
+  - U122323
+
+# there are some restricted commands, like reading logs or show runtime stats
+admin_users:
+
+# define a custom set of own commands: They match a regular expression any can call a set of other internal/custom commands
+# here just some examples:
+commands:
+
+# Jenkins example: "deploy feature-1234" will build clients, deploy it and prints a link after success.
+ - name: Deploy
+   trigger: "deploy (?P<branch>[\\w\\d\\-_\\.\\/]+)"
+   commands:
+     - trigger job BuildClients {{.branch}}
+     - trigger job Deploy {{.branch}}
+     - reply I deployed {{.branch}}
+     - add link "Open Admintool" https://project.example.com/admintool/
+
+# Jira example: "open backend bugs" will print a list of all matching Jira issues
+#  - name: List open Jira bugs
+#    trigger: "open (?P<project>(backend|mobile|frontend)) bugs"
+#    description: "Lists open Jira bugs from a given component"
+#    category: QA
+#    commands:
+#      - "add reaction :bug:"
+#      - jql issuetype = Bug AND component = "{{.project}}" AND resolution = Unresolved ORDER BY priority DESC, created DESC
+#    examples:
+#      - open backend bugs
+#      - open mobile bugs
+#      - open frontend bugs
+
+# optional Jenkins integration
+#jenkins:
+#  host: https://jenkins.example.com
+#  username: username
+#  password: secret
+#  jobs:
+#    BackendTests:
+#      parameters:
+#        - name: BRANCH
+#          default: master
+#          type: branch
+
+# optional Jira integration
+jira:
+  #host: https://jira.example.de
+  username: readonlyuser
+  password: secret
+  project: FOO
+
+# optional Github integration to watch PR state
+github:
+  access_token: # optional when using github features
+
+# optional Gitlab integration to watch merge request state
+#gitlab:
+#  host: https://gitlab.example.de
+#  accesstoken: # needed for the API
+
+#crons:
+# Cron example: 3 times a day check in the given channel if there are more than 5 background jobs, which might be watched pull requests
+# - schedule: "CRON_TZ=Europe/Berlin 0 9,13,16 * * * MON-FRI"
+#   channel: "#pull-requests"
+#   commands:
+#    - |
+#      {{$prs := countBackgroundJobsInChannel "C12121"}}
+#      {{$allowedPrs := 5}}
+#      {{if gt $prs $allowedPrs }}
+#        reply <@devs> There are *{{$prs}}* pull requests open...please take a look! :scream:
+#      {{end}}
+
+# used for the "weather" command to fetch current weather information from https://openweathermap.org/api
+#open_weathermap:
+#  apikey: iamtheapifromopenweathermap
+#  location: Hamburg
+
+logger:
+  level: info
+  file: ./bot.log
+
+timezone: UTC

@@ -22,11 +22,18 @@ var DefaultConfig = Config{
 		},
 	},
 	PullRequest: PullRequest{
+		Notifications: Notifications{
+			BuildStatusInProgress:      false,
+			BuildStatusSuccess:         false,
+			BuildStatusFailed:          false,
+			PullRequestStatusMergeable: false,
+		},
 		Reactions: PullRequestReactions{
 			InReview:     "eyes",
 			Approved:     "white_check_mark",
 			Merged:       "twisted_rightwards_arrows",
 			Closed:       "x",
+			BuildSuccess: "white_check_mark",
 			BuildFailed:  "fire",
 			BuildRunning: "arrows_counterclockwise",
 			Error:        "x",
