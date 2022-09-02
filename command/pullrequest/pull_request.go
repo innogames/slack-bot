@@ -91,6 +91,7 @@ func (c command) execute(match matcher.Result, message msg.Message) {
 
 type pullRequestWatch struct {
 	DidNotifyMergeable bool
+	Author             string
 	PullRequest        pullRequest
 	LastBuildStatus    buildStatus
 	PullRequestStatus  prStatus
@@ -108,6 +109,8 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 
 	var prw pullRequestWatch
 	var err error
+
+	prw.Author = message.GetUser()
 
 	for {
 		prw.PullRequest, err = c.fetcher.getPullRequest(match)
@@ -280,7 +283,7 @@ func (c command) getBuildStatusIcon(pr pullRequest) string {
 }
 
 func (c command) notifyBuildStatus(prw *pullRequestWatch) {
-	if len(prw.PullRequest.Author) == 0 {
+	if len(prw.Author) == 0 {
 		// no author to notify
 		return
 	}
@@ -293,13 +296,13 @@ func (c command) notifyBuildStatus(prw *pullRequestWatch) {
 	prw.LastBuildStatus = prw.PullRequest.BuildStatus
 
 	if c.cfg.Notifications.BuildStatusInProgress && prw.LastBuildStatus == buildStatusRunning {
-		c.sendPrivateMessage(prw.PullRequest.Author, "PR '%s'\nBuild Status: Started %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
+		c.sendPrivateMessage(prw.Author, "PR '%s'\nBuild Status: Started %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
 	}
 	if c.cfg.Notifications.BuildStatusSuccess && prw.PullRequest.BuildStatus == buildStatusSuccess {
-		c.sendPrivateMessage(prw.PullRequest.Author, "PR '%s'\nBuild Status: Success %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
+		c.sendPrivateMessage(prw.Author, "PR '%s'\nBuild Status: Success %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
 	}
 	if c.cfg.Notifications.BuildStatusFailed && prw.PullRequest.BuildStatus == buildStatusFailed {
-		c.sendPrivateMessage(prw.PullRequest.Author, "PR '%s'\nBuild Status: Failed %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
+		c.sendPrivateMessage(prw.Author, "PR '%s'\nBuild Status: Failed %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
 	}
 }
 
@@ -308,7 +311,7 @@ func (c command) notifyPullRequestStatus(prw *pullRequestWatch) {
 		return
 	}
 
-	if len(prw.PullRequest.Author) == 0 {
+	if len(prw.Author) == 0 {
 		// no author to notify
 		return
 	}
@@ -325,7 +328,7 @@ func (c command) notifyPullRequestStatus(prw *pullRequestWatch) {
 
 	prw.DidNotifyMergeable = true
 
-	c.sendPrivateMessage(prw.PullRequest.Author, "Your PR '%s' is ready to merge!%s", prw.PullRequest.Name, getPRLinkMessage(prw))
+	c.sendPrivateMessage(prw.Author, "Your PR '%s' is ready to merge!%s", prw.PullRequest.Name, getPRLinkMessage(prw))
 }
 
 func (c command) sendPrivateMessage(username string, format string, parameter ...any) {
