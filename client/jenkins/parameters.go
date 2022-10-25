@@ -65,7 +65,7 @@ func ParseParameters(jobConfig config.JobConfig, parameterString string, params 
 		if len(givenParameters) > index {
 			// parameterName given in string
 			value = givenParameters[index]
-		} else if _, ok := params[parameterConfig.Name]; ok {
+		} else if paramValue, ok := params[parameterConfig.Name]; ok && paramValue != "" {
 			// use given names parameterName!
 			value = params[parameterConfig.Name]
 		} else if parameterConfig.Default != "" {
