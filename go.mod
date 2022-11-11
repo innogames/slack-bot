@@ -18,7 +18,7 @@ require (
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sirupsen/logrus v1.9.0
-	github.com/slack-go/slack v0.11.3
+	github.com/slack-go/slack v0.11.4
 	github.com/stretchr/testify v1.8.0
 	github.com/texttheater/golang-levenshtein/levenshtein v0.0.0-20200805054039-cae8b0eaed6c
 	github.com/xanzy/go-gitlab v0.74.0
