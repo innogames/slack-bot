@@ -12,7 +12,7 @@ import (
 // help category to group all Jenkins command
 var category = bot.Category{
 	Name:        "Cloud-AWS",
-	Description: "Interact with AWS resources: Clear CF caches",
+	Description: "Interact with AWS resources: CF && ECS",
 	HelpURL:     "https://github.com/innogames/slack-bot",
 }
 
@@ -45,6 +45,7 @@ func GetCommands(cfg config.Aws, base bot.BaseCommand) bot.Commands {
 
 	commands.AddCommand(
 		newCloudFrontCommands(distributions, awsBase),
+		newEcsCommands(awsBase),
 	)
 
 	return commands
