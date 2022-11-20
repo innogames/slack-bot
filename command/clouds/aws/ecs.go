@@ -123,7 +123,7 @@ func getServiceConfiguration() *aws.Config {
 	if region == "" {
 		region = "us-east-1"
 	}
-	log.Info("Using AWS region ", region)
+	log.Println("Using AWS region ", region)
 	return &aws.Config{Region: aws.String(region)}
 }
 
