@@ -36,7 +36,6 @@ func (c *ecsCommand) GetMatcher() matcher.Matcher {
 // We want to retrieve all services from an ecs cluster and throw them as a slack block
 
 func (c *ecsCommand) list(match matcher.Result, message msg.Message) {
-	// TODO: make it an input
 	cluster := match.GetString("CLUSTER")
 	svc, err := ListServices(cluster)
 	if err != nil {
@@ -53,8 +52,6 @@ func (c *ecsCommand) list(match matcher.Result, message msg.Message) {
 		text += fmt.Sprintf("• %s", v)
 		text += "\n"
 	}
-
-	// t.SendEphemeralMessage(message, text)
 
 	c.SendEphemeralMessage(message, text)
 }
@@ -126,6 +123,7 @@ func getServiceConfiguration() *aws.Config {
 	if region == "" {
 		region = "us-east-1"
 	}
+	log.Info("Using AWS region ", region)
 	return &aws.Config{Region: aws.String(region)}
 }
 
