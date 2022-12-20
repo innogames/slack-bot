@@ -1,11 +1,9 @@
 //go:build !windows
-// +build !windows
 
 package main
 
 import (
 	"io"
-	"io/ioutil"
 	"net/http"
 	"syscall"
 	"testing"
@@ -60,7 +58,7 @@ func TestAll(t *testing.T) {
 	r, err := http.Get(testURL) //nolint:gosec
 	assert.Nil(t, err)
 
-	resp, _ := ioutil.ReadAll(r.Body)
+	resp, _ := io.ReadAll(r.Body)
 	defer r.Body.Close()
 	assert.Equal(t, "Executed command 'reply X'. You can close the browser and go back to the terminal.", string(resp))
 	expectedOutput.Write([]byte("Clicked link with message: reply X\n"))

@@ -1,10 +1,10 @@
 package games
 
 import (
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/innogames/slack-bot/v2/bot"
@@ -20,7 +20,7 @@ func TestQuiz(t *testing.T) {
 	// mock test data
 	rand.Seed(2)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		file, _ := ioutil.ReadFile("./quiz_example.json")
+		file, _ := os.ReadFile("./quiz_example.json")
 		w.Write(file)
 	}))
 

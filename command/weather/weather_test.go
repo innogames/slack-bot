@@ -1,9 +1,9 @@
 package weather
 
 import (
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
@@ -24,7 +24,7 @@ func TestWeather(t *testing.T) {
 	time.Local, _ = time.LoadLocation("Europe/Berlin")
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		file, _ := ioutil.ReadFile("./dump_current_weather.json")
+		file, _ := os.ReadFile("./dump_current_weather.json")
 		w.Write(file)
 	}))
 	defer ts.Close()

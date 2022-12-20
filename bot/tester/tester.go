@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 
@@ -71,7 +70,7 @@ type usersResponse struct {
 
 // kinda dirty grown function to format a /chat.postMessage /chat.postEphemeral message on the command like...somehow
 func messageHandler(w http.ResponseWriter, r *http.Request, output io.Writer) {
-	payload, _ := ioutil.ReadAll(r.Body)
+	payload, _ := io.ReadAll(r.Body)
 	query, _ := url.ParseQuery(string(payload))
 	text := query.Get("text")
 

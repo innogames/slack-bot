@@ -117,7 +117,7 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 
 		// something failed while loading the PR data...retry if it was temporary, else quit watching
 		if err != nil {
-			if nerr, ok := err.(net.Error); ok && nerr.Temporary() {
+			if nerr, ok := err.(net.Error); ok && nerr.Timeout() {
 				time.Sleep(maxCheckInterval)
 				continue
 			}

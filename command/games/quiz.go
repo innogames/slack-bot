@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html"
-	"io/ioutil"
+	"io"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -81,7 +81,7 @@ func (c *quizCommand) startQuiz(match matcher.Result, message msg.Message) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		bodyBytes, err := io.ReadAll(resp.Body)
 		if err != nil {
 			c.ReplyError(message, errors.Wrap(err, "Error while loading Quiz"))
 			return
