@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -49,7 +48,7 @@ func TestBotLog(t *testing.T) {
 	})
 
 	t.Run("display log history", func(t *testing.T) {
-		ioutil.WriteFile(testFile, []byte("test\nfoo\nbar"), 0o600)
+		os.WriteFile(testFile, []byte("test\nfoo\nbar"), 0o600)
 		defer os.Remove(testFile)
 
 		message := msg.Message{}

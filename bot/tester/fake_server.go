@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 
@@ -34,7 +33,7 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 		})
 		c.Handle("/reactions.add", func(w http.ResponseWriter, r *http.Request) {
 			// post the given reaction as unicode character in the terminal
-			payload, _ := ioutil.ReadAll(r.Body)
+			payload, _ := io.ReadAll(r.Body)
 			query, _ := url.ParseQuery(string(payload))
 			emoji := query.Get("name")
 			_, _ = fmt.Fprintln(output, util.Reaction(emoji).GetChar())

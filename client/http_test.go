@@ -1,7 +1,7 @@
 package client
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -22,7 +22,7 @@ func TestHttp(t *testing.T) {
 		assert.Nil(t, err)
 		defer resp.Body.Close()
 
-		bodyBytes, _ := ioutil.ReadAll(resp.Body)
+		bodyBytes, _ := io.ReadAll(resp.Body)
 		assert.Equal(t, []byte("ok"), bodyBytes)
 	})
 }

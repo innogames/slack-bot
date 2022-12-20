@@ -30,7 +30,7 @@ func GetCommands(cfg config.Aws, base bot.BaseCommand) bot.Commands {
 		return commands
 	}
 
-	session, err := aws.GetSession()
+	AWSSession, err := aws.GetSession()
 	if nil != err {
 		log.Error(errors.Wrap(err, "Error while getting aws sdk session"))
 		return commands
@@ -38,7 +38,7 @@ func GetCommands(cfg config.Aws, base bot.BaseCommand) bot.Commands {
 
 	awsBase := awsCommand{
 		base,
-		session,
+		AWSSession,
 	}
 
 	distributions := setCloudFrontDistributions(cfg)
