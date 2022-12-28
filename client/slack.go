@@ -104,6 +104,8 @@ type SlackClient interface {
 	// SendEphemeralMessage sends a message just visible to the current user
 	SendEphemeralMessage(ref msg.Ref, text string, options ...slack.MsgOption)
 
+	SendBlockMessageToUser(user string, blocks []slack.Block, options ...slack.MsgOption) string
+
 	// SendBlockMessage will send Slack Blocks/Sections to the target
 	SendBlockMessage(ref msg.Ref, blocks []slack.Block, options ...slack.MsgOption) string
 
@@ -232,6 +234,31 @@ func (s *Slack) SendToUser(user string, text string) {
 	message.Channel = channel.ID
 
 	s.SendMessage(message, text)
+}
+
+// SendBlockMessage will send Slack Blocks/Sections to the target
+func (s *Slack) SendBlockMessageToUser(user string, blocks []slack.Block, options ...slack.MsgOption) string {
+	// check if a real username was passed -> we need the user-id here
+	userID, _ := GetUserIDAndName(user)
+	if userID == "" {
+		log.Errorf("Invalid user: %s", user)
+		return ""
+	}
+
+	conversationOptions := &slack.OpenConversationParameters{
+		Users: []string{userID},
+	}
+
+	channel, _, _, err := s.Client.OpenConversation(conversationOptions)
+	if err != nil {
+		log.WithError(err).Errorf("Cannot open channel")
+		return ""
+	}
+
+	message := msg.Message{}
+	message.Channel = channel.ID
+
+	return s.SendBlockMessage(message, blocks, options...)
 }
 
 // CanHandleInteractions checks if we have a slack connections which can inform us about events/interactions, like pressed buttons?

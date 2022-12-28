@@ -26,6 +26,11 @@ type Conditional interface {
 	IsEnabled() bool
 }
 
+// Runnable indicates that the command executes a go function
+type Runnable interface {
+	RunAsync()
+}
+
 // HelpProvider can be provided by a command to add information within "help" command
 type HelpProvider interface {
 	// GetHelp each command should provide information, like a description or examples

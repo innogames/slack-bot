@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
@@ -14,8 +15,19 @@ import (
 	"github.com/slack-go/slack/socketmode"
 )
 
+func (b *Bot) StartRunnables(ctx context.Context) {
+	for _, cmd := range b.commands.commands {
+		if runnable, ok := cmd.(Runnable); ok {
+			go runnable.RunAsync()
+		}
+	}
+}
+
 // Run is blocking method to handle new incoming events...from different sources
 func (b *Bot) Run(ctx *util.ServerContext) {
+
+	b.StartRunnables(ctx)
+
 	// listen for old/deprecated RTM connection
 	// https://api.slack.com/rtm
 	var rtmChan chan slack.RTMEvent
