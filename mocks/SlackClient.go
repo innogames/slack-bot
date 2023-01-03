@@ -145,6 +145,26 @@ func (_m *SlackClient) SendMessage(ref msg.Ref, text string, options ...slack.Ms
 	return r0
 }
 
+func (_m *SlackClient) SendBlockMessageToUser(user string, blocks []slack.Block, options ...slack.MsgOption) string {
+	_va := make([]interface{}, len(options))
+	for _i := range options {
+		_va[_i] = options[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, user, blocks)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string, []slack.Block, ...slack.MsgOption) string); ok {
+		r0 = rf(user, blocks, options...)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // SendToUser provides a mock function with given fields: user, text
 func (_m *SlackClient) SendToUser(user string, message string) {
 	_m.Called(user, message)
