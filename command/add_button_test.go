@@ -22,7 +22,7 @@ func TestAddButton(t *testing.T) {
 		message := msg.Message{}
 		message.Text = `add button "test" "reply it works"`
 
-		expected := `[{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"test","emoji":true},"action_id":"id","value":"reply it works"}]}]`
+		expected := `[{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"test","emoji":true},"action_id":"link","value":"reply it works"}]}]`
 
 		mocks.AssertSlackBlocks(t, slackClient, message, expected)
 

@@ -133,7 +133,7 @@ func TestInteraction(t *testing.T) {
 		messageEvent.Channel = "D1234"
 		messageEvent.User = "user1"
 
-		action := slack.NewActionBlock("", client.GetInteractionButton("my text", "dummy"))
+		action := slack.NewActionBlock("", client.GetInteractionButton("dummy", "my text", "dummy"))
 		button := action.Elements.ElementSet[0].(*slack.ButtonBlockElement)
 		actionID := button.Value
 		assert.Equal(t, "dummy", actionID)
@@ -196,7 +196,7 @@ func TestInteraction(t *testing.T) {
 func TestReplaceClickedButton(t *testing.T) {
 	messageEvent := &slack.MessageEvent{}
 
-	action := slack.NewActionBlock("", client.GetInteractionButton("my text", "replay YEP", slack.StylePrimary))
+	action := slack.NewActionBlock("", client.GetInteractionButton("reply", "my text", "replay YEP", slack.StylePrimary))
 	button := action.Elements.ElementSet[0].(*slack.ButtonBlockElement)
 	actionID := button.Value
 	assert.Equal(t, "replay YEP", actionID)
@@ -210,7 +210,7 @@ func TestReplaceClickedButton(t *testing.T) {
 	actual := replaceClickedButton((*slack.Message)(messageEvent), actionID, " (worked)")
 	jsonString, err := json.Marshal(actual)
 
-	expected := `{"replace_original":false,"delete_original":false,"metadata":{"event_type":"","event_payload":null},"blocks":[{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"my text (worked)","emoji":true},"action_id":"id","style":"danger"}]}]}`
+	expected := `{"replace_original":false,"delete_original":false,"metadata":{"event_type":"","event_payload":null},"blocks":[{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"my text (worked)","emoji":true},"action_id":"reply","style":"danger"}]}]}`
 
 	assert.Nil(t, err)
 	assert.Equal(t, expected, string(jsonString))

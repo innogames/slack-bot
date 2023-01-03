@@ -122,7 +122,7 @@ func (c *listCommand) getQueueAsBlocks(message msg.Message, filter filterFunc) (
 		blocks,
 		slack.NewActionBlock(
 			"",
-			client.GetInteractionButton("Refresh :arrows_counterclockwise:", message.GetText()),
+			client.GetInteractionButton("refresh", "Refresh :arrows_counterclockwise:", message.GetText()),
 		),
 	)
 

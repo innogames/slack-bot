@@ -52,7 +52,6 @@ func (c *poolCommands) RunAsync() {
 		nowIn := now.Add(c.config.NotifyExpire)
 		allLocks := c.pool.GetLocks("")
 		for _, lock := range allLocks {
-
 			if now.After(lock.LockUntil) && lock.WarningSend {
 				_ = c.pool.Unlock(lock.User, lock.Resource.Name)
 				c.slackClient.SendToUser(lock.User, fmt.Sprintf("your lock for `%s` expired and got removed", lock.Resource.Name))
@@ -60,30 +59,17 @@ func (c *poolCommands) RunAsync() {
 			}
 
 			if nowIn.After(lock.LockUntil) && !lock.WarningSend {
-
 				blocks := []slack.Block{
 					client.GetTextBlock(
 						fmt.Sprintf("your lock for `%s` is going to expire at %s.\nextend your lock if you need it longer.", lock.Resource.Name, lock.LockUntil.Format(time.RFC1123)),
 					),
 					slack.NewActionBlock(
 						"extend_30m",
-						client.GetInteractionButton("30 mins", fmt.Sprintf("pool extend %s 30m", lock.Resource.Name)),
-					),
-					slack.NewActionBlock(
-						"extend_1h",
-						client.GetInteractionButton("1 hour", fmt.Sprintf("pool extend %s 1h", lock.Resource.Name)),
-					),
-					slack.NewActionBlock(
-						"extend_2h",
-						client.GetInteractionButton("2 hours", fmt.Sprintf("pool extend %s 2h", lock.Resource.Name)),
-					),
-					slack.NewActionBlock(
-						"extend_1d",
-						client.GetInteractionButton("1 day", fmt.Sprintf("pool extend %s 24h", lock.Resource.Name)),
-					),
-					slack.NewActionBlock(
-						"extend_unlock",
-						client.GetInteractionButton("unlock now!", fmt.Sprintf("pool unlock %s", lock.Resource.Name)),
+						client.GetInteractionButton("action_30m", "30 mins", fmt.Sprintf("pool extend %s 30m", lock.Resource.Name)),
+						client.GetInteractionButton("action_1h", "1 hour", fmt.Sprintf("pool extend %s 1h", lock.Resource.Name)),
+						client.GetInteractionButton("action_2h", "2 hours", fmt.Sprintf("pool extend %s 2h", lock.Resource.Name)),
+						client.GetInteractionButton("action_1d", "1 day", fmt.Sprintf("pool extend %s 24h", lock.Resource.Name)),
+						client.GetInteractionButton("action_unlock", "unlock now!", fmt.Sprintf("pool unlock %s", lock.Resource.Name)),
 					),
 				}
 				c.slackClient.SendBlockMessageToUser(lock.User, blocks)
@@ -96,7 +82,6 @@ func (c *poolCommands) RunAsync() {
 }
 
 func (c *poolCommands) lockResource(match matcher.Result, message msg.Message) {
-
 	_, userName := client.GetUserIDAndName(message.GetUser())
 
 	resourceName := match.GetString("resource")
@@ -111,7 +96,6 @@ func (c *poolCommands) lockResource(match matcher.Result, message msg.Message) {
 }
 
 func (c *poolCommands) unlockResource(match matcher.Result, message msg.Message) {
-
 	_, userName := client.GetUserIDAndName(message.GetUser())
 
 	resourceName := match.GetString("resource")
@@ -144,7 +128,6 @@ func (c *poolCommands) unlockResource(match matcher.Result, message msg.Message)
 }
 
 func (c *poolCommands) extend(match matcher.Result, message msg.Message) {
-
 	_, userName := client.GetUserIDAndName(message.GetUser())
 
 	resourceName := match.GetString("resource")
@@ -164,7 +147,6 @@ func (c *poolCommands) extend(match matcher.Result, message msg.Message) {
 }
 
 func (c *poolCommands) listResources(match matcher.Result, message msg.Message) {
-
 	status := match.GetString("status")
 
 	var messages []string
@@ -206,7 +188,6 @@ func (c *poolCommands) listUserResources(match matcher.Result, message msg.Messa
 }
 
 func (c *poolCommands) listPoolInfo(match matcher.Result, message msg.Message) {
-
 	status := match.GetString("status")
 
 	var messages []string

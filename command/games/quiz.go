@@ -150,12 +150,12 @@ func (c *quizCommand) printCurrentQuestion(message msg.Message) {
 	blocks := []slack.Block{
 		client.GetTextBlock(text),
 	}
-	for _, answer := range question.Answers {
+	for i, answer := range question.Answers {
 		blocks = append(
 			blocks,
 			slack.NewActionBlock(
 				"",
-				client.GetInteractionButton(answer, fmt.Sprintf("answer %s", answer)),
+				client.GetInteractionButton(fmt.Sprintf("answer_%d", i), answer, fmt.Sprintf("answer %s", answer)),
 			),
 		)
 	}

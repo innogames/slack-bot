@@ -60,7 +60,7 @@ func GetNewPool(cfg *config.Pool) *pool {
 			continue
 		}
 
-		for k, _ := range p.locks {
+		for k := range p.locks {
 			if k.Name == key {
 				lock.Resource = *k
 				p.locks[k] = &lock

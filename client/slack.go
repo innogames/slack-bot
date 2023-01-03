@@ -353,14 +353,14 @@ func GetContextBlock(text string) *slack.ContextBlock {
 
 // GetInteractionButton generates a block "Button" which is able to execute the given command once
 // https://api.slack.com/reference/block-kit/blocks#actions
-func GetInteractionButton(text string, command string, args ...slack.Style) *slack.ButtonBlockElement {
+func GetInteractionButton(id, text, command string, args ...slack.Style) *slack.ButtonBlockElement {
 	var style slack.Style
 	if len(args) > 0 {
 		style = args[0]
 	}
 
 	buttonText := slack.NewTextBlockObject("plain_text", text, true, false)
-	button := slack.NewButtonBlockElement("id", command, buttonText)
+	button := slack.NewButtonBlockElement(id, command, buttonText)
 	button.Style = style
 
 	return button

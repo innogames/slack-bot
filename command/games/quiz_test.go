@@ -38,10 +38,10 @@ func TestQuiz(t *testing.T) {
 
 		expected := `[` +
 			`{"type":"section","text":{"type":"mrkdwn","text":"Next question (#1) is of *\"hard\" difficulty* from the category: \"*Entertainment: Video Games*\"\nAccording to Toby Fox, what was the method to creating the initial tune for Megalovania?\n"}},` +
-			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"Using a Composer Software","emoji":true},"action_id":"id","value":"answer Using a Composer Software"}]},` +
-			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"Listened to birds at the park","emoji":true},"action_id":"id","value":"answer Listened to birds at the park"}]},` +
-			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"Singing into a Microphone","emoji":true},"action_id":"id","value":"answer Singing into a Microphone"}]},` +
-			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"Playing a Piano","emoji":true},"action_id":"id","value":"answer Playing a Piano"}]}` +
+			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"Using a Composer Software","emoji":true},"action_id":"answer_0","value":"answer Using a Composer Software"}]},` +
+			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"Listened to birds at the park","emoji":true},"action_id":"answer_1","value":"answer Listened to birds at the park"}]},` +
+			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"Singing into a Microphone","emoji":true},"action_id":"answer_2","value":"answer Singing into a Microphone"}]},` +
+			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"Playing a Piano","emoji":true},"action_id":"answer_3","value":"answer Playing a Piano"}]}` +
 			`]`
 		mocks.AssertSlackBlocks(t, slackClient, message, expected)
 
@@ -61,8 +61,8 @@ func TestQuiz(t *testing.T) {
 
 		expected = `[` +
 			`{"type":"section","text":{"type":"mrkdwn","text":"Next question (#2) is of *\"easy\" difficulty* from the category: \"*Math*\"\nWhat's 1+4?\n"}},` +
-			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"5","emoji":true},"action_id":"id","value":"answer 5"}]},` +
-			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"6","emoji":true},"action_id":"id","value":"answer 6"}]}` +
+			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"5","emoji":true},"action_id":"answer_0","value":"answer 5"}]},` +
+			`{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"6","emoji":true},"action_id":"answer_1","value":"answer 6"}]}` +
 			`]`
 		mocks.AssertSlackBlocks(t, slackClient, message, expected)
 
