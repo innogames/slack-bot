@@ -26,5 +26,4 @@ func GetCommands(cfg *config.Pool, slackClient client.SlackClient) bot.Commands 
 var category = bot.Category{
 	Name:        "Pool",
 	Description: "Lock/Unlock/Manage Resources of a Pool",
-	HelpURL:     "https://github.com/innogames/slack-bot",
 }
