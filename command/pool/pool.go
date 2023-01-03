@@ -53,8 +53,8 @@ func GetNewPool(cfg *config.Pool) *pool {
 		return &p
 	}
 
-	var lock ResourceLock
 	for _, key := range keys {
+		var lock ResourceLock
 		if err := storage.Read(storageKey, key, &lock); err != nil {
 			log.Errorf("[Pool] unable to restore lock for '%s': %s", key, err)
 			continue
