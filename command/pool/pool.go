@@ -17,9 +17,9 @@ const (
 )
 
 var (
-	ResourceLockedByDifferentUser = fmt.Errorf("resources locked by different user")
-	NoLockedResourceFound         = fmt.Errorf("no locked resource found")
-	NoResourceAvailable           = fmt.Errorf("no resource available")
+	ErrResourceLockedByDifferentUser = fmt.Errorf("resources locked by different user")
+	ErrNoLockedResourceFound         = fmt.Errorf("no locked resource found")
+	ErrNoResourceAvailable           = fmt.Errorf("no resource available")
 )
 
 // ResourceLock struct to hold and store the current locks
@@ -109,7 +109,7 @@ func (p *pool) Lock(user, reason, resourceName string) (*ResourceLock, error) {
 		return resourceLock, nil
 	}
 
-	return nil, NoResourceAvailable
+	return nil, ErrNoResourceAvailable
 }
 
 // Extend the lock of a resource in the pool for a user
@@ -124,7 +124,7 @@ func (p *pool) ExtendLock(user, resourceName, duration string) (*ResourceLock, e
 		}
 
 		if v.User != user {
-			return nil, ResourceLockedByDifferentUser
+			return nil, ErrResourceLockedByDifferentUser
 		}
 
 		d, err := time.ParseDuration(duration)
@@ -147,7 +147,7 @@ func (p *pool) ExtendLock(user, resourceName, duration string) (*ResourceLock, e
 		return v, nil
 	}
 
-	return nil, NoLockedResourceFound
+	return nil, ErrNoLockedResourceFound
 }
 
 // Unlock a resource of a user
@@ -162,7 +162,7 @@ func (p *pool) Unlock(user, resourceName string) error {
 		}
 
 		if v.User != user {
-			return ResourceLockedByDifferentUser
+			return ErrResourceLockedByDifferentUser
 		}
 
 		p.locks[k] = nil
