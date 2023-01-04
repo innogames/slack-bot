@@ -109,10 +109,23 @@ func (c *poolCommands) unlockResource(match matcher.Result, message msg.Message)
 
 		if len(lockedByUser) > 1 {
 			var locks []string
-			for _, lock := range lockedByUser {
-				locks = append(locks, fmt.Sprintf("`%s` until %s\n%s", lock.Resource.Name, lock.LockUntil.Format(time.RFC1123), getFormattedReason(lock.Reason)))
+			var unlockButtons []slack.BlockElement
+			locks = make([]string, len(lockedByUser))
+			unlockButtons = make([]slack.BlockElement, len(lockedByUser))
+
+			for i, lock := range lockedByUser {
+				locks[i] = fmt.Sprintf("`%s` until %s\n%s", lock.Resource.Name, lock.LockUntil.Format(time.RFC1123), getFormattedReason(lock.Reason))
+				unlockButtons[i] = client.GetInteractionButton(fmt.Sprintf("action_unlock_%s", lock.Resource.Name), lock.Resource.Name, fmt.Sprintf("pool unlock %s", lock.Resource.Name))
 			}
-			c.slackClient.SendMessage(message, fmt.Sprintf("which one should be unlocked?\n%s", strings.Join(locks, "\n")))
+
+			blocks := []slack.Block{
+				client.GetTextBlock(fmt.Sprintf("You have multible markets locked: which one should be unlocked?\n%s", strings.Join(locks, "\n"))),
+				slack.NewActionBlock(
+					"unlock_market",
+					unlockButtons...,
+				),
+			}
+			c.slackClient.SendBlockMessageToUser(userName, blocks)
 			return
 		}
 
