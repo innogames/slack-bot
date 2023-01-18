@@ -307,6 +307,11 @@ func (c command) notifyBuildStatus(prw *pullRequestWatch) {
 }
 
 func (c command) notifyPullRequestStatus(prw *pullRequestWatch) {
+
+	if !c.cfg.Notifications.PullRequestStatusMergeable {
+		return
+	}
+
 	if prw.DidNotifyMergeable {
 		return
 	}

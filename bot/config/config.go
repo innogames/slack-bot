@@ -5,6 +5,7 @@ package config
 // Config contains the full config structure of this bot
 type Config struct {
 	Slack       Slack     `mapstructure:"slack"`
+	Pool        Pool      `mapstructure:"pool"`
 	Jenkins     Jenkins   `mapstructure:"jenkins"`
 	Jira        Jira      `mapstructure:"jira"`
 	StoragePath string    `mapstructure:"storage_path"`

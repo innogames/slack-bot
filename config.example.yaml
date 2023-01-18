@@ -84,6 +84,21 @@ github:
 #  apikey: iamtheapifromopenweathermap
 #  location: Hamburg
 
+# optional define a pool of resources which can be locked / unlocked by a user
+#pool:
+#  lockduration: 2h # default duration to lock a resource
+#  notifyexpire: 30m # time to notify the user before a lock expires
+#  resources:
+#    - name: xa
+#      explicitlock: true # will not be used for auto lock via "pool lock" can be locked only explicit via "pool lock xa"
+#      addresses: # additional addresses which could be useful
+#        - "market: https://xa1.local"
+#        - "admin: https://xa-admin.local"
+#        - "web: https://xa.local"
+#      features: # list of features the resource provides
+#        - "web beauty"
+#        - "usb plugs"
+
 logger:
   level: info
   file: ./bot.log

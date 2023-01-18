@@ -11,6 +11,7 @@ import (
 	"github.com/innogames/slack-bot/v2/command/games"
 	"github.com/innogames/slack-bot/v2/command/jenkins"
 	"github.com/innogames/slack-bot/v2/command/jira"
+	"github.com/innogames/slack-bot/v2/command/pool"
 	"github.com/innogames/slack-bot/v2/command/pullrequest"
 	"github.com/innogames/slack-bot/v2/command/queue"
 	"github.com/innogames/slack-bot/v2/command/variables"
@@ -63,6 +64,9 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 
 	// aws
 	commands.Merge(aws.GetCommands(cfg.Aws, base))
+
+	// pool
+	commands.Merge(pool.GetCommands(&cfg.Pool, base))
 
 	return commands
 }

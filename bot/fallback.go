@@ -26,7 +26,7 @@ func (b *Bot) sendFallbackMessage(message msg.Message) {
 			),
 			slack.NewActionBlock(
 				"",
-				client.GetInteractionButton("Help!", "help"),
+				client.GetInteractionButton("help", "Help!", "help"),
 			),
 		}
 		b.slackClient.SendBlockMessage(message, blocks)

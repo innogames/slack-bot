@@ -26,7 +26,7 @@ func (c *addButtonCommand) addLink(match matcher.Result, message msg.Message) {
 	command := match.GetString("command")
 
 	blocks := []slack.Block{
-		slack.NewActionBlock("", client.GetInteractionButton(name, command)),
+		slack.NewActionBlock("", client.GetInteractionButton("link", name, command)),
 	}
 
 	c.SendBlockMessage(message, blocks)
