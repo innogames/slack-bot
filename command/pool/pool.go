@@ -175,20 +175,6 @@ func (p *pool) Unlock(user, resourceName string) error {
 	return nil
 }
 
-type lockSorter struct {
-	resources []*ResourceLock
-}
-
-func (s *lockSorter) Len() int {
-	return len(s.resources)
-}
-func (s *lockSorter) Swap(i, j int) {
-	s.resources[i], s.resources[j] = s.resources[j], s.resources[i]
-}
-func (s *lockSorter) Less(i, j int) bool {
-	return s.resources[i].Resource.Name < s.resources[j].Resource.Name
-}
-
 // Get a sorted list of all active locks of a user / all users if userName = ""
 func (p *pool) GetLocks(userName string) []*ResourceLock {
 	var locked []*ResourceLock
@@ -198,23 +184,11 @@ func (p *pool) GetLocks(userName string) []*ResourceLock {
 			locked = append(locked, v)
 		}
 	}
-	sorter := &lockSorter{resources: locked}
-	sort.Sort(sorter)
-	return sorter.resources
-}
+	sort.Slice(locked, func(i, j int) bool {
+		return locked[i].Resource.Name < locked[j].Resource.Name
+	})
 
-type resourceSorter struct {
-	resources []*config.Resource
-}
-
-func (s *resourceSorter) Len() int {
-	return len(s.resources)
-}
-func (s *resourceSorter) Swap(i, j int) {
-	s.resources[i], s.resources[j] = s.resources[j], s.resources[i]
-}
-func (s *resourceSorter) Less(i, j int) bool {
-	return s.resources[i].Name < s.resources[j].Name
+	return locked
 }
 
 // Get a sorted list of all free / unlocked resources
@@ -225,7 +199,8 @@ func (p *pool) GetFree() []*config.Resource {
 			free = append(free, k)
 		}
 	}
-	sorter := &resourceSorter{resources: free}
-	sort.Sort(sorter)
-	return sorter.resources
+	sort.Slice(free, func(i, j int) bool {
+		return free[i].Name < free[j].Name
+	})
+	return free
 }
