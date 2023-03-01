@@ -2,6 +2,7 @@ package pool
 
 import (
 	"fmt"
+	"github.com/innogames/slack-bot/v2/bot/util"
 	"sort"
 	"sync"
 	"time"
@@ -127,7 +128,7 @@ func (p *pool) ExtendLock(user, resourceName, duration string) (*ResourceLock, e
 			return nil, ErrResourceLockedByDifferentUser
 		}
 
-		d, err := time.ParseDuration(duration)
+		d, err := util.ParseDuration(duration)
 		if err != nil {
 			return nil, err
 		}

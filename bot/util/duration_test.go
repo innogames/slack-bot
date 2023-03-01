@@ -17,6 +17,12 @@ var parserTestCases = []struct {
 	{"10h12sec", "10h12s"},
 	{"10h12.5sec", "10h12.5s"},
 	{"10h1min12sec", "10h1m12s"},
+	{"10h", "10h0m0s"},
+	{"0d", "0s"},
+	{"1d", "24h0m0s"},
+	{"5d", "120h0m0s"},
+	{"10d", "240h0m0s"},
+	{"10days", "240h0m0s"},
 }
 
 func TestParseDuration(t *testing.T) {
