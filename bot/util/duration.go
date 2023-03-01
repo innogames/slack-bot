@@ -3,15 +3,19 @@ package util
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
 
 var (
+	daysRe            = regexp.MustCompile(`^(\d+)d$`)
 	stripDecimalPlace = regexp.MustCompile(`(\d+)\.(\d)\d*([µa-z]+)`)
 	durationReplacer  = strings.NewReplacer(
 		"min", "m",
 		"sec", "s",
+		"days", "d",
+		"day", "d",
 	)
 )
 
@@ -19,6 +23,12 @@ var (
 // e.g. 12min10sec -> 12m10s
 func ParseDuration(input string) (time.Duration, error) {
 	input = durationReplacer.Replace(input)
+
+	if match := daysRe.FindStringSubmatch(input); len(match) > 0 {
+		days, _ := strconv.Atoi(match[1])
+
+		return time.Hour * 24 * time.Duration(days), nil
+	}
 
 	return time.ParseDuration(input)
 }
