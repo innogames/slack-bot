@@ -3,6 +3,7 @@ package aws
 import (
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -27,5 +28,13 @@ func TestGetCommands(t *testing.T) {
 		}
 		commands := GetCommands(cfg, base)
 		assert.Equal(t, 2, commands.Count())
+
+		// list the CF
+		message := msg.Message{}
+		message.Text = "aws cf list"
+		mocks.AssertSlackBlocks(t, slackClient, message, `[{"type":"section","text":{"type":"mrkdwn","text":"\"id\": name\n"}}]`)
+
+		actual := commands.Run(message)
+		assert.True(t, actual)
 	})
 }
