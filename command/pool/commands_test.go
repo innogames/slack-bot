@@ -2,6 +2,7 @@ package pool
 
 import (
 	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/msg"
 	"testing"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNumberGuesser(t *testing.T) {
+func TestPools(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
@@ -20,18 +21,45 @@ func TestNumberGuesser(t *testing.T) {
 		assert.Equal(t, 0, commands.Count())
 	})
 
-	t.Run("Pools are active", func(t *testing.T) {
+	t.Run("Full test", func(t *testing.T) {
 		cfg := &config.Pool{
 			LockDuration: time.Minute,
 			NotifyExpire: time.Minute,
 			Resources: []*config.Resource{
 				{
-					Name: "fooo resource",
+					Name: "server1",
+				},
+				{
+					Name: "server2",
 				},
 			},
 		}
 		commands := GetCommands(cfg, base)
 		assert.Equal(t, 1, commands.Count())
-	})
 
+		runCommand := func(message msg.Message) msg.Message {
+			actual := commands.Run(message)
+			assert.True(t, actual)
+
+			return message
+		}
+
+		// list
+		message := msg.Message{}
+		message.Text = "pool list"
+		mocks.AssertSlackMessage(slackClient, message, "*Available:*\n`server1`, `server2`\n\n*Used/Locked:*")
+		message = runCommand(message)
+
+		// lock
+		message = msg.Message{}
+		message.Text = "pool lock server1"
+		mocks.AssertSlackMessageRegexp(slackClient, message, "^`server1` is locked for you until")
+		message = runCommand(message)
+
+		// unlock
+		message = msg.Message{}
+		message.Text = "pool unlock server1"
+		mocks.AssertSlackMessage(slackClient, message, "`server1` is free again")
+		message = runCommand(message)
+	})
 }
