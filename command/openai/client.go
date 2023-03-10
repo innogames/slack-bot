@@ -3,37 +3,23 @@ package openai
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
-
-	log "github.com/sirupsen/logrus"
 )
 
-const (
-	chatGPTAPIURL = "https://api.openai.com/v1/chat/completions"
-	defaultModel  = "gpt-3.5-turbo"
-)
-
-const (
-	roleUser      = "user"
-	roleAssistant = "assistant"
-)
-
-// todo: don't use our default client, we need longer timeouts
-var client http.Client
+// todo: don't use our default client, we need longer timeouts...
+var client *http.Client
 
 func CallChatGPT(cfg Config, inputMessages []ChatMessage) (*ChatResponse, error) {
-	requestData := ChatRequest{
-		Model:    defaultModel,
-		Messages: inputMessages,
-	}
+	jsonData, _ := json.Marshal(ChatRequest{
+		Model:       cfg.Model,
+		Temperature: cfg.Temperature,
+		Messages:    inputMessages,
+	})
 
-	// Send the request to the API
-	jsonData, err := json.Marshal(requestData)
-
-	log.Info("openai", string(jsonData))
-
-	req, err := http.NewRequest("POST", chatGPTAPIURL, bytes.NewBuffer(jsonData))
+	fmt.Println(string(jsonData))
+	req, err := http.NewRequest("POST", cfg.APIHost+apiCompletionURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +38,6 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage) (*ChatResponse, error)
 	if err != nil {
 		return nil, err
 	}
-
-	log.Info("openai", string(body))
 
 	var chatResponse ChatResponse
 	err = json.Unmarshal(body, &chatResponse)

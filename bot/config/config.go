@@ -45,7 +45,17 @@ type Config struct {
 
 // LoadCustom does a dynamic config lookup with a given key and unmarshals it into the value
 func (c *Config) LoadCustom(key string, value any) error {
+	if c.viper == nil {
+		return nil
+	}
 	return c.viper.UnmarshalKey(key, value)
+}
+
+func (c *Config) Set(key string, value any) {
+	if c.viper == nil {
+		c.viper = viper.New()
+	}
+	c.viper.Set(key, value)
 }
 
 // Github config, currently just an access token

@@ -2,7 +2,18 @@ package openai
 
 import "github.com/pkg/errors"
 
-// https://github.com/otiai10/openaigo/blob/main/chat.go
+const (
+	apiHost          = "https://api.openai.com"
+	apiCompletionURL = "/v1/chat/completions"
+	defaultModel     = "gpt-3.5-turbo"
+)
+
+const (
+	roleUser      = "user"
+	roleSystem    = "system"
+	roleAssistant = "assistant"
+)
+
 // https://platform.openai.com/docs/guides/chat/chat-completions-beta
 // https://platform.openai.com/docs/api-reference/chat
 type ChatRequest struct {
@@ -12,6 +23,7 @@ type ChatRequest struct {
 	TopP             float32        `json:"top_p,omitempty"`
 	N                int            `json:"n,omitempty"`
 	Stop             []string       `json:"stop,omitempty"`
+	Stream           bool           `json:"stream,omitempty"`
 	MaxTokens        int            `json:"max_tokens,omitempty"`
 	PresencePenalty  float32        `json:"presence_penalty,omitempty"`
 	FrequencyPenalty float32        `json:"frequency_penalty,omitempty"`
@@ -40,8 +52,8 @@ type ChatResponse struct {
 	} `json:"usage"`
 }
 
-func (r ChatResponse) GetRecentMessage() string {
-	return r.Choices[len(r.Choices)-1].Message.Content
+func (r ChatResponse) GetMessage() ChatMessage {
+	return r.Choices[0].Message
 }
 
 func (r ChatResponse) GetError() error {
@@ -56,4 +68,5 @@ type ChatChoice struct {
 	Index        int         `json:"index"`
 	Message      ChatMessage `json:"message"`
 	FinishReason string      `json:"finish_reason"`
+	Delta        ChatMessage `json:"delta"`
 }

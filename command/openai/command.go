@@ -15,33 +15,28 @@ import (
 )
 
 // only use the last X messages as context for further requests
-const historySize = 10
-
-const storageKey = "chatgpt"
+const (
+	historySize = 10
+	storageKey  = "chatgpt"
+)
 
 // GetCommands if enable, register the openai commands
-func GetCommands(base bot.BaseCommand, cfg *config.Config) bot.Commands {
+func GetCommands(base bot.BaseCommand, config *config.Config) bot.Commands {
 	var commands bot.Commands
-	// Load the OpenAI configuration from the bot's config file.
-	var openaiCfg Config
 
-	cfg.LoadCustom("openai", &openaiCfg)
-	if !openaiCfg.IsEnabled() {
+	cfg := loadConfig(config)
+	if !cfg.IsEnabled() {
 		return commands
 	}
 
 	commands.AddCommand(
-		newChatGPTCommand(base, openaiCfg),
+		&chatGPTCommand{
+			base,
+			cfg,
+		},
 	)
 
 	return commands
-}
-
-func newChatGPTCommand(base bot.BaseCommand, cfg Config) bot.Command {
-	return &chatGPTCommand{
-		base,
-		cfg,
-	}
 }
 
 type chatGPTCommand struct {
@@ -63,7 +58,13 @@ func (c *chatGPTCommand) startConversation(match matcher.Result, message msg.Mes
 
 	// Call the API with a fresh history
 	storageIdentifier := getIdentifier(message.GetChannel(), message.GetTimestamp())
-	messageHistory := make([]ChatMessage, 0, 1)
+	messageHistory := make([]ChatMessage, 0)
+	if c.cfg.InitialSystemMessage != "" {
+		messageHistory = append(messageHistory, ChatMessage{
+			Role:    roleSystem,
+			Content: c.cfg.InitialSystemMessage,
+		})
+	}
 
 	// add a 🗒️️ emoji to the thread message to make clear that it's using chatgpt magic
 	c.AddReaction(":spiral_note_pad:", message)
@@ -114,12 +115,12 @@ func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier 
 	// Send the response to the user.
 	c.SendMessage(
 		message,
-		resp.GetRecentMessage(),
+		resp.GetMessage().Content,
 		slack.MsgOptionTS(message.GetTimestamp()),
 	)
 
 	// Store the last X chat history entries for further questions
-	messages = append(messages, resp.Choices[0].Message)
+	messages = append(messages, resp.GetMessage())
 	if len(messages) > historySize {
 		messages = messages[len(messages)-historySize:]
 	}

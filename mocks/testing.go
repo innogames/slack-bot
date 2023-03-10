@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -47,15 +48,17 @@ func AssertRemoveReaction(slackClient *SlackClient, reaction string, ref msg.Ref
 }
 
 // AssertError is a test helper which check for calls to "ReplyError"
-func AssertError(slackClient *SlackClient, ref msg.Ref, errorIn interface{}) {
+func AssertError(slackClient *SlackClient, ref msg.Ref, errorIn any) {
 	var err error
 	switch e := errorIn.(type) {
 	case string:
-		err = fmt.Errorf(e)
+		err = errors.New(e)
 	case error:
 		err = e
 	}
-	slackClient.On("ReplyError", ref, err).Once()
+	slackClient.On("ReplyError", ref, mock.MatchedBy(func(errActual error) bool {
+		return err.Error() == errActual.Error()
+	})).Once()
 }
 
 // AssertQueuedMessage checks if a given internal message was queued
