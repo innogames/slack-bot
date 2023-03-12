@@ -3,6 +3,7 @@ package openai
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -66,13 +67,10 @@ func (c *chatGPTCommand) startConversation(match matcher.Result, message msg.Mes
 		})
 	}
 
-	// add a 🗒️️ emoji to the thread message to make clear that it's using chatgpt magic
-	c.AddReaction(":spiral_note_pad:", message)
-
 	c.callAndStore(messageHistory, storageIdentifier, message, text)
 }
 
-// bot function which is called, when the user replied in a openai/chatgpt thread
+// bot function which is called when the user replied in a openai/chatgpt thread
 func (c *chatGPTCommand) reply(message msg.Ref, text string) bool {
 	if message.GetThread() == "" {
 		// We're only interested in thread replies
@@ -83,8 +81,9 @@ func (c *chatGPTCommand) reply(message msg.Ref, text string) bool {
 	identifier := getIdentifier(message.GetChannel(), message.GetThread())
 
 	var messages []ChatMessage
-	storage.Read(storageKey, identifier, &messages)
-	if len(messages) == 0 {
+	err := storage.Read(storageKey, identifier, &messages)
+	if err != nil || len(messages) == 0 {
+		// no "openai thread"
 		return false
 	}
 
@@ -95,39 +94,76 @@ func (c *chatGPTCommand) reply(message msg.Ref, text string) bool {
 }
 
 // call the GPT-3 API, sends the response to the user, and stores the updated chat history.
-func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier string, message msg.Ref, text string) {
-	// Append the new user input to the message list.
+func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier string, message msg.Ref, inputText string) {
+	// Append the actual user input to the message list.
 	messages = append(messages, ChatMessage{
 		Role:    roleUser,
-		Content: text,
+		Content: inputText,
 	})
 
-	// Use a custom coffee emoji reaction while we wait for OpenAI to respond...could take some time
-	c.AddReaction(":coffee:", message)
-	defer c.RemoveReaction(":coffee:", message)
+	// wait for the full event stream in the background to not block other user requests
+	go func() {
+		// Use a custom coffee emoji reaction while we wait for the full OpenAI response
+		c.AddReaction(":coffee:", message)
+		defer c.RemoveReaction(":coffee:", message)
 
-	resp, err := CallChatGPT(c.cfg, messages)
-	if err != nil {
-		c.ReplyError(message, fmt.Errorf("openai error: %w", err))
-		return
-	}
+		response, err := CallChatGPT(c.cfg, messages)
+		if err != nil {
+			c.ReplyError(message, fmt.Errorf("openai error: %w", err))
+			return
+		}
 
-	// Send the response to the user.
-	c.SendMessage(
-		message,
-		resp.GetMessage().Content,
-		slack.MsgOptionTS(message.GetTimestamp()),
-	)
+		// Create a dummy message which gets updated every X seconds
+		replyRef := c.SendMessage(
+			message,
+			"...",
+			slack.MsgOptionTS(message.GetTimestamp()),
+		)
 
-	// Store the last X chat history entries for further questions
-	messages = append(messages, resp.GetMessage())
-	if len(messages) > historySize {
-		messages = messages[len(messages)-historySize:]
-	}
-	err = storage.Write(storageKey, storageIdentifier, messages)
-	if err != nil {
-		log.Warnf("Error while storing openai history: %s", err)
-	}
+		responseText := strings.Builder{}
+		var lastUpdate time.Time
+		var dirty bool
+		for delta := range response {
+			responseText.WriteString(delta)
+			dirty = true
+			if responseText.Len() > 0 && lastUpdate.Add(c.cfg.UpdateInterval).Before(time.Now()) {
+				lastUpdate = time.Now()
+
+				c.SendMessage(
+					message,
+					responseText.String(),
+					slack.MsgOptionTS(message.GetTimestamp()),
+					slack.MsgOptionUpdate(replyRef),
+				)
+				dirty = false
+			}
+		}
+
+		// update with the final message to make sure everything is formatted properly
+		if dirty {
+			c.SendMessage(
+				message,
+				responseText.String(),
+				slack.MsgOptionTS(message.GetTimestamp()),
+				slack.MsgOptionUpdate(replyRef),
+			)
+		}
+
+		// Store the last X chat history entries for further questions
+		messages = append(messages, ChatMessage{
+			Role:    roleUser,
+			Content: responseText.String(),
+		})
+		if len(messages) > historySize {
+			messages = messages[len(messages)-historySize:]
+		}
+		err = storage.Write(storageKey, storageIdentifier, messages)
+		if err != nil {
+			log.Warnf("Error while storing openai history: %s", err)
+		}
+
+		log.Infof("Openai call: '%s'. Response: '%s'", inputText, responseText.String())
+	}()
 }
 
 // create a unique storage key which is stable for all messages in a thread

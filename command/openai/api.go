@@ -56,6 +56,10 @@ func (r ChatResponse) GetMessage() ChatMessage {
 	return r.Choices[0].Message
 }
 
+func (r ChatResponse) GetDelta() ChatMessage {
+	return r.Choices[0].Delta
+}
+
 func (r ChatResponse) GetError() error {
 	if r.Error.Message == "" {
 		return nil

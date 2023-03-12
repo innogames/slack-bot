@@ -1,14 +1,19 @@
 package openai
 
-import "github.com/innogames/slack-bot/v2/bot/config"
+import (
+	"time"
+
+	"github.com/innogames/slack-bot/v2/bot/config"
+)
 
 // Config configuration: API key to do API calls
 type Config struct {
-	APIKey               string  `mapstructure:"api_key"`
-	APIHost              string  `mapstructure:"api_host"`
-	InitialSystemMessage string  `mapstructure:"initial_system_message"`
-	Model                string  `mapstructure:"host"`
-	Temperature          float32 `mapstructure:"temperature"`
+	APIKey               string        `mapstructure:"api_key"`
+	APIHost              string        `mapstructure:"api_host"`
+	InitialSystemMessage string        `mapstructure:"initial_system_message"`
+	Model                string        `mapstructure:"host"`
+	Temperature          float32       `mapstructure:"temperature"`
+	UpdateInterval       time.Duration `mapstructure:"update_interval"`
 }
 
 // IsEnabled checks if token is set
@@ -17,13 +22,15 @@ func (c *Config) IsEnabled() bool {
 }
 
 var defaultConfig = Config{
-	APIHost: apiHost,
-	Model:   defaultModel,
+	APIHost:              apiHost,
+	Model:                defaultModel,
+	UpdateInterval:       time.Second * 2,
+	InitialSystemMessage: "You are a helpful Slack bot. By default keep your response short",
 }
 
 func loadConfig(config *config.Config) Config {
 	cfg := defaultConfig
-	config.LoadCustom("openai", &cfg)
+	_ = config.LoadCustom("openai", &cfg)
 
 	return cfg
 }

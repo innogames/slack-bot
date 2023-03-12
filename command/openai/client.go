@@ -1,24 +1,27 @@
 package openai
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
+	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // todo: don't use our default client, we need longer timeouts...
-var client *http.Client
+var client http.Client
 
-func CallChatGPT(cfg Config, inputMessages []ChatMessage) (*ChatResponse, error) {
+func CallChatGPT(cfg Config, inputMessages []ChatMessage) (<-chan string, error) {
 	jsonData, _ := json.Marshal(ChatRequest{
 		Model:       cfg.Model,
 		Temperature: cfg.Temperature,
+		Stream:      true,
 		Messages:    inputMessages,
 	})
 
-	fmt.Println(string(jsonData))
 	req, err := http.NewRequest("POST", cfg.APIHost+apiCompletionURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, err
@@ -27,27 +30,60 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage) (*ChatResponse, error)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+cfg.APIKey)
 
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+	messageUpdates := make(chan string, 2)
 
-	// Read the response body
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
+	// return a chan of all message updates here and listen here in the background in the event stream
+	go func() {
+		defer close(messageUpdates)
 
-	var chatResponse ChatResponse
-	err = json.Unmarshal(body, &chatResponse)
-	if err != nil {
-		return nil, err
-	}
+		resp, err := client.Do(req)
+		if err != nil {
+			messageUpdates <- err.Error()
+			return
+		}
+		defer resp.Body.Close()
 
-	if err = chatResponse.GetError(); err != nil {
-		return &chatResponse, err
-	}
+		// some error occurred: we don't have an error stream but a single ChatResponse with an error
+		if resp.StatusCode != 200 {
+			body, _ := io.ReadAll(resp.Body)
 
-	return &chatResponse, nil
+			var chatResponse ChatResponse
+			err = json.Unmarshal(body, &chatResponse)
+			if err != nil {
+				messageUpdates <- err.Error()
+				return
+			}
+
+			if err = chatResponse.GetError(); err != nil {
+				messageUpdates <- chatResponse.GetError().Error()
+				return
+			}
+
+			messageUpdates <- "unknown error occurred"
+			return
+		}
+
+		// each line contains a delta of the message, so one new token
+		fileScanner := bufio.NewScanner(resp.Body)
+		fileScanner.Split(bufio.ScanLines)
+		for fileScanner.Scan() {
+			line := fileScanner.Text()
+			if _, deltaJSON, found := strings.Cut(line, "data: "); found {
+				if deltaJSON == "[DONE]" {
+					// end of event stream
+					return
+				}
+
+				var delta ChatResponse
+				err = json.Unmarshal([]byte(deltaJSON), &delta)
+				if err != nil {
+					log.Warnf("openai error in json: %s (json: %s)", err, deltaJSON)
+					continue
+				}
+				messageUpdates <- delta.GetDelta().Content
+			}
+		}
+	}()
+
+	return messageUpdates, nil
 }
