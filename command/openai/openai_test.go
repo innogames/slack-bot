@@ -1,7 +1,5 @@
 package openai
 
-// TODO cleanup before merge
-
 import (
 	"io"
 	"net/http"
@@ -9,11 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/innogames/slack-bot/v2/bot/storage"
-
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/storage"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -47,6 +44,7 @@ func startTestServer(t *testing.T, requests []testRequest) *httptest.Server {
 }
 
 func TestOpenai(t *testing.T) {
+	// init memory based storage
 	storage.InitStorage("")
 
 	slackClient := &mocks.SlackClient{}
@@ -125,11 +123,11 @@ func TestOpenai(t *testing.T) {
 
 		mocks.AssertReaction(slackClient, ":coffee:", message)
 		mocks.AssertRemoveReaction(slackClient, ":coffee:", message)
-		slackClient.On("SendMessage", message, "...", mock.Anything).Once().Return("")
-		slackClient.On("SendMessage", message, "The answer is 2", mock.Anything).Once().Return("")
+		mocks.AssertSlackMessage(slackClient, message, "...", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, message, "The answer is 2", mock.Anything)
 
 		actual := commands.Run(message)
-		time.Sleep(time.Millisecond * 500) // todo wait for go routines
+		time.Sleep(time.Millisecond * 100)
 		assert.True(t, actual)
 
 		// test reply in different context -> nothing
@@ -139,7 +137,7 @@ func TestOpenai(t *testing.T) {
 		message.Thread = "4321"
 
 		actual = commands.Run(message)
-		time.Sleep(time.Millisecond * 500) // todo wait for go routines
+		time.Sleep(time.Millisecond * 100)
 		assert.False(t, actual)
 
 		// test reply in same context -> ask openai with history
@@ -150,11 +148,11 @@ func TestOpenai(t *testing.T) {
 
 		mocks.AssertReaction(slackClient, ":coffee:", message)
 		mocks.AssertRemoveReaction(slackClient, ":coffee:", message)
-		slackClient.On("SendMessage", message, "...", mock.Anything).Once().Return("")
-		slackClient.On("SendMessage", message, "The answer is 3", mock.Anything).Once().Return("")
+		mocks.AssertSlackMessage(slackClient, message, "...", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, message, "The answer is 3", mock.Anything)
 
 		actual = commands.Run(message)
-		time.Sleep(time.Second * 2) // todo wait for go routines
+		time.Sleep(time.Millisecond * 100)
 		assert.True(t, actual)
 	})
 
@@ -191,8 +189,8 @@ func TestOpenai(t *testing.T) {
 
 		mocks.AssertReaction(slackClient, ":coffee:", message)
 		mocks.AssertRemoveReaction(slackClient, ":coffee:", message)
-		slackClient.On("SendMessage", message, "...", mock.Anything).Once().Return("")
-		slackClient.On("SendMessage", message, "Incorrect API key provided: sk-1234**************************************567.", mock.Anything, mock.Anything).Once().Return("")
+		mocks.AssertSlackMessage(slackClient, message, "...", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, message, "Incorrect API key provided: sk-1234**************************************567.", mock.Anything, mock.Anything)
 
 		actual := commands.Run(message)
 		time.Sleep(100 * time.Millisecond)

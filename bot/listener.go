@@ -25,6 +25,7 @@ func (b *Bot) StartRunnables(ctx context.Context) {
 
 // Run is blocking method to handle new incoming events...from different sources
 func (b *Bot) Run(ctx *util.ServerContext) {
+
 	b.StartRunnables(ctx)
 
 	// listen for old/deprecated RTM connection

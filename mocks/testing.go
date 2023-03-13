@@ -23,9 +23,11 @@ import (
 var testLock sync.Mutex
 
 // AssertSlackMessage is a test helper to check for a given slack message
-func AssertSlackMessage(slackClient *SlackClient, ref msg.Ref, text string) {
-	// todo support MsgOptions here
-	slackClient.On("SendMessage", ref, text).Once().Return("")
+func AssertSlackMessage(slackClient *SlackClient, ref msg.Ref, text string, option ...any) {
+	args := []any{ref, text}
+	args = append(args, option...)
+
+	slackClient.On("SendMessage", args...).Once().Return("")
 }
 
 // AssertSlackMessageRegexp is a test helper to check for a given slack message based on a regular expression

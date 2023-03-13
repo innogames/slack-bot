@@ -1,11 +1,12 @@
 package pool
 
 import (
-	"testing"
-	"time"
-	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"testing"
+	"time"
+
+	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 )
