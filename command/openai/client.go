@@ -43,7 +43,7 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage) (<-chan string, error)
 		}
 		defer resp.Body.Close()
 
-		// some error occurred: we don't have an error stream but a single ChatResponse with an error
+		// some error occurred: we don't have an event stream but a single ChatResponse with an error
 		if resp.StatusCode != 200 {
 			body, _ := io.ReadAll(resp.Body)
 

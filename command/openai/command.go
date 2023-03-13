@@ -15,10 +15,11 @@ import (
 	"github.com/slack-go/slack"
 )
 
-// only use the last X messages as context for further requests
 const (
-	historySize = 10
-	storageKey  = "chatgpt"
+	// only use the last X messages as context for further requests
+	historySize = 15
+
+	storageKey = "chatgpt"
 )
 
 // GetCommands if enable, register the openai commands
@@ -57,7 +58,7 @@ func (c *chatGPTCommand) GetMatcher() matcher.Matcher {
 func (c *chatGPTCommand) startConversation(match matcher.Result, message msg.Message) {
 	text := match.GetString(util.FullMatch)
 
-	// Call the API with a fresh history
+	// Call the API with a fresh history and append the system message to give some hints
 	storageIdentifier := getIdentifier(message.GetChannel(), message.GetTimestamp())
 	messageHistory := make([]ChatMessage, 0)
 	if c.cfg.InitialSystemMessage != "" {
@@ -176,7 +177,7 @@ func getIdentifier(channel string, threadTS string) string {
 func (c *chatGPTCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "openai *question*",
+			Command:     "openai <question>",
 			Description: "Starts a chatgpt/openai conversation in a new thread",
 			Examples: []string{
 				"openai whats 1+1?",

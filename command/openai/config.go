@@ -11,7 +11,7 @@ type Config struct {
 	APIKey               string        `mapstructure:"api_key"`
 	APIHost              string        `mapstructure:"api_host"`
 	InitialSystemMessage string        `mapstructure:"initial_system_message"`
-	Model                string        `mapstructure:"host"`
+	Model                string        `mapstructure:"model"`
 	Temperature          float32       `mapstructure:"temperature"`
 	UpdateInterval       time.Duration `mapstructure:"update_interval"`
 }
@@ -24,8 +24,8 @@ func (c *Config) IsEnabled() bool {
 var defaultConfig = Config{
 	APIHost:              apiHost,
 	Model:                defaultModel,
-	UpdateInterval:       time.Second * 2,
-	InitialSystemMessage: "You are a helpful Slack bot. By default keep your response short",
+	UpdateInterval:       time.Second,
+	InitialSystemMessage: "You are a helpful Slack bot. By default, keep your answer short and truthful",
 }
 
 func loadConfig(config *config.Config) Config {

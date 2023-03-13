@@ -9,6 +9,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/innogames/slack-bot/v2/bot/storage"
+
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
@@ -45,6 +47,8 @@ func startTestServer(t *testing.T, requests []testRequest) *httptest.Server {
 }
 
 func TestOpenai(t *testing.T) {
+	storage.InitStorage("")
+
 	slackClient := &mocks.SlackClient{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
@@ -59,7 +63,7 @@ func TestOpenai(t *testing.T) {
 			t,
 			[]testRequest{
 				{
-					`{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"You are a helpful Slack bot. By default keep your response short"},{"role":"user","content":"whats 1+1?"}],"stream":true}`,
+					`{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"user","content":"whats 1+1?"}],"stream":true}`,
 					`{
 						 "id": "chatcmpl-6p9XYPYSTTRi0xEviKjjilqrWU2Ve",
 						 "object": "chat.completion",
@@ -79,7 +83,7 @@ func TestOpenai(t *testing.T) {
 					http.StatusOK,
 				},
 				{
-					`{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"You are a helpful Slack bot. By default keep your response short"},{"role":"user","content":"whats 1+1?"},{"role":"user","content":""},{"role":"user","content":"whats 2+1?"}],"stream":true}`,
+					`{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"user","content":"whats 1+1?"},{"role":"user","content":""},{"role":"user","content":"whats 2+1?"}],"stream":true}`,
 					`{
 						 "id": "chatcmpl-6p9XYPYSTTRi0xEviKjjilqrWU2Ve",
 						 "object": "chat.completion",
