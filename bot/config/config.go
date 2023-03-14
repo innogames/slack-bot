@@ -3,7 +3,7 @@
 package config
 
 import (
-	"github.com/spf13/viper"
+	"github.com/brainexe/viper"
 )
 
 // Config contains the full config structure of this bot

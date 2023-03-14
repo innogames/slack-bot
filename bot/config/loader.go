@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/spf13/viper"
+	"github.com/brainexe/viper"
 	"gopkg.in/yaml.v3"
 )
 
@@ -14,7 +14,7 @@ import (
 func Load(configFile string) (Config, error) {
 	// don't use '.' or '_' etc as delimiter, as it will block having this chars as map keys
 	keyDelimiter := "§"
-	v := viper.NewWithOptions(viper.KeyDelimiter(keyDelimiter))
+	v := viper.NewWithOptions(viper.KeyDelimiter(keyDelimiter), viper.KeyPreserveCase())
 
 	v.SetConfigType("yaml")
 	v.AllowEmptyEnv(true)

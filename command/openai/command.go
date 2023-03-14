@@ -3,6 +3,7 @@ package openai
 import (
 	"fmt"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/innogames/slack-bot/v2/bot"
@@ -108,7 +109,9 @@ func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier 
 		c.AddReaction(":coffee:", message)
 		defer c.RemoveReaction(":coffee:", message)
 
-		response, err := CallChatGPT(c.cfg, messages)
+		startTime := time.Now()
+
+		response, err := CallChatGPT(c.cfg, messages, true)
 		if err != nil {
 			c.ReplyError(message, fmt.Errorf("openai error: %w", err))
 			return
@@ -163,7 +166,12 @@ func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier 
 			log.Warnf("Error while storing openai history: %s", err)
 		}
 
-		log.Infof("Openai call: '%s'. Response: '%s'", inputText, responseText.String())
+		log.Infof(
+			"Openai call took %s: '%s'. Response: '%s'",
+			util.FormatDuration(time.Since(startTime)),
+			inputText,
+			responseText.String(),
+		)
 	}()
 }
 
@@ -172,6 +180,27 @@ func getIdentifier(channel string, threadTS string) string {
 	identifier := fmt.Sprintf("%s-%s", channel, threadTS)
 
 	return strings.ReplaceAll(identifier, ".", "_")
+}
+
+// GetTemplateFunction makes "chatgpt" available as template function for custom commands
+func (c *chatGPTCommand) GetTemplateFunction() template.FuncMap {
+	return template.FuncMap{
+		"openai": func(input string) string {
+			message := []ChatMessage{
+				{
+					Role:    roleUser,
+					Content: input,
+				},
+			}
+			responses, err := CallChatGPT(c.cfg, message, false)
+			if err != nil {
+				return err.Error()
+			}
+			finalMessage := <-responses
+
+			return finalMessage
+		},
+	}
 }
 
 func (c *chatGPTCommand) GetHelp() []bot.Help {

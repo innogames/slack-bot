@@ -314,6 +314,10 @@ openai:
   temperature: 0.8
 ```
 
+It also possible to use the function in the templates (like in custom commands or crons). 
+
+`{{ openai "Say some short welcome words to @Jon_Doe"}}` would print something like `Hello Jon, welcome! How can I assist you today?`
+
 ## Quiz command
 If you need a small break and want to play a little quiz game, you can do so by calling this command.
 No more than 50 questions are allowed. 

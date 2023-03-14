@@ -14,11 +14,11 @@ import (
 // we don't use our default clients.HttpClient as we need longer timeouts...
 var client http.Client
 
-func CallChatGPT(cfg Config, inputMessages []ChatMessage) (<-chan string, error) {
+func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan string, error) {
 	jsonData, _ := json.Marshal(ChatRequest{
 		Model:       cfg.Model,
 		Temperature: cfg.Temperature,
-		Stream:      true,
+		Stream:      stream,
 		Messages:    inputMessages,
 	})
 
@@ -44,7 +44,7 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage) (<-chan string, error)
 		defer resp.Body.Close()
 
 		// some error occurred: we don't have an event stream but a single ChatResponse with an error
-		if resp.StatusCode != 200 {
+		if !stream || resp.StatusCode != http.StatusOK {
 			body, _ := io.ReadAll(resp.Body)
 
 			var chatResponse ChatResponse
@@ -59,7 +59,11 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage) (<-chan string, error)
 				return
 			}
 
-			messageUpdates <- "unknown error occurred"
+			if message := chatResponse.GetMessage().Content; message != "" {
+				messageUpdates <- message
+				return
+			}
+
 			return
 		}
 
@@ -80,7 +84,10 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage) (<-chan string, error)
 					log.Warnf("openai error in json: %s (json: %s)", err, deltaJSON)
 					continue
 				}
-				messageUpdates <- delta.GetDelta().Content
+
+				if deltaContent := delta.GetDelta().Content; deltaContent != "" {
+					messageUpdates <- deltaContent
+				}
 			}
 		}
 	}()
