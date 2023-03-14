@@ -2,6 +2,10 @@
 
 package config
 
+import (
+	"github.com/brainexe/viper"
+)
+
 // Config contains the full config structure of this bot
 type Config struct {
 	Slack       Slack     `mapstructure:"slack"`
@@ -31,6 +35,27 @@ type Config struct {
 	OpenWeather  OpenWeather `mapstructure:"open_weather"`
 	PullRequest  PullRequest `mapstructure:"pullrequest"`
 	Timezone     string      `mapstructure:"timezone"`
+
+	// list of slack-bot plugins to load
+	Plugins []string `mapstructure:"plugins"`
+
+	// store whole Viper to get dynamic config values
+	viper *viper.Viper `mapstructure:"-"`
+}
+
+// LoadCustom does a dynamic config lookup with a given key and unmarshals it into the value
+func (c *Config) LoadCustom(key string, value any) error {
+	if c.viper == nil {
+		return nil
+	}
+	return c.viper.UnmarshalKey(key, value)
+}
+
+func (c *Config) Set(key string, value any) {
+	if c.viper == nil {
+		c.viper = viper.New()
+	}
+	c.viper.Set(key, value)
 }
 
 // Github config, currently just an access token

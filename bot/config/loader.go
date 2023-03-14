@@ -23,6 +23,7 @@ func Load(configFile string) (Config, error) {
 	v.AutomaticEnv()
 
 	cfg := DefaultConfig
+	cfg.viper = v
 
 	// workaround to take all keys from struct available
 	defaultYaml, _ := yaml.Marshal(DefaultConfig)

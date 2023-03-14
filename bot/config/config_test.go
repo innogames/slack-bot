@@ -17,6 +17,13 @@ func TestLoadExampleConfig(t *testing.T) {
 	assert.Equal(t, false, cfg.Jenkins.IsEnabled())
 	assert.Equal(t, false, cfg.Jira.IsEnabled())
 	assert.Equal(t, false, cfg.Bitbucket.IsEnabled())
+
+	// test "LoadCustom"
+	admins := UserList{}
+	cfg.LoadCustom("admin_users", &admins)
+
+	expectedAdmins := UserList{"UADMINID"}
+	assert.Equal(t, expectedAdmins, admins)
 }
 
 func TestLoadDirectory(t *testing.T) {
@@ -28,6 +35,7 @@ func TestLoadDirectory(t *testing.T) {
 
 	// invalid directory
 	cfg, err = Load("/sdsdsdds")
+	cfg.viper = nil
 	assert.NotNil(t, err)
 	assert.Equal(t, DefaultConfig, cfg)
 }
@@ -36,12 +44,14 @@ func TestLoadFile(t *testing.T) {
 	// not existing file
 	configPath := path.Join("..", "..", "readme.sdsdsd")
 	cfg, err := Load(configPath)
+	cfg.viper = nil
 	assert.NotNil(t, err)
 	assert.Equal(t, DefaultConfig, cfg)
 
 	// parse invalid file
 	configPath = path.Join("..", "..", "readme.md")
 	cfg, err = Load(configPath)
+	cfg.viper = nil
 	assert.Contains(t, err.Error(), "While parsing config: yaml")
 	assert.Equal(t, DefaultConfig, cfg)
 

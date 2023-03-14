@@ -11,6 +11,7 @@ import (
 	"github.com/innogames/slack-bot/v2/command/games"
 	"github.com/innogames/slack-bot/v2/command/jenkins"
 	"github.com/innogames/slack-bot/v2/command/jira"
+	"github.com/innogames/slack-bot/v2/command/openai"
 	"github.com/innogames/slack-bot/v2/command/pool"
 	"github.com/innogames/slack-bot/v2/command/pullrequest"
 	"github.com/innogames/slack-bot/v2/command/queue"
@@ -67,6 +68,9 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 
 	// pool
 	commands.Merge(pool.GetCommands(&cfg.Pool, base))
+
+	// openai/chatgpt
+	commands.Merge(openai.GetCommands(base, &cfg))
 
 	return commands
 }

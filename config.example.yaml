@@ -99,6 +99,10 @@ github:
 #        - "web beauty"
 #        - "usb plugs"
 
+# openai/chatgpt
+#openai:
+#  api_key: a12121
+
 logger:
   level: info
   file: ./bot.log

@@ -296,6 +296,27 @@ User can define his default environment once by using `set variable serverEnviro
 Then the `deploy feature-123` will deploy the branch to the defined `aws-02` environment.
 Each user can define his own variables.
 
+## Openai/ChatGPT integration
+It's also possible to have a [ChatGPT](https://chat.openai.com) like conversation with the official OpenAI integration (GPT3.5)!
+
+![openai](./docs/openai.png)
+
+Just type "openai" or "chatgpt" before your question to create a new thread which behaves like the well-known ChatGPT page. The content of the last 10 messages is used as context.
+To make it work, a valid "openai.api_key" must be provided in the configuration.
+
+**Extended config:**
+```yaml
+openai:
+  api_key: "sk-123....789"
+  initial_system_message: "You are a Slack bot for Project XYZ, please answer shortly."
+  update_interval: '3s' # fewer Slack messages update during generation
+  model: gpt-3.5-turbo
+  temperature: 0.8
+```
+
+It also possible to use the function in the templates (like in custom commands or crons). 
+
+`{{ openai "Say some short welcome words to @Jon_Doe"}}` would print something like `Hello Jon, welcome! How can I assist you today?`
 
 ## Quiz command
 If you need a small break and want to play a little quiz game, you can do so by calling this command.
