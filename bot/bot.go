@@ -138,7 +138,9 @@ func (b *Bot) loadSlackData() error {
 		return errors.Wrap(err, "error fetching users")
 	}
 
+	client.Users = make(config.UserMap, len(allUsers))
 	for _, user := range allUsers {
+		client.Users[user.ID] = user.Name
 		for _, allowedUserName := range b.config.AllowedUsers {
 			if allowedUserName == user.Name || allowedUserName == user.ID {
 				b.allowedUsers[user.ID] = user.Name
@@ -146,8 +148,6 @@ func (b *Bot) loadSlackData() error {
 			}
 		}
 	}
-
-	client.Users = b.allowedUsers
 
 	return nil
 }
@@ -224,12 +224,18 @@ func (b *Bot) ProcessMessage(message msg.Message, fromUserContext bool) {
 	// check if user is allowed to interact with the bot
 	existing := b.allowedUsers.Contains(message.User)
 	if !existing && fromUserContext && !b.config.Slack.IsFakeServer() {
-		logger.Errorf("user %s is not allowed to execute message (missing in 'allowed_users' section): %s", message.User, message.Text)
-		b.slackClient.SendMessage(message, fmt.Sprintf(
-			"Sorry <@%s>, you are not whitelisted yet. Please ask a slack-bot admin to get access: %s",
-			message.User,
-			strings.Join(b.config.AdminUsers, ", "),
-		))
+		_, userName := client.GetUserIDAndName(message.User)
+
+		logger.Errorf("user %s (%s) is not allowed to execute message (missing in 'allowed_users' section): %s", userName, message.User, message.Text)
+
+		errorMessage := "Sorry, you are not whitelisted in the config yet."
+		if len(b.config.AdminUsers) > 0 {
+			errorMessage += fmt.Sprintf(
+				" Please ask a slack-bot admin to get access: @<%s>",
+				strings.Join(b.config.AdminUsers, ">, <@"),
+			)
+		}
+		b.slackClient.SendMessage(message, errorMessage)
 		b.slackClient.AddReaction("❌", message)
 
 		stats.IncreaseOne(stats.UnauthorizedCommands)
