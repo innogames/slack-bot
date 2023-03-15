@@ -53,7 +53,7 @@ test-coverage: dep
 
 # build mocks for testable interfaces into ./mocks/ directory
 mocks: dep
-	go get github.com/vektra/mockery/v2/.../
+	go install github.com/vektra/mockery/v2@latest
 	go generate ./...
 
 # live reload

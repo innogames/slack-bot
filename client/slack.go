@@ -118,6 +118,9 @@ type SlackClient interface {
 	// GetConversationHistory loads the message history from slack
 	GetConversationHistory(*slack.GetConversationHistoryParameters) (*slack.GetConversationHistoryResponse, error)
 
+	// GetThreadMessages loads message from a given thread
+	GetThreadMessages(ref msg.Ref) ([]slack.Message, error)
+
 	// CanHandleInteractions checks if we have a slack connections which can inform us about events/interactions, like pressed buttons?
 	CanHandleInteractions() bool
 }
@@ -236,7 +239,7 @@ func (s *Slack) SendToUser(user string, text string) {
 	s.SendMessage(message, text)
 }
 
-// SendBlockMessage will send Slack Blocks/Sections to the target
+// SendBlockMessageToUser will send Slack Blocks/Sections to the target
 func (s *Slack) SendBlockMessageToUser(user string, blocks []slack.Block, options ...slack.MsgOption) string {
 	// check if a real username was passed -> we need the user-id here
 	userID, _ := GetUserIDAndName(user)
@@ -273,6 +276,34 @@ func (s *Slack) SendBlockMessage(ref msg.Ref, blocks []slack.Block, options ...s
 	}
 
 	return s.SendMessage(ref, "", append(allOptions, options...)...)
+}
+
+// GetThreadMessages will send Slack Blocks/Sections to the target
+func (s *Slack) GetThreadMessages(ref msg.Ref) ([]slack.Message, error) {
+	allMessages := make([]slack.Message, 0)
+
+	var cursor string
+	var err error
+	for {
+		options := &slack.GetConversationRepliesParameters{
+			ChannelID: ref.GetChannel(),
+			Timestamp: ref.GetThread(),
+			Limit:     1000,
+			Cursor:    cursor,
+		}
+
+		var messages []slack.Message
+		messages, _, cursor, err = s.Client.GetConversationReplies(options)
+		if err != nil {
+			return allMessages, err
+		}
+		allMessages = append(allMessages, messages...)
+		if cursor == "" {
+			break
+		}
+	}
+
+	return allMessages, nil
 }
 
 // GetUserIDAndName returns the user-id and user-name based on a identifier. If can get a user-id or name

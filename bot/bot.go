@@ -231,7 +231,7 @@ func (b *Bot) ProcessMessage(message msg.Message, fromUserContext bool) {
 		errorMessage := "Sorry, you are not whitelisted in the config yet."
 		if len(b.config.AdminUsers) > 0 {
 			errorMessage += fmt.Sprintf(
-				" Please ask a slack-bot admin to get access: @<%s>",
+				" Please ask a slack-bot admin to get access: <@%s>",
 				strings.Join(b.config.AdminUsers, ">, <@"),
 			)
 		}

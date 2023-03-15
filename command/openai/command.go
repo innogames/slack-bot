@@ -59,14 +59,40 @@ func (c *chatGPTCommand) GetMatcher() matcher.Matcher {
 func (c *chatGPTCommand) startConversation(match matcher.Result, message msg.Message) {
 	text := match.GetString(util.FullMatch)
 
-	// Call the API with a fresh history and append the system message to give some hints
-	storageIdentifier := getIdentifier(message.GetChannel(), message.GetTimestamp())
 	messageHistory := make([]ChatMessage, 0)
+
 	if c.cfg.InitialSystemMessage != "" {
 		messageHistory = append(messageHistory, ChatMessage{
 			Role:    roleSystem,
 			Content: c.cfg.InitialSystemMessage,
 		})
+	}
+
+	var storageIdentifier string
+	if message.GetThread() != "" {
+		// fetch the whole thread history as history
+		threadMessages, err := c.SlackClient.GetThreadMessages(message)
+		if err != nil {
+			c.ReplyError(message, fmt.Errorf("can't load thread messages: %w", err))
+			return
+		}
+
+		messageHistory = append(messageHistory, ChatMessage{
+			Role:    roleSystem,
+			Content: "This is a slack thread, using slack user ids as identifiers. Please use user mentions n the format <@U123456>",
+		})
+
+		for _, threadMessage := range threadMessages {
+			messageHistory = append(messageHistory, ChatMessage{
+				Role:    roleSystem,
+				Content: fmt.Sprintf("User <@%s> wrote: %s", threadMessage.User, threadMessage.Text),
+			})
+		}
+		storageIdentifier = getIdentifier(message.GetChannel(), message.GetThread())
+		log.Infof("openai thread context: %s", messageHistory)
+	} else {
+		// start a new thread with a fresh history
+		storageIdentifier = getIdentifier(message.GetChannel(), message.GetTimestamp())
 	}
 
 	c.callAndStore(messageHistory, storageIdentifier, message, text)
