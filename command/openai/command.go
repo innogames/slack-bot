@@ -17,9 +17,6 @@ import (
 )
 
 const (
-	// only use the last X messages as context for further requests
-	historySize = 15
-
 	storageKey = "chatgpt"
 )
 
@@ -70,7 +67,7 @@ func (c *chatGPTCommand) startConversation(match matcher.Result, message msg.Mes
 
 	var storageIdentifier string
 	if message.GetThread() != "" {
-		// fetch the whole thread history as history
+		// "openai" was triggerd within a existing thread. -> fetch the whole thread history as context
 		threadMessages, err := c.SlackClient.GetThreadMessages(message)
 		if err != nil {
 			c.ReplyError(message, fmt.Errorf("can't load thread messages: %w", err))
@@ -79,12 +76,12 @@ func (c *chatGPTCommand) startConversation(match matcher.Result, message msg.Mes
 
 		messageHistory = append(messageHistory, ChatMessage{
 			Role:    roleSystem,
-			Content: "This is a slack thread, using slack user ids as identifiers. Please use user mentions n the format <@U123456>",
+			Content: "This is a Slack bot receiving a slack thread s context, using slack user ids as identifiers. Please use user mentions n the format <@U123456>",
 		})
 
 		for _, threadMessage := range threadMessages {
 			messageHistory = append(messageHistory, ChatMessage{
-				Role:    roleSystem,
+				Role:    roleUser,
 				Content: fmt.Sprintf("User <@%s> wrote: %s", threadMessage.User, threadMessage.Text),
 			})
 		}
@@ -184,8 +181,8 @@ func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier 
 			Role:    roleUser,
 			Content: responseText.String(),
 		})
-		if len(messages) > historySize {
-			messages = messages[len(messages)-historySize:]
+		if len(messages) > c.cfg.HistorySize {
+			messages = messages[len(messages)-c.cfg.HistorySize:]
 		}
 		err = storage.Write(storageKey, storageIdentifier, messages)
 		if err != nil {
