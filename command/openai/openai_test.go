@@ -1,6 +1,7 @@
 package openai
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -13,6 +14,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/storage"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/mocks"
+	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -57,7 +59,7 @@ func TestOpenai(t *testing.T) {
 		assert.Equal(t, 0, commands.Count())
 	})
 
-	t.Run("Default flow", func(t *testing.T) {
+	t.Run("Start a new thread and reply", func(t *testing.T) {
 		ts := startTestServer(
 			t,
 			[]testRequest{
@@ -209,7 +211,7 @@ data: [DONE]`,
 						   {
 							"message": {
 							  "role": "assistant",
-							  "content": "The answer is 2"},
+							  "content": "\n\nThe answer is 2"},
 							"finish_reason": "stop",
 							"index": 0
 						   }
@@ -233,5 +235,63 @@ data: [DONE]`,
 		assert.Nil(t, err)
 
 		assert.Equal(t, "The answer is 2", res)
+	})
+
+	t.Run("Write within a new thread", func(t *testing.T) {
+		ts := startTestServer(
+			t,
+			[]testRequest{
+				{
+					`{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"system","content":"This is a Slack bot receiving a slack thread s context, using slack user ids as identifiers. Please use user mentions in the format \u003c@U123456\u003e"},{"role":"user","content":"User \u003c@U1234\u003e wrote: thread message 1"},{"role":"user","content":"whats 1+1?"}],"stream":true}`,
+					`data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"role":"assistant"},"index":0,"finish_reason":null}]}
+
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"Jolo!"},"index":0,"finish_reason":null}]}
+
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{},"index":0,"finish_reason":"stop"}]}
+
+data: [DONE]`,
+					http.StatusOK,
+				},
+			},
+		)
+		defer ts.Close()
+
+		openaiCfg := defaultConfig
+		openaiCfg.APIHost = ts.URL
+		openaiCfg.APIKey = "0815pass"
+		cfg := &config.Config{}
+		cfg.Set("openai", openaiCfg)
+
+		commands := GetCommands(base, cfg)
+
+		message := msg.Message{}
+		message.Text = "openai whats 1+1?"
+		message.Channel = "testchan"
+		message.Thread = "12345"
+		message.Timestamp = "1234"
+
+		// first with an error
+		mocks.AssertError(slackClient, message, "can't load thread messages: openai not reachable")
+		slackClient.On("GetThreadMessages", message).Once().Return([]slack.Message{}, errors.New("openai not reachable"))
+		actual := commands.Run(message)
+		time.Sleep(time.Millisecond * 50)
+		assert.True(t, actual)
+
+		// then a successful attempt
+		threadMessage := slack.Message{}
+		threadMessage.User = "U1234"
+		threadMessage.Text = "thread message 1"
+
+		threadMessages := []slack.Message{threadMessage}
+		slackClient.On("GetThreadMessages", message).Once().Return(threadMessages, nil)
+
+		mocks.AssertReaction(slackClient, ":coffee:", message)
+		mocks.AssertRemoveReaction(slackClient, ":coffee:", message)
+		mocks.AssertSlackMessage(slackClient, message, "...", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, message, "Jolo!", mock.Anything, mock.Anything)
+
+		actual = commands.Run(message)
+		time.Sleep(time.Millisecond * 100)
+		assert.True(t, actual)
 	})
 }

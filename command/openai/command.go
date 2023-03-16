@@ -76,7 +76,7 @@ func (c *chatGPTCommand) startConversation(match matcher.Result, message msg.Mes
 
 		messageHistory = append(messageHistory, ChatMessage{
 			Role:    roleSystem,
-			Content: "This is a Slack bot receiving a slack thread s context, using slack user ids as identifiers. Please use user mentions n the format <@U123456>",
+			Content: "This is a Slack bot receiving a slack thread s context, using slack user ids as identifiers. Please use user mentions in the format <@U123456>",
 		})
 
 		for _, threadMessage := range threadMessages {
@@ -221,7 +221,7 @@ func (c *chatGPTCommand) GetTemplateFunction() template.FuncMap {
 			}
 			finalMessage := <-responses
 
-			return finalMessage
+			return strings.Trim(finalMessage, "\n")
 		},
 	}
 }

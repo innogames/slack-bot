@@ -2,10 +2,11 @@ package pool
 
 import (
 	"fmt"
-	"github.com/innogames/slack-bot/v2/bot/util"
 	"sort"
 	"sync"
 	"time"
+
+	"github.com/innogames/slack-bot/v2/bot/util"
 
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/storage"
