@@ -17,9 +17,6 @@ import (
 )
 
 const (
-	// only use the last X messages as context for further requests
-	historySize = 15
-
 	storageKey = "chatgpt"
 )
 
@@ -59,14 +56,40 @@ func (c *chatGPTCommand) GetMatcher() matcher.Matcher {
 func (c *chatGPTCommand) startConversation(match matcher.Result, message msg.Message) {
 	text := match.GetString(util.FullMatch)
 
-	// Call the API with a fresh history and append the system message to give some hints
-	storageIdentifier := getIdentifier(message.GetChannel(), message.GetTimestamp())
 	messageHistory := make([]ChatMessage, 0)
+
 	if c.cfg.InitialSystemMessage != "" {
 		messageHistory = append(messageHistory, ChatMessage{
 			Role:    roleSystem,
 			Content: c.cfg.InitialSystemMessage,
 		})
+	}
+
+	var storageIdentifier string
+	if message.GetThread() != "" {
+		// "openai" was triggerd within a existing thread. -> fetch the whole thread history as context
+		threadMessages, err := c.SlackClient.GetThreadMessages(message)
+		if err != nil {
+			c.ReplyError(message, fmt.Errorf("can't load thread messages: %w", err))
+			return
+		}
+
+		messageHistory = append(messageHistory, ChatMessage{
+			Role:    roleSystem,
+			Content: "This is a Slack bot receiving a slack thread s context, using slack user ids as identifiers. Please use user mentions in the format <@U123456>",
+		})
+
+		for _, threadMessage := range threadMessages {
+			messageHistory = append(messageHistory, ChatMessage{
+				Role:    roleUser,
+				Content: fmt.Sprintf("User <@%s> wrote: %s", threadMessage.User, threadMessage.Text),
+			})
+		}
+		storageIdentifier = getIdentifier(message.GetChannel(), message.GetThread())
+		log.Infof("openai thread context: %s", messageHistory)
+	} else {
+		// start a new thread with a fresh history
+		storageIdentifier = getIdentifier(message.GetChannel(), message.GetTimestamp())
 	}
 
 	c.callAndStore(messageHistory, storageIdentifier, message, text)
@@ -158,8 +181,8 @@ func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier 
 			Role:    roleUser,
 			Content: responseText.String(),
 		})
-		if len(messages) > historySize {
-			messages = messages[len(messages)-historySize:]
+		if len(messages) > c.cfg.HistorySize {
+			messages = messages[len(messages)-c.cfg.HistorySize:]
 		}
 		err = storage.Write(storageKey, storageIdentifier, messages)
 		if err != nil {
@@ -198,7 +221,7 @@ func (c *chatGPTCommand) GetTemplateFunction() template.FuncMap {
 			}
 			finalMessage := <-responses
 
-			return finalMessage
+			return strings.Trim(finalMessage, "\n")
 		},
 	}
 }
