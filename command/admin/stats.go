@@ -97,6 +97,7 @@ func (c *statsCommand) GetHelp() []bot.Help {
 		{
 			Command:     "bot stats",
 			Description: "display runtime stats from the bots, like total processed commands etc",
+			Category:    category,
 		},
 	}
 }

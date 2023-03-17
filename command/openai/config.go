@@ -28,7 +28,7 @@ func (c *Config) IsEnabled() bool {
 
 var defaultConfig = Config{
 	APIHost:              apiHost,
-	Model:                defaultModel,
+	Model:                "gpt-3.5-turbo", // aka model behind ChatGPT
 	UpdateInterval:       time.Second,
 	HistorySize:          15,
 	InitialSystemMessage: "You are a helpful Slack bot. By default, keep your answer short and truthful",

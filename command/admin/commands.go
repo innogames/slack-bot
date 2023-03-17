@@ -17,3 +17,8 @@ func GetCommands(base bot.BaseCommand, cfg *config.Config) bot.Commands {
 
 	return commands
 }
+
+// help category to group all AI command
+var category = bot.Category{
+	Name: "Maintenance",
+}
