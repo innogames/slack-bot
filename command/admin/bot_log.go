@@ -51,7 +51,7 @@ func (c *botLogCommand) GetHelp() []bot.Help {
 		{
 			Command:     "bot log",
 			Description: "displays the last log entries of the bot",
-			Category:    category,
+			Category:    maintenanceCategory,
 			Examples: []string{
 				"bot log",
 			},

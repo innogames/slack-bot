@@ -64,7 +64,7 @@ func (b *Bot) Init() (err error) {
 		return errors.Wrap(err, "auth error")
 	}
 	client.AuthResponse = *b.auth
-	client.Channels, err = b.loadChannels()
+	client.AllChannels, err = b.loadChannels()
 	if err != nil {
 		return errors.Wrap(err, "error while fetching public channels")
 	}
@@ -79,8 +79,8 @@ func (b *Bot) Init() (err error) {
 		go b.slackClient.RTM.ManageConnection()
 	}
 
-	log.Infof("Loaded %d allowed users and %d channels", len(b.allowedUsers), len(client.Channels))
-	log.Infof("Bot user: %s with ID %s on workspace %s", b.auth.User, b.auth.UserID, b.auth.URL)
+	log.Infof("Loaded %d allowed users and %d channels", len(b.allowedUsers), len(client.AllChannels))
+	log.Infof("Bot user: '%s' with ID %s on workspace %s", b.auth.User, b.auth.UserID, b.auth.URL)
 	log.Infof("Initialized %d commands", b.commands.Count())
 
 	return nil
@@ -138,9 +138,9 @@ func (b *Bot) loadSlackData() error {
 		return errors.Wrap(err, "error fetching users")
 	}
 
-	client.Users = make(config.UserMap, len(allUsers))
+	client.AllUsers = make(config.UserMap, len(allUsers))
 	for _, user := range allUsers {
-		client.Users[user.ID] = user.Name
+		client.AllUsers[user.ID] = user.Name
 		for _, allowedUserName := range b.config.AllowedUsers {
 			if allowedUserName == user.Name || allowedUserName == user.ID {
 				b.allowedUsers[user.ID] = user.Name
@@ -230,10 +230,14 @@ func (b *Bot) ProcessMessage(message msg.Message, fromUserContext bool) {
 
 		errorMessage := "Sorry, you are not whitelisted in the config yet."
 		if len(b.config.AdminUsers) > 0 {
-			errorMessage += fmt.Sprintf(
-				" Please ask a slack-bot admin to get access: <@%s>",
-				strings.Join(b.config.AdminUsers, ">, <@"),
-			)
+			errorMessage += " Please ask a slack-bot admin to get access: "
+			for _, admin := range b.config.AdminUsers {
+				adminID, _ := client.GetUserIDAndName(admin)
+				errorMessage += fmt.Sprintf(
+					"<@%s>",
+					adminID,
+				)
+			}
 		}
 		b.slackClient.SendMessage(message, errorMessage)
 		b.slackClient.AddReaction("❌", message)

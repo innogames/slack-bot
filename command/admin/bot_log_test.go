@@ -7,6 +7,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/client"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,6 +18,9 @@ func TestBotLog(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
+	client.AllUsers = config.UserMap{
+		"UADMIN": "admin2",
+	}
 	cfg := &config.Config{}
 	cfg.Logger.File = testFile
 	cfg.AdminUsers = []string{

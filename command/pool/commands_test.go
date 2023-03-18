@@ -56,10 +56,25 @@ func TestPools(t *testing.T) {
 		mocks.AssertSlackMessageRegexp(slackClient, message, "^`server1` is locked for you until")
 		message = runCommand(message)
 
+		// extend
+		message = msg.Message{}
+		message.Text = "pool extend server1 1h"
+		mocks.AssertSlackMessageRegexp(slackClient, message, "^`server1` got extended until")
+		runCommand(message)
+
+		// pool locks
+		message = msg.Message{}
+		message.Text = "pool locks"
+		mocks.AssertSlackMessageRegexp(slackClient, message, "^ \\*Your locks:\\*\n\n`server1` until")
+		runCommand(message)
+
 		// unlock
 		message = msg.Message{}
 		message.Text = "pool unlock server1"
 		mocks.AssertSlackMessage(slackClient, message, "`server1` is free again")
-		message = runCommand(message)
+		runCommand(message)
+
+		help := commands.GetHelp()
+		assert.Equal(t, 6, len(help))
 	})
 }

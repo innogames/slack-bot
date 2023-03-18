@@ -52,7 +52,7 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 	commands.Merge(admin.GetCommands(base, &cfg))
 
 	// games
-	commands.Merge(games.GetCommands(base))
+	commands.Merge(games.GetCommands(base, &cfg))
 
 	// jira
 	commands.Merge(jira.GetCommands(&cfg.Jira, slackClient))

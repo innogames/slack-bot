@@ -56,7 +56,7 @@ func TestGetSlackClient(t *testing.T) {
 }
 
 func TestGetSlackUser(t *testing.T) {
-	Users = map[string]string{
+	AllUsers = map[string]string{
 		"U121": "Jon Doe",
 		"U122": "Doe Jon",
 	}
@@ -72,7 +72,7 @@ func TestGetSlackUser(t *testing.T) {
 }
 
 func TestGetSlackChannel(t *testing.T) {
-	Channels = map[string]string{
+	AllChannels = map[string]string{
 		"C123": "dev",
 		"C234": "general",
 	}

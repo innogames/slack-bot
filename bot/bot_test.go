@@ -14,6 +14,9 @@ import (
 func TestBot(t *testing.T) {
 	cfg := config.Config{}
 	cfg.Slack.Token = "xoxb-12345"
+	cfg.AdminUsers = config.UserList{
+		"admin123",
+	}
 
 	slackClient, err := client.GetSlackClient(cfg.Slack)
 	assert.Nil(t, err)

@@ -26,7 +26,8 @@ func (m adminMatcher) Match(message msg.Message) (Runner, Result) {
 		return nil, nil
 	}
 
-	if m.admins.Contains(message.User) {
+	userID, userName := client.GetUserIDAndName(message.User)
+	if m.admins.Contains(userID) || m.admins.Contains(userName) {
 		// valid admin -> execute the wrapped command
 		return run, result
 	}
