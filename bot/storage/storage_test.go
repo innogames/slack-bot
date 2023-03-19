@@ -54,6 +54,17 @@ func testStorage(t *testing.T, storage Storage) {
 	err = storage.Read(collection, "test-int", &mapValue)
 	assert.EqualError(t, err, "json: cannot unmarshal number into Go value of type map[int]float32")
 
+	// Atomic
+	Atomic(func() {
+		err = storage.Write(collection, "test-int", 1)
+		assert.Nil(t, err)
+		err = storage.Write(collection, "test-int", 2)
+		assert.Nil(t, err)
+	})
+	var expectedInt int
+	err = storage.Read(collection, "test-int", &expectedInt)
+	assert.Equal(t, 2, expectedInt)
+
 	// delete
 	err = storage.Delete(collection, "test-string")
 	assert.Nil(t, err)

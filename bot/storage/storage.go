@@ -8,7 +8,8 @@ import (
 
 var (
 	currentStorage Storage
-	mu             sync.Mutex
+	globalMu       sync.Mutex
+	storageMu      sync.Mutex
 )
 
 // Storage is the main interface which is used to persist bot related data (like queued messages or user histories)
@@ -85,6 +86,14 @@ func Delete(collection string, key string) error {
 	return getStorage().Delete(collection, key)
 }
 
+// Atomic execution of storage access. Useful when loading of a old key is needed to update it based on the value
+func Atomic(function func()) {
+	storageMu.Lock()
+	defer storageMu.Unlock()
+
+	function()
+}
+
 // check if a given key/collection only contains a subset of valid characters
 func validateKey(keys ...string) error {
 	for _, key := range keys {
@@ -101,8 +110,8 @@ func getStorage() Storage {
 		return currentStorage
 	}
 
-	mu.Lock()
-	defer mu.Unlock()
+	globalMu.Lock()
+	defer globalMu.Unlock()
 
 	currentStorage = newMemoryStorage()
 

@@ -25,12 +25,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Run fast tests
-        if: matrix.os != 'ubuntu-latest'
         run: make test
         env:
           BOT_GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build binary
+        run: make build/slack-bot
+  test-race:
+    name: Run race tests
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
       - name: Run tests with race
-        if: matrix.os == 'ubuntu-latest'
         run: make test-race
         env:
           BOT_GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -77,3 +85,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2.5.0
+      - name: Build and push
+        uses: docker/build-push-action@v4.0.0
+        with:
+          context: .
+          load: true
