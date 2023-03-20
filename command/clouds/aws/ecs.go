@@ -63,7 +63,6 @@ func (c *ecsCommand) restart(match matcher.Result, message msg.Message) {
 	svc := match.GetString("SERVICE")
 	log.Println("restart requested: ", svc)
 	err := ForceNewDeployment(cluster, svc)
-
 	if err != nil {
 		log.Println(err.Error())
 		c.SendEphemeralMessage(message, err.Error())

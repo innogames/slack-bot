@@ -53,10 +53,10 @@ test-coverage: dep
 
 # build mocks for testable interfaces into ./mocks/ directory
 mocks: dep
-	go install github.com/vektra/mockery/v2@latest
+	command -v mockery || go install github.com/vektra/mockery/v2@latest
 	go generate ./...
 
-# live reload
+# live reload, see https://github.com/cosmtrek/air
 air:
-	command -v air || curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin
+	command -v air || go install github.com/cosmtrek/air@latest
 	air

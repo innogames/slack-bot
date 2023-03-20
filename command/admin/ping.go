@@ -37,6 +37,7 @@ func (c *pingCommand) GetHelp() []bot.Help {
 		{
 			Command:     "ping",
 			Description: "just prints a PING with the needed time from client->slack->bot server",
+			Category:    maintenanceCategory,
 			Examples: []string{
 				"ping",
 			},

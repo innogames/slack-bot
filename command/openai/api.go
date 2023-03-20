@@ -5,7 +5,6 @@ import "github.com/pkg/errors"
 const (
 	apiHost          = "https://api.openai.com"
 	apiCompletionURL = "/v1/chat/completions"
-	defaultModel     = "gpt-3.5-turbo"
 )
 
 const (

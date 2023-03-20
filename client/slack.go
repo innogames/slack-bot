@@ -46,11 +46,11 @@ func HandleMessageWithDoneHandler(message msg.Message) *sync.WaitGroup {
 // AuthResponse is holding some basic Slack metadata for the current connection, like Bot-Id, Workspace etc
 var AuthResponse slack.AuthTestResponse
 
-// Users is a lookup from user-id to user-name
-var Users config.UserMap
+// AllUsers is a lookup from user-id to user-name
+var AllUsers config.UserMap
 
-// Channels is a map of each channelsId and the name
-var Channels map[string]string
+// AllChannels is a map of each channelsId and the name
+var AllChannels map[string]string
 
 // GetSlackClient establishes a connection to the slack server.
 // Either via "Socket Mode" or the legacy "RTM" connection
@@ -309,12 +309,12 @@ func (s *Slack) GetThreadMessages(ref msg.Ref) ([]slack.Message, error) {
 // GetUserIDAndName returns the user-id and user-name based on a identifier. If can get a user-id or name
 func GetUserIDAndName(identifier string) (id string, name string) {
 	identifier = strings.TrimPrefix(identifier, "@")
-	if name, ok := Users[identifier]; ok {
+	if name, ok := AllUsers[identifier]; ok {
 		return identifier, name
 	}
 
 	identifier = strings.ToLower(identifier)
-	for id, name := range Users {
+	for id, name := range AllUsers {
 		if strings.EqualFold(name, identifier) {
 			return id, name
 		}
@@ -326,12 +326,12 @@ func GetUserIDAndName(identifier string) (id string, name string) {
 // GetChannelIDAndName returns channel-id and channel-name by an identifier which can be an id or a name
 func GetChannelIDAndName(identifier string) (id string, name string) {
 	identifier = strings.TrimPrefix(identifier, "#")
-	if name, ok := Channels[identifier]; ok {
+	if name, ok := AllChannels[identifier]; ok {
 		return identifier, name
 	}
 
 	identifier = strings.ToLower(identifier)
-	for id, name := range Channels {
+	for id, name := range AllChannels {
 		if strings.EqualFold(name, identifier) {
 			return id, name
 		}

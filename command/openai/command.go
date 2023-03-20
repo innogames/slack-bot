@@ -231,10 +231,18 @@ func (c *chatGPTCommand) GetHelp() []bot.Help {
 		{
 			Command:     "openai <question>",
 			Description: "Starts a chatgpt/openai conversation in a new thread",
+			Category:    category,
 			Examples: []string{
 				"openai whats 1+1?",
 				"chatgpt whats 1+1?",
 			},
 		},
 	}
+}
+
+// help category to group all AI command
+var category = bot.Category{
+	Name:        "AI",
+	Description: "AI support for commands, like using openai",
+	HelpURL:     "https://github.com/innogames/slack-bot#openai",
 }

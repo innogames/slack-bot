@@ -25,4 +25,14 @@ func TestStats(t *testing.T) {
 	value, err = Get("test")
 	assert.Nil(t, err)
 	assert.Equal(t, value, uint(42))
+
+	Increase("test", 2)
+	value, err = Get("test")
+	assert.Nil(t, err)
+	assert.Equal(t, value, uint(44))
+
+	IncreaseOne("test")
+	value, err = Get("test")
+	assert.Nil(t, err)
+	assert.Equal(t, value, uint(45))
 }

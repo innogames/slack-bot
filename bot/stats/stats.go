@@ -1,8 +1,6 @@
 package stats
 
 import (
-	"sync"
-
 	"github.com/innogames/slack-bot/v2/bot/storage"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -24,8 +22,6 @@ const (
 	Interactions = "interactions"
 )
 
-var mu sync.Mutex
-
 // IncreaseOne is increasing the stats counter of the given type by 1
 func IncreaseOne(key string) {
 	Increase(key, 1)
@@ -33,17 +29,16 @@ func IncreaseOne(key string) {
 
 // Increase is increasing the stats counter
 func Increase(key string, count uint) {
-	mu.Lock()
-	defer mu.Unlock()
+	storage.Atomic(func() {
+		var value uint
+		_ = storage.Read(collection, key, &value)
 
-	var value uint
-	_ = storage.Read(collection, key, &value)
+		value += count
 
-	value += count
-
-	if err := storage.Write(collection, key, value); err != nil {
-		log.Warn(errors.Wrap(err, "error while increasing stats"))
-	}
+		if err := storage.Write(collection, key, value); err != nil {
+			log.Warn(errors.Wrap(err, "error while increasing stats"))
+		}
+	})
 }
 
 // Set the stats to a specific value
