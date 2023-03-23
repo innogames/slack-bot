@@ -1,8 +1,6 @@
 package games
 
 import (
-	"fmt"
-
 	"github.com/innogames/slack-bot/v2/bot/config"
 )
 
@@ -16,6 +14,5 @@ func loadConfig(config *config.Config) Config {
 	cfg.Enabled = true
 	_ = config.LoadCustom("games", &cfg)
 
-	fmt.Println(cfg)
 	return cfg
 }

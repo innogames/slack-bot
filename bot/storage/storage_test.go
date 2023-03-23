@@ -82,9 +82,11 @@ func testStorage(t *testing.T, storage Storage) {
 		err = storage.Write(collection, "test-int2", 2)
 		assert.Nil(t, err)
 	})
-	var expectedInt int
 	err = storage.Read(collection, "test-int2", &expectedInt)
 	assert.Equal(t, 2, expectedInt)
+	assert.Nil(t, err)
+	err = storage.Delete(collection, "test-int2")
+	assert.Nil(t, err)
 
 	keys, err = storage.GetKeys(collection)
 	assert.Nil(t, err)

@@ -55,3 +55,10 @@ func Get(key string) (uint, error) {
 
 	return value, err
 }
+
+// GetKeys returns all used metric keys
+func GetKeys() []string {
+	keys, _ := storage.GetKeys(collection)
+
+	return keys
+}
