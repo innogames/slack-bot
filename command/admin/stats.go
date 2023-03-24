@@ -42,6 +42,7 @@ func (c *statsCommand) stats(match matcher.Result, message msg.Message) {
 	result.addLine("Here are some current stats:")
 
 	c.collectStats(&result)
+	c.collectCommandExecutions(&result)
 	c.SendMessage(message, result.String())
 }
 
@@ -65,6 +66,16 @@ func (c *statsCommand) collectStats(result *statsResult) {
 	result.addValue("NumGC (since start)", util.FormatInt(int(m.NumGC)))
 	result.addValue("Bot Version", version.Version)
 	result.addValue("Go Version", runtime.Version())
+}
+
+func (c *statsCommand) collectCommandExecutions(result *statsResult) {
+	result.addNewSection("Executed commands")
+	keys := stats.GetKeys()
+	for _, key := range keys {
+		if _, name, found := strings.Cut(key, "handled_"); found {
+			result.addValue(name, formatStats(key))
+		}
+	}
 }
 
 type statsResult struct {

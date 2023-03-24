@@ -1,24 +1,26 @@
 package bot
 
+// this file contains the main code to handle a message from users
+
 import (
 	"fmt"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/stats"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackutilsx"
 )
 
 var (
-	linkRegexp   = regexp.MustCompile(`<\S+?\|(.*?)>`)
+	linkRegexp = regexp.MustCompile(`<\S+?\|(.*?)>`)
+
+	// clean copy&paste crap from Mac etc
 	cleanMessage = strings.NewReplacer(
 		"‘", "'",
 		"’", "'",
@@ -27,130 +29,6 @@ var (
 		"\u00a0", " ", // NO-BREAK SPACE
 	)
 )
-
-// NewBot created main Bot struct which holds the slack connection and dispatch messages to commands
-func NewBot(cfg config.Config, slackClient *client.Slack, commands *Commands) *Bot {
-	return &Bot{
-		config:       cfg,
-		slackClient:  slackClient,
-		commands:     commands,
-		allowedUsers: config.UserMap{},
-	}
-}
-
-// Bot is the main object which is holding the connection to Slack and all possible commands
-// it also registers the listener and handles topics like authentication and logging
-type Bot struct {
-	config       config.Config
-	slackClient  *client.Slack
-	auth         *slack.AuthTestResponse
-	commands     *Commands
-	allowedUsers config.UserMap
-}
-
-// Init establishes the slack connection and load allowed users
-func (b *Bot) Init() (err error) {
-	// set global default timezone
-	if b.config.Timezone != "" {
-		time.Local, err = time.LoadLocation(b.config.Timezone)
-		if err != nil {
-			return err
-		}
-	}
-
-	log.Info("Connecting to slack...")
-	b.auth, err = b.slackClient.AuthTest()
-	if err != nil {
-		return errors.Wrap(err, "auth error")
-	}
-	client.AuthResponse = *b.auth
-	client.AllChannels, err = b.loadChannels()
-	if err != nil {
-		return errors.Wrap(err, "error while fetching public channels")
-	}
-
-	err = b.loadSlackData()
-	if err != nil {
-		return err
-	}
-
-	if b.slackClient.RTM != nil {
-		log.Warn("You're using the deprecated Slack RTM API...we prefer using the Socket Mode API")
-		go b.slackClient.RTM.ManageConnection()
-	}
-
-	log.Infof("Loaded %d allowed users and %d channels", len(b.allowedUsers), len(client.AllChannels))
-	log.Infof("Bot user: '%s' with ID %s on workspace %s", b.auth.User, b.auth.UserID, b.auth.URL)
-	log.Infof("Initialized %d commands", b.commands.Count())
-
-	return nil
-}
-
-// loads a list of all public channels
-func (b *Bot) loadChannels() (map[string]string, error) {
-	var err error
-	var cursor string
-	var chunkedChannels []slack.Channel
-
-	channels := make(map[string]string)
-
-	// in CLI context we don't have to channels
-	if b.config.Slack.IsFakeServer() {
-		return channels, nil
-	}
-
-	for {
-		options := &slack.GetConversationsParameters{
-			Limit:           1000,
-			Cursor:          cursor,
-			ExcludeArchived: true,
-		}
-
-		chunkedChannels, cursor, err = b.slackClient.GetConversations(options)
-		if err != nil {
-			return channels, err
-		}
-		for _, channel := range chunkedChannels {
-			channels[channel.ID] = channel.Name
-		}
-		if cursor == "" {
-			break
-		}
-	}
-
-	return channels, nil
-}
-
-// load the public channels and list of all users from current space
-func (b *Bot) loadSlackData() error {
-	// whitelist users by group
-	for _, groupName := range b.config.Slack.AllowedGroups {
-		group, err := b.slackClient.GetUserGroupMembers(groupName)
-		if err != nil {
-			return errors.Wrap(err, "error fetching user of group. You need a user token with 'usergroups:read' scope permission")
-		}
-		b.config.AllowedUsers = append(b.config.AllowedUsers, group...)
-	}
-
-	// load user list
-	allUsers, err := b.slackClient.GetUsers()
-	if err != nil {
-		return errors.Wrap(err, "error fetching users")
-	}
-
-	client.AllUsers = make(config.UserMap, len(allUsers))
-	for _, user := range allUsers {
-		client.AllUsers[user.ID] = user.Name
-		for _, allowedUserName := range b.config.AllowedUsers {
-			if allowedUserName == user.Name || allowedUserName == user.ID {
-				b.allowedUsers[user.ID] = user.Name
-				break
-			}
-		}
-	}
-
-	return nil
-}
 
 // HandleMessage is the entry point for incoming slack messages:
 // - checks if the message is relevant (direct message to bot or mentioned via @bot)
@@ -247,7 +125,9 @@ func (b *Bot) ProcessMessage(message msg.Message, fromUserContext bool) {
 	}
 
 	// actual command execution!
-	if !b.commands.Run(message) {
+	var commandName string
+	var match bool
+	if match, commandName = b.commands.RunWithName(message); !match {
 		logger.Infof("Unknown command: %s", message.Text)
 		stats.IncreaseOne(stats.UnknownCommands)
 		b.sendFallbackMessage(message)
@@ -258,9 +138,14 @@ func (b *Bot) ProcessMessage(message msg.Message, fromUserContext bool) {
 		message.Done.Done()
 	}
 
+	if commandName != "" {
+		stats.IncreaseOne("handled_" + strings.ReplaceAll(commandName, ".", "_"))
+	}
+
 	logFields := log.Fields{
 		// needed time of the actual command...until here
 		"duration": util.FormatDuration(time.Since(start)),
+		"command":  commandName,
 	}
 
 	// log the whole time from: client -> slack server -> bot server -> handle message

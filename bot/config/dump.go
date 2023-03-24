@@ -1,12 +1,12 @@
 package config
 
 import (
-	"encoding/json"
+	"gopkg.in/yaml.v3"
 )
 
-// Dump the given config in a json string
+// Dump the given config in a yaml string
 func Dump(cfg Config) string {
-	bytes, _ := json.MarshalIndent(cfg, "", "   ")
+	bytes, _ := yaml.Marshal(cfg)
 
 	return string(bytes)
 }

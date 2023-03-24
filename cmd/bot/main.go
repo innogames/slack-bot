@@ -22,7 +22,7 @@ func main() {
 	var showConfig bool
 	flag.StringVar(&configFile, "config", "config.yaml", "Path to config.yaml. Can be a directory which will load all '*.yaml' inside")
 	flag.BoolVar(&verbose, "verbose", false, "More verbose output")
-	flag.BoolVar(&showConfig, "show-config", false, "Print the config as JSON and exit")
+	flag.BoolVar(&showConfig, "show-config", false, "Print the config as YAML and exit")
 	flag.Parse()
 
 	cfg, err := config.Load(configFile)

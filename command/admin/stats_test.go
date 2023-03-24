@@ -1,15 +1,14 @@
 package admin
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/stats"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 func TestStatsLog(t *testing.T) {
@@ -39,9 +38,8 @@ func TestStatsLog(t *testing.T) {
 		message.Text = "bot stats"
 		message.User = "UADMIN"
 
-		slackClient.On("SendMessage", message, mock.MatchedBy(func(text string) bool {
-			return strings.HasPrefix(text, "Here are some current stats:")
-		})).Return("")
+		stats.Increase("handled_command_help", 1)
+		mocks.AssertSlackMessageRegexp(slackClient, message, "(?s)^Here are some current stats:.*command_help: 1.*")
 
 		actual := command.Run(message)
 		assert.True(t, actual)

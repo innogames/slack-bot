@@ -75,6 +75,19 @@ func testStorage(t *testing.T, storage Storage) {
 	err = storage.Read("collection1", "test-map", &stringValue)
 	assert.Error(t, err)
 
+	// Atomic
+	Atomic(func() {
+		err = storage.Write(collection, "test-int2", 1)
+		assert.Nil(t, err)
+		err = storage.Write(collection, "test-int2", 2)
+		assert.Nil(t, err)
+	})
+	err = storage.Read(collection, "test-int2", &expectedInt)
+	assert.Equal(t, 2, expectedInt)
+	assert.Nil(t, err)
+	err = storage.Delete(collection, "test-int2")
+	assert.Nil(t, err)
+
 	keys, err = storage.GetKeys(collection)
 	assert.Nil(t, err)
 	assert.Len(t, keys, 0)
