@@ -73,7 +73,8 @@ func (c *statsCommand) collectCommandExecutions(result *statsResult) {
 	keys := stats.GetKeys()
 	for _, key := range keys {
 		if _, name, found := strings.Cut(key, "handled_"); found {
-			result.addValue(name, formatStats(key))
+			packageName, commandName, _ := strings.Cut(name, "_")
+			result.addValue(fmt.Sprintf("%s %s", packageName, commandName), formatStats(key))
 		}
 	}
 }
