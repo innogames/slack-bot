@@ -148,12 +148,16 @@ func (b *Bot) ProcessMessage(message msg.Message, fromUserContext bool) {
 		"command":  commandName,
 	}
 
-	// log the whole time from: client -> slack server -> bot server -> handle message
-	if !message.IsInternalMessage() {
+	if message.IsInternalMessage() {
+		logger.
+			WithFields(logFields).
+			Infof("handled internal message: %s", message.Text)
+	} else {
+		// log the whole time from: client -> slack server -> bot server -> handle message
 		logFields["durationWithLatency"] = util.FormatDuration(time.Since(message.GetTime()))
-	}
 
-	logger.
-		WithFields(logFields).
-		Infof("handled message: %s", message.Text)
+		logger.
+			WithFields(logFields).
+			Infof("handled message: %s", message.Text)
+	}
 }

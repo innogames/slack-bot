@@ -39,7 +39,7 @@ func (c *jiraCommand) IsEnabled() bool {
 }
 
 func (c *jiraCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewGroupMatcher(
+	matchers := []matcher.Matcher{
 		matcher.NewRegexpMatcher("jira (?P<action>link) (?P<text>.*)", c.run),
 		matcher.NewRegexpMatcher("(?P<action>jira|issue|jql) (?P<text>.*)", c.run),
 		matcher.NewRegexpMatcher(
@@ -49,7 +49,20 @@ func (c *jiraCommand) GetMatcher() matcher.Matcher {
 			),
 			c.run,
 		),
-	)
+	}
+
+	if c.config.Project != "" {
+		// short alias for "PRO-123"
+		matchers = append(matchers, matcher.NewRegexpMatcher(
+			fmt.Sprintf(
+				`%s-(?P<text>\d+)`,
+				regexp.QuoteMeta(c.config.Project),
+			),
+			c.run,
+		))
+	}
+
+	return matcher.NewGroupMatcher(matchers...)
 }
 
 func (c *jiraCommand) run(match matcher.Result, message msg.Message) {

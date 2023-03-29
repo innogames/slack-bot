@@ -39,7 +39,7 @@ func TestStatsLog(t *testing.T) {
 		message.User = "UADMIN"
 
 		stats.Increase("handled_command_help", 1)
-		mocks.AssertSlackMessageRegexp(slackClient, message, "(?s)^Here are some current stats:.*command_help: 1.*")
+		mocks.AssertSlackMessageRegexp(slackClient, message, "(?s)^Here are some current stats:.*command help: 1.*")
 
 		actual := command.Run(message)
 		assert.True(t, actual)
