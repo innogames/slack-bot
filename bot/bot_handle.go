@@ -86,11 +86,6 @@ func (b *Bot) ProcessMessage(message msg.Message, fromUserContext bool) {
 	start := time.Now()
 	logger := b.getUserBasedLogger(message)
 
-	// send "Bot is typing" command
-	if b.slackClient.RTM != nil {
-		b.slackClient.RTM.SendMessage(b.slackClient.RTM.NewTypingMessage(message.Channel))
-	}
-
 	// prevent messages from one user processed in parallel (usual + internal ones)
 	if message.Done == nil {
 		lock := getUserLock(message.User)
@@ -100,11 +95,10 @@ func (b *Bot) ProcessMessage(message msg.Message, fromUserContext bool) {
 	stats.IncreaseOne(stats.TotalCommands)
 
 	// check if user is allowed to interact with the bot
-	existing := b.allowedUsers.Contains(message.User)
-	if !existing && fromUserContext && !b.config.Slack.IsFakeServer() {
+	if fromUserContext && !b.isUserActionAllowed(message.User) {
 		_, userName := client.GetUserIDAndName(message.User)
 
-		logger.Errorf("user %s (%s) is not allowed to execute message (missing in 'allowed_users' section): %s", userName, message.User, message.Text)
+		logger.Errorf("user %s (%s) is not allowed to execute message (authentication is active and user is missing in 'allowed_users' section): %s", userName, message.User, message.Text)
 
 		errorMessage := "Sorry, you are not whitelisted in the config yet."
 		if len(b.config.AdminUsers) > 0 {
@@ -112,12 +106,12 @@ func (b *Bot) ProcessMessage(message msg.Message, fromUserContext bool) {
 			for _, admin := range b.config.AdminUsers {
 				adminID, _ := client.GetUserIDAndName(admin)
 				errorMessage += fmt.Sprintf(
-					"<@%s>",
+					" <@%s>",
 					adminID,
 				)
 			}
 		}
-		b.slackClient.SendMessage(message, errorMessage)
+		b.slackClient.SendEphemeralMessage(message, errorMessage)
 		b.slackClient.AddReaction("❌", message)
 
 		stats.IncreaseOne(stats.UnauthorizedCommands)

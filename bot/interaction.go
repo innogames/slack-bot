@@ -52,7 +52,7 @@ func (b *Bot) handleEvent(eventsAPIEvent slackevents.EventsAPIEvent) {
 }
 
 func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
-	if !b.allowedUsers.Contains(payload.User.ID) {
+	if !b.isUserActionAllowed(payload.User.ID) {
 		log.Warnf("User %s tried to execute a command", payload.User.ID)
 		return false
 	}
@@ -103,6 +103,18 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
 	stats.IncreaseOne(stats.Interactions)
 
 	return true
+}
+
+func (b *Bot) isUserActionAllowed(userID string) bool {
+	if b.config.NoAuthentication {
+		return true
+	}
+
+	if b.config.Slack.IsFakeServer() {
+		return true
+	}
+
+	return b.allowedUsers.Contains(userID)
 }
 
 // replaces the clicked button: appends the "message" (like "already clicked") and changed the color to red

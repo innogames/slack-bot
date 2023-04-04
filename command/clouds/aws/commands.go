@@ -13,7 +13,6 @@ import (
 var category = bot.Category{
 	Name:        "Cloud-AWS",
 	Description: "Interact with AWS resources: CF && ECS",
-	HelpURL:     "https://github.com/innogames/slack-bot",
 }
 
 // base command to access Slack+Jenkins directly

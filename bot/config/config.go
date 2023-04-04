@@ -8,7 +8,13 @@ import (
 
 // Config contains the full config structure of this bot
 type Config struct {
-	Slack       Slack     `mapstructure:"slack"`
+	Slack Slack `mapstructure:"slack"`
+
+	// authentication/authorization
+	NoAuthentication bool     `mapstructure:"no_authentication"`
+	AllowedUsers     UserList `mapstructure:"allowed_users,flow"`
+	AdminUsers       UserList `mapstructure:"admin_users,flow"`
+
 	Pool        Pool      `mapstructure:"pool"`
 	Jenkins     Jenkins   `mapstructure:"jenkins"`
 	Jira        Jira      `mapstructure:"jira"`
@@ -30,11 +36,9 @@ type Config struct {
 		Repository string
 	} `mapstructure:"branch_lookup"`
 
-	AllowedUsers UserList    `mapstructure:"allowed_users,flow"`
-	AdminUsers   UserList    `mapstructure:"admin_users,flow"`
-	OpenWeather  OpenWeather `mapstructure:"open_weather"`
-	PullRequest  PullRequest `mapstructure:"pullrequest"`
-	Timezone     string      `mapstructure:"timezone"`
+	OpenWeather OpenWeather `mapstructure:"open_weather"`
+	PullRequest PullRequest `mapstructure:"pullrequest"`
+	Timezone    string      `mapstructure:"timezone"`
 
 	// list of slack-bot plugins to load
 	Plugins []string `mapstructure:"plugins"`

@@ -190,7 +190,8 @@ func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier 
 		}
 
 		log.Infof(
-			"Openai call took %s: '%s'. Response: '%s'",
+			"Openai %s call took %s: '%s'. Response: '%s'",
+			c.cfg.Model,
 			util.FormatDuration(time.Since(startTime)),
 			inputText,
 			responseText.String(),
