@@ -514,7 +514,7 @@ The `onsuccess` is a hook which will be executed when a job is started via this 
 In addition, `onsuccess` and `onerror` is also available...e.g. to send custom error messages.
 
 
-### Cron
+## Cron
 It's possible to define periodical commands via crons, using the [robfig/cron library](github.com/robfig/cron).
 
 **Example config**
@@ -539,6 +539,22 @@ vcs:
   repository: repo_name
 ```
 If no config is provided, there is no automated branch lookup and the "branch" parameters are passed 1:1 to the Jenkins job.
+
+
+## Disable commands/features
+Some features might not be needed in your environment. Most ones are not active if the credentials are not provided, like for Jira or Bitbucket.
+
+Some other ones can be disable via config:
+```yaml
+games:
+  enabled: false
+
+custom_commands:
+  enabled: false
+
+custom_variables:
+  enabled: false
+```
 
 # Development
 

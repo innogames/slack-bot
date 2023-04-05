@@ -1,4 +1,4 @@
-package variables
+package custom_variables
 
 import (
 	"fmt"

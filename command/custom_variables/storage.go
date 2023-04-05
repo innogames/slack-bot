@@ -1,4 +1,4 @@
-package variables
+package custom_variables
 
 import (
 	"github.com/innogames/slack-bot/v2/bot/msg"

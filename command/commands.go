@@ -7,7 +7,8 @@ import (
 	"github.com/innogames/slack-bot/v2/command/admin"
 	"github.com/innogames/slack-bot/v2/command/clouds/aws"
 	"github.com/innogames/slack-bot/v2/command/cron"
-	"github.com/innogames/slack-bot/v2/command/custom"
+	"github.com/innogames/slack-bot/v2/command/custom_commmands"
+	"github.com/innogames/slack-bot/v2/command/custom_variables"
 	"github.com/innogames/slack-bot/v2/command/games"
 	"github.com/innogames/slack-bot/v2/command/jenkins"
 	"github.com/innogames/slack-bot/v2/command/jira"
@@ -15,7 +16,6 @@ import (
 	"github.com/innogames/slack-bot/v2/command/pool"
 	"github.com/innogames/slack-bot/v2/command/pullrequest"
 	"github.com/innogames/slack-bot/v2/command/queue"
-	"github.com/innogames/slack-bot/v2/command/variables"
 	"github.com/innogames/slack-bot/v2/command/weather"
 )
 
@@ -45,8 +45,8 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 		queue.NewQueueCommand(base),
 		queue.NewListCommand(base),
 
-		custom.GetCommand(base),
-		variables.GetCommand(base),
+		custom_commmands.GetCommand(base, &cfg),
+		custom_variables.GetCommand(base, &cfg),
 	)
 
 	commands.Merge(admin.GetCommands(base, &cfg))
