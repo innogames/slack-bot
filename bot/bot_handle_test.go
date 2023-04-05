@@ -46,6 +46,22 @@ func TestIsBotMessage(t *testing.T) {
 		assert.True(t, actual)
 	})
 
+	t.Run("Disables authentication", func(t *testing.T) {
+		bot.config.NoAuthentication = true
+		userID := "U1233"
+
+		actual := bot.isUserActionAllowed(userID)
+		assert.True(t, actual)
+	})
+
+	t.Run("Enabled authentication authentication", func(t *testing.T) {
+		bot.config.NoAuthentication = false
+		userID := "U1233"
+
+		actual := bot.isUserActionAllowed(userID)
+		assert.False(t, actual)
+	})
+
 	t.Run("Is private channel", func(t *testing.T) {
 		event := &slack.MessageEvent{
 			Msg: slack.Msg{

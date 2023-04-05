@@ -56,7 +56,7 @@ func (c *triggerCommand) genericCall(match matcher.Result, message msg.Message) 
 	jobName := match.GetString("job")
 	if _, ok := c.jobs[jobName]; !ok {
 		if len(c.jobs) == 0 {
-			c.SendMessage(message, "no job defined in config->jenkins->jobs")
+			c.SendMessage(message, "no job defined in config: jenkins.jobs")
 			return
 		}
 

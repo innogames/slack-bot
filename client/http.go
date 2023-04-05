@@ -34,6 +34,7 @@ type botTransport struct {
 	roundTripper http.RoundTripper
 }
 
+// RoundTrip add the User-Agent header containing the slack-bot version to identify traffic from this bot
 func (t *botTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	userAgent := fmt.Sprintf("slack-bot/%s", version.Version)
 	req.Header.Add("User-Agent", userAgent)

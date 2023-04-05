@@ -71,7 +71,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "start test job"
 
-		slackClient.On("ReplyError", message, fmt.Errorf("sorry, you have to pass 1 parameters (PARAM1)")).Return("")
+		mocks.AssertError(slackClient, message, "sorry, you have to pass 1 parameters (PARAM1)")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
