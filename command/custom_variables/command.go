@@ -1,17 +1,19 @@
-package variables
+package custom_variables
 
 import (
 	"github.com/innogames/slack-bot/v2/bot"
+	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 )
 
 // GetCommand returns a set of all commands to manage user specific variables
-func GetCommand(base bot.BaseCommand) bot.Command {
-	return command{base}
+func GetCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
+	return command{base, cfg}
 }
 
 type command struct {
 	bot.BaseCommand
+	cfg *config.Config
 }
 
 func (c command) GetMatcher() matcher.Matcher {
@@ -20,6 +22,12 @@ func (c command) GetMatcher() matcher.Matcher {
 		matcher.NewRegexpMatcher("(delete|remove) variable '?(?P<name>.*?)'?", c.delete),
 		matcher.NewTextMatcher("list variables", c.list),
 	)
+}
+
+func (c command) IsEnabled() bool {
+	cfg := loadConfig(c.cfg)
+
+	return cfg.Enabled
 }
 
 func (c command) GetHelp() []bot.Help {

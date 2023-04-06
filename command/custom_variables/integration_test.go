@@ -1,7 +1,9 @@
-package variables
+package custom_variables
 
 import (
 	"testing"
+
+	"github.com/innogames/slack-bot/v2/bot/config"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/msg"
@@ -13,8 +15,11 @@ func TestCustomCommands(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
+	cfg := &config.Config{}
+	cfg.Set("custom_variables.enabled", true)
+
 	commands := bot.Commands{}
-	variablesCommand := GetCommand(base).(command)
+	variablesCommand := GetCommand(base, cfg).(command)
 	commands.AddCommand(variablesCommand)
 
 	t.Run("Invalid command", func(t *testing.T) {

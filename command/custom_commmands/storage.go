@@ -1,4 +1,4 @@
-package custom
+package custom_commmands
 
 import (
 	"github.com/innogames/slack-bot/v2/bot/msg"

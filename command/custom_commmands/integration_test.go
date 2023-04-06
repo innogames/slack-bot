@@ -1,7 +1,9 @@
-package custom
+package custom_commmands
 
 import (
 	"testing"
+
+	"github.com/innogames/slack-bot/v2/bot/config"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/msg"
@@ -16,8 +18,11 @@ func TestCustomCommands(t *testing.T) {
 	lock := mocks.LockInternalMessages()
 	defer lock.Unlock()
 
+	cfg := &config.Config{}
+	cfg.Set("custom_commands.enabled", true)
+
 	commands := bot.Commands{}
-	commands.AddCommand(GetCommand(base))
+	commands.AddCommand(GetCommand(base, cfg))
 
 	t.Run("Invalid commands", func(t *testing.T) {
 		message := msg.Message{}
@@ -78,7 +83,7 @@ func TestCustomCommands(t *testing.T) {
 		assert.False(t, actual)
 	})
 
-	t.Run("GetRandom 'alias 1'", func(t *testing.T) {
+	t.Run("GetRandom 'alias 1' and export", func(t *testing.T) {
 		message := msg.Message{}
 		message.User = "user1"
 		message.Text = "alias 1"
@@ -97,6 +102,16 @@ func TestCustomCommands(t *testing.T) {
 		expected.User = "user1"
 
 		assert.Equal(t, expected, messages[0])
+
+		// export
+		message = msg.Message{}
+		message.User = "user1"
+		message.Text = "export commands"
+
+		mocks.AssertSlackMessage(slackClient, message, "```- name: \"\"\n  description: \"\"\n  trigger: alias 1\n  category: \"\"\n  commands:\n    - reply 1\n  examples: []\n```")
+
+		actual = commands.Run(message)
+		assert.True(t, actual)
 	})
 
 	t.Run("Delete command with invalid syntax", func(t *testing.T) {

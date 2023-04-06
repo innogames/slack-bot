@@ -1,13 +1,14 @@
-package custom
+package custom_commmands
 
 import (
 	"github.com/innogames/slack-bot/v2/bot"
+	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 )
 
 // GetCommand returns a set of all custom commands
-func GetCommand(base bot.BaseCommand) bot.Command {
-	return command{base}
+func GetCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
+	return command{base, cfg}
 }
 
 var category = bot.Category{
@@ -18,6 +19,7 @@ var category = bot.Category{
 
 type command struct {
 	bot.BaseCommand
+	cfg *config.Config
 }
 
 func (c command) GetMatcher() matcher.Matcher {
@@ -26,7 +28,14 @@ func (c command) GetMatcher() matcher.Matcher {
 		matcher.NewRegexpMatcher("add command '(?P<alias>.*)'( as)? '(?P<command>.*)'", c.add),
 		matcher.NewRegexpMatcher("(delete|remove) command '?(?P<alias>.*?)'?", c.delete),
 		matcher.NewTextMatcher("list commands", c.list),
+		matcher.NewTextMatcher("export commands", c.export),
 	)
+}
+
+func (c command) IsEnabled() bool {
+	cfg := loadConfig(c.cfg)
+
+	return cfg.Enabled
 }
 
 func (c command) GetHelp() []bot.Help {

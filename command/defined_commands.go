@@ -17,6 +17,7 @@ import (
 )
 
 // NewCommands defines custom commands by defining a trigger (regexp) and a list of commands which should be executed
+// they are defined in the yaml config under "commands:"
 // it also supports placeholders by {{ .param }} using the regexp group name
 func NewCommands(base bot.BaseCommand, macros []config.Command) bot.Command {
 	commands := make([]command, len(macros))
