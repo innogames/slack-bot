@@ -116,12 +116,13 @@ data: [DONE]`,
 		message.Text = "openai whats 1+1?"
 		message.Channel = "testchan"
 		message.Timestamp = "1234"
+		ref := message.MessageRef
 
-		mocks.AssertReaction(slackClient, ":coffee:", message)
-		mocks.AssertRemoveReaction(slackClient, ":coffee:", message)
-		mocks.AssertSlackMessage(slackClient, message, "...", mock.Anything)
-		mocks.AssertSlackMessage(slackClient, message, "The answer ", mock.Anything, mock.Anything)
-		mocks.AssertSlackMessage(slackClient, message, "The answer is 2", mock.Anything, mock.Anything)
+		mocks.AssertReaction(slackClient, ":coffee:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":coffee:", ref)
+		mocks.AssertSlackMessage(slackClient, ref, "...", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, ref, "The answer ", mock.Anything, mock.Anything)
+		mocks.AssertSlackMessage(slackClient, ref, "The answer is 2", mock.Anything, mock.Anything)
 
 		actual := commands.Run(message)
 		time.Sleep(time.Millisecond * 100)
@@ -183,6 +184,49 @@ data: [DONE]`,
 
 		message := msg.Message{}
 		message.Text = "openai whats 1+1?"
+		ref := message.MessageRef
+
+		mocks.AssertReaction(slackClient, ":coffee:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":coffee:", ref)
+		mocks.AssertSlackMessage(slackClient, ref, "...", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, ref, "Incorrect API key provided: sk-1234**************************************567.", mock.Anything, mock.Anything)
+
+		actual := commands.Run(message)
+		time.Sleep(100 * time.Millisecond)
+		assert.True(t, actual)
+	})
+
+	t.Run("use as fallback", func(t *testing.T) {
+		// mock openai API
+		ts := startTestServer(
+			t,
+			[]testRequest{
+				{
+					`{"model":"","messages":[{"role":"user","content":"whats 1+1?"}],"stream":true}`,
+					`{
+					  "error": {
+						"code": "invalid_api_key",
+						"message": "Incorrect API key provided: sk-1234**************************************567.",
+						"type": "invalid_request_error"
+					  }
+					}`,
+					http.StatusUnauthorized,
+				},
+			},
+		)
+		defer ts.Close()
+
+		openaiCfg := Config{
+			APIHost:       ts.URL,
+			APIKey:        "0815pass",
+			UseAsFallback: true,
+		}
+		cfg := &config.Config{}
+		cfg.Set("openai", openaiCfg)
+		commands := GetCommands(base, cfg)
+
+		message := msg.Message{}
+		message.Text = "whats 1+1?"
 
 		mocks.AssertReaction(slackClient, ":coffee:", message)
 		mocks.AssertRemoveReaction(slackClient, ":coffee:", message)
@@ -269,10 +313,11 @@ data: [DONE]`,
 		message.Channel = "testchan"
 		message.Thread = "12345"
 		message.Timestamp = "1234"
+		ref := message.MessageRef
 
 		// first with an error
-		mocks.AssertError(slackClient, message, "can't load thread messages: openai not reachable")
-		slackClient.On("GetThreadMessages", message).Once().Return([]slack.Message{}, errors.New("openai not reachable"))
+		mocks.AssertError(slackClient, ref, "can't load thread messages: openai not reachable")
+		slackClient.On("GetThreadMessages", ref).Once().Return([]slack.Message{}, errors.New("openai not reachable"))
 		actual := commands.Run(message)
 		time.Sleep(time.Millisecond * 50)
 		assert.True(t, actual)
@@ -283,12 +328,12 @@ data: [DONE]`,
 		threadMessage.Text = "thread message 1"
 
 		threadMessages := []slack.Message{threadMessage}
-		slackClient.On("GetThreadMessages", message).Once().Return(threadMessages, nil)
+		slackClient.On("GetThreadMessages", ref).Once().Return(threadMessages, nil)
 
-		mocks.AssertReaction(slackClient, ":coffee:", message)
-		mocks.AssertRemoveReaction(slackClient, ":coffee:", message)
-		mocks.AssertSlackMessage(slackClient, message, "...", mock.Anything)
-		mocks.AssertSlackMessage(slackClient, message, "Jolo!", mock.Anything, mock.Anything)
+		mocks.AssertReaction(slackClient, ":coffee:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":coffee:", ref)
+		mocks.AssertSlackMessage(slackClient, ref, "...", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, ref, "Jolo!", mock.Anything, mock.Anything)
 
 		actual = commands.Run(message)
 		time.Sleep(time.Millisecond * 100)
