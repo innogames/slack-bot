@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/alicebob/miniredis/v2 v2.30.0
 	github.com/andygrunwald/go-jira v1.16.0
-	github.com/aws/aws-sdk-go v1.44.220
+	github.com/aws/aws-sdk-go v1.44.239
 	github.com/bndr/gojenkins v1.1.0
 	github.com/brainexe/viper v1.8.2
 	github.com/gfleury/go-bitbucket-v1 v0.0.0-20220418082332-711d7d5e805f
@@ -21,9 +21,9 @@ require (
 	github.com/slack-go/slack v0.12.1
 	github.com/stretchr/testify v1.8.2
 	github.com/texttheater/golang-levenshtein/levenshtein v0.0.0-20200805054039-cae8b0eaed6c
-	github.com/xanzy/go-gitlab v0.81.0
-	golang.org/x/oauth2 v0.6.0
-	golang.org/x/text v0.8.0
+	github.com/xanzy/go-gitlab v0.82.0
+	golang.org/x/oauth2 v0.7.0
+	golang.org/x/text v0.9.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -57,11 +57,11 @@ require (
 	github.com/trivago/tgo v1.0.7 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yuin/gopher-lua v0.0.0-20220504180219-658193537a64 // indirect
-	golang.org/x/net v0.8.0 // indirect
-	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/net v0.9.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.29.1 // indirect
+	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
