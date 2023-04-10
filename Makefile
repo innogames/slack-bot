@@ -49,7 +49,7 @@ test-coverage: dep
 	@mkdir -p build
 	go test ./... -coverpkg=./... -cover -coverprofile=./build/cover.out -covermode=atomic
 	go tool cover -html=./build/cover.out -o ./build/cover.html
-	@echo see ./build/cover.html
+	@go tool cover -func ./build/cover.out | grep total | awk '{print "Total Coverage: " $$3 " see ./build/cover.html"}'
 
 # build mocks for testable interfaces into ./mocks/ directory
 mocks: dep

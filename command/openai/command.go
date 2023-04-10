@@ -45,17 +45,27 @@ type chatGPTCommand struct {
 }
 
 func (c *chatGPTCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewGroupMatcher(
-		matcher.NewPrefixMatcher("openai", c.startConversation),
-		matcher.NewPrefixMatcher("chatgpt", c.startConversation),
+	matchers := []matcher.Matcher{
+		matcher.NewPrefixMatcher("openai", c.newConversation),
+		matcher.NewPrefixMatcher("chatgpt", c.newConversation),
 		matcher.WildcardMatcher(c.reply),
-	)
+	}
+
+	// if configured evaluate the given command text as openai request
+	if c.cfg.UseAsFallback {
+		matchers = append(matchers, matcher.WildcardMatcher(c.startConversation))
+	}
+
+	return matcher.NewGroupMatcher(matchers...)
 }
 
-// bot function which is called, when the user started a new conversation with openat/chatgpt
-func (c *chatGPTCommand) startConversation(match matcher.Result, message msg.Message) {
+// bot function which is called, when the user started a new conversation with openai/chatgpt
+func (c *chatGPTCommand) newConversation(match matcher.Result, message msg.Message) {
 	text := match.GetString(util.FullMatch)
+	c.startConversation(message.MessageRef, text)
+}
 
+func (c *chatGPTCommand) startConversation(message msg.Ref, text string) bool {
 	messageHistory := make([]ChatMessage, 0)
 
 	if c.cfg.InitialSystemMessage != "" {
@@ -71,7 +81,7 @@ func (c *chatGPTCommand) startConversation(match matcher.Result, message msg.Mes
 		threadMessages, err := c.SlackClient.GetThreadMessages(message)
 		if err != nil {
 			c.ReplyError(message, fmt.Errorf("can't load thread messages: %w", err))
-			return
+			return true
 		}
 
 		messageHistory = append(messageHistory, ChatMessage{
@@ -93,6 +103,7 @@ func (c *chatGPTCommand) startConversation(match matcher.Result, message msg.Mes
 	}
 
 	c.callAndStore(messageHistory, storageIdentifier, message, text)
+	return true
 }
 
 // bot function which is called when the user replied in a openai/chatgpt thread

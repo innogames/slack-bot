@@ -17,6 +17,9 @@ type Config struct {
 	// number of thread messages stored which are used as a context for further requests
 	HistorySize int `mapstructure:"history_size"`
 
+	// is no other command matched, evaluate the message with openai
+	UseAsFallback bool `mapstructure:"use_as_fallback"`
+
 	// maximum update frequency of slack messages when "stream" is active
 	UpdateInterval time.Duration `mapstructure:"update_interval"`
 }
