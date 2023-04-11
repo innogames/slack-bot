@@ -316,6 +316,8 @@ openai:
   temperature: 0.8
 ```
 
+When using the "openai XXX" command within a existing thread, the previous messages are used as context for further calls.
+
 It also possible to use the function in the templates (like in custom commands or crons). 
 
 `{{ openai "Say some short welcome words to @Jon_Doe"}}` would print something like `Hello Jon, welcome! How can I assist you today?`

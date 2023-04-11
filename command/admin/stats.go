@@ -30,11 +30,7 @@ type statsCommand struct {
 }
 
 func (c *statsCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewAdminMatcher(
-		c.cfg.AdminUsers,
-		c.SlackClient,
-		matcher.NewTextMatcher("bot stats", c.stats),
-	)
+	return matcher.NewTextMatcher("bot stats", c.stats)
 }
 
 func (c *statsCommand) stats(match matcher.Result, message msg.Message) {
