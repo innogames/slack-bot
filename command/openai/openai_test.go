@@ -77,7 +77,7 @@ data: [DONE]`,
 					http.StatusOK,
 				},
 				{
-					`{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"user","content":"whats 1+1?"},{"role":"user","content":"The answer is 2"},{"role":"user","content":"whats 2+1?"}],"stream":true}`,
+					`{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"user","content":"whats 1+1?"},{"role":"assistant","content":"The answer is 2"},{"role":"user","content":"whats 2+1?"}],"stream":true}`,
 					`{
 						 "id": "chatcmpl-6p9XYPYSTTRi0xEviKjjilqrWU2Ve",
 						 "object": "chat.completion",
