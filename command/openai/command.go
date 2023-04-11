@@ -189,7 +189,7 @@ func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier 
 
 		// Store the last X chat history entries for further questions
 		messages = append(messages, ChatMessage{
-			Role:    roleUser,
+			Role:    roleAssistant,
 			Content: responseText.String(),
 		})
 		if len(messages) > c.cfg.HistorySize {
@@ -201,9 +201,10 @@ func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier 
 		}
 
 		log.Infof(
-			"Openai %s call took %s: '%s'. Response: '%s'",
+			"Openai %s call took %s with %d sub messages. Message: '%s'. Response: '%s'",
 			c.cfg.Model,
 			util.FormatDuration(time.Since(startTime)),
+			len(messages),
 			inputText,
 			responseText.String(),
 		)
