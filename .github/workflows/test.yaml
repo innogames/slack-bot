@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Run tests and build binary
+    name: Run tests
     strategy:
       fail-fast: false
       matrix:
@@ -24,26 +24,12 @@ jobs:
           stable: false
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Run fast tests
+      - name: Run tests
         run: make test
         env:
           BOT_GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build binary
-        run: make build/slack-bot
-  test-race:
-    name: Run race tests
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: Install Go
-        uses: actions/setup-go@v4
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Run tests with race
-        run: make test-race
-        env:
-          BOT_GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  test-coverage:
-    name: Generate test coverage
+  test-extended:
+    name: Run race+coverage tests
     runs-on: "ubuntu-latest"
     steps:
       - name: Install Go
@@ -52,7 +38,13 @@ jobs:
           go-version: stable
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Test
+      - name: Build binary
+        run: make build/slack-bot
+      - name: Run tests with race
+        run: make test-race
+        env:
+          BOT_GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Test with coverage
         run: make test-coverage
         env:
           BOT_GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -68,8 +60,9 @@ jobs:
         uses: golangci/golangci-lint-action@v3.4.0
         with:
           only-new-issues: true
-  gosec:
-    name: GoSec
+          args: --timeout=3m
+  security:
+    name: Security
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -77,6 +70,11 @@ jobs:
         uses: securego/gosec@master
         with:
           args: -exclude=G404,G307,G104 ./...
+      - name: Run govulncheck
+        uses: Templum/govulncheck-action@v0.10.0
+        with:
+          package: ./...
+          fail-on-vuln: true
   docker:
     name: Build Docker image
     runs-on: ubuntu-latest
