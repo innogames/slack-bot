@@ -59,11 +59,6 @@ func (b *Bot) Init() (err error) {
 		return err
 	}
 
-	if b.slackClient.RTM != nil {
-		log.Warn("You're using the deprecated Slack RTM API...we prefer using the Socket Mode API")
-		go b.slackClient.RTM.ManageConnection()
-	}
-
 	log.Infof("Loaded %d allowed users and %d channels", len(b.allowedUsers), len(client.AllChannels))
 	log.Infof("Bot user: @%s with ID %s on workspace %s", b.auth.User, b.auth.UserID, b.auth.URL)
 

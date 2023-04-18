@@ -27,20 +27,9 @@ func (b *Bot) StartRunnables(ctx context.Context) {
 func (b *Bot) Run(ctx *util.ServerContext) {
 	b.StartRunnables(ctx)
 
-	// listen for old/deprecated RTM connection
-	// https://api.slack.com/rtm
-	var rtmChan chan slack.RTMEvent
-	if b.slackClient.RTM != nil {
-		rtmChan = b.slackClient.RTM.IncomingEvents
-	}
-
 	// initialize Socket Mode:
 	// https://api.slack.com/apis/connections/socket
-	var socketChan chan socketmode.Event
-	if b.slackClient.Socket != nil {
-		go b.slackClient.Socket.Run()
-		socketChan = b.slackClient.Socket.Events
-	}
+	go b.slackClient.Socket.Run()
 
 	// fetch all branches regularly
 	go vcs.InitBranchWatcher(&b.config, ctx)
@@ -51,19 +40,9 @@ func (b *Bot) Run(ctx *util.ServerContext) {
 
 	for {
 		select {
-		case event := <-socketChan:
+		case event := <-b.slackClient.Socket.Events:
 			// message from Socket Mode
 			b.handleSocketModeEvent(event)
-		case event := <-rtmChan:
-			// message received from user via deprecated RTM API
-			switch message := event.Data.(type) {
-			case *slack.HelloEvent:
-				log.Info("Hello, the RTM connection is ready!")
-			case *slack.MessageEvent:
-				b.HandleMessage(message)
-			case *slack.RTMError, *slack.UnmarshallingErrorEvent, *slack.RateLimitEvent, *slack.ConnectionErrorEvent:
-				log.Error(event)
-			}
 		case message := <-client.InternalMessages:
 			// e.g. triggered by "delay" or "macro" command. They are still executed in original event context
 			// -> will post in same channel as the user posted the original command
@@ -72,13 +51,6 @@ func (b *Bot) Run(ctx *util.ServerContext) {
 		case <-stopChan:
 			// wait until other services are properly shut down
 			ctx.StopTheWorld()
-
-			if b.slackClient.RTM != nil {
-				if err := b.slackClient.RTM.Disconnect(); err != nil {
-					log.Error(err)
-				}
-			}
-
 			return
 		}
 	}

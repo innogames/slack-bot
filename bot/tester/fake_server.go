@@ -75,6 +75,7 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 	fakeSlack.Start()
 
 	cfg.Slack.Token = "xoxb-fake"
+	cfg.Slack.SocketToken = "xapp-fake"
 	cfg.Slack.TestEndpointURL = fakeSlack.GetAPIURL()
 	cfg.AllowedUsers = []string{
 		"W012A3CDE",

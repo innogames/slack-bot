@@ -31,7 +31,7 @@ func TestInteraction(t *testing.T) {
 	}
 
 	rawSlackClient := &slack.Client{}
-	slackClient := &client.Slack{Client: rawSlackClient, RTM: rawSlackClient.NewRTM()}
+	slackClient := &client.Slack{Client: rawSlackClient}
 
 	mockCommand := dummyCommand{}
 	commands := &Commands{}

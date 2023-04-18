@@ -53,10 +53,11 @@ var AllUsers config.UserMap
 var AllChannels map[string]string
 
 // GetSlackClient establishes a connection to the slack server.
-// Either via "Socket Mode" or the legacy "RTM" connection
 func GetSlackClient(cfg config.Slack) (*Slack, error) {
 	if !strings.HasPrefix(cfg.Token, "xoxb-") {
 		return nil, fmt.Errorf("config slack.token needs to start with 'xoxb-'")
+	} else if !strings.HasPrefix(cfg.SocketToken, "xapp-") {
+		return nil, fmt.Errorf("config slack.socket_token needs to start with 'xapp-'")
 	}
 
 	options := []slack.Option{
@@ -80,17 +81,11 @@ func GetSlackClient(cfg config.Slack) (*Slack, error) {
 
 	rawClient := slack.New(cfg.Token, options...)
 
-	var rtm *slack.RTM
-	var socket *socketmode.Client
-	if cfg.SocketToken != "" {
-		socket = socketmode.New(
-			rawClient,
-		)
-	} else {
-		rtm = rawClient.NewRTM()
-	}
+	socket := socketmode.New(
+		rawClient,
+	)
 
-	return &Slack{Client: rawClient, RTM: rtm, Socket: socket, config: cfg}, nil
+	return &Slack{Client: rawClient, Socket: socket, config: cfg}, nil
 }
 
 // SlackClient is the main interface which is used for all commands to interact with slack
@@ -125,10 +120,9 @@ type SlackClient interface {
 	CanHandleInteractions() bool
 }
 
-// Slack is wrapper to the slack.Client which also holds the RTM connection OR the socketmode.Client and all needed config
+// Slack is wrapper to the slack.Client which also holds the the socketmode.Client and all needed config
 type Slack struct {
 	*slack.Client
-	RTM    *slack.RTM
 	Socket *socketmode.Client
 	config config.Slack
 }
