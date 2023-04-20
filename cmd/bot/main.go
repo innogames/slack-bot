@@ -29,6 +29,7 @@ func main() {
 	checkError(err)
 
 	if verbose {
+		cfg.Slack.Debug = true
 		cfg.Logger.Level = "debug"
 	}
 

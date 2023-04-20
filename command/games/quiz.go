@@ -59,10 +59,6 @@ func (c *quizCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *quizCommand) IsActive() bool {
-	return c.CanHandleInteractions()
-}
-
 func (c *quizCommand) startQuiz(match matcher.Result, message msg.Message) {
 	questions := match.GetInt("questions")
 	if questions == 0 {

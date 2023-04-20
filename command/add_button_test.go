@@ -11,7 +11,6 @@ import (
 
 func TestAddButton(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
-	slackClient.On("CanHandleInteractions").Return(true)
 
 	base := bot.BaseCommand{SlackClient: slackClient}
 

@@ -87,15 +87,13 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
 	// update the original slack message (with the button) and disable the button
 	newMessage := replaceClickedButton(&payload.Message, action.Value, " (clicked)")
 
-	if b.slackClient.Socket != nil {
-		b.slackClient.SendMessage(
-			ref,
-			newMessage.Text,
-			slack.MsgOptionUpdate(newMessage.Timestamp),
-			slack.MsgOptionAttachments(newMessage.Attachments...),
-			slack.MsgOptionBlocks(newMessage.Blocks.BlockSet...),
-		)
-	}
+	b.slackClient.SendMessage(
+		ref,
+		newMessage.Text,
+		slack.MsgOptionUpdate(newMessage.Timestamp),
+		slack.MsgOptionAttachments(newMessage.Attachments...),
+		slack.MsgOptionBlocks(newMessage.Blocks.BlockSet...),
+	)
 
 	// execute the command which is stored for this interaction
 	go b.ProcessMessage(ref.WithText(command), true)

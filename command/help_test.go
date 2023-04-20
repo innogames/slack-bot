@@ -15,7 +15,6 @@ func TestHelp(t *testing.T) {
 	cfg := config.Config{}
 	cfg.Jenkins.Host = "bitbucket.example.com"
 	slackClient := &mocks.SlackClient{}
-	slackClient.On("CanHandleInteractions").Return(true)
 
 	base := bot.BaseCommand{SlackClient: slackClient}
 
