@@ -32,11 +32,6 @@ func (c *addButtonCommand) addLink(match matcher.Result, message msg.Message) {
 	c.SendBlockMessage(message, blocks)
 }
 
-// IsEnabled checks if the http server is enabled to receive slack interactions
-func (c *addButtonCommand) IsEnabled() bool {
-	return c.CanHandleInteractions()
-}
-
 func (c *addButtonCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{

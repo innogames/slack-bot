@@ -62,7 +62,9 @@ func GetSlackClient(cfg config.Slack) (*Slack, error) {
 
 	options := []slack.Option{
 		slack.OptionHTTPClient(GetHTTPClient()),
+		slack.OptionAppLevelToken(cfg.SocketToken),
 	}
+	var socketModeOptions []socketmode.Option
 
 	if cfg.TestEndpointURL != "" {
 		options = append(options, slack.OptionAPIURL(cfg.TestEndpointURL))
@@ -70,19 +72,14 @@ func GetSlackClient(cfg config.Slack) (*Slack, error) {
 
 	if cfg.Debug {
 		options = append(options, slack.OptionDebug(true))
-	}
-
-	if cfg.SocketToken != "" {
-		if !strings.HasPrefix(cfg.SocketToken, "xapp-") {
-			return nil, fmt.Errorf("config slack.socket_token needs to start to 'xapp-'")
-		}
-		options = append(options, slack.OptionAppLevelToken(cfg.SocketToken))
+		socketModeOptions = append(socketModeOptions, socketmode.OptionDebug(true))
 	}
 
 	rawClient := slack.New(cfg.Token, options...)
 
 	socket := socketmode.New(
 		rawClient,
+		socketModeOptions...,
 	)
 
 	return &Slack{Client: rawClient, Socket: socket, config: cfg}, nil
@@ -115,9 +112,6 @@ type SlackClient interface {
 
 	// GetThreadMessages loads message from a given thread
 	GetThreadMessages(ref msg.Ref) ([]slack.Message, error)
-
-	// CanHandleInteractions checks if we have a slack connections which can inform us about events/interactions, like pressed buttons?
-	CanHandleInteractions() bool
 }
 
 // Slack is wrapper to the slack.Client which also holds the the socketmode.Client and all needed config
@@ -256,11 +250,6 @@ func (s *Slack) SendBlockMessageToUser(user string, blocks []slack.Block, option
 	message.Channel = channel.ID
 
 	return s.SendBlockMessage(message, blocks, options...)
-}
-
-// CanHandleInteractions checks if we have a slack connections which can inform us about events/interactions, like pressed buttons?
-func (s *Slack) CanHandleInteractions() bool {
-	return s.config.CanHandleInteractions()
 }
 
 // SendBlockMessage will send Slack Blocks/Sections to the target

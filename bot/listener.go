@@ -57,7 +57,7 @@ func (b *Bot) Run(ctx *util.ServerContext) {
 }
 
 func (b *Bot) handleSocketModeEvent(event socketmode.Event) {
-	if b.slackClient.Socket != nil && event.Request != nil && event.Type != socketmode.EventTypeHello {
+	if event.Request != nil && event.Type != socketmode.EventTypeHello {
 		b.slackClient.Socket.Ack(*event.Request)
 	}
 

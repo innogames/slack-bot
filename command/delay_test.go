@@ -16,7 +16,6 @@ import (
 func TestDelay(t *testing.T) {
 	client.InternalMessages = make(chan msg.Message, 2)
 	slackClient := &mocks.SlackClient{}
-	slackClient.On("CanHandleInteractions").Return(true)
 
 	base := bot.BaseCommand{SlackClient: slackClient}
 
