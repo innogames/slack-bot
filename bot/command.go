@@ -32,7 +32,7 @@ type Conditional interface {
 
 // Runnable indicates that the command executes a go function
 type Runnable interface {
-	RunAsync()
+	RunAsync(ctx *util.ServerContext)
 }
 
 // HelpProvider can be provided by a command to add information within "help" command

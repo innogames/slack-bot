@@ -30,11 +30,7 @@ type Config struct {
 	Crons    []Cron    `mapstructure:"crons"`
 	Logger   Logger    `mapstructure:"logger"`
 
-	// @deprecated
-	BranchLookup struct {
-		Type       string // stash/bitbucket/git/null
-		Repository string
-	} `mapstructure:"branch_lookup"`
+	BranchLookup VCS `mapstructure:"branch_lookup"`
 
 	OpenWeather OpenWeather `mapstructure:"open_weather"`
 	PullRequest PullRequest `mapstructure:"pullrequest"`
