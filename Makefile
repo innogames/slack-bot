@@ -17,7 +17,7 @@ run: dep
 	go run $(FLAGS) cmd/bot/main.go
 
 run-cli:
-	test -f config.yaml || (echo "please create a config.yaml first. Hint: check the config.example.yaml" && exit 1)
+	@test -f config.yaml || (echo "please create a config.yaml first. Hint: check the config.example.yaml" && exit 1)
 	go run $(FLAGS) cmd/cli/main.go -config config.yaml
 
 run-cli-config:
