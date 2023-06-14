@@ -5,6 +5,8 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/pkg/errors"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/innogames/slack-bot/v2/bot"
@@ -52,6 +54,11 @@ func (c *gitlabFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 		return pr, err
 	}
 	resp.Body.Close()
+
+	if rawPullRequest.ID == 0 {
+		// aka 404 which is not handles in library anymore
+		return pr, errors.New("PR not found")
+	}
 
 	return c.convertToPullRequest(rawPullRequest, prNumber), nil
 }
