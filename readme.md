@@ -13,8 +13,8 @@ But also custom commands, macros, crons and other project specific commands can 
 
 # Installation
 ## 1st) Create+prepare the Slack App:
-### Recommended way: Use Manifest file as App template
-1. Create a [Slack App](https://api.slack.com/apps?new_app=1)
+### Use Manifest file as App template
+1. Create a [Slack App](https://api.slack.com/apps?new_app=1) (press "Press "Create New App"")
 2. Select "From an app manifest"
 3. Select your Workspace
 4. Paste this Yaml code:
@@ -27,6 +27,7 @@ _metadata:
   minor_version: 1
 display_information:
   name: slack_bot
+  background_color: "#382e38"
 features:
   app_home:
     messages_tab_enabled: true
@@ -58,42 +59,24 @@ settings:
     is_enabled: true
   org_deploy_enabled: false
   socket_mode_enabled: true
+  token_rotation_enabled: false
 ```
 </details>
 
 5. Create the App!
-6. Go to "Basic Information"
-7. -> in "App-Level Tokens", "Generate a Token" with the scope "connections:write"
-8. You will see an App-Level Token (beginning with xapp-). Set it in the config.yaml as slack.socket_token.
-9. Go to "OAuth & Permissions":
-10. -> "Install to Workspace"
-11. -> you should see a "Bot User OAuth Access Token" (beginning with "xoxb-"). Use it as slack.token in the config.yaml
-12. start the bot! 
-
-### Alternative: Manual steps when **not** using the App Manifest
-<details>
-    <summary>Expand steps!</summary>
-    - Create a [Slack App](https://api.slack.com/apps?new_app=1)
-    - Select from scratch and choose a name and workspace.
-    - Go to "Socket Mode" menu and activate it. 
-    - - use any token name, like "Slack-Bot Socket Mode token"
-    - - You will see a App-Level Token (beginning with xapp-). Sse it in the config.yaml as slack.socket_token.
-    - Enable "Interactivity & Shortcuts" 
-    - Enable "Event Subscriptions":
-    - - if you see a "Send events to my app using the new format" checkbox, check it (only for old migrated apps)  
-    - - in "Subscribe to bot events", add "app_mention" and "message.im" events
-    - Go to "OAuth & Permissions":
-    - - use the "Bot User OAuth Access Token" (beginning with "xoxb-") as slack.token in the config.yaml
-    - - in "Scopes" we need these permissions: "app_mentions:read", "channels:read", "chat:write", "im:history", "im:write", "users:read", "reactions:read", "reactions:write"
-    - Go to "Install your App" and "Install your app to your workspace"
-    - Back to "Install app" tab, the "Bot User OAuth Access Token" is visible (starts with "xoxb-"). You need this one in the config.yaml in slack->token.
-</details>
+6. "Basic information" → "Display Information" → Upload Image (512px+!) + Set a proper name
+7. "App Home" → "Show Tabs" → Check "Allow users to send Slash commands and messages from the messages tab"
+8. "Basic Information" → "App-Level Tokens" -> "Generate Token and scopes" -> use "bot token" as token name and "connections:write" as scope
+8. You will see an App-Level Token (beginning with xapp-). Set it in the config.yaml as "slack.socket_token".
+9. Basic Information → "Request to install" + "Install to Workspace" continue there
+10. Then you will get another token (displayed in "Install App" tab), starting with "xoxb-". Use it as "slack.token" in the config.yaml
+11. In your slack client you can add the bot now in any channel or start a private conversation.
 
 ## 2nd) Run the bot 
 
 ### Option 1: run via go
 1. [install go (at least 1.18)](https://go.dev/doc/install)
-2. create a config.yaml (at least a Slack token is required) or take a look in config-example.yaml
+2. create a config.yaml (at least the Slack token+socket-token are required) or take a look in config-example.yaml
 3. `go run github.com/innogames/slack-bot/v2/cmd/bot`
 
 ### Option 2: via Docker
@@ -104,7 +87,7 @@ settings:
 5. `docker-compose up`
 
 ### Option 3: Advanced:when planning working on the bot core
-1. install go (at least 1.16)
+1. [install go](https://go.dev/doc/install)
 2. clone/fork this repo
 3. create a config.yaml (at least a Slack token is required) or take a look in config-example.yaml
 4. run `go run cmd/bot/main.go` or `make run` to run the go application
@@ -112,7 +95,7 @@ settings:
 
 # Usage
 As Slack user, you just have to send a private message to the bot user/app containing the command to execute.
-Additionally, you can execute bot commands in channels by prefix your command with @bot_name, e.g. `@slack-bot start job DailyDeployment`
+Additionally, you can add the Bot to any channel and execute bot commands in it by prefixing your command with @bot_name, e.g. `@slack-bot start job DailyDeployment`
 
 **Note:** You have to invite the bot into the channel to be able to handle commands.
 

@@ -1,0 +1,25 @@
+slack:
+  token: xoxb-XXXXXX
+  socket_token: xapp-1-XXXXXX
+
+openai:
+  api_key: sk-XXXXX
+  model: gpt-3.5-turbo # or gpt-4 see https://platform.openai.com/docs/models/model-endpoint-compatibility
+  use_as_fallback: true # handle all message as openai request and start a new thread
+
+# this bot has only access to the openai-api, nothing else. So no special whitelist is needed here
+no_authentication: true
+
+logger:
+  level: info
+  file: /var/log/slack_bot.log
+
+storage_path: /opt/slack-bot/data
+
+# disable not used features to keep it simple
+custom_commands:
+  enabled: false
+custom_variables:
+  enabled: false
+games:
+  enabled: false
