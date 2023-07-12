@@ -36,6 +36,9 @@ lint:
 docker-build:
 	docker build . --force-rm -t brainexe/slack-bot:latest
 
+docker-push:
+	docker push brainexe/slack-bot:latest
+
 test: dep
 	go test ./...
 

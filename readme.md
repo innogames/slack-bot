@@ -72,7 +72,14 @@ settings:
 10. Then you will get another token (displayed in "Install App" tab), starting with "xoxb-". Use it as "slack.token" in the config.yaml
 11. In your slack client you can add the bot now in any channel or start a private conversation.
 
-## 2nd) Run the bot 
+
+## 2nd) Prepare the config
+
+First prepare the `config.yaml`, just take a look at [config-example.yaml](./config.example.yaml)
+- at least the Slack token+socket-token are required) or take a look in config-example.yaml
+
+
+## 3rd) Run the bot
 
 ### Option 1: run via go
 1. [install go (at least 1.18)](https://go.dev/doc/install)
@@ -82,15 +89,13 @@ settings:
 ### Option 2: via Docker
 1. [install Docker incl. docker-compose](https://docs.docker.com/get-docker/)
 2. clone this repo or at least fetch the docker-compose.yaml
-3. create a config.yaml (at least a Slack token is required) or take a look in config-example.yaml
-4. add your Slack user id or user name in the "allowed_users:" section of the config.yaml
-5. `docker-compose up`
+3. add your Slack user id or user name in the "allowed_users:" section of the config.yaml
+4. `docker-compose up`
 
-### Option 3: Advanced:when planning working on the bot core
+### Option 3: Advanced: when planning working on the bot core
 1. [install go](https://go.dev/doc/install)
 2. clone/fork this repo
-3. create a config.yaml (at least a Slack token is required) or take a look in config-example.yaml
-4. run `go run cmd/bot/main.go` or `make run` to run the go application
+3. run `go run cmd/bot/main.go` or `make run` to run the go application
 
 
 # Usage
