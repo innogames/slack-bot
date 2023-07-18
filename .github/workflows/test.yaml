@@ -71,7 +71,7 @@ jobs:
         with:
           args: -exclude=G404,G307,G104 ./...
       - name: Run govulncheck
-        uses: Templum/govulncheck-action@v0.10.0
+        uses: Templum/govulncheck-action@v0.11.0
         with:
           package: ./...
           fail-on-vuln: true
