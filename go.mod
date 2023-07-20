@@ -11,7 +11,7 @@ require (
 	github.com/gfleury/go-bitbucket-v1 v0.0.0-20230513192022-baf789956900
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/google/go-github v17.0.0+incompatible
-	github.com/gookit/color v1.5.3
+	github.com/gookit/color v1.5.4
 	github.com/hackebrot/turtle v0.2.0
 	github.com/nanobox-io/golang-scribble v0.0.0-20190309225732-aa3e7c118975
 	github.com/pkg/errors v0.9.1
@@ -57,7 +57,7 @@ require (
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yuin/gopher-lua v1.1.0 // indirect
 	golang.org/x/net v0.11.0 // indirect
-	golang.org/x/sys v0.9.0 // indirect
+	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
