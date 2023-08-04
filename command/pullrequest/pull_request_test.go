@@ -8,6 +8,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/pkg/errors"
@@ -82,7 +83,7 @@ func TestPullRequest(t *testing.T) {
 			On("GetReactions", msgRef, slack.NewGetReactionsParameters()).Return(nil, nil)
 
 		mocks.AssertRemoveReaction(slackClient, "eyes", message)
-		mocks.AssertReaction(slackClient, "white_check_mark", message)
+		mocks.AssertReaction(slackClient, "project_approve", message)
 		mocks.AssertReaction(slackClient, "twisted_rightwards_arrows", message)
 
 		actual := commands.Run(message)
@@ -102,7 +103,7 @@ func TestPullRequest(t *testing.T) {
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
 		mocks.AssertRemoveReaction(slackClient, "eyes", message)
-		mocks.AssertRemoveReaction(slackClient, "white_check_mark", message)
+		mocks.AssertRemoveReaction(slackClient, "project_approve", message)
 		mocks.AssertReaction(slackClient, "x", message)
 
 		actual := commands.Run(message)
@@ -117,13 +118,13 @@ func TestPullRequest(t *testing.T) {
 		fetcher.err = nil
 		fetcher.pr = pullRequest{
 			Status:    prStatusOpen,
-			Approvers: []string{"test"},
+			Approvers: []string{"user1"},
 		}
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
 		mocks.AssertRemoveReaction(slackClient, "eyed", message)
 		mocks.AssertRemoveReaction(slackClient, "x", message)
-		mocks.AssertReaction(slackClient, "white_check_mark", message)
+		mocks.AssertReaction(slackClient, "approve_backend", message)
 
 		actual := commands.Run(message)
 		assert.True(t, actual)
@@ -156,6 +157,12 @@ func initTest(slackClient client.SlackClient) (bot.Commands, *testFetcher) {
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	cfg := config.DefaultConfig
+	cfg.PullRequest.Reactions.Approved = "project_approve"
+	cfg.PullRequest.CustomApproveReaction = map[string]util.Reaction{
+		"user1": "approve_backend",
+		"user2": "approve_backend",
+		"user3": "approve_frontend",
+	}
 
 	cmd := &command{
 		base,
