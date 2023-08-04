@@ -166,7 +166,9 @@ func (c command) setPRReactions(pr pullRequest, currentReactions reactionMap, me
 
 		hasApproval = true
 	} else {
-		c.removeReaction(currentReactions, c.cfg.Reactions.Approved, message)
+		for _, reaction := range c.getAllApprovedReactions() {
+			c.removeReaction(currentReactions, reaction, message)
+		}
 	}
 
 	c.processBuildStatus(pr, currentReactions, message)
@@ -257,6 +259,20 @@ func (c command) getApproveReactions(approvers []string) reactionMap {
 	if len(reactions) == 0 {
 		// use the default approve icon by default
 		reactions[c.cfg.Reactions.Approved] = true
+	}
+
+	return reactions
+}
+
+// we have to get rid of all possivle approve reactions in case someone revoked the approval
+func (c *command) getAllApprovedReactions() []util.Reaction {
+	reactions := make([]util.Reaction, 0)
+	reactions = append(reactions, c.cfg.Reactions.Approved)
+
+	for _, reaction := range c.cfg.CustomApproveReaction {
+		if !util.Contains(reactions, reaction) {
+			reactions = append(reactions, reaction)
+		}
 	}
 
 	return reactions
