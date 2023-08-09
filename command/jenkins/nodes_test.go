@@ -36,7 +36,7 @@ func TestNodes(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "list jenkins nodes"
 
-		ctx := context.TODO()
+		ctx := context.Background()
 		jenkinsClient.On("GetAllNodes", ctx).Return(nil, fmt.Errorf("an error occurred")).Once()
 		mocks.AssertError(slackClient, message, fmt.Errorf("an error occurred"))
 		actual := command.Run(message)

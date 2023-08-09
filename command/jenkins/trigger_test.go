@@ -3,7 +3,6 @@ package jenkins
 import (
 	"context"
 	"errors"
-	"fmt"
 	"testing"
 
 	"github.com/innogames/slack-bot/v2/mocks"
@@ -62,7 +61,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "trigger job TestJob"
 
-		slackClient.On("ReplyError", message, fmt.Errorf("sorry, you have to pass 1 parameters (PARAM1)")).Return("")
+		mocks.AssertError(slackClient, message, "sorry, you have to pass 1 parameters (PARAM1)")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -80,7 +79,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "trigger job Prefix/Test"
 
-		slackClient.On("ReplyError", message, fmt.Errorf("sorry, you have to pass 1 parameters (PARAM1)")).Return("")
+		mocks.AssertError(slackClient, message, "sorry, you have to pass 1 parameters (PARAM1)")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -97,7 +96,7 @@ func TestJenkinsTrigger(t *testing.T) {
 			mock.Anything,
 		)
 
-		ctx := context.TODO()
+		ctx := context.Background()
 		jenkinsClient.On("GetJob", ctx, "TestJob").Return(nil, errors.New("404"))
 		actual := command.Run(message)
 
@@ -116,7 +115,7 @@ func TestJenkinsTrigger(t *testing.T) {
 			mock.Anything,
 		)
 
-		ctx := context.TODO()
+		ctx := context.Background()
 		jenkinsClient.On("GetJob", ctx, "TestJobWithTrigger").Return(nil, errors.New("404"))
 		actual := command.Run(message)
 

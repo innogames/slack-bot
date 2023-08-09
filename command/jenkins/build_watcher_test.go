@@ -29,7 +29,7 @@ func TestBuildWatcher(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "notify build TestJob"
 
-		ctx := context.TODO()
+		ctx := context.Background()
 		jenkinsClient.On("GetJob", ctx, "TestJob").Return(nil, fmt.Errorf(""))
 		mocks.AssertSlackMessage(slackClient, message, "Job *TestJob* does not exist")
 		actual := command.Run(message)
