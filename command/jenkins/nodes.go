@@ -27,7 +27,7 @@ func (c *nodesCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c *nodesCommand) run(match matcher.Result, message msg.Message) {
-	ctx := context.TODO()
+	ctx := context.Background()
 	nodes, err := c.jenkins.GetAllNodes(ctx)
 	if err != nil {
 		c.ReplyError(message, err)

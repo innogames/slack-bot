@@ -27,7 +27,7 @@ func TestStartBuild(t *testing.T) {
 		jobName := "TestJob"
 		params := Parameters{}
 
-		ctx := context.TODO()
+		ctx := context.Background()
 		mocks.AssertReaction(slackClient, iconPending, message)
 		client.On("GetJob", ctx, jobName).Return(nil, errors.New("404"))
 
