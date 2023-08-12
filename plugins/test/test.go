@@ -1,14 +1,25 @@
 package main
 
-//go:generate go build -trimpath -buildmode=plugin -o ../test.so ./main.go
+//go:generate go build -buildmode=plugin -o ../test.so ./test.go
 
 import (
+	"text/template"
+
 	"github.com/innogames/slack-bot/v2/bot"
+	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/client"
-	"text/template"
 )
+
+func GetCommands(cfg *config.Config, slack client.SlackClient) bot.Commands {
+	base := bot.BaseCommand{SlackClient: slack}
+
+	commands := bot.Commands{}
+	commands.AddCommand(testCommand{base})
+
+	return commands
+}
 
 func GetTemplateFunctions() template.FuncMap {
 	return template.FuncMap{
@@ -16,15 +27,6 @@ func GetTemplateFunctions() template.FuncMap {
 			return "it works"
 		},
 	}
-}
-
-func GetCommands(cfg *bot.Bot, slack client.SlackClient) bot.Commands {
-	base := bot.BaseCommand{SlackClient: slack}
-
-	commands := bot.Commands{}
-	commands.AddCommand(testCommand{base})
-
-	return commands
 }
 
 type testCommand struct {
