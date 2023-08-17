@@ -21,6 +21,7 @@ func GetCommands(base bot.BaseCommand, config *config.Config) bot.Commands {
 
 	commands.AddCommand(
 		&creditsCommand{base, cfg},
+		&tracerouteCommand{base, cfg},
 	)
 
 	return commands
