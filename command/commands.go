@@ -16,6 +16,7 @@ import (
 	"github.com/innogames/slack-bot/v2/command/pool"
 	"github.com/innogames/slack-bot/v2/command/pullrequest"
 	"github.com/innogames/slack-bot/v2/command/queue"
+	"github.com/innogames/slack-bot/v2/command/ripe_atlas"
 	"github.com/innogames/slack-bot/v2/command/weather"
 )
 
@@ -72,6 +73,9 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 
 	// openai/chatgpt
 	commands.Merge(openai.GetCommands(base, &cfg))
+
+	// Ripe Atlas
+	commands.Merge(ripe_atlas.GetCommands(base, &cfg))
 
 	return commands
 }
