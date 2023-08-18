@@ -1,4 +1,4 @@
-package ripe_atlas
+package ripeatlas
 
 import (
 	"github.com/innogames/slack-bot/v2/bot"

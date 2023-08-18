@@ -1,4 +1,4 @@
-package ripe_atlas
+package ripeatlas
 
 import (
 	"encoding/json"
