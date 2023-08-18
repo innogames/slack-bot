@@ -14,7 +14,6 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/client"
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 )
@@ -75,7 +74,7 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 	url := fmt.Sprintf("%s/measurements", c.cfg.APIURL)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
-		c.ReplyError(message, errors.Wrap(err, "Request creation returned an err"))
+		c.ReplyError(message, fmt.Errorf("request creation returned an err: %w", err))
 		return
 	}
 
@@ -84,13 +83,13 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 
 	response, err := client.GetHTTPClient().Do(req)
 	if err != nil {
-		c.ReplyError(message, errors.Wrap(err, "HTTP Client Error"))
+		c.ReplyError(message, fmt.Errorf("HTTP Client Error: %w", err))
 		return
 	}
 	defer response.Body.Close()
 
-	if response.StatusCode >= 300 {
-		c.ReplyError(message, errors.New(fmt.Sprintf("Api call returned an err: %d", response.StatusCode)))
+	if response.StatusCode >= 400 {
+		c.ReplyError(message, fmt.Errorf("API call returned an err: %d", response.StatusCode))
 		return
 	}
 
@@ -100,7 +99,7 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 	err = json.Unmarshal(body, &measurementResult)
 
 	if err != nil {
-		c.ReplyError(message, errors.Wrap(err, "Error unmarshalling MeasurementResult"))
+		c.ReplyError(message, fmt.Errorf("error unmarshalling MeasurementResult: %w", err))
 		return
 	}
 
