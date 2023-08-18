@@ -9,7 +9,6 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/client"
-	"github.com/pkg/errors"
 )
 
 type creditsCommand struct {
@@ -30,7 +29,7 @@ func (c *creditsCommand) credits(_ matcher.Result, message msg.Message) {
 	url := fmt.Sprintf("%s/credits", c.cfg.APIURL)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		c.ReplyError(message, errors.Wrap(err, "Request creation returned an err"))
+		c.ReplyError(message, fmt.Errorf("request creation returned an err: %w", err))
 		return
 	}
 
@@ -39,13 +38,13 @@ func (c *creditsCommand) credits(_ matcher.Result, message msg.Message) {
 
 	response, err := client.GetHTTPClient().Do(req)
 	if err != nil {
-		c.ReplyError(message, errors.Wrap(err, "Api call returned an err"))
+		c.ReplyError(message, fmt.Errorf("API call returned an err: %w", err))
 		return
 	}
 	defer response.Body.Close()
 
-	if response.StatusCode >= 300 {
-		c.SendMessage(message, fmt.Sprintf("Api call returned an err: %d", response.StatusCode))
+	if response.StatusCode >= 400 {
+		c.ReplyError(message, fmt.Errorf("API call returned an err: %d", response.StatusCode))
 		return
 	}
 
