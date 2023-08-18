@@ -1,4 +1,4 @@
-package ripe_atlas
+package ripeatlas
 
 import (
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -24,7 +24,7 @@ var defaultConfig = Config{
 
 func loadConfig(config *config.Config) Config {
 	cfg := defaultConfig
-	_ = config.LoadCustom("ripe_atlas", &cfg)
+	_ = config.LoadCustom("ripeatlas", &cfg)
 
 	return cfg
 }
