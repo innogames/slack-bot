@@ -3,12 +3,13 @@ package ripeatlas
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/pkg/errors"
-	"net/http"
 )
 
 type creditsCommand struct {
@@ -22,8 +23,7 @@ func (c *creditsCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *creditsCommand) credits(match matcher.Result, message msg.Message) {
-
+func (c *creditsCommand) credits(_ matcher.Result, message msg.Message) {
 	c.AddReaction(":coffee:", message)
 	defer c.RemoveReaction(":coffee:", message)
 

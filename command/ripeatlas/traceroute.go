@@ -5,6 +5,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/netip"
+	"time"
+
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
@@ -12,10 +17,6 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
-	"io"
-	"net/http"
-	"net/netip"
-	"time"
 )
 
 type tracerouteCommand struct {
@@ -103,7 +104,6 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 		return
 	}
 
-	//replyRef := c.SendMessage(
 	c.SendMessage(
 		message,
 		fmt.Sprintf("Measurement created: https://atlas.ripe.net/measurements/%d\n", measurementResult.Measurements[0]),
@@ -115,10 +115,10 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 	go func() {
 		defer close(messageUpdates)
 
-		subscribeUrl := fmt.Sprintf("https://atlas-stream.ripe.net/stream/?streamType=result&msm=%d", measurementResult.Measurements[0])
+		subscribeURL := fmt.Sprintf("https://atlas-stream.ripe.net/stream/?streamType=result&msm=%d", measurementResult.Measurements[0])
 
 		client := http.Client{Timeout: 240 * time.Second}
-		response, err = client.Get(subscribeUrl)
+		response, err = client.Get(subscribeURL)
 		defer response.Body.Close()
 		fileScanner := bufio.NewScanner(response.Body)
 		fileScanner.Split(bufio.ScanLines)
@@ -134,7 +134,7 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 
 			switch streamResponse.Type {
 			case "atlas_subscribed":
-				log.Debugf("Succesfully subscribed to measurement")
+				log.Debugf("Successfully subscribed to measurement")
 			case "atlas_result":
 				srp := streamResponse.Payload
 				messageUpdates <- fmt.Sprintf("%s", srp)
