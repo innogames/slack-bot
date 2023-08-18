@@ -139,11 +139,11 @@ type StreamingResponsePayload struct {
 }
 
 func (srp StreamingResponsePayload) String() string {
-	//Start: 2023-08-03T14:01:07Z
-	//HOST: 2a02:1811:c1c:7800:a62b:b0ff:fef1:5062 Loss%  Last
-	//1  . AS0        172.20.0.1        0%   0.139
-	//2  . AS0        172.26.4.1        0%   0.397
-	//3  . AS0        192.168.144.1     0%   1.693
+	// Start: 2023-08-03T14:01:07Z
+	// HOST: 2a02:1811:c1c:7800:a62b:b0ff:fef1:5062 Loss%  Last
+	// 1  . AS0        172.20.0.1        0%   0.139
+	// 2  . AS0        172.26.4.1        0%   0.397
+	// 3  . AS0        192.168.144.1     0%   1.693
 	var text string
 	text += "```\n"
 	text += fmt.Sprintf("Start: %s\n", time.Unix(srp.Timestamp, 0))
