@@ -138,7 +138,6 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 			case "atlas_result":
 				srp := streamResponse.Payload
 				messageUpdates <- fmt.Sprintf("%s", srp)
-				response.Body.Close()
 				break scanner
 			}
 		}
