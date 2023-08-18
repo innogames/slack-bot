@@ -75,6 +75,7 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("request creation returned an err: %w", err))
+		log.Errorf("request creation returned an err: %s", err)
 		return
 	}
 
@@ -84,12 +85,14 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 	response, err := client.GetHTTPClient().Do(req)
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("HTTP Client Error: %w", err))
+		log.Errorf("HTTP Client Error: %s", err)
 		return
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode >= 400 {
 		c.ReplyError(message, fmt.Errorf("API call returned an err: %d", response.StatusCode))
+		log.Errorf("API call returned an err: %d", response.StatusCode)
 		return
 	}
 
@@ -100,6 +103,7 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("error unmarshalling MeasurementResult: %w", err))
+		log.Errorf("error unmarshalling MeasurementResult: %s", err)
 		return
 	}
 

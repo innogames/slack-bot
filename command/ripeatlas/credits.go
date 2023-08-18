@@ -9,6 +9,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/client"
+	log "github.com/sirupsen/logrus"
 )
 
 type creditsCommand struct {
@@ -30,6 +31,7 @@ func (c *creditsCommand) credits(_ matcher.Result, message msg.Message) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("request creation returned an err: %w", err))
+		log.Errorf("request creation returned an err: %s", err)
 		return
 	}
 
@@ -39,12 +41,14 @@ func (c *creditsCommand) credits(_ matcher.Result, message msg.Message) {
 	response, err := client.GetHTTPClient().Do(req)
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("API call returned an err: %w", err))
+		log.Errorf("API call returned an err: %s", err)
 		return
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode >= 400 {
 		c.ReplyError(message, fmt.Errorf("API call returned an err: %d", response.StatusCode))
+		log.Errorf("API call returned an err: %s", err)
 		return
 	}
 
@@ -52,6 +56,7 @@ func (c *creditsCommand) credits(_ matcher.Result, message msg.Message) {
 	err = json.NewDecoder(response.Body).Decode(&result)
 	if err != nil {
 		c.ReplyError(message, err)
+		log.Errorf("%s", err)
 		return
 	}
 
