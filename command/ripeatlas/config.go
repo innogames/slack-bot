@@ -1,8 +1,9 @@
 package ripeatlas
 
 import (
-	"github.com/innogames/slack-bot/v2/bot/config"
 	"time"
+
+	"github.com/innogames/slack-bot/v2/bot/config"
 )
 
 // Config configuration: API key to do API calls
