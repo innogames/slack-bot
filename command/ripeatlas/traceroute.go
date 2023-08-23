@@ -113,45 +113,35 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 		slack.MsgOptionTS(message.GetTimestamp()),
 	)
 
-	messageUpdates := make(chan string, 2)
+	subscribeURL := fmt.Sprintf("https://atlas-stream.ripe.net/stream/?streamType=result&msm=%d", measurementResult.Measurements[0])
 
-	go func() {
-		defer close(messageUpdates)
+	client := http.Client{Timeout: 240 * time.Second}
+	response, err = client.Get(subscribeURL)
+	defer response.Body.Close()
+	fileScanner := bufio.NewScanner(response.Body)
+	fileScanner.Split(bufio.ScanLines)
+scanner:
+	for fileScanner.Scan() {
+		line := fileScanner.Text()
 
-		subscribeURL := fmt.Sprintf("https://atlas-stream.ripe.net/stream/?streamType=result&msm=%d", measurementResult.Measurements[0])
-
-		client := http.Client{Timeout: 240 * time.Second}
-		response, err = client.Get(subscribeURL)
-		defer response.Body.Close()
-		fileScanner := bufio.NewScanner(response.Body)
-		fileScanner.Split(bufio.ScanLines)
-	scanner:
-		for fileScanner.Scan() {
-			line := fileScanner.Text()
-
-			var streamResponse StreamingResponse
-			err = json.Unmarshal([]byte(line), &streamResponse)
-			if err != nil {
-				log.Errorf("Error unmarshaling streamResponse: %s", err)
-			}
-
-			switch streamResponse.Type {
-			case "atlas_subscribed":
-				log.Debugf("Successfully subscribed to measurement")
-			case "atlas_result":
-				srp := streamResponse.Payload
-				messageUpdates <- fmt.Sprintf("%s", srp)
-				break scanner
-			}
+		var streamResponse StreamingResponse
+		err = json.Unmarshal([]byte(line), &streamResponse)
+		if err != nil {
+			log.Errorf("Error unmarshaling streamResponse: %s", err)
 		}
-	}()
 
-	for delta := range messageUpdates {
-		c.SendMessage(
-			message,
-			delta,
-			slack.MsgOptionTS(message.GetTimestamp()),
-		)
+		switch streamResponse.Type {
+		case "atlas_subscribed":
+			log.Debugf("Successfully subscribed to measurement")
+		case "atlas_result":
+			content := streamResponse.Payload.String()
+			c.SendMessage(
+				message,
+				content,
+				slack.MsgOptionTS(message.GetTimestamp()),
+			)
+			break scanner
+		}
 	}
 }
 
