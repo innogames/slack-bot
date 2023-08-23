@@ -117,6 +117,11 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 
 	client := http.Client{Timeout: 240 * time.Second}
 	response, err = client.Get(subscribeURL)
+	if err != nil {
+		c.ReplyError(message, fmt.Errorf("error when unsubscribing to results stream: %w", err))
+		log.Errorf("error when unsubscribing to results stream: %s", err)
+		return
+	}
 	defer response.Body.Close()
 	fileScanner := bufio.NewScanner(response.Body)
 	fileScanner.Split(bufio.ScanLines)
