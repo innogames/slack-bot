@@ -113,7 +113,7 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 		slack.MsgOptionTS(message.GetTimestamp()),
 	)
 
-	subscribeURL := fmt.Sprintf("https://atlas-stream.ripe.net/stream/?streamType=result&msm=%d", measurementResult.Measurements[0])
+	subscribeURL := fmt.Sprintf("%s?streamType=result&msm=%d", c.cfg.StreamURL, measurementResult.Measurements[0])
 
 	client := http.Client{Timeout: 240 * time.Second}
 	response, err = client.Get(subscribeURL)

@@ -9,7 +9,8 @@ import (
 // Config configuration: API key to do API calls
 type Config struct {
 	APIKey         string        `mapstructure:"api_key"`
-	APIURL         string        `mapstructure:"api_host"`
+	APIURL         string        `mapstructure:"api_url"`
+	StreamURL      string        `mapstructure:"stream_url"`
 	UpdateInterval time.Duration `mapstructure:"update_interval"`
 }
 
@@ -20,6 +21,7 @@ func (c *Config) IsEnabled() bool {
 
 var defaultConfig = Config{
 	APIURL:         "https://atlas.ripe.net/api/v2",
+	StreamURL:      "https://atlas-stream.ripe.net/stream/",
 	UpdateInterval: time.Second,
 }
 
