@@ -48,7 +48,7 @@ func (c *creditsCommand) credits(_ matcher.Result, message msg.Message) {
 
 	if response.StatusCode >= 400 {
 		c.ReplyError(message, fmt.Errorf("API call returned an err: %d", response.StatusCode))
-		log.Errorf("API call returned an err: %s", err)
+		log.Errorf("API call returned an err: %d", response.StatusCode)
 		return
 	}
 
