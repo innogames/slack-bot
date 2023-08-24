@@ -125,7 +125,6 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 	defer response.Body.Close()
 	fileScanner := bufio.NewScanner(response.Body)
 	fileScanner.Split(bufio.ScanLines)
-scanner:
 	for fileScanner.Scan() {
 		line := fileScanner.Text()
 
@@ -133,6 +132,7 @@ scanner:
 		err = json.Unmarshal([]byte(line), &streamResponse)
 		if err != nil {
 			log.Errorf("Error unmarshaling streamResponse: %s", err)
+			return
 		}
 
 		switch streamResponse.Type {
@@ -145,7 +145,7 @@ scanner:
 				content,
 				slack.MsgOptionTS(message.GetTimestamp()),
 			)
-			break scanner
+			return
 		}
 	}
 }
