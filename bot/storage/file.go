@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	scribble "github.com/nanobox-io/golang-scribble"
+	scribble "github.com/sdomino/golang-scribble"
 )
 
 func newFileStorage(dir string) (Storage, error) {
