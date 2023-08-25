@@ -92,7 +92,15 @@ func (c *poolCommands) lockResource(match matcher.Result, message msg.Message) {
 		c.slackClient.ReplyError(message, err)
 		return
 	}
-	c.slackClient.SendMessage(message, fmt.Sprintf("`%s` is locked for you until %s!\n%s%s", resource.Resource.Name, resource.LockUntil.Format(time.RFC1123), getFormattedReason(resource.Reason), getAddressesAndFeatures(&resource.Resource)))
+	c.slackClient.SendMessage(
+		message,
+		fmt.Sprintf("`%s` is locked for you until %s!\n%s%s",
+			resource.Resource.Name,
+			resource.LockUntil.Format(time.RFC1123),
+			getFormattedReason(resource.Reason),
+			getAddressesAndFeatures(resource.Resource),
+		),
+	)
 }
 
 func (c *poolCommands) unlockResource(match matcher.Result, message msg.Message) {
@@ -208,7 +216,7 @@ func (c *poolCommands) listPoolInfo(match matcher.Result, message msg.Message) {
 		messages = append(messages, "*Available:*")
 		free := c.pool.GetFree()
 		for _, f := range free {
-			messages = append(messages, fmt.Sprintf("`%s`:\n%s\n", f.Name, getAddressesAndFeatures(f)))
+			messages = append(messages, fmt.Sprintf("`%s`:\n%s\n", f.Name, getAddressesAndFeatures(*f)))
 		}
 	}
 	messages = append(messages, "")
@@ -216,7 +224,17 @@ func (c *poolCommands) listPoolInfo(match matcher.Result, message msg.Message) {
 		locked := c.pool.GetLocks("")
 		messages = append(messages, "*Used/Locked:*")
 		for _, l := range locked {
-			messages = append(messages, fmt.Sprintf("`%s`:\n locked by %s until %s\n%s%s", l.Resource.Name, l.User, l.LockUntil.Format(time.RFC1123), getFormattedReason(l.Reason), getAddressesAndFeatures(&l.Resource)))
+			messages = append(
+				messages,
+				fmt.Sprintf(
+					"`%s`:\n locked by %s until %s\n%s%s",
+					l.Resource.Name,
+					l.User,
+					l.LockUntil.Format(time.RFC1123),
+					getFormattedReason(l.Reason),
+					getAddressesAndFeatures(l.Resource),
+				),
+			)
 		}
 	}
 
@@ -230,7 +248,7 @@ func getFormattedReason(reason string) string {
 	return fmt.Sprintf("_%s_\n", reason)
 }
 
-func getAddressesAndFeatures(resource *config.Resource) string {
+func getAddressesAndFeatures(resource config.Resource) string {
 	var lines []string
 	lines = append(lines, ">_Addresses:_")
 	for _, address := range resource.Addresses {
