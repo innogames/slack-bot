@@ -1,9 +1,10 @@
 package storage
 
 import (
+	"context"
 	"encoding/json"
 
-	"github.com/go-redis/redis/v7"
+	"github.com/redis/go-redis/v9"
 )
 
 // NewRedisStorage defined a redis bases storage to persist bot related information
@@ -23,13 +24,15 @@ func (s redisStorage) Write(collection, key string, v any) error {
 		return err
 	}
 
-	s.client.HSet(collection, key, string(data))
+	ctx := context.Background()
+	s.client.HSet(ctx, collection, key, string(data))
 
 	return nil
 }
 
 func (s redisStorage) Read(collection, key string, v any) error {
-	res, err := s.client.HGet(collection, key).Result()
+	ctx := context.Background()
+	res, err := s.client.HGet(ctx, collection, key).Result()
 	if err != nil {
 		return err
 	}
@@ -38,7 +41,8 @@ func (s redisStorage) Read(collection, key string, v any) error {
 }
 
 func (s redisStorage) GetKeys(collection string) ([]string, error) {
-	res, err := s.client.HKeys(collection).Result()
+	ctx := context.Background()
+	res, err := s.client.HKeys(ctx, collection).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +51,8 @@ func (s redisStorage) GetKeys(collection string) ([]string, error) {
 }
 
 func (s redisStorage) Delete(collection, key string) error {
-	_, err := s.client.HDel(collection, key).Result()
+	ctx := context.Background()
+	_, err := s.client.HDel(ctx, collection, key).Result()
 
 	return err
 }
