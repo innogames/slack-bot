@@ -1,6 +1,7 @@
 package pullrequest
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"text/template"
@@ -13,7 +14,6 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/innogames/slack-bot/v2/command/queue"
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 )
@@ -117,7 +117,8 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 
 		// something failed while loading the PR data...retry if it was temporary, else quit watching
 		if err != nil {
-			if nerr, ok := err.(net.Error); ok && nerr.Timeout() {
+			var nerr net.Error
+			if errors.As(err, &nerr) && nerr.Timeout() {
 				time.Sleep(maxCheckInterval)
 				continue
 			}
@@ -127,7 +128,7 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 				// reply error in new thread
 				c.ReplyError(
 					message,
-					errors.Wrapf(err, "Error while fetching PR data %d times in a row", currentErrorCount),
+					fmt.Errorf("error while fetching PR data %d times in a row: %w", currentErrorCount, err),
 				)
 				c.AddReaction(c.cfg.Reactions.Error, message)
 				return

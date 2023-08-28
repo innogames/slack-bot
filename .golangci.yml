@@ -7,6 +7,7 @@ issues:
 
 linters:
   enable:
+    - asasalint
     - asciicheck
     - bodyclose
     - dogsled
@@ -16,6 +17,7 @@ linters:
     - exhaustive
     - exportloopref
     - gochecknoinits
+    - gocheckcompilerdirectives
     - gocritic
     - gocyclo
     - gofumpt
@@ -25,6 +27,8 @@ linters:
     - govet
     - importas
     - ineffassign
+    - loggercheck
+    - mirror
     - makezero
     - megacheck
     - misspell

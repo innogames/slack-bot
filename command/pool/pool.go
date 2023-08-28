@@ -39,8 +39,8 @@ type pool struct {
 	mu           sync.RWMutex
 }
 
-// GetNewPool create a new pool and initialize it by the local storage
-func GetNewPool(cfg *config.Pool) *pool {
+// getNewPool create a new pool and initialize it by the local storage
+func getNewPool(cfg *config.Pool) *pool {
 	var p pool
 
 	p.lockDuration = cfg.LockDuration
@@ -51,10 +51,6 @@ func GetNewPool(cfg *config.Pool) *pool {
 	}
 
 	keys, _ := storage.GetKeys(storageKey)
-	if len(keys) == 0 {
-		return &p
-	}
-
 	for _, key := range keys {
 		var lock ResourceLock
 		if err := storage.Read(storageKey, key, &lock); err != nil {

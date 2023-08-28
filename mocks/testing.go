@@ -1,11 +1,11 @@
 package mocks
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
-	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -160,7 +160,7 @@ func AssertContainsSlackBlocks(t *testing.T, slackClient *SlackClient, message m
 		expectedJSONBlock, err := json.Marshal(block)
 		assert.Nil(t, err)
 
-		if strings.Contains(string(givenJSON), string(expectedJSONBlock)) {
+		if bytes.Contains(givenJSON, expectedJSONBlock) {
 			// all good!
 			return true
 		}

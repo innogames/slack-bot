@@ -14,7 +14,7 @@ func GetCommands(cfg *config.Pool, slackClient client.SlackClient) bot.Commands 
 		return commands
 	}
 
-	p := GetNewPool(cfg)
+	p := getNewPool(cfg)
 
 	commands.AddCommand(
 		newPoolCommands(slackClient, cfg, p),

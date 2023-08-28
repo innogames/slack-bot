@@ -37,24 +37,22 @@ func TestPools(t *testing.T) {
 		commands := GetCommands(cfg, base)
 		assert.Equal(t, 1, len(commands.GetCommandNames()))
 
-		runCommand := func(message msg.Message) msg.Message {
+		runCommand := func(message msg.Message) {
 			actual := commands.Run(message)
 			assert.True(t, actual)
-
-			return message
 		}
 
 		// list
 		message := msg.Message{}
 		message.Text = "pool list"
 		mocks.AssertSlackMessage(slackClient, message, "*Available:*\n`server1`, `server2`\n\n*Used/Locked:*")
-		message = runCommand(message)
+		runCommand(message)
 
 		// lock
 		message = msg.Message{}
 		message.Text = "pool lock server1"
 		mocks.AssertSlackMessageRegexp(slackClient, message, "^`server1` is locked for you until")
-		message = runCommand(message)
+		runCommand(message)
 
 		// extend
 		message = msg.Message{}
