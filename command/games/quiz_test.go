@@ -1,7 +1,6 @@
 package games
 
 import (
-	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,8 +16,6 @@ func TestQuiz(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
-	// mock test data
-	rand.Seed(2)
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		file, _ := os.ReadFile("./quiz_example.json")
 		w.Write(file)
@@ -28,6 +25,8 @@ func TestQuiz(t *testing.T) {
 
 	command := NewQuizCommand(base).(*quizCommand)
 	command.apiURL = ts.URL
+	command.rand.Seed(2) // we want always the same random in our test
+
 	commands := bot.Commands{}
 	commands.AddCommand(command)
 

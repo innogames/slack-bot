@@ -112,7 +112,8 @@ func ListServices(cluster string) ([]string, error) {
 
 func assertECS() *ecs.ECS {
 	if _ecs == nil {
-		_ecs = ecs.New(session.New(getServiceConfiguration()))
+		sess, _ := session.NewSession(getServiceConfiguration())
+		_ecs = ecs.New(sess)
 	}
 	return _ecs
 }
@@ -144,7 +145,7 @@ func ForceNewDeployment(clusterName string, serviceName string) error {
 		return err
 	}
 	if len(result.Services) == 0 {
-		return fmt.Errorf("Could not find service %s in cluster %s", serviceName, clusterName)
+		return fmt.Errorf("could not find service %s in cluster %s", serviceName, clusterName)
 	}
 
 	// Update Service

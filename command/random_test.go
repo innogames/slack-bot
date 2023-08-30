@@ -1,7 +1,6 @@
 package command
 
 import (
-	"math/rand"
 	"testing"
 
 	"github.com/innogames/slack-bot/v2/bot"
@@ -49,8 +48,6 @@ func TestRandom(t *testing.T) {
 	})
 
 	t.Run("pick random entry", func(t *testing.T) {
-		rand.Seed(1) // we want always the same random
-
 		message := msg.Message{}
 		message.Text = "random 4 5 6"
 

@@ -60,6 +60,6 @@ mocks: dep
 	go generate ./...
 
 # live reload, see https://github.com/cosmtrek/air
-air:
+run-live-reload:
 	command -v air || go install github.com/cosmtrek/air@latest
 	air

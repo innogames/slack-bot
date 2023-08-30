@@ -29,9 +29,9 @@ func (c *poolCommands) IsEnabled() bool {
 	return c.config.IsEnabled()
 }
 
-// Matcher to handle commands
+// GetMatcher to handle commands
 func (c *poolCommands) GetMatcher() matcher.Matcher {
-	var resources []string
+	resources := make([]string, 0, len(c.config.Resources))
 	for _, res := range c.config.Resources {
 		resources = append(resources, res.Name)
 	}

@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -21,7 +21,7 @@ type fileStorage struct {
 
 func (s *fileStorage) GetKeys(collection string) ([]string, error) {
 	dir := filepath.Join(s.dir, collection)
-	files, _ := ioutil.ReadDir(dir)
+	files, _ := os.ReadDir(dir)
 
 	keys := make([]string, 0, len(files))
 

@@ -8,14 +8,14 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
-
-	"github.com/slack-go/slack"
+	"time"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/pkg/errors"
+	"github.com/slack-go/slack"
 )
 
 const (
@@ -25,13 +25,21 @@ const (
 
 // NewQuizCommand returns a new quizCommand which is a small quiz game
 func NewQuizCommand(base bot.BaseCommand) bot.Command {
-	return &quizCommand{base, quiz{}, apiURL}
+	random := rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec
+
+	return &quizCommand{
+		base,
+		quiz{},
+		apiURL,
+		random,
+	}
 }
 
 type quizCommand struct {
 	bot.BaseCommand
 	quiz   quiz
 	apiURL string
+	rand   *rand.Rand
 }
 
 type question struct {
@@ -125,7 +133,7 @@ func (c *quizCommand) parseAnswers() {
 		answers := question.IncorrectAnswers
 		answers = append(answers, question.CorrectAnswer)
 
-		rand.Shuffle(len(answers), func(i, j int) {
+		c.rand.Shuffle(len(answers), func(i, j int) {
 			answers[i], answers[j] = answers[j], answers[i]
 		})
 

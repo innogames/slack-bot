@@ -18,31 +18,30 @@ type redisStorage struct {
 	client *redis.Client
 }
 
+var redisCtx = context.Background()
+
 func (s redisStorage) Write(collection, key string, v any) error {
 	data, err := json.Marshal(v)
 	if err != nil {
 		return err
 	}
 
-	ctx := context.Background()
-	s.client.HSet(ctx, collection, key, string(data))
+	s.client.HSet(redisCtx, collection, key, data)
 
 	return nil
 }
 
 func (s redisStorage) Read(collection, key string, v any) error {
-	ctx := context.Background()
-	res, err := s.client.HGet(ctx, collection, key).Result()
+	res, err := s.client.HGet(redisCtx, collection, key).Bytes()
 	if err != nil {
 		return err
 	}
 
-	return json.Unmarshal([]byte(res), v)
+	return json.Unmarshal(res, v)
 }
 
 func (s redisStorage) GetKeys(collection string) ([]string, error) {
-	ctx := context.Background()
-	res, err := s.client.HKeys(ctx, collection).Result()
+	res, err := s.client.HKeys(redisCtx, collection).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -51,8 +50,5 @@ func (s redisStorage) GetKeys(collection string) ([]string, error) {
 }
 
 func (s redisStorage) Delete(collection, key string) error {
-	ctx := context.Background()
-	_, err := s.client.HDel(ctx, collection, key).Result()
-
-	return err
+	return s.client.HDel(redisCtx, collection, key).Err()
 }
