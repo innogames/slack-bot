@@ -3,6 +3,7 @@ package queue
 import (
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/storage"
@@ -95,4 +96,25 @@ func executeFallbackCommand() {
 	}
 
 	_ = storage.DeleteCollection(storageKey)
+}
+
+// WaitTillHavingNoQueuedMessage will wait in test context until all background tasks are done.
+// we use a deadline of 2s until we mark the test as failed
+func WaitTillHavingNoQueuedMessage() {
+	deadline := time.Second * 2
+	timeout := time.NewTimer(deadline)
+	ticker := time.NewTicker(time.Millisecond * 5)
+	defer ticker.Stop()
+	defer timeout.Stop()
+
+	for {
+		select {
+		case <-timeout.C:
+			panic("Queue is still full after " + deadline.String())
+		case <-ticker.C:
+			if CountCurrentJobs() == 0 {
+				return
+			}
+		}
+	}
 }

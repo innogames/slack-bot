@@ -58,7 +58,7 @@ func TestInformIdle(t *testing.T) {
 		assert.True(t, actual)
 
 		// wait until watcher is ready
-		time.Sleep(time.Millisecond * 100)
+		queue.WaitTillHavingNoQueuedMessage()
 
 		assert.Equal(t, 0, queue.CountCurrentJobs())
 	})
