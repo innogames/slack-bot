@@ -6,13 +6,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/storage"
 	"github.com/innogames/slack-bot/v2/bot/util"
+	"github.com/innogames/slack-bot/v2/command/queue"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
@@ -125,7 +125,7 @@ data: [DONE]`,
 		mocks.AssertSlackMessage(slackClient, ref, "The answer is 2", mock.Anything, mock.Anything)
 
 		actual := commands.Run(message)
-		time.Sleep(time.Millisecond * 100)
+		queue.WaitTillHavingNoQueuedMessage()
 		assert.True(t, actual)
 
 		// test reply in different context -> nothing
@@ -135,7 +135,7 @@ data: [DONE]`,
 		message.Thread = "4321"
 
 		actual = commands.Run(message)
-		time.Sleep(time.Millisecond * 100)
+		queue.WaitTillHavingNoQueuedMessage()
 		assert.False(t, actual)
 
 		// test reply in same context -> ask openai with history
@@ -150,7 +150,7 @@ data: [DONE]`,
 		mocks.AssertSlackMessage(slackClient, message, "The answer is 3", mock.Anything)
 
 		actual = commands.Run(message)
-		time.Sleep(time.Millisecond * 100)
+		queue.WaitTillHavingNoQueuedMessage()
 		assert.True(t, actual)
 	})
 
@@ -192,7 +192,7 @@ data: [DONE]`,
 		mocks.AssertSlackMessage(slackClient, ref, "Incorrect API key provided: sk-1234**************************************567.", mock.Anything, mock.Anything)
 
 		actual := commands.Run(message)
-		time.Sleep(100 * time.Millisecond)
+		queue.WaitTillHavingNoQueuedMessage()
 		assert.True(t, actual)
 	})
 
@@ -234,7 +234,7 @@ data: [DONE]`,
 		mocks.AssertSlackMessage(slackClient, message, "Incorrect API key provided: sk-1234**************************************567.", mock.Anything, mock.Anything)
 
 		actual := commands.Run(message)
-		time.Sleep(100 * time.Millisecond)
+		queue.WaitTillHavingNoQueuedMessage()
 		assert.True(t, actual)
 	})
 
@@ -319,7 +319,7 @@ data: [DONE]`,
 		mocks.AssertError(slackClient, ref, "can't load thread messages: openai not reachable")
 		slackClient.On("GetThreadMessages", ref).Once().Return([]slack.Message{}, errors.New("openai not reachable"))
 		actual := commands.Run(message)
-		time.Sleep(time.Millisecond * 50)
+		queue.WaitTillHavingNoQueuedMessage()
 		assert.True(t, actual)
 
 		// then a successful attempt
@@ -336,7 +336,7 @@ data: [DONE]`,
 		mocks.AssertSlackMessage(slackClient, ref, "Jolo!", mock.Anything, mock.Anything)
 
 		actual = commands.Run(message)
-		time.Sleep(time.Millisecond * 100)
+		queue.WaitTillHavingNoQueuedMessage()
 		assert.True(t, actual)
 	})
 }

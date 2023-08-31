@@ -11,6 +11,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/util"
+	"github.com/innogames/slack-bot/v2/command/queue"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
@@ -43,7 +44,7 @@ func TestGithub(t *testing.T) {
 		mocks.AssertReaction(slackClient, "x", message)
 
 		actual := commands.Run(message)
-		time.Sleep(time.Millisecond * 300)
+		queue.WaitTillHavingNoQueuedMessage()
 		assert.Equal(t, true, actual)
 	})
 
@@ -57,7 +58,7 @@ func TestGithub(t *testing.T) {
 		mocks.AssertReaction(slackClient, "twisted_rightwards_arrows", message)
 
 		actual := commands.Run(message)
-		time.Sleep(time.Millisecond * 300)
+		time.Sleep(time.Millisecond * 200)
 		assert.Equal(t, true, actual)
 	})
 
