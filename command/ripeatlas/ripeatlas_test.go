@@ -163,6 +163,12 @@ func TestRipeAtlas(t *testing.T) {
 		assert.True(t, actual)
 	})
 
+	t.Run("RIPE Atlas Traceroute Destination Parsing", func(t *testing.T) {
+		assert.Equal(t, parseDestination("8.8.8.8"), 4)
+		assert.Equal(t, parseDestination("2001:4860:4860::8844"), 6)
+		assert.Equal(t, parseDestination("example.com"), 6)
+	})
+
 	t.Run("RIPE Atlas Traceroute API wrong key", func(t *testing.T) {
 		// mock RIPE Atlas API
 		ts := spawnRIPEAtlasServer(t, "apikey")
