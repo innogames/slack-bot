@@ -132,12 +132,13 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 	fileScanner := bufio.NewScanner(response.Body)
 	fileScanner.Split(bufio.ScanLines)
 	for fileScanner.Scan() {
-		line := fileScanner.Text()
+		line := fileScanner.Bytes()
 
 		var streamResponse StreamingResponse
-		err = json.Unmarshal([]byte(line), &streamResponse)
+		err = json.Unmarshal(line, &streamResponse)
 		if err != nil {
-			log.Errorf("Error unmarshaling streamResponse: %s", err)
+			c.ReplyError(message, fmt.Errorf("error unmarshalling streamResponse: %w", err))
+			log.Errorf("Error unmarshalling streamResponse: %s", err)
 			return
 		}
 
