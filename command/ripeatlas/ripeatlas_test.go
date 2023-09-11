@@ -16,6 +16,8 @@ import (
 )
 
 func spawnRIPEAtlasServer(t *testing.T) *httptest.Server {
+	t.Helper()
+
 	mux := http.NewServeMux()
 
 	authenticate := func(res http.ResponseWriter, req *http.Request) bool {
