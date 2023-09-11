@@ -1,7 +1,6 @@
 package ripeatlas
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -16,14 +15,14 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-func spawnRIPEAtlasServer(t *testing.T, apikey string) *httptest.Server {
+func spawnRIPEAtlasServer(t *testing.T) *httptest.Server {
 	mux := http.NewServeMux()
 
 	authenticate := func(res http.ResponseWriter, req *http.Request) bool {
 		assert.NotNil(t, req.Header.Get("Authorization"))
 
 		authHeader := req.Header.Get("Authorization")
-		if authHeader != fmt.Sprintf("Key %s", apikey) {
+		if authHeader != "Key apikey" {
 			res.WriteHeader(http.StatusForbidden)
 			res.Write([]byte(`{"error":{"detail":"The provided API key does not exist","status":403,"title":"Forbidden","code":104}}`))
 			return false
@@ -115,7 +114,7 @@ func TestRipeAtlas(t *testing.T) {
 
 	t.Run("RIPE Atlas Credits API wrong key", func(t *testing.T) {
 		// mock RIPE Atlas API
-		ts := spawnRIPEAtlasServer(t, "apikey")
+		ts := spawnRIPEAtlasServer(t)
 		defer ts.Close()
 
 		ripeAtlasCfg := defaultConfig
@@ -140,7 +139,7 @@ func TestRipeAtlas(t *testing.T) {
 
 	t.Run("RIPE Atlas Credits API works", func(t *testing.T) {
 		// mock RIPE Atlas API
-		ts := spawnRIPEAtlasServer(t, "apikey")
+		ts := spawnRIPEAtlasServer(t)
 		defer ts.Close()
 
 		ripeAtlasCfg := defaultConfig
@@ -171,7 +170,7 @@ func TestRipeAtlas(t *testing.T) {
 
 	t.Run("RIPE Atlas Traceroute API wrong key", func(t *testing.T) {
 		// mock RIPE Atlas API
-		ts := spawnRIPEAtlasServer(t, "apikey")
+		ts := spawnRIPEAtlasServer(t)
 		defer ts.Close()
 
 		ripeAtlasCfg := defaultConfig
@@ -197,7 +196,7 @@ func TestRipeAtlas(t *testing.T) {
 
 	t.Run("RIPE Atlas Traceroute API works", func(t *testing.T) {
 		// mock RIPE Atlas API
-		ts := spawnRIPEAtlasServer(t, "apikey")
+		ts := spawnRIPEAtlasServer(t)
 		defer ts.Close()
 
 		ripeAtlasCfg := defaultConfig
