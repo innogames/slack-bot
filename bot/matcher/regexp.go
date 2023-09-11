@@ -28,7 +28,7 @@ func (m regexpMatcher) Match(message msg.Message) (Runner, Result) {
 		return nil, nil
 	}
 
-	match := make(Result, len(m.regexp.SubexpNames()))
+	match := make(Result, m.regexp.NumSubexp())
 	for idx, name := range m.regexp.SubexpNames() {
 		match[name] = matches[idx]
 	}
