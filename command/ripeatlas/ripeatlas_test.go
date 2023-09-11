@@ -197,6 +197,9 @@ func TestRipeAtlas(t *testing.T) {
 	})
 
 	t.Run("RIPE Atlas Traceroute API works", func(t *testing.T) {
+		// Set a proper timezone, otherwise the test fails on GitHub Actions
+		time.Local, _ = time.LoadLocation("Europe/Berlin")
+
 		// mock RIPE Atlas API
 		ts := spawnRIPEAtlasServer(t)
 		defer ts.Close()
