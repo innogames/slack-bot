@@ -52,7 +52,7 @@ func TestJobStatus(t *testing.T) {
 
 		ctx := context.TODO()
 		jenkins.On("GetJob", ctx, "TestJob").Return(nil, fmt.Errorf("invalid job TestJob"))
-		slackClient.On("ReplyError", message, fmt.Errorf("invalid job TestJob")).Return(true)
+		mocks.AssertError(slackClient, message, "invalid job TestJob")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})

@@ -93,6 +93,7 @@ func TestGetSlackChannel(t *testing.T) {
 func TestGetMessageArchiveLink(t *testing.T) {
 	AuthResponse = slack.AuthTestResponse{
 		Team: "Test-Project",
+		URL:  "https://test-project.slack.com/",
 	}
 
 	message := msg.MessageRef{}

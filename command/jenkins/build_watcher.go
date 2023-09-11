@@ -69,6 +69,7 @@ func (c *buildWatcherCommand) run(match matcher.Result, message msg.Message) {
 		fmt.Sprintf("inform job %s #%d", jobName, build.GetBuildNumber()),
 	)
 
+	c.AddReaction(iconRunning, message)
 	go func() {
 		<-jenkins.WatchBuild(build)
 		runningCommand.Done()

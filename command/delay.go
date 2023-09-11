@@ -29,12 +29,12 @@ type delayCommand struct {
 
 func (c *delayCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewRegexpMatcher("delay (?P<delay>[\\w]+) (?P<quiet>quiet )?(?P<command>.*)", c.Delay),
-		matcher.NewRegexpMatcher("stop (delay|timer) (?P<timer>\\d+)", c.Stop),
+		matcher.NewRegexpMatcher("delay (?P<delay>[\\w]+) (?P<quiet>quiet )?(?P<command>.*)", c.delay),
+		matcher.NewRegexpMatcher("stop (delay|timer) (?P<timer>\\d+)", c.stop),
 	)
 }
 
-func (c *delayCommand) Delay(match matcher.Result, message msg.Message) {
+func (c *delayCommand) delay(match matcher.Result, message msg.Message) {
 	delay, err := util.ParseDuration(match.GetString("delay"))
 	if err != nil {
 		c.SendMessage(message, "Invalid duration: "+err.Error())
@@ -84,7 +84,7 @@ func (c *delayCommand) Delay(match matcher.Result, message msg.Message) {
 	}()
 }
 
-func (c *delayCommand) Stop(match matcher.Result, message msg.Message) {
+func (c *delayCommand) stop(match matcher.Result, message msg.Message) {
 	// avoid racing conditions when it's used multiple times in parallel
 	c.mu.Lock()
 	defer c.mu.Unlock()

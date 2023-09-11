@@ -1,4 +1,4 @@
-package client
+package jira
 
 import (
 	"testing"
@@ -7,12 +7,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestJira(t *testing.T) {
+func TestJiraClient(t *testing.T) {
 	t.Run("no credentials", func(t *testing.T) {
 		cfg := &config.Jira{
 			Host: "https://jira.example.com",
 		}
-		client, err := GetJiraClient(cfg)
+		client, err := getClient(cfg)
 
 		assert.Nil(t, err)
 		assert.Equal(t, "jira.example.com", client.GetBaseURL().Host)
@@ -24,7 +24,7 @@ func TestJira(t *testing.T) {
 			Username: "foo",
 			Password: "bar",
 		}
-		client, err := GetJiraClient(cfg)
+		client, err := getClient(cfg)
 
 		assert.Nil(t, err)
 		assert.False(t, client.Authentication.Authenticated())
@@ -36,7 +36,7 @@ func TestJira(t *testing.T) {
 			Username:    "foo",
 			AccessToken: "iamsecret",
 		}
-		client, err := GetJiraClient(cfg)
+		client, err := getClient(cfg)
 
 		assert.Nil(t, err)
 		assert.False(t, client.Authentication.Authenticated())

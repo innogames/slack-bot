@@ -4,6 +4,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 )
 
-func GetSession() (*session.Session, error) {
+func getSession() (*session.Session, error) {
 	return session.NewSession()
 }
