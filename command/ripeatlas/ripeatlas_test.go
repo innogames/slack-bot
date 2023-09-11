@@ -32,8 +32,15 @@ func spawnRIPEAtlasServer(t *testing.T, apikey string) *httptest.Server {
 	}
 
 	// test connection
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`ok`))
+	mux.HandleFunc("/", func(res http.ResponseWriter, r *http.Request) {
+		// mock stream response
+		if r.URL.RawQuery == "streamType=result&msm=58913886" {
+			res.Write([]byte(`["atlas_subscribed",{"streamType":"result","msm":1001}]` + "\n"))
+			res.Write([]byte(`["atlas_result",{"msm_id": 58913886,"timestamp":1234567890,"result":[{"hop":1,"result":[{"from":"whatever1.host","size":100},{"from":"whatever2.host","size":100},{"from":"whatever3.host","size":100}]}]}]` + "\n"))
+			return
+		}
+
+		res.Write([]byte(`ok`))
 	})
 
 	mux.HandleFunc("/credits", func(res http.ResponseWriter, req *http.Request) {
@@ -202,7 +209,12 @@ func TestRipeAtlas(t *testing.T) {
 		mocks.AssertReaction(slackClient, ":stopwatch:", message)
 		mocks.AssertRemoveReaction(slackClient, ":stopwatch:", message)
 		mocks.AssertSlackMessage(slackClient, message, "Measurement created: https://atlas.ripe.net/measurements/58913886\n", mock.Anything)
-		// TODO: Check for the streaming message here as well. Currently it's broken due to a bug on the mock.
+		expectedResult := "```\n" +
+			"Start: 2009-02-14 00:31:30 +0100 CET\n" +
+			"HOST:                                          Loss%  RTT\n" +
+			" 1 .  whatever1.host                              0%    0.000   0.000   0.000\n" +
+			"```\n"
+		mocks.AssertSlackMessage(slackClient, message, expectedResult, mock.Anything)
 
 		actual := commands.Run(message)
 		time.Sleep(100 * time.Millisecond)
