@@ -29,12 +29,7 @@ func (c *tracerouteCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message) {
-	destination := match.GetString("TGT")
-
-	c.AddReaction(":stopwatch:", message)
-	defer c.RemoveReaction(":stopwatch:", message)
-
+func parseDestination(destination string) int {
 	var af int
 	address, err := netip.ParseAddr(destination)
 	if err != nil {
@@ -46,6 +41,17 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 			af = 6
 		}
 	}
+
+	return af
+}
+
+func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message) {
+	destination := match.GetString("TGT")
+
+	c.AddReaction(":stopwatch:", message)
+	defer c.RemoveReaction(":stopwatch:", message)
+
+	af := parseDestination(destination)
 
 	jsonData, _ := json.Marshal(MeasurementRequest{
 		Definitions: []MeasurementDefinition{
