@@ -8,7 +8,6 @@ import (
 var category = bot.Category{
 	Name:        "RIPE Atlas",
 	Description: "Run queries against the RIPE Atlas API to debug network issues",
-	HelpURL:     "https://github.com/innogames/slack-bot#pull-requests",
 }
 
 func GetCommands(base bot.BaseCommand, config *config.Config) bot.Commands {
