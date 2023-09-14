@@ -143,12 +143,17 @@ func (s *Slack) RemoveReaction(reaction util.Reaction, ref msg.Ref) {
 // SendEphemeralMessage sends a message just visible to the current user
 // see https://api.slack.com/methods/chat.postEphemeral
 func (s *Slack) SendEphemeralMessage(ref msg.Ref, text string, options ...slack.MsgOption) {
-	_, err := s.Client.PostEphemeral(
-		ref.GetChannel(),
-		ref.GetUser(),
+	options = append(
+		options,
 		slack.MsgOptionAsUser(true),
 		slack.MsgOptionTS(ref.GetThread()), // send in current thread by default
 		slack.MsgOptionText(text, false),
+	)
+
+	_, err := s.Client.PostEphemeral(
+		ref.GetChannel(),
+		ref.GetUser(),
+		options...,
 	)
 	if err != nil {
 		log.Warn(errors.Wrapf(err, "Error while sending Ephemeral message %s", err))

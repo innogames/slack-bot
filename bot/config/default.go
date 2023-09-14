@@ -1,5 +1,7 @@
 package config
 
+import "time"
+
 // DefaultConfig with some common values
 var DefaultConfig = Config{
 	StoragePath: "./storage/",
@@ -38,5 +40,8 @@ var DefaultConfig = Config{
 			BuildRunning: "arrows_counterclockwise",
 			Error:        "x",
 		},
+	},
+	BranchLookup: VCS{
+		UpdateInterval: time.Minute * 2,
 	},
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client/vcs"
+	"golang.org/x/exp/slices"
 )
 
 func GetCommands(base bot.BaseCommand, config *config.Config) bot.Commands {
@@ -25,6 +26,7 @@ func GetCommands(base bot.BaseCommand, config *config.Config) bot.Commands {
 	return commands
 }
 
+// RunAsync registers regular branch updates in the backjground with proper stopping on exit
 func (c *vcsCommand) RunAsync(ctx *util.ServerContext) {
 	go vcs.InitBranchWatcher(c.cfg, ctx)
 }
@@ -40,6 +42,7 @@ func (c *vcsCommand) GetMatcher() matcher.Matcher {
 
 func (c *vcsCommand) listBranches(match matcher.Result, message msg.Message) {
 	branches := vcs.GetBranches()
+	slices.Sort(branches)
 
 	response := strings.Builder{}
 	response.WriteString(fmt.Sprintf("Found %d branches:\n", len(branches)))

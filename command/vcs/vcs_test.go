@@ -24,7 +24,8 @@ func TestVCS(t *testing.T) {
 	t.Run("list branches", func(t *testing.T) {
 		cfg := &config.Config{}
 		cfg.BranchLookup = config.VCS{
-			Type: "git",
+			Type:           "git",
+			UpdateInterval: time.Second,
 		}
 
 		message := msg.Message{}

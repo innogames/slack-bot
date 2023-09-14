@@ -47,7 +47,14 @@ func (c *poolCommands) GetMatcher() matcher.Matcher {
 }
 
 // RunAsync function to observe, notify and unlock expired locks
-func (c *poolCommands) RunAsync(util.ServerContext) {
+func (c *poolCommands) RunAsync(ctx util.ServerContext) {
+	// support clean shutdown
+	ctx.RegisterChild()
+	defer ctx.ChildDone()
+
+	ticker := time.NewTicker(time.Minute)
+	defer ticker.Stop()
+
 	for {
 		now := time.Now()
 		nowIn := now.Add(c.config.NotifyExpire)
@@ -78,7 +85,13 @@ func (c *poolCommands) RunAsync(util.ServerContext) {
 			}
 		}
 
-		time.Sleep(1 * time.Minute)
+		select {
+		case <-ticker.C:
+			// wait for next tick
+			continue
+		case <-ctx.Done():
+			return
+		}
 	}
 }
 
