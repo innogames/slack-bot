@@ -49,7 +49,7 @@ jobs:
         env:
           BOT_GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload Coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
   lint:
     name: Lint
     if: ${{ github.event_name == 'pull_request' }}
