@@ -2,6 +2,7 @@ package openai
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"text/template"
 	"time"
@@ -19,6 +20,8 @@ import (
 const (
 	storageKey = "chatgpt"
 )
+
+var linkRe = regexp.MustCompile(`<?https://(.*?)\.slack\.com/archives/(?P<channel>\w+)/p(?P<timestamp>\d{16})>?`)
 
 // GetCommands if enable, register the openai commands
 func GetCommands(base bot.BaseCommand, config *config.Config) bot.Commands {
@@ -97,6 +100,28 @@ func (c *chatGPTCommand) startConversation(message msg.Ref, text string) bool {
 		}
 		storageIdentifier = getIdentifier(message.GetChannel(), message.GetThread())
 		log.Infof("openai thread context: %s", messageHistory)
+	} else if linkRe.MatchString(text) {
+		link := linkRe.FindStringSubmatch(text)
+		text = linkRe.ReplaceAllString(text, "")
+
+		relatedMessage := msg.MessageRef{
+			Channel: link[2],
+			Thread:  link[3][0:10] + "." + link[3][10:],
+		}
+		threadMessages, err := c.SlackClient.GetThreadMessages(relatedMessage)
+		if err != nil {
+			c.ReplyError(message, fmt.Errorf("can't load thread messages: %w", err))
+			return true
+		}
+
+		for _, threadMessage := range threadMessages {
+			messageHistory = append(messageHistory, ChatMessage{
+				Role:    roleUser,
+				Content: fmt.Sprintf("User <@%s> wrote: %s", threadMessage.User, threadMessage.Text),
+			})
+		}
+
+		storageIdentifier = getIdentifier(message.GetChannel(), message.GetTimestamp())
 	} else {
 		// start a new thread with a fresh history
 		storageIdentifier = getIdentifier(message.GetChannel(), message.GetTimestamp())
@@ -136,6 +161,15 @@ func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier 
 		Role:    roleUser,
 		Content: inputText,
 	})
+
+	messages, inputTokens, truncatedMessages := truncateMessages(c.cfg.Model, messages)
+	if truncatedMessages > 0 {
+		c.SendMessage(
+			message,
+			fmt.Sprintf("Note: The token length of %d exceeded! %d messages were not sent", getMaxTokensForModel(c.cfg.Model), truncatedMessages),
+			slack.MsgOptionTS(message.GetTimestamp()),
+		)
+	}
 
 	// wait for the full event stream in the background to not block other user requests
 	go func() {
@@ -201,10 +235,11 @@ func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier 
 		}
 
 		log.Infof(
-			"Openai %s call took %s with %d sub messages. Message: '%s'. Response: '%s'",
+			"Openai %s call took %s with %d sub messages (%d tokens). Message: '%s'. Response: '%s'",
 			c.cfg.Model,
 			util.FormatDuration(time.Since(startTime)),
 			len(messages),
+			inputTokens,
 			inputText,
 			responseText.String(),
 		)
