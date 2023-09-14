@@ -1,38 +1,33 @@
 package bot
 
 import (
-	"context"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
-	"github.com/innogames/slack-bot/v2/client/vcs"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"github.com/slack-go/slack/socketmode"
 )
 
-func (b *Bot) StartRunnables(ctx context.Context) {
+func (b *Bot) startRunnables(ctx *util.ServerContext) {
 	for _, cmd := range b.commands.commands {
 		if runnable, ok := cmd.(Runnable); ok {
-			go runnable.RunAsync()
+			go runnable.RunAsync(ctx)
 		}
 	}
 }
 
 // Run is blocking method to handle new incoming events...from different sources
 func (b *Bot) Run(ctx *util.ServerContext) {
-	b.StartRunnables(ctx)
+	b.startRunnables(ctx)
 
 	// initialize Socket Mode:
 	// https://api.slack.com/apis/connections/socket
 	go b.slackClient.Socket.Run()
-
-	// fetch all branches regularly
-	go vcs.InitBranchWatcher(&b.config, ctx)
 
 	// graceful shutdown via sigterm/sigint
 	stopChan := make(chan os.Signal, 2)

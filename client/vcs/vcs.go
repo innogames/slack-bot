@@ -11,8 +11,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const branchFetchInterval = time.Minute * 2
-
 // cached list of branch names
 var branches []string
 
@@ -29,22 +27,19 @@ func InitBranchWatcher(cfg *config.Config, ctx *util.ServerContext) {
 	var err error
 	fetcher := createBranchFetcher(cfg)
 
-	// load branch list using startup
-	branches, err = fetcher.LoadBranches()
-	if err != nil {
-		log.Error(err)
-	}
-
-	ticker := time.NewTicker(branchFetchInterval)
+	ticker := time.NewTicker(cfg.BranchLookup.UpdateInterval)
 	defer ticker.Stop()
 
 	for {
+		branches, err = fetcher.LoadBranches()
+		if err != nil {
+			log.Error(err)
+		}
+
 		select {
 		case <-ticker.C:
-			branches, err = fetcher.LoadBranches()
-			if err != nil {
-				log.Error(err)
-			}
+			// wait for next tick
+			continue
 		case <-ctx.Done():
 			return
 		}

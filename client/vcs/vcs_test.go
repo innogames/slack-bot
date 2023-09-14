@@ -12,6 +12,7 @@ import (
 func TestInitBranchWatcher(t *testing.T) {
 	t.Run("Null fetcher", func(t *testing.T) {
 		cfg := &config.Config{}
+		cfg.BranchLookup.UpdateInterval = time.Second
 
 		branches = []string{
 			"release/3.12.23",

@@ -71,6 +71,7 @@ func TestLoadFile(t *testing.T) {
 func TestEnvironment(t *testing.T) {
 	os.Setenv("BOT_TIMEZONE", "Europe/Berlin")
 	os.Setenv("BOT_SLACK_TOKEN", "mySlackToken")
+	os.Setenv("BOT_SLACK_SOCKET_TOKEN", "mySlackSocketToken")
 	os.Setenv("BOT_GITHUB_ACCESS_TOKEN", "myGithubToken")
 
 	// load example file == okay
@@ -78,6 +79,7 @@ func TestEnvironment(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "Europe/Berlin", cfg.Timezone)
 	assert.Equal(t, "mySlackToken", cfg.Slack.Token)
+	assert.Equal(t, "mySlackSocketToken", cfg.Slack.SocketToken)
 	assert.Equal(t, "info", cfg.Logger.Level)
 	assert.Equal(t, "myGithubToken", cfg.Github.AccessToken)
 }
