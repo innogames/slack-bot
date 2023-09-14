@@ -18,17 +18,17 @@ type reactionCommand struct {
 
 func (c *reactionCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewRegexpMatcher(`add reaction :(?P<reaction>.*):`, c.Add),
-		matcher.NewRegexpMatcher(`remove reaction :(?P<reaction>.*):`, c.Remove),
+		matcher.NewRegexpMatcher(`add reaction :(?P<reaction>.*):`, c.add),
+		matcher.NewRegexpMatcher(`remove reaction :(?P<reaction>.*):`, c.remove),
 	)
 }
 
-func (c *reactionCommand) Add(match matcher.Result, message msg.Message) {
+func (c *reactionCommand) add(match matcher.Result, message msg.Message) {
 	reaction := match.GetString("reaction")
 	c.AddReaction(util.Reaction(reaction), message)
 }
 
-func (c *reactionCommand) Remove(match matcher.Result, message msg.Message) {
+func (c *reactionCommand) remove(match matcher.Result, message msg.Message) {
 	reaction := match.GetString("reaction")
 	c.RemoveReaction(util.Reaction(reaction), message)
 }

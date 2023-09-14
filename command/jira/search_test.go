@@ -8,7 +8,6 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/util"
-	"github.com/innogames/slack-bot/v2/client"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -21,7 +20,7 @@ func TestJiraSearch(t *testing.T) {
 		Host:    "https://issues.apache.org/jira/",
 		Project: "ZOOKEEPER",
 	}
-	jiraClient, err := client.GetJiraClient(cfg)
+	jiraClient, err := getClient(cfg)
 	assert.Nil(t, err)
 
 	command := bot.Commands{}
@@ -83,7 +82,11 @@ func TestJiraSearch(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "jira link ZOOKEEPER-3455"
 
-		slackClient.On("SendMessage", message, "<https://issues.apache.org/jira/browse/ZOOKEEPER-3455|ZOOKEEPER-3455: Java 13 build failure on trunk: UnifiedServerSocketTest.testConnectWithoutSSLToStrictServer>").Return("")
+		mocks.AssertSlackMessage(
+			slackClient,
+			message,
+			"<https://issues.apache.org/jira/browse/ZOOKEEPER-3455|ZOOKEEPER-3455: Java 13 build failure on trunk: UnifiedServerSocketTest.testConnectWithoutSSLToStrictServer>",
+		)
 
 		actual := command.Run(message)
 		assert.True(t, actual)
@@ -93,7 +96,11 @@ func TestJiraSearch(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "jira ZOOKEEPER-10000000000"
 
-		slackClient.On("SendMessage", message, "Issue Does Not Exist: request failed. Please analyze the request body for more details. Status code: 404").Return("")
+		mocks.AssertSlackMessage(
+			slackClient,
+			message,
+			"Issue Does Not Exist: request failed. Please analyze the request body for more details. Status code: 404",
+		)
 
 		actual := command.Run(message)
 		assert.True(t, actual)

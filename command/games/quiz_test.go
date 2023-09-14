@@ -25,7 +25,7 @@ func TestQuiz(t *testing.T) {
 
 	command := NewQuizCommand(base).(*quizCommand)
 	command.apiURL = ts.URL
-	command.rand.Seed(2) // we want always the same random in our test
+	command.rand = mocks.NewPseudoRandom() // we want always the same random in our test
 
 	commands := bot.Commands{}
 	commands.AddCommand(command)

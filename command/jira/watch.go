@@ -24,10 +24,6 @@ type watchCommand struct {
 	config      *config.Jira
 }
 
-func (c *watchCommand) IsEnabled() bool {
-	return c.config.IsEnabled()
-}
-
 func (c *watchCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewRegexpMatcher(`watch ticket (?P<ticketId>(\w+)-(\d+))`, c.run)
 }
@@ -56,10 +52,11 @@ func (c *watchCommand) watchTicket(message msg.Message, issue *jira.Issue) {
 	defer ticker.Stop()
 
 	runningCommand := queue.AddRunningCommand(message, message.Text)
+	defer runningCommand.Done()
+
 	for range ticker.C {
 		issue, resp, err := c.jira.Issue.Get(issue.ID, nil)
 		if err != nil {
-			runningCommand.Done()
 			c.slackClient.ReplyError(message, err)
 			return
 		}
@@ -75,8 +72,6 @@ func (c *watchCommand) watchTicket(message msg.Message, issue *jira.Issue) {
 				lastStatus,
 				newStatus,
 			))
-
-			runningCommand.Done()
 			return
 		}
 	}

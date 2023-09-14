@@ -7,7 +7,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
-	"github.com/innogames/slack-bot/v2/client/jenkins"
+	"github.com/innogames/slack-bot/v2/command/jenkins/client"
 )
 
 const (
@@ -40,7 +40,7 @@ func (c *watcherCommand) run(match matcher.Result, message msg.Message) {
 		ctx := context.TODO()
 		// todo use context.WithCancel instead of stopper chan
 		c.stopper[jobName+message.GetUser()] = stop
-		builds, err := jenkins.WatchJob(ctx, c.jenkins, jobName, stop)
+		builds, err := client.WatchJob(ctx, c.jenkins, jobName, stop)
 		if err != nil {
 			c.ReplyError(message, err)
 			return

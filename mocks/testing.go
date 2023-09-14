@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/rand"
 	"regexp"
 	"sync"
 	"testing"
@@ -195,4 +196,9 @@ func WaitTillHavingInternalMessage() msg.Message {
 
 		return message
 	}
+}
+
+// NewPseudoRandom returns a deterministic random source for testing purposes. In production, random seed is used
+func NewPseudoRandom() *rand.Rand {
+	return rand.New(rand.NewSource(2)) //nolint:gosec
 }

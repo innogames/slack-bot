@@ -14,7 +14,7 @@ func TestRandom(t *testing.T) {
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	randomCommand := NewRandomCommand(base).(*randomCommand)
-	randomCommand.random.Seed(1) // we want always the same random
+	randomCommand.random = mocks.NewPseudoRandom() // we want always the same random
 
 	command := bot.Commands{}
 	command.AddCommand(randomCommand)
@@ -31,7 +31,7 @@ func TestRandom(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "random"
 
-		slackClient.On("SendMessage", message, "You have to pass more arguments").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "You have to pass more arguments")
 
 		actual := command.Run(message)
 		assert.True(t, actual)
@@ -41,7 +41,7 @@ func TestRandom(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "random 1"
 
-		slackClient.On("SendMessage", message, "1").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "1")
 
 		actual := command.Run(message)
 		assert.True(t, actual)
@@ -49,12 +49,16 @@ func TestRandom(t *testing.T) {
 
 	t.Run("pick random entry", func(t *testing.T) {
 		message := msg.Message{}
-		message.Text = "random 4 5 6"
+		message.Text = "random 4 5 6 7"
 
-		// seed was chosen to pick the "3" every time
-		slackClient.On("SendMessage", message, "4").Return("")
-
+		// seed was chosen to pick the "6" every time
+		mocks.AssertSlackMessage(slackClient, message, "6")
 		actual := command.Run(message)
+		assert.True(t, actual)
+
+		// second time the 4 is used
+		mocks.AssertSlackMessage(slackClient, message, "4")
+		actual = command.Run(message)
 		assert.True(t, actual)
 	})
 }

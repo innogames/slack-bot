@@ -61,7 +61,7 @@ func (c *statsCommand) collectStats(result *statsResult) {
 	result.addValue("Uptime", util.FormatDuration(time.Since(startTime)))
 	result.addValue("NumGC (since start)", util.FormatInt(int(m.NumGC)))
 	result.addValue("Bot Version", version.Version)
-	result.addValue("Go Version", runtime.Version())
+	result.addValue("Go Version", fmt.Sprintf("%s (%s/%s)", runtime.Version(), runtime.GOOS, runtime.GOARCH))
 }
 
 func (c *statsCommand) collectCommandExecutions(result *statsResult) {

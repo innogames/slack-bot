@@ -10,7 +10,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/util"
-	"github.com/innogames/slack-bot/v2/client/jenkins"
+	"github.com/innogames/slack-bot/v2/command/jenkins/client"
 )
 
 // command to trigger/start jenkins jobs
@@ -72,14 +72,14 @@ func (c *triggerCommand) genericCall(match matcher.Result, message msg.Message) 
 	jobConfig := c.jobs[jobName]
 	parameterString := strings.TrimSpace(match.GetString("parameters"))
 
-	finalParameters := make(jenkins.Parameters)
-	err := jenkins.ParseParameters(jobConfig.config, parameterString, finalParameters)
+	finalParameters := make(client.Parameters)
+	err := client.ParseParameters(jobConfig.config, parameterString, finalParameters)
 	if err != nil {
 		c.ReplyError(message, err)
 		return
 	}
 
-	err = jenkins.TriggerJenkinsJob(jobConfig.config, jobName, finalParameters, c.SlackClient, c.jenkins, message)
+	err = client.TriggerJenkinsJob(jobConfig.config, jobName, finalParameters, c.SlackClient, c.jenkins, message)
 	if err != nil {
 		c.ReplyError(message, err)
 		return
@@ -102,13 +102,13 @@ func (c *triggerCommand) configTrigger(ref msg.Ref, text string) bool {
 		parameters := jobConfig.trigger.ReplaceAllString(text, "")
 		jobParams := util.RegexpResultToParams(jobConfig.trigger, match)
 
-		err := jenkins.ParseParameters(jobConfig.config, parameters, jobParams)
+		err := client.ParseParameters(jobConfig.config, parameters, jobParams)
 		if err != nil {
 			c.ReplyError(ref, err)
 			return true
 		}
 
-		err = jenkins.TriggerJenkinsJob(jobConfig.config, jobName, jobParams, c.SlackClient, c.jenkins, ref.WithText(text))
+		err = client.TriggerJenkinsJob(jobConfig.config, jobName, jobParams, c.SlackClient, c.jenkins, ref.WithText(text))
 		if err != nil {
 			c.ReplyError(ref, err)
 		}

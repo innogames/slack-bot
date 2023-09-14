@@ -4,7 +4,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
-	"github.com/innogames/slack-bot/v2/client/cloud/aws"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -29,7 +28,7 @@ func GetCommands(cfg config.Aws, base bot.BaseCommand) bot.Commands {
 		return commands
 	}
 
-	AWSSession, err := aws.GetSession()
+	AWSSession, err := getSession()
 	if nil != err {
 		log.Error(errors.Wrap(err, "Error while getting aws sdk session"))
 		return commands

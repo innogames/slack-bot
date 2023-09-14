@@ -90,7 +90,7 @@ func TestReply(t *testing.T) {
 		message.Text = "comment test"
 		message.Timestamp = "1234"
 
-		slackClient.On("SendMessage", message, "test", mock.AnythingOfType("slack.MsgOption")).Return("")
+		mocks.AssertSlackMessage(slackClient, message, "test", mock.AnythingOfType("slack.MsgOption"))
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})

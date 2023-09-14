@@ -31,7 +31,7 @@ func TestSendMessage(t *testing.T) {
 		message.User = "testUser1"
 
 		slackClient.On("SendToUser", "1234", "Text from <@testUser1>: message").Return("")
-		slackClient.On("SendMessage", message, "I'll send `message` to <@1234|testuser>").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "I'll send `message` to <@1234|testuser>")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -43,8 +43,8 @@ func TestSendMessage(t *testing.T) {
 
 		expectedMessage := msg.Message{}
 		expectedMessage.Channel = "JDGS"
-		slackClient.On("SendMessage", expectedMessage, "Text from <@testUser1>: message").Return("")
-		slackClient.On("SendMessage", message, "I'll send `message` to <#JDGS|general>").Return("")
+		mocks.AssertSlackMessage(slackClient, expectedMessage, "Text from <@testUser1>: message")
+		mocks.AssertSlackMessage(slackClient, message, "I'll send `message` to <#JDGS|general>")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})

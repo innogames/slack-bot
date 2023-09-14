@@ -10,7 +10,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/util"
-	"github.com/innogames/slack-bot/v2/client/jenkins"
+	"github.com/innogames/slack-bot/v2/command/jenkins/client"
 	"github.com/innogames/slack-bot/v2/command/queue"
 	"github.com/slack-go/slack"
 )
@@ -61,7 +61,7 @@ func (c *buildWatcherCommand) run(match matcher.Result, message msg.Message) {
 		jobName,
 		build.Info().ID,
 	)
-	attachment := jenkins.GetAttachment(build, text)
+	attachment := client.GetAttachment(build, text)
 	msgTimestamp := c.SendMessage(message, "", attachment)
 
 	runningCommand := queue.AddRunningCommand(
@@ -69,15 +69,16 @@ func (c *buildWatcherCommand) run(match matcher.Result, message msg.Message) {
 		fmt.Sprintf("inform job %s #%d", jobName, build.GetBuildNumber()),
 	)
 
+	c.AddReaction(iconRunning, message)
 	go func() {
-		<-jenkins.WatchBuild(build)
+		<-client.WatchBuild(build)
 		runningCommand.Done()
 
 		c.SendMessage(
 			message,
 			"",
 			slack.MsgOptionUpdate(msgTimestamp),
-			jenkins.GetAttachment(build, text),
+			client.GetAttachment(build, text),
 		)
 
 		c.RemoveReaction(iconRunning, message)
@@ -100,7 +101,7 @@ func (c *buildWatcherCommand) run(match matcher.Result, message msg.Message) {
 	}()
 }
 
-func getBuild(ctx context.Context, job jenkins.Job, buildNumber int) (*gojenkins.Build, error) {
+func getBuild(ctx context.Context, job client.Job, buildNumber int) (*gojenkins.Build, error) {
 	if buildNumber == 0 {
 		_, err := job.Poll(ctx)
 		if err != nil {

@@ -8,7 +8,6 @@ import (
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
-	"github.com/innogames/slack-bot/v2/client"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 )
@@ -31,7 +30,7 @@ func TestCommentJira(t *testing.T) {
 		Host:    server.URL,
 		Project: "TEST",
 	}
-	jiraClient, err := client.GetJiraClient(cfg)
+	jiraClient, err := getClient(cfg)
 	assert.Nil(t, err)
 
 	command := bot.Commands{}

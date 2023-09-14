@@ -8,6 +8,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -43,7 +44,7 @@ func TestJenkinsRetry(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "retry job NotExisting #3"
 
-		slackClient.On("ReplyError", message, fmt.Errorf("job *NotExisting* is not whitelisted")).Return(true)
+		mocks.AssertError(slackClient, message, "job *NotExisting* is not whitelisted")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -52,7 +53,7 @@ func TestJenkinsRetry(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "retry job TestJob #3"
 
-		slackClient.On("SendMessage", message, "Job *TestJob* does not exist").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "Job *TestJob* does not exist")
 
 		ctx := context.TODO()
 		jenkinsClient.On("GetJob", ctx, "TestJob").Return(nil, fmt.Errorf(""))

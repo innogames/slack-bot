@@ -207,36 +207,37 @@ func (s *Slack) ReplyError(ref msg.Ref, err error) {
 
 // SendToUser sends a message to any user via IM channel
 func (s *Slack) SendToUser(user string, text string) {
-	// check if a real username was passed -> we need the user-id here
-	userID, _ := GetUserIDAndName(user)
-	if userID == "" {
-		log.Errorf("Invalid user: %s", user)
-		return
-	}
-
-	options := &slack.OpenConversationParameters{
-		Users: []string{userID},
-	}
-
-	channel, _, _, err := s.Client.OpenConversation(options)
+	channel, err := s.getUserConversation(user)
 	if err != nil {
-		log.WithError(err).Errorf("Cannot open channel")
+		log.WithError(err).Errorf("Cannot send Slack message")
 		return
 	}
 
 	message := msg.Message{}
-	message.Channel = channel.ID
+	message.Channel = channel
 
 	s.SendMessage(message, text)
 }
 
 // SendBlockMessageToUser will send Slack Blocks/Sections to the target
 func (s *Slack) SendBlockMessageToUser(user string, blocks []slack.Block, options ...slack.MsgOption) string {
+	channel, err := s.getUserConversation(user)
+	if err != nil {
+		log.WithError(err).Errorf("Cannot send Slack message")
+		return ""
+	}
+	message := msg.Message{}
+	message.Channel = channel
+
+	return s.SendBlockMessage(message, blocks, options...)
+}
+
+// internal function to get the conversation id for a direct message user conversation
+func (s *Slack) getUserConversation(user string) (string, error) {
 	// check if a real username was passed -> we need the user-id here
 	userID, _ := GetUserIDAndName(user)
 	if userID == "" {
-		log.Errorf("Invalid user: %s", user)
-		return ""
+		return "", fmt.Errorf("invalid user: %s", user)
 	}
 
 	conversationOptions := &slack.OpenConversationParameters{
@@ -245,14 +246,10 @@ func (s *Slack) SendBlockMessageToUser(user string, blocks []slack.Block, option
 
 	channel, _, _, err := s.Client.OpenConversation(conversationOptions)
 	if err != nil {
-		log.WithError(err).Errorf("Cannot open channel")
-		return ""
+		return "", fmt.Errorf("cannot open channel with user %s/%s", user, userID)
 	}
 
-	message := msg.Message{}
-	message.Channel = channel.ID
-
-	return s.SendBlockMessage(message, blocks, options...)
+	return channel.ID, nil
 }
 
 // SendBlockMessage will send Slack Blocks/Sections to the target
@@ -391,8 +388,8 @@ func GetInteractionButton(id, text, command string, args ...slack.Style) *slack.
 // GetSlackArchiveLink returns a permalink to the ref which can be shared
 func GetSlackArchiveLink(message msg.Ref) string {
 	return fmt.Sprintf(
-		"https://%s.slack.com/archives/%s/p%s",
-		strings.ToLower(AuthResponse.Team),
+		"%sarchives/%s/p%s",
+		AuthResponse.URL,
 		message.GetChannel(),
 		strings.ReplaceAll(message.GetTimestamp(), ".", ""),
 	)

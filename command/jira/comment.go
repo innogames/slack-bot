@@ -22,10 +22,6 @@ type commentCommand struct {
 	config      *config.Jira
 }
 
-func (c *commentCommand) IsEnabled() bool {
-	return c.config.IsEnabled()
-}
-
 func (c *commentCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewRegexpMatcher(`add comment to ticket (?P<ticketId>(\w+)-(\d+)) (?P<comment>.+)`, c.addComment)
 }

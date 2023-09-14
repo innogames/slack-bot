@@ -110,7 +110,7 @@ func (p *pool) Lock(user, reason, resourceName string) (*ResourceLock, error) {
 	return nil, ErrNoResourceAvailable
 }
 
-// Extend the lock of a resource in the pool for a user
+// ExtendLock extends the lock of a resource in the pool for a user
 func (p *pool) ExtendLock(user, resourceName, duration string) (*ResourceLock, error) {
 	for k, v := range p.locks {
 		if v == nil {
@@ -173,7 +173,7 @@ func (p *pool) Unlock(user, resourceName string) error {
 	return nil
 }
 
-// Get a sorted list of all active locks of a user / all users if userName = ""
+// GetLocks returns a sorted list of all active locks of a user / all users if userName = ""
 func (p *pool) GetLocks(userName string) []*ResourceLock {
 	var locked []*ResourceLock
 	byUser := len(userName) > 0
@@ -189,7 +189,7 @@ func (p *pool) GetLocks(userName string) []*ResourceLock {
 	return locked
 }
 
-// Get a sorted list of all free / unlocked resources
+// GetFree returns a sorted list of all free / unlocked resources
 func (p *pool) GetFree() []*config.Resource {
 	var free []*config.Resource
 	for k, v := range p.locks {

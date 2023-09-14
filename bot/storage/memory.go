@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+
+	"golang.org/x/exp/maps"
 )
 
 type memoryCollection map[string][]byte
@@ -57,11 +59,7 @@ func (s *memoryStorage) GetKeys(collection string) ([]string, error) {
 	s.mutex.RLock()
 	defer s.mutex.RUnlock()
 
-	keys := make([]string, 0, len(s.storage[collection]))
-
-	for key := range s.storage[collection] {
-		keys = append(keys, key)
-	}
+	keys := maps.Keys(s.storage[collection])
 
 	return keys, nil
 }

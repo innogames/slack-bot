@@ -67,7 +67,7 @@ func TestCustomCommands(t *testing.T) {
 		message.User = "user1"
 		message.Text = "list variables"
 
-		slackClient.On("SendMessage", message, "You defined 1 variables:\n - myKey: `myValue`").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "You defined 1 variables:\n - myKey: `myValue`")
 		actual := commands.Run(message)
 
 		assert.True(t, actual)
@@ -109,7 +109,7 @@ func TestCustomCommands(t *testing.T) {
 		message.Text = "delete variable myKey"
 		message.User = "user1"
 
-		slackClient.On("SendMessage", message, "Okay, I deleted variable: `myKey`").Return("")
+		mocks.AssertSlackMessage(slackClient, message, "Okay, I deleted variable: `myKey`")
 
 		actual := commands.Run(message)
 

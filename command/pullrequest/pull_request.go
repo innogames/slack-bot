@@ -16,6 +16,7 @@ import (
 	"github.com/innogames/slack-bot/v2/command/queue"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
+	"golang.org/x/exp/slices"
 )
 
 const (
@@ -271,7 +272,7 @@ func (c *command) getAllApprovedReactions() []util.Reaction {
 	reactions = append(reactions, c.cfg.Reactions.Approved)
 
 	for _, reaction := range c.cfg.CustomApproveReaction {
-		if !util.Contains(reactions, reaction) {
+		if !slices.Contains(reactions, reaction) {
 			reactions = append(reactions, reaction)
 		}
 	}

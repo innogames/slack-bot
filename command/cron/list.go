@@ -12,10 +12,10 @@ import (
 )
 
 func (c *command) GetMatcher() matcher.Matcher {
-	return matcher.NewTextMatcher("list crons", c.ListCrons)
+	return matcher.NewTextMatcher("list crons", c.listCrons)
 }
 
-func (c *command) ListCrons(match matcher.Result, message msg.Message) {
+func (c *command) listCrons(match matcher.Result, message msg.Message) {
 	text := fmt.Sprintf("*%d crons:*\n", len(c.cfg))
 
 	now := time.Now()
