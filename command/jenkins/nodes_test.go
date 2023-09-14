@@ -9,7 +9,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
-	"github.com/innogames/slack-bot/v2/client/jenkins"
+	"github.com/innogames/slack-bot/v2/command/jenkins/client"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -97,7 +97,7 @@ func TestRealNodes(t *testing.T) {
 		cfg := config.Jenkins{
 			Host: "https://ci.jenkins.io",
 		}
-		client, err := jenkins.GetClient(cfg)
+		client, err := client.GetClient(cfg)
 		assert.Nil(t, err)
 
 		base.jenkins = client

@@ -3,7 +3,7 @@ package jenkins
 import (
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
-	"github.com/innogames/slack-bot/v2/client/jenkins"
+	"github.com/innogames/slack-bot/v2/command/jenkins/client"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -18,7 +18,7 @@ var category = bot.Category{
 // base command to access Slack+Jenkins directly
 type jenkinsCommand struct {
 	bot.BaseCommand
-	jenkins jenkins.Client
+	jenkins client.Client
 }
 
 // GetCommands will return a list of available Jenkins commands...if the config is set!
@@ -29,7 +29,7 @@ func GetCommands(cfg config.Jenkins, base bot.BaseCommand) bot.Commands {
 		return commands
 	}
 
-	jenkinsClient, err := jenkins.GetClient(cfg)
+	jenkinsClient, err := client.GetClient(cfg)
 	if err != nil {
 		log.Error(errors.Wrap(err, "Error while getting Jenkins client"))
 		return commands

@@ -34,10 +34,6 @@ func newJiraCommand(jiraClient *jira.Client, slackClient client.SlackClient, cfg
 	return &jiraCommand{jiraClient, slackClient, cfg}
 }
 
-func (c *jiraCommand) IsEnabled() bool {
-	return c.config.IsEnabled()
-}
-
 func (c *jiraCommand) GetMatcher() matcher.Matcher {
 	matchers := []matcher.Matcher{
 		matcher.NewRegexpMatcher("jira (?P<action>link) (?P<text>.*)", c.run),

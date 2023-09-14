@@ -1,6 +1,6 @@
-package jenkins
+package client
 
-//go:generate $GOPATH/bin/mockery --output ../../mocks --name Client
+//go:generate $GOPATH/bin/mockery --output ../../../mocks --name Client
 
 import (
 	"context"

@@ -8,7 +8,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
-	"github.com/innogames/slack-bot/v2/client/jenkins"
+	"github.com/innogames/slack-bot/v2/command/jenkins/client"
 )
 
 type retryCommand struct {
@@ -49,12 +49,12 @@ func (c *retryCommand) run(match matcher.Result, message msg.Message) {
 		return
 	}
 
-	parameters := make(jenkins.Parameters)
+	parameters := make(client.Parameters)
 	for _, param := range build.GetParameters() {
 		parameters[param.Name] = param.Value
 	}
 
-	err = jenkins.TriggerJenkinsJob(c.jobs[jobName], jobName, parameters, c.SlackClient, c.jenkins, message)
+	err = client.TriggerJenkinsJob(c.jobs[jobName], jobName, parameters, c.SlackClient, c.jenkins, message)
 	if err != nil {
 		c.ReplyError(message, err)
 	}
