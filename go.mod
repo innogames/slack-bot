@@ -13,7 +13,7 @@ require (
 	github.com/gookit/color v1.5.4
 	github.com/hackebrot/turtle v0.2.0
 	github.com/pkg/errors v0.9.1
-	github.com/redis/go-redis/v9 v9.1.0
+	github.com/redis/go-redis/v9 v9.2.0
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sdomino/golang-scribble v0.0.0-20230717151034-b95d4df19aa8
