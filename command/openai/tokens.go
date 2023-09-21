@@ -16,7 +16,7 @@ var maxTokens = map[string]int{
 	"dummy-test":        100, // just for testing
 }
 
-var modelDateRe = regexp.MustCompile("-\\d{4}")
+var modelDateRe = regexp.MustCompile(`-\d{4}`)
 
 func truncateMessages(model string, inputMessages []ChatMessage) ([]ChatMessage, int, int) {
 	outputMessages := make([]ChatMessage, 0, len(inputMessages))
