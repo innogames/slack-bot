@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -336,6 +337,69 @@ data: [DONE]`,
 		mocks.AssertSlackMessage(slackClient, ref, "Jolo!", mock.Anything, mock.Anything)
 
 		actual = commands.Run(message)
+		queue.WaitTillHavingNoQueuedMessage()
+		assert.True(t, actual)
+	})
+
+	t.Run("Other thread given", func(t *testing.T) {
+		ts := startTestServer(
+			t,
+			[]testRequest{
+				{
+					`{"model":"dummy-test","messages":[{"role":"user","content":"User \u003c@U1234\u003e wrote: i had a great weekend"},{"role":"user","content":"summarize this thread "}],"stream":true}`,
+					`data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"role":"assistant"},"index":0,"finish_reason":null}]}
+
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"Jolo!"},"index":0,"finish_reason":null}]}
+
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{},"index":0,"finish_reason":"stop"}]}
+
+data: [DONE]`,
+					http.StatusOK,
+				},
+			},
+		)
+		defer ts.Close()
+
+		openaiCfg := defaultConfig
+		openaiCfg.APIHost = ts.URL
+		openaiCfg.APIKey = "0815pass"
+		openaiCfg.InitialSystemMessage = ""
+		openaiCfg.Model = "dummy-test"
+		cfg := &config.Config{}
+		cfg.Set("openai", openaiCfg)
+
+		commands := GetCommands(base, cfg)
+
+		message := msg.Message{}
+		message.Text = "openai summarize this thread <https://foobar.slack.com/archives/chan1234/p1694166741200139>"
+		message.Channel = "testchan"
+		message.Timestamp = "1234"
+
+		threadMessage1 := slack.Message{}
+		threadMessage1.User = "U1234"
+		threadMessage1.Channel = "chan1234"
+		threadMessage1.Text = "i had a great weekend"
+		threadMessage2 := slack.Message{}
+		threadMessage2.User = "U1234"
+		threadMessage2.Channel = "chan1234"
+		threadMessage2.Text = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore asdasd adasd asdasd, Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore asdasd adasd asdasd Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore asdasd adasd asdasd"
+
+		ref := msg.MessageRef{
+			Channel: "chan1234",
+			Thread:  "1694166741.200139",
+		}
+
+		threadMessages := []slack.Message{threadMessage1, threadMessage2}
+		slackClient.On("GetThreadMessages", ref).Once().Return(threadMessages, nil)
+
+		mocks.AssertReaction(slackClient, ":coffee:", message.MessageRef)
+		mocks.AssertRemoveReaction(slackClient, ":coffee:", message.MessageRef)
+		mocks.AssertSlackMessage(slackClient, message.MessageRef, "Note: The token length of 100 exceeded! 1 messages were not sent", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, message.MessageRef, "...", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, message.MessageRef, "Jolo!", mock.Anything, mock.Anything)
+
+		actual := commands.Run(message)
+		time.Sleep(time.Millisecond * 10)
 		queue.WaitTillHavingNoQueuedMessage()
 		assert.True(t, actual)
 	})
