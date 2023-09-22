@@ -111,7 +111,7 @@ With `help *command*` you'll get a short description and some examples for a sin
 
 ![Screenshot](./docs/help.png)
 
-## Jenkins (optional)
+## Jenkins
 The bot is able to start and monitor Jenkins job in a simple but powerful way.
 
 By default, the commands are not available and not visible in the "help", till the "jenkins.host" is defined in the config file.
@@ -211,7 +211,7 @@ Example following scenario: you have a build job (which might take some minutes)
 To see all running background commands (like Jenkins jobs or PR watcher) use this command:
 - `list queue`
 
-## Jira (optional)
+## Jira
 The bot is able to query information from Jira, either from a single ticket, or a whole list of tickets.
 
 By default, the commands are not available and not visible in the "help", till the "jira.host" is defined in the config file.
@@ -321,7 +321,7 @@ The questions are from different categories and difficult levels and are either 
 
 ![Quiz game](./docs/quiz.png)
 
-## Weather command (optional)
+## Weather command
 It's possible to setup [OpenWeatherMap](https://openweathermap.org/) to get information about the current weather at your location.
 
 ![Screenshot](./docs/weather.png)
@@ -439,7 +439,7 @@ To run this bot, you need a "bot token" for your Slack application. See the [ins
 
 ## Jenkins config
 To be able to start or monitor Jenkins jobs, you have to setup the host and the credentials first. The user needs read access to the jobs and the right to trigger jobs for your whitelisted jobs.
-```
+```yaml
 jenkins:
      host: https://jenkins.example.de
      username: jenkinsuser
@@ -552,7 +552,6 @@ custom_variables:
 - `bot/` contains the code classes of the bot: connection to Slack, user management, command matching...
 - `cmd/bot/` entry points aka main.go for the bot and the CLI test tool
 - `command/` real command implementing the bot.Command interface
-- `client/` communication interfaces for Slack, Jenkins, Jira etc...
 
 ## Create a new (native) command
 If you need a new command, which is not implementable with a "command" command, you have to write go code.

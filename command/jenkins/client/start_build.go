@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/bndr/gojenkins"
@@ -17,7 +16,7 @@ import (
 	"github.com/slack-go/slack"
 )
 
-var mu sync.Mutex
+var locks = util.NewGroupedLogger()
 
 // TriggerJenkinsJob starts a new build with given parameters
 // it will return when the job was started successfully
@@ -101,8 +100,8 @@ func sendBuildStartedMessage(build *gojenkins.Build, slackClient client.SlackCli
 // startJob starts a job and waits until job is not queued anymore
 func startJob(ctx context.Context, jenkins Client, jobName string, jobParams Parameters) (*gojenkins.Build, error) {
 	// avoid nasty racing conditions when two people are starting the same job
-	mu.Lock()
-	defer mu.Unlock()
+	lock := locks.GetLock(jobName)
+	defer lock.Unlock()
 
 	job, err := jenkins.GetJob(ctx, jobName)
 	if err != nil {

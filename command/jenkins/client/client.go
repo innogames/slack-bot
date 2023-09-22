@@ -23,5 +23,5 @@ func GetClient(cfg config.Jenkins) (Client, error) {
 		return nil, nil
 	}
 
-	return createJenkinsClient(context.TODO(), client.GetHTTPClient(), cfg)
+	return createJenkinsClient(context.Background(), client.GetHTTPClient(), cfg)
 }

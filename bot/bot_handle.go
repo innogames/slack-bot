@@ -88,7 +88,7 @@ func (b *Bot) ProcessMessage(message msg.Message, fromUserContext bool) {
 
 	// prevent messages from one user processed in parallel (usual + internal ones)
 	if message.Done == nil {
-		lock := getUserLock(message.User)
+		lock := b.locks.GetLock(message.User)
 		defer lock.Unlock()
 	}
 

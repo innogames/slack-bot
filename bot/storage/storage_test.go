@@ -121,7 +121,7 @@ func TestStorage(t *testing.T) {
 		err := InitStorage(".")
 		storage = getStorage()
 		assert.NoError(t, err)
-		assert.IsType(t, &fileStorage{}, storage)
+		assert.IsType(t, &chainStorage{}, storage)
 
 		err = InitStorage("")
 		storage = getStorage()
