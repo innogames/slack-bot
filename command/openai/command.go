@@ -101,6 +101,7 @@ func (c *chatGPTCommand) startConversation(message msg.Ref, text string) bool {
 		storageIdentifier = getIdentifier(message.GetChannel(), message.GetThread())
 		log.Infof("openai thread context: %s", messageHistory)
 	} else if linkRe.MatchString(text) {
+		// a link to another thread was posted -> use this messages as context
 		link := linkRe.FindStringSubmatch(text)
 		text = linkRe.ReplaceAllString(text, "")
 
