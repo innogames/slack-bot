@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -20,6 +21,7 @@ func NewBot(cfg config.Config, slackClient *client.Slack, commands *Commands) *B
 		slackClient:  slackClient,
 		commands:     commands,
 		allowedUsers: config.UserMap{},
+		locks:        util.NewGroupedLogger(),
 	}
 }
 
@@ -31,6 +33,7 @@ type Bot struct {
 	auth         *slack.AuthTestResponse
 	commands     *Commands
 	allowedUsers config.UserMap
+	locks        util.GroupedLock[string]
 }
 
 // Init establishes the slack connection and load allowed users

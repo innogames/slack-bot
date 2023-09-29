@@ -27,10 +27,16 @@ var keyRegexp = regexp.MustCompile(`^[\w\-,+@]+$`)
 func InitStorage(path string) error {
 	var err error
 
+	memory := newMemoryStorage()
 	if path == "" {
-		currentStorage = newMemoryStorage()
+		currentStorage = memory
 	} else {
-		currentStorage, err = newFileStorage(path)
+		// wrap slower file storage with faster memory storage
+		storage, err := newFileStorage(path)
+		if err != nil {
+			return err
+		}
+		currentStorage = NewChainStorage(storage, memory)
 	}
 
 	return err
