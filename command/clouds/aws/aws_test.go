@@ -30,6 +30,10 @@ func TestGetCommands(t *testing.T) {
 		commands := GetCommands(cfg, base)
 		assert.Equal(t, 2, commands.Count())
 
+		// test help
+		help := commands.GetHelp()
+		assert.Equal(t, 2, len(help))
+
 		// list the CF
 		message := msg.Message{}
 		message.Text = "aws cf list"

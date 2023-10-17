@@ -26,9 +26,9 @@ func GetCommands(base bot.BaseCommand, config *config.Config) bot.Commands {
 	return commands
 }
 
-// RunAsync registers regular branch updates in the backjground with proper stopping on exit
+// RunAsync registers regular branch updates in the background with proper stopping on exit
 func (c *vcsCommand) RunAsync(ctx *util.ServerContext) {
-	go vcs.InitBranchWatcher(c.cfg, ctx)
+	vcs.InitBranchWatcher(c.cfg, ctx)
 }
 
 type vcsCommand struct {
@@ -40,7 +40,7 @@ func (c *vcsCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewTextMatcher("list branches", c.listBranches)
 }
 
-func (c *vcsCommand) listBranches(match matcher.Result, message msg.Message) {
+func (c *vcsCommand) listBranches(_ matcher.Result, message msg.Message) {
 	branches := vcs.GetBranches()
 	slices.Sort(branches)
 

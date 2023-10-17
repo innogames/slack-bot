@@ -28,6 +28,7 @@ func TestAll(t *testing.T) {
 	defer lock.Unlock()
 
 	ctx := util.NewServerContext()
+	defer ctx.StopTheWorld()
 
 	expectedOutput := &util.MutexBuffer{}
 	expectedOutput.Write([]byte("Type in your command:\n"))

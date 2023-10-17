@@ -6,10 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/innogames/slack-bot/v2/bot/util"
-
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/storage"
+	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -36,7 +35,7 @@ type ResourceLock struct {
 type pool struct {
 	locks        map[*config.Resource]*ResourceLock
 	lockDuration time.Duration
-	mu           sync.RWMutex
+	mu           sync.Mutex
 }
 
 // getNewPool create a new pool and initialize it by the local storage

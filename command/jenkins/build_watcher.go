@@ -31,10 +31,10 @@ func newBuildWatcherCommand(base jenkinsCommand) bot.Command {
 }
 
 func (c *buildWatcherCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher(`(notify|inform)( me about)? (job|build) ?(?P<job>[\w\-_\\/]*)( #?(?P<build>\d+))?`, c.run)
+	return matcher.NewRegexpMatcher(`(notify|inform)( me about)? (job|build) ?(?P<job>[\w\-_\\/]*)( #?(?P<build>\d+))?`, c.watch)
 }
 
-func (c *buildWatcherCommand) run(match matcher.Result, message msg.Message) {
+func (c *buildWatcherCommand) watch(match matcher.Result, message msg.Message) {
 	jobName := match.GetString("job")
 	buildNumber := match.GetInt("build")
 

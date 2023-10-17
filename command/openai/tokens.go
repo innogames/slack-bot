@@ -2,8 +2,6 @@ package openai
 
 import (
 	"regexp"
-
-	"github.com/tiktoken-go/tokenizer"
 )
 
 // https://platform.openai.com/docs/models/gpt-3-5
@@ -25,7 +23,7 @@ func truncateMessages(model string, inputMessages []ChatMessage) ([]ChatMessage,
 	truncatedMessages := 0
 	maxTokens := getMaxTokensForModel(model)
 	for _, message := range inputMessages {
-		tokens := countTokensForMessage(message)
+		tokens := estimateTokensForMessage(message)
 
 		if currentTokens+tokens >= maxTokens {
 			truncatedMessages++
@@ -51,9 +49,8 @@ func getMaxTokensForModel(model string) int {
 	return 4000
 }
 
-func countTokensForMessage(message ChatMessage) int {
-	enc, _ := tokenizer.ForModel(tokenizer.GPT4)
-	tokens, _, _ := enc.Encode(message.Content)
-
-	return len(tokens)
+func estimateTokensForMessage(message ChatMessage) int {
+	// to lower the dependency to heavy external libs we use the rule of thumbs which is totally fine here
+	// https://platform.openai.com/tokenizer
+	return len(message.Content) / 4
 }

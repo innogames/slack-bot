@@ -7,6 +7,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -48,6 +49,12 @@ func TestCron(t *testing.T) {
 	command := NewCronCommand(base, crons).(*command)
 	commands := bot.Commands{}
 	commands.AddCommand(command)
+
+	t.Run("Run in background", func(t *testing.T) {
+		ctx := util.NewServerContext()
+		go command.RunAsync(ctx)
+		ctx.StopTheWorld()
+	})
 
 	t.Run("List crons", func(t *testing.T) {
 		message := msg.Message{}
