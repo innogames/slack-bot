@@ -39,14 +39,14 @@ func TestTruncate(t *testing.T) {
 
 	outputMessages, inputTokens, truncatedMessages := truncateMessages("dummy-test", messages)
 
-	assert.Equal(t, 6, len(outputMessages))
-	assert.Equal(t, 99, inputTokens)
-	assert.Equal(t, 1, truncatedMessages)
+	assert.Equal(t, 5, len(outputMessages))
+	assert.Equal(t, 85, inputTokens)
+	assert.Equal(t, 2, truncatedMessages)
 }
 
 func TestCountTokens(t *testing.T) {
 	t.Run("Count", func(t *testing.T) {
-		actual := countTokensForMessage(ChatMessage{Content: "hello you!"})
-		assert.Equal(t, 3, actual)
+		actual := estimateTokensForMessage(ChatMessage{Content: "hello you!"})
+		assert.Equal(t, 2, actual)
 	})
 }

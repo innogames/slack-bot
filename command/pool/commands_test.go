@@ -11,6 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// compile time check that the interface matches
+var _ bot.Runnable = &poolCommands{}
+
 func TestPools(t *testing.T) {
 	slackClient := &mocks.SlackClient{}
 	base := bot.BaseCommand{SlackClient: slackClient}

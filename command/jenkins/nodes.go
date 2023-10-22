@@ -23,10 +23,10 @@ func newNodesCommand(base jenkinsCommand, cfg config.Jenkins) bot.Command {
 }
 
 func (c *nodesCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewTextMatcher("list jenkins nodes", c.run)
+	return matcher.NewTextMatcher("list jenkins nodes", c.listNodes)
 }
 
-func (c *nodesCommand) run(match matcher.Result, message msg.Message) {
+func (c *nodesCommand) listNodes(_ matcher.Result, message msg.Message) {
 	ctx := context.Background()
 	nodes, err := c.jenkins.GetAllNodes(ctx)
 	if err != nil {

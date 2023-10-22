@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/alicebob/miniredis/v2 v2.30.5
 	github.com/andygrunwald/go-jira v1.16.0
-	github.com/aws/aws-sdk-go v1.45.5
+	github.com/aws/aws-sdk-go v1.45.26
 	github.com/bndr/gojenkins v1.1.0
 	github.com/brainexe/viper v1.8.2
 	github.com/gfleury/go-bitbucket-v1 v0.0.0-20230830121038-6e30c5760c87
@@ -13,7 +13,7 @@ require (
 	github.com/gookit/color v1.5.4
 	github.com/hackebrot/turtle v0.2.0
 	github.com/pkg/errors v0.9.1
-	github.com/redis/go-redis/v9 v9.1.0
+	github.com/redis/go-redis/v9 v9.2.1
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sdomino/golang-scribble v0.0.0-20230717151034-b95d4df19aa8
@@ -21,10 +21,9 @@ require (
 	github.com/slack-go/slack v0.12.3
 	github.com/stretchr/testify v1.8.4
 	github.com/texttheater/golang-levenshtein/levenshtein v0.0.0-20200805054039-cae8b0eaed6c
-	github.com/tiktoken-go/tokenizer v0.1.0
-	github.com/xanzy/go-gitlab v0.93.0
-	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
-	golang.org/x/oauth2 v0.12.0
+	github.com/xanzy/go-gitlab v0.93.1
+	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
+	golang.org/x/oauth2 v0.13.0
 	golang.org/x/text v0.13.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -34,7 +33,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/dlclark/regexp2 v1.9.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
@@ -51,7 +49,7 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/spf13/afero v1.9.5 // indirect
+	github.com/spf13/afero v1.10.0 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
@@ -61,8 +59,8 @@ require (
 	github.com/trivago/tgo v1.0.7 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yuin/gopher-lua v1.1.0 // indirect
-	golang.org/x/net v0.15.0 // indirect
-	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect

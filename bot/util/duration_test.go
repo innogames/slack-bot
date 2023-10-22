@@ -16,6 +16,7 @@ var parserTestCases = []struct {
 	{"10h12s", "10h12s"},
 	{"10h12sec", "10h12s"},
 	{"10h12.5sec", "10h12.5s"},
+	{"10h12.0sec", "10h12s"},
 	{"10h1min12sec", "10h1m12s"},
 	{"10h", "10h0m0s"},
 	{"0d", "0s"},

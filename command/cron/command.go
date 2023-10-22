@@ -18,7 +18,9 @@ func NewCronCommand(base bot.BaseCommand, crons []config.Cron) bot.Command {
 		return nil
 	}
 
-	cron := cronLib.New()
+	cron := cronLib.New(
+		cronLib.WithLogger(newCronLogger()),
+	)
 	cmd := &command{base, crons, cron}
 
 	for _, cronCommand := range crons {
@@ -27,9 +29,6 @@ func NewCronCommand(base bot.BaseCommand, crons []config.Cron) bot.Command {
 			log.Error(err)
 		}
 	}
-
-	cron.Start()
-	log.Infof("Initialized %d crons", len(crons))
 
 	return cmd
 }
@@ -40,8 +39,15 @@ type command struct {
 	cron *cronLib.Cron
 }
 
-func (c *command) IsEnabled() bool {
-	return len(c.cfg) > 0
+// RunAsync provide proper Cron start/stop in a async context
+func (c *command) RunAsync(ctx *util.ServerContext) {
+	ctx.RegisterChild()
+	defer ctx.ChildDone()
+
+	c.cron.Start()
+	log.Infof("Initialized %d crons", len(c.cfg))
+
+	<-ctx.Done()
 }
 
 func (c *command) getCallback(cron config.Cron) func() {

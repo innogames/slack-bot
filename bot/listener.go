@@ -47,6 +47,8 @@ func (b *Bot) Run(ctx *util.ServerContext) {
 			// wait until other services are properly shut down
 			ctx.StopTheWorld()
 			return
+		case <-ctx.Done():
+			return
 		}
 	}
 }
