@@ -4,6 +4,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/storage"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/exp/constraints"
 )
 
 const collection = "stats"
@@ -28,9 +29,9 @@ func IncreaseOne(key string) {
 }
 
 // Increase is increasing the stats counter
-func Increase(key string, count uint) {
+func Increase[T constraints.Signed](key string, count T) {
 	storage.Atomic(func() {
-		var value uint
+		var value T
 		_ = storage.Read(collection, key, &value)
 
 		value += count
@@ -42,7 +43,7 @@ func Increase(key string, count uint) {
 }
 
 // Set the stats to a specific value
-func Set(key string, value uint) {
+func Set[T constraints.Signed](key string, value T) {
 	if err := storage.Write(collection, key, value); err != nil {
 		log.Warn(errors.Wrap(err, "error while set stats"))
 	}

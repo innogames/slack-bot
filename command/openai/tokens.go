@@ -23,7 +23,7 @@ func truncateMessages(model string, inputMessages []ChatMessage) ([]ChatMessage,
 	truncatedMessages := 0
 	maxTokens := getMaxTokensForModel(model)
 	for _, message := range inputMessages {
-		tokens := estimateTokensForMessage(message)
+		tokens := estimateTokensForMessage(message.Content)
 
 		if currentTokens+tokens >= maxTokens {
 			truncatedMessages++
@@ -49,8 +49,8 @@ func getMaxTokensForModel(model string) int {
 	return 4000
 }
 
-func estimateTokensForMessage(message ChatMessage) int {
+func estimateTokensForMessage(message string) int {
 	// to lower the dependency to heavy external libs we use the rule of thumbs which is totally fine here
 	// https://platform.openai.com/tokenizer
-	return len(message.Content) / 4
+	return len(message) / 4
 }

@@ -1,6 +1,8 @@
 package bot
 
 import (
+	"bytes"
+	"strings"
 	"sync"
 
 	"github.com/innogames/slack-bot/v2/bot/msg"
@@ -18,12 +20,18 @@ func (b *Bot) handleEvent(eventsAPIEvent slackevents.EventsAPIEvent) {
 	switch eventsAPIEvent.Type {
 	case slackevents.CallbackEvent:
 		innerEvent := eventsAPIEvent.InnerEvent
+
 		switch ev := innerEvent.Data.(type) {
 		case *slackevents.MessageEvent:
 			if ev.SubType == "message_changed" {
 				// don't listen to edited messages
 				return
 			}
+
+			if len(ev.Files) > 0 {
+				ev.Text += b.loadFileContent(ev)
+			}
+
 			message := &slack.MessageEvent{
 				Msg: slack.Msg{
 					Text:            ev.Text,
@@ -49,6 +57,30 @@ func (b *Bot) handleEvent(eventsAPIEvent slackevents.EventsAPIEvent) {
 	default:
 		log.Infof("unsupported Events API event received")
 	}
+}
+
+func (b *Bot) loadFileContent(event *slackevents.MessageEvent) string {
+	response := ""
+
+	for _, file := range event.Files {
+		if !strings.HasPrefix(file.Mimetype, "text/") {
+			log.Infof("Can't load file %s: mimetype is %s", file.Name, file.Mimetype)
+			continue
+		}
+
+		var downloadedText bytes.Buffer
+		log.Infof("Downloading message attachment file %s", file.Name)
+
+		err := b.slackClient.Client.GetFile(file.URLPrivate, &downloadedText)
+		if err != nil {
+			log.Errorf("Failed to download file %s: %s", file.URLPrivate, err.Error())
+			continue
+		}
+
+		response += "\n" + downloadedText.String()
+	}
+
+	return response
 }
 
 func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
