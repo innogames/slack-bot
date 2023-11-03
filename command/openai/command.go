@@ -11,8 +11,10 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/stats"
 	"github.com/innogames/slack-bot/v2/bot/storage"
 	"github.com/innogames/slack-bot/v2/bot/util"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 )
@@ -234,6 +236,10 @@ func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier 
 		if err != nil {
 			log.Warnf("Error while storing openai history: %s", err)
 		}
+
+		stats.IncreaseOne("openai_calls")
+		stats.Increase("openai_input_tokens", inputTokens)
+		stats.Increase("openai_output_tokens", estimateTokensForMessage(responseText.String()))
 
 		log.Infof(
 			"Openai %s call took %s with %d sub messages (%d tokens). Message: '%s'. Response: '%s'",

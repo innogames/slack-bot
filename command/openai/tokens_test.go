@@ -46,7 +46,7 @@ func TestTruncate(t *testing.T) {
 
 func TestCountTokens(t *testing.T) {
 	t.Run("Count", func(t *testing.T) {
-		actual := estimateTokensForMessage(ChatMessage{Content: "hello you!"})
+		actual := estimateTokensForMessage("hello you!")
 		assert.Equal(t, 2, actual)
 	})
 }
