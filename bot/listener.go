@@ -24,6 +24,7 @@ func (b *Bot) startRunnables(ctx *util.ServerContext) {
 // Run is blocking method to handle new incoming events...from different sources
 func (b *Bot) Run(ctx *util.ServerContext) {
 	b.startRunnables(ctx)
+	initMetrics(b.config, ctx)
 
 	// initialize Socket Mode:
 	// https://api.slack.com/apis/connections/socket
