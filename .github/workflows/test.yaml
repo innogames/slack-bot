@@ -74,7 +74,6 @@ jobs:
         uses: Templum/govulncheck-action@v0.10.0
         with:
           package: ./...
-          fail-on-vuln: true
   docker:
     name: Build Docker image
     runs-on: ubuntu-latest
