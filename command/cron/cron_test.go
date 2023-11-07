@@ -3,6 +3,7 @@ package cron
 import (
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -53,6 +54,7 @@ func TestCron(t *testing.T) {
 	t.Run("Run in background", func(t *testing.T) {
 		ctx := util.NewServerContext()
 		go command.RunAsync(ctx)
+		time.Sleep(time.Millisecond * 10)
 		ctx.StopTheWorld()
 	})
 

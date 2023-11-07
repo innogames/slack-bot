@@ -32,6 +32,9 @@ type Config struct {
 
 	BranchLookup VCS `mapstructure:"branch_lookup"`
 
+	// Metrics, like Prometheus
+	Metrics Metrics `mapstructure:"metrics"`
+
 	OpenWeather OpenWeather `mapstructure:"open_weather"`
 	PullRequest PullRequest `mapstructure:"pullrequest"`
 	Timezone    string      `mapstructure:"timezone"`
