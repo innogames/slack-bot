@@ -101,7 +101,9 @@ func (c *chatGPTCommand) startConversation(message msg.Ref, text string) bool {
 			})
 		}
 		storageIdentifier = getIdentifier(message.GetChannel(), message.GetThread())
-		log.Infof("openai thread context: %s", messageHistory)
+		if c.cfg.LogTexts {
+			log.Infof("openai thread context: %s", messageHistory)
+		}
 	} else if linkRe.MatchString(text) {
 		// a link to another thread was posted -> use this messages as context
 		link := linkRe.FindStringSubmatch(text)
@@ -242,14 +244,19 @@ func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier 
 		stats.Increase("openai_output_tokens", estimateTokensForMessage(responseText.String()))
 
 		log.Infof(
-			"Openai %s call took %s with %d sub messages (%d tokens). Message: '%s'. Response: '%s'",
+			"Openai %s call took %s with %d sub messages (%d tokens).",
 			c.cfg.Model,
 			util.FormatDuration(time.Since(startTime)),
 			len(messages),
 			inputTokens,
-			inputText,
-			responseText.String(),
 		)
+		if c.cfg.LogTexts {
+			log.Infof(
+				"Openai texts. Input: '%s'. Response: '%s'",
+				inputText,
+				responseText.String(),
+			)
+		}
 	}()
 }
 

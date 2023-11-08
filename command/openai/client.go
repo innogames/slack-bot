@@ -18,6 +18,8 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan s
 	jsonData, _ := json.Marshal(ChatRequest{
 		Model:       cfg.Model,
 		Temperature: cfg.Temperature,
+		Seed:        cfg.Seed,
+		MaxTokens:   cfg.MaxTokens,
 		Stream:      stream,
 		Messages:    inputMessages,
 	})

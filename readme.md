@@ -49,7 +49,7 @@ oauth_config:
       - reactions:read
       - reactions:write
       - users:read
-      - files:write
+      - files:read
 settings:
   event_subscriptions:
     bot_events:
@@ -302,6 +302,7 @@ openai:
   update_interval: '3s' # fewer Slack messages update during generation
   model: gpt-3.5-turbo
   temperature: 0.8
+  log_texts: true # opt in: log all input/output text to the log
 ```
 
 When using the "openai XXX" command within a existing thread, the previous messages are used as context for further calls.
