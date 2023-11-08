@@ -1,6 +1,7 @@
 package openai
 
 import (
+	"os"
 	"time"
 
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -27,6 +28,10 @@ type Config struct {
 
 	// log all input+output text to the logger. This could include personal information, therefore disabled by default!
 	LogTexts bool `mapstructure:"log_texts"`
+
+	// user name to identify the bot which should be part of the OpenAI usage statistics.
+	// use {hostname} to set the hostname of the machine
+	APILogUser string `mapstructure:"api_log_user"`
 }
 
 // IsEnabled checks if token is set
@@ -45,6 +50,10 @@ var defaultConfig = Config{
 func loadConfig(config *config.Config) Config {
 	cfg := defaultConfig
 	_ = config.LoadCustom("openai", &cfg)
+
+	if cfg.APILogUser == "{hostname}" {
+		cfg.APILogUser, _ = os.Hostname()
+	}
 
 	return cfg
 }

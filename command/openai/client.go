@@ -20,6 +20,7 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan s
 		Temperature: cfg.Temperature,
 		Seed:        cfg.Seed,
 		MaxTokens:   cfg.MaxTokens,
+		User:        cfg.APILogUser,
 		Stream:      stream,
 		Messages:    inputMessages,
 	})
