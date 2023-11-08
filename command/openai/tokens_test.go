@@ -11,8 +11,8 @@ func TestModels(t *testing.T) {
 		input    string
 		expected int
 	}{
-		{"", 4000},
-		{"jolo", 4000},
+		{"", 128000},
+		{"jolo", 128000},
 		{"gpt-4", 8192},
 		{"gpt-4-0613", 8192},
 		{"gpt-4-32k-0613", 32768},

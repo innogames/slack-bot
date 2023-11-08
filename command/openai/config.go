@@ -13,6 +13,8 @@ type Config struct {
 	InitialSystemMessage string  `mapstructure:"initial_system_message"`
 	Model                string  `mapstructure:"model"`
 	Temperature          float32 `mapstructure:"temperature"`
+	Seed                 string  `mapstructure:"seed"`
+	MaxTokens            int     `mapstructure:"max_tokens"`
 
 	// number of thread messages stored which are used as a context for further requests
 	HistorySize int `mapstructure:"history_size"`
@@ -22,6 +24,9 @@ type Config struct {
 
 	// maximum update frequency of slack messages when "stream" is active
 	UpdateInterval time.Duration `mapstructure:"update_interval"`
+
+	// log all input+output text to the logger. This could include personal information, therefore disabled by default!
+	LogTexts bool `mapstructure:"log_texts"`
 }
 
 // IsEnabled checks if token is set

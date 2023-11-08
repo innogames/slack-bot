@@ -13,21 +13,20 @@ const (
 	roleAssistant = "assistant"
 )
 
-// https://platform.openai.com/docs/guides/chat/chat-completions-beta
 // https://platform.openai.com/docs/api-reference/chat
 type ChatRequest struct {
-	Model            string         `json:"model"`
-	Messages         []ChatMessage  `json:"messages"`
-	Temperature      float32        `json:"temperature,omitempty"`
-	TopP             float32        `json:"top_p,omitempty"`
-	N                int            `json:"n,omitempty"`
-	Stop             []string       `json:"stop,omitempty"`
-	Stream           bool           `json:"stream,omitempty"`
-	MaxTokens        int            `json:"max_tokens,omitempty"`
-	PresencePenalty  float32        `json:"presence_penalty,omitempty"`
-	FrequencyPenalty float32        `json:"frequency_penalty,omitempty"`
-	LogitBias        map[string]int `json:"logit_bias,omitempty"`
-	User             string         `json:"user,omitempty"`
+	Model            string        `json:"model"`
+	Messages         []ChatMessage `json:"messages"`
+	Temperature      float32       `json:"temperature,omitempty"`
+	TopP             float32       `json:"top_p,omitempty"`
+	N                int           `json:"n,omitempty"`
+	Stop             []string      `json:"stop,omitempty"`
+	Stream           bool          `json:"stream,omitempty"`
+	MaxTokens        int           `json:"max_tokens,omitempty"`
+	PresencePenalty  float32       `json:"presence_penalty,omitempty"`
+	FrequencyPenalty float32       `json:"frequency_penalty,omitempty"`
+	User             string        `json:"user,omitempty"`
+	Seed             string        `json:"seed,omitempty"`
 }
 
 type ChatMessage struct {
