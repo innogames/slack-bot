@@ -22,7 +22,7 @@ require (
 	github.com/slack-go/slack v0.12.3
 	github.com/stretchr/testify v1.8.4
 	github.com/texttheater/golang-levenshtein/levenshtein v0.0.0-20200805054039-cae8b0eaed6c
-	github.com/xanzy/go-gitlab v0.93.1
+	github.com/xanzy/go-gitlab v0.94.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	golang.org/x/oauth2 v0.13.0
 	golang.org/x/text v0.13.0
