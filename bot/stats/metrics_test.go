@@ -1,4 +1,4 @@
-package bot
+package stats
 
 import (
 	"io"
@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/innogames/slack-bot/v2/bot/config"
-	"github.com/innogames/slack-bot/v2/bot/stats"
 	"github.com/innogames/slack-bot/v2/bot/util"
 
 	"github.com/stretchr/testify/assert"
@@ -26,9 +25,9 @@ func TestMetrics(t *testing.T) {
 		},
 	}
 
-	stats.Set("test_value", 500)
+	Set("test_value", 500)
 
-	initMetrics(cfg, ctx)
+	InitMetrics(cfg, ctx)
 	time.Sleep(time.Millisecond * 100)
 
 	resp, err := http.Get("http://" + metricsPort + "/metrics")

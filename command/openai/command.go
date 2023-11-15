@@ -241,24 +241,27 @@ func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier 
 			log.Warnf("Error while storing openai history: %s", err)
 		}
 
+		// log some stats in the end
+		outputTokens := estimateTokensForMessage(responseText.String())
 		stats.IncreaseOne("openai_calls")
 		stats.Increase("openai_input_tokens", inputTokens)
-		stats.Increase("openai_output_tokens", estimateTokensForMessage(responseText.String()))
+		stats.Increase("openai_output_tokens", outputTokens)
 
-		log.Infof(
-			"Openai %s call took %s with %d sub messages (%d tokens).",
-			c.cfg.Model,
+		logFields := log.Fields{
+			"input_tokens":  inputTokens,
+			"output_tokens": outputTokens,
+			"model":         c.cfg.Model,
+		}
+		if c.cfg.LogTexts {
+			logFields["input_text"] = inputText
+			logFields["output_text"] = responseText.String()
+		}
+
+		log.WithFields(logFields).Infof(
+			"Openai call took %s with %d context messages.",
 			util.FormatDuration(time.Since(startTime)),
 			len(messages),
-			inputTokens,
 		)
-		if c.cfg.LogTexts {
-			log.Infof(
-				"Openai texts. Input: '%s'. Response: '%s'",
-				inputText,
-				responseText.String(),
-			)
-		}
 	}()
 }
 

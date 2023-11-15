@@ -26,13 +26,15 @@ func TestStats(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, value, uint(42))
 
-	Increase("test", 2)
+	Increase("test", int64(1))
+	Increase("test", int8(1))
+	Increase("test", 1)
 	value, err = Get("test")
 	assert.Nil(t, err)
-	assert.Equal(t, value, uint(44))
+	assert.Equal(t, value, uint(45))
 
 	IncreaseOne("test")
 	value, err = Get("test")
 	assert.Nil(t, err)
-	assert.Equal(t, value, uint(45))
+	assert.Equal(t, value, uint(46))
 }

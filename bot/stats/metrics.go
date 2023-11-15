@@ -1,4 +1,4 @@
-package bot
+package stats
 
 import (
 	"net/http"
@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/innogames/slack-bot/v2/bot/config"
-	"github.com/innogames/slack-bot/v2/bot/stats"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
@@ -23,19 +22,20 @@ func (c *statRegistry) Describe(_ chan<- *prometheus.Desc) {
 
 // Collect returns the current state of all metrics of our slack-bot stats
 func (c *statRegistry) Collect(ch chan<- prometheus.Metric) {
-	for _, key := range stats.GetKeys() {
-		metric := prometheus.NewGauge(prometheus.GaugeOpts{
+	for _, key := range GetKeys() {
+		metric := prometheus.NewCounter(prometheus.CounterOpts{
 			Namespace: "slack_bot",
 			Name:      strings.ReplaceAll(key, "-", "_"),
 		})
-		value, _ := stats.Get(key)
-		metric.Set(float64(value))
+		value, _ := Get(key)
+		metric.Add(float64(value))
 		metric.Collect(ch)
 	}
 }
 
-func initMetrics(cfg config.Config, ctx *util.ServerContext) {
-	if cfg.Metrics.PrometheusListener == "" {
+func InitMetrics(cfg config.Config, ctx *util.ServerContext) {
+	if !cfg.Metrics.IsEnabled() {
+		// prometheus is disabled...skip here
 		return
 	}
 
@@ -64,7 +64,10 @@ func initMetrics(cfg config.Config, ctx *util.ServerContext) {
 		)
 
 		go func() {
-			_ = server.ListenAndServe()
+			err := server.ListenAndServe()
+			if err != nil {
+				log.Warnf("Failed to start prometheus server: %s", err)
+			}
 		}()
 
 		<-ctx.Done()
