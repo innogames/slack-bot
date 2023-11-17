@@ -5,6 +5,7 @@ import "github.com/pkg/errors"
 const (
 	apiHost          = "https://api.openai.com"
 	apiCompletionURL = "/v1/chat/completions"
+	apiDalleURL      = "/v1/images/generations"
 )
 
 const (
