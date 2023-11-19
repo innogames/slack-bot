@@ -27,6 +27,11 @@ type Config struct {
 
 	// log all input+output text to the logger. This could include personal information, therefore disabled by default!
 	LogTexts bool `mapstructure:"log_texts"`
+
+	// Dall-E image generation
+	DalleModel          string `mapstructure:"dalle_model"`
+	DalleImageSize      string `mapstructure:"dalle_image_size"`
+	DalleNumberOfImages int    `mapstructure:"dalle_number_of_images"`
 }
 
 // IsEnabled checks if token is set
@@ -40,6 +45,11 @@ var defaultConfig = Config{
 	UpdateInterval:       time.Second,
 	HistorySize:          15,
 	InitialSystemMessage: "You are a helpful Slack bot. By default, keep your answer short and truthful",
+
+	// default dall-e config
+	DalleModel:          "dall-e-3",
+	DalleImageSize:      "1024x1024",
+	DalleNumberOfImages: 1,
 }
 
 func loadConfig(config *config.Config) Config {

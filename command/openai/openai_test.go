@@ -26,13 +26,13 @@ type testRequest struct {
 	responseCode int
 }
 
-func startTestServer(t *testing.T, requests []testRequest) *httptest.Server {
+func startTestServer(t *testing.T, url string, requests []testRequest) *httptest.Server {
 	t.Helper()
 
 	idx := 0
 
 	mux := http.NewServeMux()
-	mux.HandleFunc(apiCompletionURL, func(res http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc(url, func(res http.ResponseWriter, req *http.Request) {
 		expected := requests[idx]
 		idx++
 
@@ -63,6 +63,7 @@ func TestOpenai(t *testing.T) {
 	t.Run("Start a new thread and reply", func(t *testing.T) {
 		ts := startTestServer(
 			t,
+			apiCompletionURL,
 			[]testRequest{
 				{
 					`{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"user","content":"whats 1+1?"}],"stream":true}`,
@@ -104,6 +105,7 @@ data: [DONE]`,
 		openaiCfg := defaultConfig
 		openaiCfg.APIHost = ts.URL
 		openaiCfg.APIKey = "0815pass"
+		openaiCfg.LogTexts = true
 		cfg := &config.Config{}
 		cfg.Set("openai", openaiCfg)
 
@@ -159,6 +161,7 @@ data: [DONE]`,
 		// mock openai API
 		ts := startTestServer(
 			t,
+			apiCompletionURL,
 			[]testRequest{
 				{
 					`{"model":"","messages":[{"role":"user","content":"whats 1+1?"}],"stream":true}`,
@@ -201,6 +204,8 @@ data: [DONE]`,
 		// mock openai API
 		ts := startTestServer(
 			t,
+			apiCompletionURL,
+
 			[]testRequest{
 				{
 					`{"model":"","messages":[{"role":"user","content":"whats 1+1?"}],"stream":true}`,
@@ -243,6 +248,7 @@ data: [DONE]`,
 		// mock openai API
 		ts := startTestServer(
 			t,
+			apiCompletionURL,
 			[]testRequest{
 				{
 					`{"model":"gpt-3.5-turbo","messages":[{"role":"user","content":"whats 1+1?"}]}`,
@@ -285,6 +291,7 @@ data: [DONE]`,
 	t.Run("Write within a new thread", func(t *testing.T) {
 		ts := startTestServer(
 			t,
+			apiCompletionURL,
 			[]testRequest{
 				{
 					`{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"system","content":"This is a Slack bot receiving a slack thread s context, using slack user ids as identifiers. Please use user mentions in the format \u003c@U123456\u003e"},{"role":"user","content":"User \u003c@U1234\u003e wrote: thread message 1"},{"role":"user","content":"whats 1+1?"}],"stream":true}`,
@@ -304,6 +311,7 @@ data: [DONE]`,
 		openaiCfg := defaultConfig
 		openaiCfg.APIHost = ts.URL
 		openaiCfg.APIKey = "0815pass"
+		openaiCfg.LogTexts = true
 		cfg := &config.Config{}
 		cfg.Set("openai", openaiCfg)
 
@@ -344,6 +352,7 @@ data: [DONE]`,
 	t.Run("Other thread given", func(t *testing.T) {
 		ts := startTestServer(
 			t,
+			apiCompletionURL,
 			[]testRequest{
 				{
 					`{"model":"dummy-test","messages":[{"role":"user","content":"User \u003c@U1234\u003e wrote: i had a great weekend"},{"role":"user","content":"summarize this thread "}],"stream":true}`,

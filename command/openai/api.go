@@ -1,11 +1,16 @@
 package openai
 
-import "github.com/pkg/errors"
+import (
+	"bytes"
+	"net/http"
+
+	"github.com/pkg/errors"
+)
 
 const (
-	apiHost          = "https://api.openai.com"
-	apiCompletionURL = "/v1/chat/completions"
-	apiDalleURL      = "/v1/images/generations"
+	apiHost                  = "https://api.openai.com"
+	apiCompletionURL         = "/v1/chat/completions"
+	apiDalleGenerateImageURL = "/v1/images/generations"
 )
 
 const (
@@ -13,6 +18,18 @@ const (
 	roleSystem    = "system"
 	roleAssistant = "assistant"
 )
+
+func doRequest(cfg Config, apiEndpoint string, data []byte) (*http.Response, error) {
+	req, err := http.NewRequest("POST", cfg.APIHost+apiEndpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+cfg.APIKey)
+
+	return client.Do(req)
+}
 
 // https://platform.openai.com/docs/api-reference/chat
 type ChatRequest struct {
@@ -72,4 +89,52 @@ type ChatChoice struct {
 	Message      ChatMessage `json:"message"`
 	FinishReason string      `json:"finish_reason"`
 	Delta        ChatMessage `json:"delta"`
+}
+
+/*
+	{
+	    "model": "dall-e-3",
+	    "prompt": "a white siamese cat",
+	    "n": 1,
+	    "size": "1024x1024"
+	  }
+*/
+type DalleRequest struct {
+	Model  string `json:"model"`
+	Prompt string `json:"prompt"`
+	N      int    `json:"n"`
+	Size   string `json:"size"`
+}
+
+/*
+	{
+	  "created": 1700233554,
+	  "data": [
+	    {
+	      "url": "https://XXXX"
+	    }
+	  ]
+	}
+or:
+	{
+	  "error": {
+	    "code": "invalid_size",
+	    "message": "The size is not supported by this model.",
+	    "param": null,
+	    "type": "invalid_request_error"
+	  }
+	}
+*/
+
+type DalleResponseImage struct {
+	URL           string `json:"url"`
+	RevisedPrompt string `json:"revised_prompt"`
+}
+
+type DalleResponse struct {
+	Data  []DalleResponseImage `json:"data"`
+	Error struct {
+		Code    string `json:"code"`
+		Message string `json:"message"`
+	} `json:"error"`
 }
