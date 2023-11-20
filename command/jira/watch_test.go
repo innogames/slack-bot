@@ -11,7 +11,7 @@ import (
 )
 
 func TestWatchJira(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 
 	// todo fake http client
 	cfg := &config.Jira{

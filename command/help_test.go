@@ -14,7 +14,7 @@ import (
 func TestHelp(t *testing.T) {
 	cfg := config.Config{}
 	cfg.Jenkins.Host = "bitbucket.example.com"
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 
 	base := bot.BaseCommand{SlackClient: slackClient}
 

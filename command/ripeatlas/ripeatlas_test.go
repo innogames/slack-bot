@@ -92,7 +92,7 @@ func spawnRIPEAtlasServer(t *testing.T) *httptest.Server {
 }
 
 func TestRipeAtlas(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	t.Run("RIPE Atlas is not active", func(t *testing.T) {

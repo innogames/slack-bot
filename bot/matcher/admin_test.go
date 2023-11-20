@@ -11,7 +11,7 @@ import (
 
 func TestAdmin(t *testing.T) {
 	t.Run("Test no Admin", func(t *testing.T) {
-		slackClient := &mocks.SlackClient{}
+		slackClient := mocks.NewSlackClient(t)
 
 		cfg := config.Config{}
 		cfg.AdminUsers = []string{

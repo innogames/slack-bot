@@ -15,7 +15,7 @@ import (
 func TestBotLog(t *testing.T) {
 	testFile := "test.log"
 
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	client.AllUsers = config.UserMap{

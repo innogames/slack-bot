@@ -18,7 +18,7 @@ func TestRetry(t *testing.T) {
 	defer lock.Unlock()
 
 	client.InternalMessages = make(chan msg.Message, 2)
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	cfg := &config.Config{}
 	base := bot.BaseCommand{SlackClient: slackClient}
 
@@ -152,7 +152,6 @@ func TestRetry(t *testing.T) {
 			&slack.GetConversationHistoryParameters{ChannelID: "D0183HUURA9", Inclusive: true, Latest: "1607971366.001001", Limit: 1},
 		).Return(&slack.GetConversationHistoryResponse{Messages: []slack.Message{history}}, nil)
 		mocks.AssertReaction(slackClient, "✅", message)
-		mocks.AssertSlackMessage(slackClient, message, "this is not your message")
 
 		actual := retry.Run(message)
 

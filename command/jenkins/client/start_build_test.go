@@ -18,7 +18,7 @@ import (
 )
 
 func TestStartBuild(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	cfg := config.JobConfig{}
 	message := msg.Message{}
 
@@ -143,7 +143,7 @@ func TestGetAttachment(t *testing.T) {
 }
 
 func TestSendBuildStartedMessage(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	ref := msg.MessageRef{}
 
 	job := &gojenkins.Job{

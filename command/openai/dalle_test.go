@@ -19,7 +19,7 @@ func TestDalle(t *testing.T) {
 	// init memory based storage
 	storage.InitStorage("")
 
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	t.Run("test http error", func(t *testing.T) {

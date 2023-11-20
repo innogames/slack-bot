@@ -18,7 +18,7 @@ import (
 )
 
 func TestGithub(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	cfg := &config.DefaultConfig
