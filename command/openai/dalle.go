@@ -31,7 +31,10 @@ func (c *openaiCommand) dalleGenerateImage(match matcher.Result, message msg.Mes
 		for _, image := range images {
 			err := c.sendImageInSlack(image, message)
 			if err != nil {
-				log.Warnf("failed to download image: %s - %s", err, image.URL)
+				c.ReplyError(
+					message,
+					fmt.Errorf("failed to download image: %s %s", image.URL, err),
+				)
 			}
 		}
 	}()
