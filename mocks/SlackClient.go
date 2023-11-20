@@ -215,6 +215,32 @@ func (_m *SlackClient) SendToUser(user string, text string) {
 	_m.Called(user, text)
 }
 
+// UploadFile provides a mock function with given fields: params
+func (_m *SlackClient) UploadFile(params slack.FileUploadParameters) (*slack.File, error) {
+	ret := _m.Called(params)
+
+	var r0 *slack.File
+	var r1 error
+	if rf, ok := ret.Get(0).(func(slack.FileUploadParameters) (*slack.File, error)); ok {
+		return rf(params)
+	}
+	if rf, ok := ret.Get(0).(func(slack.FileUploadParameters) *slack.File); ok {
+		r0 = rf(params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*slack.File)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(slack.FileUploadParameters) error); ok {
+		r1 = rf(params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewSlackClient creates a new instance of SlackClient. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewSlackClient(t interface {

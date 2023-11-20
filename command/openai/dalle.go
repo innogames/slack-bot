@@ -3,41 +3,64 @@ package openai
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	log "github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
 )
 
 // bot function to generate images with Dall-E
-func (c *chatGPTCommand) dalleGenerateImage(match matcher.Result, message msg.Message) {
-	prompt := match.GetString(util.FullMatch)
+func (c *openaiCommand) dalleGenerateImage(match matcher.Result, message msg.Message) {
+	// run the generation in the background and as it could take some time
+	c.AddReaction(":coffee:", message)
 
 	go func() {
-		c.AddReaction(":coffee:", message)
 		defer c.RemoveReaction(":coffee:", message)
 
-		images, err := generateImage(c.cfg, prompt)
+		prompt := match.GetString(util.FullMatch)
+		images, err := generateImages(c.cfg, prompt)
 		if err != nil {
 			c.ReplyError(message, err)
 			return
 		}
 
-		text := ""
 		for _, image := range images {
-			text += fmt.Sprintf(
-				" - %s: <%s|open image>\n",
-				image.RevisedPrompt,
-				image.URL,
-			)
+			err := c.sendImageInSlack(image, message)
+			if err != nil {
+				log.Warnf("failed to download image: %s - %s", err, image.URL)
+			}
 		}
-		c.SendMessage(message, text)
 	}()
 }
 
-func generateImage(cfg Config, prompt string) ([]DalleResponseImage, error) {
+func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.Message) error {
+	req, err := http.NewRequest("GET", image.URL, nil)
+	if err != nil {
+		return err
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	_, err = c.SlackClient.UploadFile(slack.FileUploadParameters{
+		Filename:        "dalle.png",
+		Filetype:        "png",
+		Channels:        []string{message.Channel},
+		ThreadTimestamp: message.Timestamp,
+		Reader:          resp.Body,
+		InitialComment:  image.RevisedPrompt,
+	})
+
+	return err
+}
+
+func generateImages(cfg Config, prompt string) ([]DalleResponseImage, error) {
 	jsonData, _ := json.Marshal(DalleRequest{
 		Model:  cfg.DalleModel,
 		Size:   cfg.DalleImageSize,

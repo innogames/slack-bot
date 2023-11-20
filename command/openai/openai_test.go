@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -26,10 +27,12 @@ type testRequest struct {
 	responseCode int
 }
 
-func startTestServer(t *testing.T, url string, requests []testRequest) *httptest.Server {
+func startTestServer(t *testing.T, url string, requests []testRequest) (Config, *httptest.Server) {
 	t.Helper()
 
 	idx := 0
+
+	openaiCfg := defaultConfig
 
 	mux := http.NewServeMux()
 	mux.HandleFunc(url, func(res http.ResponseWriter, req *http.Request) {
@@ -41,10 +44,17 @@ func startTestServer(t *testing.T, url string, requests []testRequest) *httptest
 		assert.Equal(t, expected.inputJSON, string(givenInputJSON))
 
 		res.WriteHeader(expected.responseCode)
-		res.Write([]byte(expected.responseJSON))
+
+		response := strings.ReplaceAll(expected.responseJSON, "{test_server}", openaiCfg.APIHost)
+		res.Write([]byte(response))
 	})
 
-	return httptest.NewServer(mux)
+	server := httptest.NewServer(mux)
+
+	openaiCfg.APIHost = server.URL
+	openaiCfg.APIKey = "0815pass"
+
+	return openaiCfg, server
 }
 
 func TestOpenai(t *testing.T) {
@@ -61,7 +71,7 @@ func TestOpenai(t *testing.T) {
 	})
 
 	t.Run("Start a new thread and reply", func(t *testing.T) {
-		ts := startTestServer(
+		openaiCfg, ts := startTestServer(
 			t,
 			apiCompletionURL,
 			[]testRequest{
@@ -102,9 +112,6 @@ data: [DONE]`,
 		)
 		defer ts.Close()
 
-		openaiCfg := defaultConfig
-		openaiCfg.APIHost = ts.URL
-		openaiCfg.APIKey = "0815pass"
 		openaiCfg.LogTexts = true
 		cfg := &config.Config{}
 		cfg.Set("openai", openaiCfg)
@@ -113,7 +120,7 @@ data: [DONE]`,
 		assert.Equal(t, 1, commands.Count())
 
 		help := commands.GetHelp()
-		assert.Equal(t, 1, len(help))
+		assert.Equal(t, 2, len(help))
 
 		message := msg.Message{}
 		message.Text = "openai whats 1+1?"
@@ -159,12 +166,12 @@ data: [DONE]`,
 
 	t.Run("test http error", func(t *testing.T) {
 		// mock openai API
-		ts := startTestServer(
+		openaiCfg, ts := startTestServer(
 			t,
 			apiCompletionURL,
 			[]testRequest{
 				{
-					`{"model":"","messages":[{"role":"user","content":"whats 1+1?"}],"stream":true}`,
+					`{"model":"gpt-3.5-turbo","messages":[{"role":"user","content":"whats 1+1?"}],"stream":true}`,
 					`{
 					  "error": {
 						"code": "invalid_api_key",
@@ -178,10 +185,7 @@ data: [DONE]`,
 		)
 		defer ts.Close()
 
-		openaiCfg := Config{
-			APIHost: ts.URL,
-			APIKey:  "0815pass",
-		}
+		openaiCfg.InitialSystemMessage = ""
 		cfg := &config.Config{}
 		cfg.Set("openai", openaiCfg)
 		commands := GetCommands(base, cfg)
@@ -202,13 +206,13 @@ data: [DONE]`,
 
 	t.Run("use as fallback", func(t *testing.T) {
 		// mock openai API
-		ts := startTestServer(
+		openaiCfg, ts := startTestServer(
 			t,
 			apiCompletionURL,
 
 			[]testRequest{
 				{
-					`{"model":"","messages":[{"role":"user","content":"whats 1+1?"}],"stream":true}`,
+					`{"model":"gpt-3.5-turbo","messages":[{"role":"user","content":"whats 1+1?"}],"stream":true}`,
 					`{
 					  "error": {
 						"code": "invalid_api_key",
@@ -222,11 +226,8 @@ data: [DONE]`,
 		)
 		defer ts.Close()
 
-		openaiCfg := Config{
-			APIHost:       ts.URL,
-			APIKey:        "0815pass",
-			UseAsFallback: true,
-		}
+		openaiCfg.UseAsFallback = true
+		openaiCfg.InitialSystemMessage = ""
 		cfg := &config.Config{}
 		cfg.Set("openai", openaiCfg)
 		commands := GetCommands(base, cfg)
@@ -246,7 +247,7 @@ data: [DONE]`,
 
 	t.Run("render template", func(t *testing.T) {
 		// mock openai API
-		ts := startTestServer(
+		openaiCfg, ts := startTestServer(
 			t,
 			apiCompletionURL,
 			[]testRequest{
@@ -274,9 +275,7 @@ data: [DONE]`,
 		)
 		defer ts.Close()
 
-		openaiCfg := defaultConfig
-		openaiCfg.APIHost = ts.URL
-		command := chatGPTCommand{base, openaiCfg}
+		command := openaiCommand{base, openaiCfg}
 
 		util.RegisterFunctions(command.GetTemplateFunction())
 		tpl, err := util.CompileTemplate(`{{ openai "whats 1+1?"}}`)
@@ -289,7 +288,7 @@ data: [DONE]`,
 	})
 
 	t.Run("Write within a new thread", func(t *testing.T) {
-		ts := startTestServer(
+		openaiCfg, ts := startTestServer(
 			t,
 			apiCompletionURL,
 			[]testRequest{
@@ -308,9 +307,6 @@ data: [DONE]`,
 		)
 		defer ts.Close()
 
-		openaiCfg := defaultConfig
-		openaiCfg.APIHost = ts.URL
-		openaiCfg.APIKey = "0815pass"
 		openaiCfg.LogTexts = true
 		cfg := &config.Config{}
 		cfg.Set("openai", openaiCfg)
@@ -350,7 +346,7 @@ data: [DONE]`,
 	})
 
 	t.Run("Other thread given", func(t *testing.T) {
-		ts := startTestServer(
+		openaiCfg, ts := startTestServer(
 			t,
 			apiCompletionURL,
 			[]testRequest{
@@ -369,9 +365,6 @@ data: [DONE]`,
 		)
 		defer ts.Close()
 
-		openaiCfg := defaultConfig
-		openaiCfg.APIHost = ts.URL
-		openaiCfg.APIKey = "0815pass"
 		openaiCfg.InitialSystemMessage = ""
 		openaiCfg.Model = "dummy-test"
 		cfg := &config.Config{}

@@ -19,6 +19,9 @@ const (
 	roleAssistant = "assistant"
 )
 
+// we don't use our default clients.HttpClient as we need longer timeouts...
+var client http.Client
+
 func doRequest(cfg Config, apiEndpoint string, data []byte) (*http.Response, error) {
 	req, err := http.NewRequest("POST", cfg.APIHost+apiEndpoint, bytes.NewBuffer(data))
 	if err != nil {

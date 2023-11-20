@@ -115,6 +115,9 @@ type SlackClient interface {
 
 	// GetUserPresence returns the current presence of a user, using the "users.getPresence" API
 	GetUserPresence(user string) (*slack.UserPresence, error)
+
+	// UploadFile uploads a file to Slack
+	UploadFile(params slack.FileUploadParameters) (*slack.File, error)
 }
 
 // Slack is wrapper to the slack.Client which also holds the the socketmode.Client and all needed config
@@ -297,6 +300,11 @@ func (s *Slack) GetThreadMessages(ref msg.Ref) ([]slack.Message, error) {
 // GetUserPresence returns the current presence of a user, using the "users.getPresence" API
 func (s *Slack) GetUserPresence(user string) (*slack.UserPresence, error) {
 	return s.Client.GetUserPresence(user)
+}
+
+// UploadFile uploads a file to Slack
+func (s *Slack) UploadFile(params slack.FileUploadParameters) (*slack.File, error) {
+	return s.Client.UploadFile(params)
 }
 
 // GetUserIDAndName returns the user-id and user-name based on a identifier. If can get a user-id or name

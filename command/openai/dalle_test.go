@@ -10,7 +10,9 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/storage"
 	"github.com/innogames/slack-bot/v2/mocks"
+	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestDalle(t *testing.T) {
@@ -21,26 +23,23 @@ func TestDalle(t *testing.T) {
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	t.Run("test http error", func(t *testing.T) {
-		ts := startTestServer(
+		openaiCfg, ts := startTestServer(
 			t,
 			apiDalleGenerateImageURL,
 			[]testRequest{
 				{
 					`{"model":"dall-e-3","prompt":"a nice cat","n":1,"size":"1024x1024"}`,
 					`{
-						  "error": {
-							"code": "invalid_api_key",
-							"message": "Incorrect API key provided: sk-1234**************************************567.",
-							"type": "invalid_request_error"
-						  }
-						}`,
+							  "error": {
+								"code": "invalid_api_key",
+								"message": "Incorrect API key provided: sk-1234**************************************567.",
+								"type": "invalid_request_error"
+							  }
+							}`,
 					http.StatusUnauthorized,
 				},
 			},
 		)
-		openaiCfg := defaultConfig
-		openaiCfg.APIHost = ts.URL
-		openaiCfg.APIKey = "0815pass"
 
 		cfg := &config.Config{}
 		cfg.Set("openai", openaiCfg)
@@ -62,7 +61,7 @@ func TestDalle(t *testing.T) {
 	})
 
 	t.Run("test generate image", func(t *testing.T) {
-		ts := startTestServer(
+		openaiCfg, ts := startTestServer(
 			t,
 			apiDalleGenerateImageURL,
 			[]testRequest{
@@ -72,18 +71,20 @@ func TestDalle(t *testing.T) {
 						  "created": 1700233554,
 						  "data": [
 							{
-							  "url": "https://example.com/image123",
+							  "url": "{test_server}/v1/images/generations",
 							  "revised_prompt": "revised prompt 1234"
 							}
 						  ]
 						}`,
 					http.StatusUnauthorized,
 				},
+				{
+					``,
+					`just something`,
+					http.StatusOK,
+				},
 			},
 		)
-		openaiCfg := defaultConfig
-		openaiCfg.APIHost = ts.URL
-		openaiCfg.APIKey = "0815pass"
 
 		cfg := &config.Config{}
 		cfg.Set("openai", openaiCfg)
@@ -97,7 +98,14 @@ func TestDalle(t *testing.T) {
 
 		mocks.AssertReaction(slackClient, ":coffee:", message)
 		mocks.AssertRemoveReaction(slackClient, ":coffee:", message)
-		mocks.AssertSlackMessage(slackClient, message, " - revised prompt 1234: <https://example.com/image123|open image>\n")
+
+		slackClient.On(
+			"UploadFile",
+			mock.MatchedBy(func(params slack.FileUploadParameters) bool {
+				assert.Equal(t, "dalle.png", params.Filename)
+				return true
+			}),
+		).Return(nil, nil).Once()
 
 		actual := commands.Run(message)
 		time.Sleep(time.Millisecond * 100)
