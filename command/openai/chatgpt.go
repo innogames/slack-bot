@@ -2,7 +2,6 @@ package openai
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -15,30 +14,21 @@ import (
 var client http.Client
 
 func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan string, error) {
-	jsonData, _ := json.Marshal(ChatRequest{
-		Model:       cfg.Model,
-		Temperature: cfg.Temperature,
-		Seed:        cfg.Seed,
-		MaxTokens:   cfg.MaxTokens,
-		Stream:      stream,
-		Messages:    inputMessages,
-	})
-
-	req, err := http.NewRequest("POST", cfg.APIHost+apiCompletionURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+cfg.APIKey)
-
 	messageUpdates := make(chan string, 2)
 
 	// return a chan of all message updates here and listen here in the background in the event stream
 	go func() {
 		defer close(messageUpdates)
 
-		resp, err := client.Do(req)
+		jsonData, _ := json.Marshal(ChatRequest{
+			Model:       cfg.Model,
+			Temperature: cfg.Temperature,
+			Seed:        cfg.Seed,
+			MaxTokens:   cfg.MaxTokens,
+			Stream:      stream,
+			Messages:    inputMessages,
+		})
+		resp, err := doRequest(cfg, apiCompletionURL, jsonData)
 		if err != nil {
 			messageUpdates <- err.Error()
 			return

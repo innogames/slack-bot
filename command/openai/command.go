@@ -53,6 +53,8 @@ func (c *chatGPTCommand) GetMatcher() matcher.Matcher {
 	matchers := []matcher.Matcher{
 		matcher.NewPrefixMatcher("openai", c.newConversation),
 		matcher.NewPrefixMatcher("chatgpt", c.newConversation),
+		matcher.NewPrefixMatcher("dalle", c.dalleGenerateImage),
+		matcher.NewPrefixMatcher("generate image", c.dalleGenerateImage),
 		matcher.WildcardMatcher(c.reply),
 	}
 

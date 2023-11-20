@@ -286,7 +286,7 @@ User can define his default environment once by using `set variable serverEnviro
 Then the `deploy feature-123` will deploy the branch to the defined `aws-02` environment.
 Each user can define his own variables.
 
-## Openai/ChatGPT integration
+## Openai/ChatGPT/Dall-e integration
 It's also possible to have a [ChatGPT](https://chat.openai.com) like conversation with the official OpenAI integration (GPT3.5)!
 
 ![openai](./docs/openai.png)
@@ -310,6 +310,13 @@ When using the "openai XXX" command within a existing thread, the previous messa
 It also possible to use the function in the templates (like in custom commands or crons). 
 
 `{{ openai "Say some short welcome words to @Jon_Doe"}}` would print something like `Hello Jon, welcome! How can I assist you today?`
+
+### DALL-E integration
+
+The bot is also able to generate images with the help of [DALL-E](https://openai.com/blog/dall-e/). 
+Just prefix you prompt with "dalle" and the bot will generate an image based on your text.
+
+![dall-e](./docs/dalle.png)
 
 ## Quiz command
 If you need a small break and want to play a little quiz game, you can do so by calling this command.
