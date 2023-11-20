@@ -35,7 +35,7 @@ func GetCommands(base bot.BaseCommand, config *config.Config) bot.Commands {
 	}
 
 	commands.AddCommand(
-		&chatGPTCommand{
+		&openaiCommand{
 			base,
 			cfg,
 		},
@@ -44,12 +44,12 @@ func GetCommands(base bot.BaseCommand, config *config.Config) bot.Commands {
 	return commands
 }
 
-type chatGPTCommand struct {
+type openaiCommand struct {
 	bot.BaseCommand
 	cfg Config
 }
 
-func (c *chatGPTCommand) GetMatcher() matcher.Matcher {
+func (c *openaiCommand) GetMatcher() matcher.Matcher {
 	matchers := []matcher.Matcher{
 		matcher.NewPrefixMatcher("openai", c.newConversation),
 		matcher.NewPrefixMatcher("chatgpt", c.newConversation),
@@ -67,12 +67,12 @@ func (c *chatGPTCommand) GetMatcher() matcher.Matcher {
 }
 
 // bot function which is called, when the user started a new conversation with openai/chatgpt
-func (c *chatGPTCommand) newConversation(match matcher.Result, message msg.Message) {
+func (c *openaiCommand) newConversation(match matcher.Result, message msg.Message) {
 	text := match.GetString(util.FullMatch)
 	c.startConversation(message.MessageRef, text)
 }
 
-func (c *chatGPTCommand) startConversation(message msg.Ref, text string) bool {
+func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
 	messageHistory := make([]ChatMessage, 0)
 
 	if c.cfg.InitialSystemMessage != "" {
@@ -139,7 +139,7 @@ func (c *chatGPTCommand) startConversation(message msg.Ref, text string) bool {
 }
 
 // bot function which is called when the user replied in a openai/chatgpt thread
-func (c *chatGPTCommand) reply(message msg.Ref, text string) bool {
+func (c *openaiCommand) reply(message msg.Ref, text string) bool {
 	if message.GetThread() == "" {
 		// We're only interested in thread replies
 		return false
@@ -162,7 +162,7 @@ func (c *chatGPTCommand) reply(message msg.Ref, text string) bool {
 }
 
 // call the GPT-3 API, sends the response to the user, and stores the updated chat history.
-func (c *chatGPTCommand) callAndStore(messages []ChatMessage, storageIdentifier string, message msg.Ref, inputText string) {
+func (c *openaiCommand) callAndStore(messages []ChatMessage, storageIdentifier string, message msg.Ref, inputText string) {
 	// Append the actual user input to the message list.
 	messages = append(messages, ChatMessage{
 		Role:    roleUser,
@@ -273,7 +273,7 @@ func getIdentifier(channel string, threadTS string) string {
 }
 
 // GetTemplateFunction makes "chatgpt" available as template function for custom commands
-func (c *chatGPTCommand) GetTemplateFunction() template.FuncMap {
+func (c *openaiCommand) GetTemplateFunction() template.FuncMap {
 	return template.FuncMap{
 		"openai": func(input string) string {
 			message := []ChatMessage{
@@ -293,7 +293,7 @@ func (c *chatGPTCommand) GetTemplateFunction() template.FuncMap {
 	}
 }
 
-func (c *chatGPTCommand) GetHelp() []bot.Help {
+func (c *openaiCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "openai <question>",
@@ -304,12 +304,20 @@ func (c *chatGPTCommand) GetHelp() []bot.Help {
 				"chatgpt whats 1+1?",
 			},
 		},
+		{
+			Command:     "dalle <prompt>",
+			Description: "Generates an image with Dall-E",
+			Category:    category,
+			Examples: []string{
+				"dalle high resolution image of a sunset, painted by a robot",
+			},
+		},
 	}
 }
 
 // help category to group all AI command
 var category = bot.Category{
 	Name:        "AI",
-	Description: "AI support for commands, like using openai",
-	HelpURL:     "https://github.com/innogames/slack-bot#openai",
+	Description: "AI support for commands, using openai (GPT or DALL-E)",
+	HelpURL:     "https://github.com/innogames/slack-bot#openaichatgptdall-e-integration",
 }

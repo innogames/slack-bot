@@ -11,9 +11,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// we don't use our default clients.HttpClient as we need longer timeouts...
-var client http.Client
-
 func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan string, error) {
 	messageUpdates := make(chan string, 2)
 

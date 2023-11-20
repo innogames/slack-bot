@@ -38,6 +38,32 @@ func (_m *Client) BuildJob(ctx context.Context, name string, params map[string]s
 	return r0, r1
 }
 
+// GetAllJobNames provides a mock function with given fields: ctx
+func (_m *Client) GetAllJobNames(ctx context.Context) ([]gojenkins.InnerJob, error) {
+	ret := _m.Called(ctx)
+
+	var r0 []gojenkins.InnerJob
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]gojenkins.InnerJob, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []gojenkins.InnerJob); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]gojenkins.InnerJob)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetAllNodes provides a mock function with given fields: ctx
 func (_m *Client) GetAllNodes(ctx context.Context) ([]*gojenkins.Node, error) {
 	ret := _m.Called(ctx)
@@ -57,6 +83,39 @@ func (_m *Client) GetAllNodes(ctx context.Context) ([]*gojenkins.Node, error) {
 
 	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
 		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetFolder provides a mock function with given fields: ctx, id, parents
+func (_m *Client) GetFolder(ctx context.Context, id string, parents ...string) (*gojenkins.Folder, error) {
+	_va := make([]interface{}, len(parents))
+	for _i := range parents {
+		_va[_i] = parents[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, id)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *gojenkins.Folder
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...string) (*gojenkins.Folder, error)); ok {
+		return rf(ctx, id, parents...)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...string) *gojenkins.Folder); ok {
+		r0 = rf(ctx, id, parents...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*gojenkins.Folder)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string, ...string) error); ok {
+		r1 = rf(ctx, id, parents...)
 	} else {
 		r1 = ret.Error(1)
 	}
