@@ -46,7 +46,7 @@ type Config struct {
 	viper *viper.Viper `mapstructure:"-"`
 }
 
-// LoadCustom does a dynamic config lookup with a given key and unmarshals it into the value
+// LoadCustom does a dynamic config lookup with a given key and unmarshal it into the value
 func (c *Config) LoadCustom(key string, value any) error {
 	if c.viper == nil {
 		return nil
@@ -54,6 +54,7 @@ func (c *Config) LoadCustom(key string, value any) error {
 	return c.viper.UnmarshalKey(key, value)
 }
 
+// Set a dynamic config value...please only set it in tests!
 func (c *Config) Set(key string, value any) {
 	if c.viper == nil {
 		c.viper = viper.New()

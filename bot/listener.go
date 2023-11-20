@@ -5,6 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/innogames/slack-bot/v2/bot/stats"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
 	log "github.com/sirupsen/logrus"
@@ -13,18 +14,9 @@ import (
 	"github.com/slack-go/slack/socketmode"
 )
 
-func (b *Bot) startRunnables(ctx *util.ServerContext) {
-	for _, cmd := range b.commands.commands {
-		if runnable, ok := cmd.(Runnable); ok {
-			go runnable.RunAsync(ctx)
-		}
-	}
-}
-
 // Run is blocking method to handle new incoming events...from different sources
 func (b *Bot) Run(ctx *util.ServerContext) {
 	b.startRunnables(ctx)
-	initMetrics(b.config, ctx)
 
 	// initialize Socket Mode:
 	// https://api.slack.com/apis/connections/socket
@@ -52,6 +44,19 @@ func (b *Bot) Run(ctx *util.ServerContext) {
 			return
 		}
 	}
+}
+
+// startRunnables starts all background tasks and ctx.StopTheWorld() will stop them then properly
+func (b *Bot) startRunnables(ctx *util.ServerContext) {
+	// each command can have a background task which is executed in the background
+	for _, cmd := range b.commands.commands {
+		if runnable, ok := cmd.(Runnable); ok {
+			go runnable.RunAsync(ctx)
+		}
+	}
+
+	// special handler which are executed in the background
+	stats.InitMetrics(b.config, ctx)
 }
 
 func (b *Bot) handleSocketModeEvent(event socketmode.Event) {

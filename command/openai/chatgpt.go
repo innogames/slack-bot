@@ -3,6 +3,7 @@ package openai
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -42,12 +43,15 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan s
 			var chatResponse ChatResponse
 			err = json.Unmarshal(body, &chatResponse)
 			if err != nil {
-				messageUpdates <- err.Error()
+				log.Warnf("Openai Error %d: %s", resp.StatusCode, err)
+
+				messageUpdates <- fmt.Sprintf("Error %d: %s", resp.StatusCode, err)
 				return
 			}
 
 			if err = chatResponse.GetError(); err != nil {
-				messageUpdates <- chatResponse.GetError().Error()
+				log.Warn("Openai Error: ", err, chatResponse, body)
+				messageUpdates <- err.Error()
 				return
 			}
 
