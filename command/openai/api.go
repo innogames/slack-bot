@@ -115,7 +115,9 @@ type DalleRequest struct {
 	    }
 	  ]
 	}
+
 or:
+
 	{
 	  "error": {
 	    "code": "invalid_size",
@@ -125,16 +127,15 @@ or:
 	  }
 	}
 */
-
-type DalleResponseImage struct {
-	URL           string `json:"url"`
-	RevisedPrompt string `json:"revised_prompt"`
-}
-
 type DalleResponse struct {
 	Data  []DalleResponseImage `json:"data"`
 	Error struct {
 		Code    string `json:"code"`
 		Message string `json:"message"`
 	} `json:"error"`
+}
+
+type DalleResponseImage struct {
+	URL           string `json:"url"`
+	RevisedPrompt string `json:"revised_prompt"`
 }
