@@ -15,7 +15,7 @@ import (
 
 func TestDelay(t *testing.T) {
 	client.InternalMessages = make(chan msg.Message, 2)
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 
 	base := bot.BaseCommand{SlackClient: slackClient}
 

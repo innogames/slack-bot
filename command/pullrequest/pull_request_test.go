@@ -30,7 +30,7 @@ func (t *testFetcher) getHelp() []bot.Help {
 }
 
 func TestGetCommands(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	cfg := &config.Config{}
@@ -82,7 +82,6 @@ func TestPullRequest(t *testing.T) {
 		slackClient.
 			On("GetReactions", msgRef, slack.NewGetReactionsParameters()).Return(nil, nil)
 
-		mocks.AssertRemoveReaction(slackClient, "eyes", message)
 		mocks.AssertReaction(slackClient, "project_approve", message)
 		mocks.AssertReaction(slackClient, "twisted_rightwards_arrows", message)
 
@@ -102,8 +101,6 @@ func TestPullRequest(t *testing.T) {
 		}
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
-		mocks.AssertRemoveReaction(slackClient, "eyes", message)
-		mocks.AssertRemoveReaction(slackClient, "project_approve", message)
 		mocks.AssertReaction(slackClient, "x", message)
 
 		actual := commands.Run(message)
@@ -122,8 +119,6 @@ func TestPullRequest(t *testing.T) {
 		}
 		message.Text = "vcd.example.com/projects/foo/repos/bar/pull-requests/1337"
 
-		mocks.AssertRemoveReaction(slackClient, "eyed", message)
-		mocks.AssertRemoveReaction(slackClient, "x", message)
 		mocks.AssertReaction(slackClient, "approve_backend", message)
 
 		actual := commands.Run(message)

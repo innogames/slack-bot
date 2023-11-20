@@ -14,7 +14,7 @@ import (
 )
 
 func TestGitlab(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	server := spawnTestServer()

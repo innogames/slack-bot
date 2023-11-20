@@ -13,7 +13,7 @@ import (
 )
 
 func TestCommentJira(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 
 	mux := http.NewServeMux()
 	server := httptest.NewServer(mux)

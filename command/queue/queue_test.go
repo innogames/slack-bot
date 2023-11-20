@@ -16,7 +16,7 @@ import (
 
 func TestQueue(t *testing.T) {
 	client.InternalMessages = make(chan msg.Message, 2)
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	message := msg.Message{}
@@ -83,7 +83,6 @@ func TestQueue(t *testing.T) {
 
 		mocks.AssertReaction(slackClient, waitIcon, message)
 		mocks.AssertReaction(slackClient, doneIcon, message)
-		mocks.AssertRemoveReaction(slackClient, waitIcon, message)
 
 		actual := command.Run(message)
 		assert.True(t, actual)
@@ -164,7 +163,7 @@ func TestQueue(t *testing.T) {
 
 func TestFallbackQueue(t *testing.T) {
 	client.InternalMessages = make(chan msg.Message, 2)
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	message := msg.Message{}

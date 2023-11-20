@@ -15,7 +15,7 @@ import (
 var _ bot.Runnable = &vcsCommand{}
 
 func TestVCS(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	t.Run("Test disabled", func(t *testing.T) {

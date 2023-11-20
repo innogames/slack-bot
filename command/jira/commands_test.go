@@ -9,7 +9,7 @@ import (
 )
 
 func TestCommands(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 
 	cfg := &config.Jira{
 		Host:    "https://issues.apache.org/jira/",

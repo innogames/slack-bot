@@ -18,7 +18,7 @@ import (
 )
 
 func TestBitbucketNotActive(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	cfg := &config.DefaultConfig
@@ -42,7 +42,7 @@ func TestBitbucketNotActive(t *testing.T) {
 }
 
 func TestBitbucketFakeServer(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	server := spawnBitbucketTestServer()
@@ -65,8 +65,6 @@ func TestBitbucketFakeServer(t *testing.T) {
 		message.Text = server.URL + "/projects/myProject/repos/myRepo/pull-requests/1339 please review ASAP!"
 
 		slackClient.On("GetReactions", message.GetMessageRef(), slack.NewGetReactionsParameters()).Return([]slack.ItemReaction{}, nil)
-		mocks.AssertReaction(slackClient, "white_check_mark", message)
-		mocks.AssertReaction(slackClient, "twisted_rightwards_arrows", message)
 
 		actual := command.Run(message)
 		assert.True(t, actual)

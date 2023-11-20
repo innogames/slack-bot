@@ -15,7 +15,7 @@ import (
 var _ bot.Runnable = &poolCommands{}
 
 func TestPools(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	t.Run("Pools are not active", func(t *testing.T) {

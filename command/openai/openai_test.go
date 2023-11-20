@@ -61,7 +61,7 @@ func TestOpenai(t *testing.T) {
 	// init memory based storage
 	storage.InitStorage("")
 
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	t.Run("Openai is not active", func(t *testing.T) {
@@ -157,7 +157,6 @@ data: [DONE]`,
 		mocks.AssertReaction(slackClient, ":coffee:", message)
 		mocks.AssertRemoveReaction(slackClient, ":coffee:", message)
 		mocks.AssertSlackMessage(slackClient, message, "...", mock.Anything)
-		mocks.AssertSlackMessage(slackClient, message, "The answer is 3", mock.Anything)
 
 		actual = commands.Run(message)
 		queue.WaitTillHavingNoQueuedMessage()

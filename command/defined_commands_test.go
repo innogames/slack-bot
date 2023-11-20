@@ -12,7 +12,7 @@ import (
 )
 
 func TestInvalidMacro(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	client.InternalMessages = make(chan msg.Message, 2)
@@ -55,7 +55,7 @@ func TestInvalidMacro(t *testing.T) {
 }
 
 func TestDefinedCommands(t *testing.T) {
-	slackClient := &mocks.SlackClient{}
+	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	lock := mocks.LockInternalMessages()
