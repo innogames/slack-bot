@@ -24,8 +24,8 @@ require (
 	github.com/texttheater/golang-levenshtein/levenshtein v0.0.0-20200805054039-cae8b0eaed6c
 	github.com/xanzy/go-gitlab v0.94.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
-	golang.org/x/oauth2 v0.13.0
-	golang.org/x/text v0.13.0
+	golang.org/x/oauth2 v0.14.0
+	golang.org/x/text v0.14.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -65,8 +65,8 @@ require (
 	github.com/trivago/tgo v1.0.7 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/yuin/gopher-lua v1.1.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/net v0.18.0 // indirect
+	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
