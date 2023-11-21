@@ -311,6 +311,7 @@ func (c *openaiCommand) GetHelp() []bot.Help {
 			Category:    category,
 			Examples: []string{
 				"dalle high resolution image of a sunset, painted by a robot",
+				"dall-e high resolution image of a sunset, painted by a robot",
 			},
 		},
 	}

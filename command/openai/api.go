@@ -3,6 +3,7 @@ package openai
 import (
 	"bytes"
 	"net/http"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -20,7 +21,9 @@ const (
 )
 
 // we don't use our default clients.HttpClient as we need longer timeouts...
-var client http.Client
+var client = http.Client{
+	Timeout: 25 * time.Second,
+}
 
 func doRequest(cfg Config, apiEndpoint string, data []byte) (*http.Response, error) {
 	req, err := http.NewRequest("POST", cfg.APIHost+apiEndpoint, bytes.NewBuffer(data))

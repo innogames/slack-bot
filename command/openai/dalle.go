@@ -19,15 +19,19 @@ func (c *openaiCommand) dalleGenerateImage(match matcher.Result, message msg.Mes
 	c.AddReaction(":coffee:", message)
 
 	go func() {
-		defer c.RemoveReaction(":coffee:", message)
-
 		prompt := match.GetString(util.FullMatch)
 		images, err := generateImages(c.cfg, prompt)
+		c.RemoveReaction(":coffee:", message)
 		if err != nil {
 			c.ReplyError(message, err)
 			return
 		}
 
+		// add 📤 emoji to indicate that the image is being uploaded which can take some time via slack
+		c.AddReaction(":outbox_tray:", message)
+		defer c.RemoveReaction(":outbox_tray:", message)
+
+		startTime := time.Now()
 		for _, image := range images {
 			err := c.sendImageInSlack(image, message)
 			if err != nil {
@@ -37,6 +41,7 @@ func (c *openaiCommand) dalleGenerateImage(match matcher.Result, message msg.Mes
 				)
 			}
 		}
+		log.Infof("Uploading %d images took %s", len(images), time.Since(startTime))
 	}()
 }
 

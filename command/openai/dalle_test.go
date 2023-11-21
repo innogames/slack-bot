@@ -98,6 +98,8 @@ func TestDalle(t *testing.T) {
 
 		mocks.AssertReaction(slackClient, ":coffee:", message)
 		mocks.AssertRemoveReaction(slackClient, ":coffee:", message)
+		mocks.AssertReaction(slackClient, ":outbox_tray:", message)
+		mocks.AssertRemoveReaction(slackClient, ":outbox_tray:", message)
 
 		slackClient.On(
 			"UploadFile",
