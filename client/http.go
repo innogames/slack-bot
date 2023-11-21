@@ -21,7 +21,7 @@ func GetHTTPClient() *http.Client {
 		transport.MaxConnsPerHost = 3
 
 		httpClient = &http.Client{
-			Timeout:   time.Second * 10,
+			Timeout:   time.Second * 15,
 			Transport: &botTransport{transport},
 		}
 	})
