@@ -36,9 +36,7 @@ func Increase[T constraints.Signed](key string, count T) {
 
 		value += count
 
-		if err := storage.Write(collection, key, value); err != nil {
-			log.Warn(errors.Wrap(err, "error while increasing stats"))
-		}
+		Set(key, value)
 	})
 }
 

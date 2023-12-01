@@ -8,6 +8,7 @@ import (
 
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/stats"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
@@ -95,6 +96,7 @@ func generateImages(cfg Config, prompt string) ([]DalleResponseImage, error) {
 
 	log.WithField("model", cfg.DalleModel).
 		Infof("Dall-E image generation took %s", time.Since(start))
+	stats.Increase("openai_dalle_images", len(response.Data))
 
 	return response.Data, nil
 }

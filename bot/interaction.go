@@ -28,7 +28,7 @@ func (b *Bot) handleEvent(eventsAPIEvent slackevents.EventsAPIEvent) {
 				return
 			}
 
-			if len(ev.Files) > 0 {
+			if len(ev.Files) > 0 && ev.User != b.auth.UserID {
 				ev.Text += b.loadFileContent(ev)
 			}
 
