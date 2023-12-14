@@ -54,32 +54,29 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan s
 
 			if message := chatResponse.GetMessage().Content; message != "" {
 				messageUpdates <- message
-				return
 			}
+		} else {
+			// stream: each line contains a delta of the message, so one new token
+			fileScanner := bufio.NewScanner(resp.Body)
+			fileScanner.Split(bufio.ScanLines)
+			for fileScanner.Scan() {
+				line := fileScanner.Text()
+				if _, deltaJSON, found := strings.Cut(line, "data: "); found {
+					if deltaJSON == "[DONE]" {
+						// end of event stream
+						return
+					}
 
-			return
-		}
+					var delta ChatResponse
+					err = json.Unmarshal([]byte(deltaJSON), &delta)
+					if err != nil {
+						log.Warnf("openai error in json: %s (json: %s)", err, deltaJSON)
+						continue
+					}
 
-		// each line contains a delta of the message, so one new token
-		fileScanner := bufio.NewScanner(resp.Body)
-		fileScanner.Split(bufio.ScanLines)
-		for fileScanner.Scan() {
-			line := fileScanner.Text()
-			if _, deltaJSON, found := strings.Cut(line, "data: "); found {
-				if deltaJSON == "[DONE]" {
-					// end of event stream
-					return
-				}
-
-				var delta ChatResponse
-				err = json.Unmarshal([]byte(deltaJSON), &delta)
-				if err != nil {
-					log.Warnf("openai error in json: %s (json: %s)", err, deltaJSON)
-					continue
-				}
-
-				if deltaContent := delta.GetDelta().Content; deltaContent != "" {
-					messageUpdates <- deltaContent
+					if deltaContent := delta.GetDelta().Content; deltaContent != "" {
+						messageUpdates <- deltaContent
+					}
 				}
 			}
 		}
