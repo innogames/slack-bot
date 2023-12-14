@@ -203,8 +203,10 @@ func (c *openaiCommand) callAndStore(messages []ChatMessage, storageIdentifier s
 		responseText := strings.Builder{}
 		var lastUpdate time.Time
 		var dirty bool
+		var outputTokens int
 		for delta := range response {
 			responseText.WriteString(delta)
+			outputTokens++
 			dirty = true
 			if responseText.Len() > 0 && lastUpdate.Add(c.cfg.UpdateInterval).Before(time.Now()) {
 				lastUpdate = time.Now()
@@ -243,7 +245,6 @@ func (c *openaiCommand) callAndStore(messages []ChatMessage, storageIdentifier s
 		}
 
 		// log some stats in the end
-		outputTokens := estimateTokensForMessage(responseText.String())
 		stats.IncreaseOne("openai_calls")
 		stats.Increase("openai_input_tokens", inputTokens)
 		stats.Increase("openai_output_tokens", outputTokens)

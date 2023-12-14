@@ -42,8 +42,8 @@ func (c *Config) IsEnabled() bool {
 var defaultConfig = Config{
 	APIHost:              apiHost,
 	Model:                "gpt-3.5-turbo", // aka model behind ChatGPT
-	UpdateInterval:       time.Second,
-	HistorySize:          15,
+	UpdateInterval:       time.Second * 1,
+	HistorySize:          25,
 	InitialSystemMessage: "You are a helpful Slack bot. By default, keep your answer short and truthful",
 
 	// default dall-e config

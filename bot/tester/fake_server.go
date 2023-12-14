@@ -28,6 +28,9 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 		c.Handle("/chat.postMessage", func(w http.ResponseWriter, r *http.Request) {
 			messageHandler(w, r, output)
 		})
+		c.Handle("/chat.update", func(w http.ResponseWriter, r *http.Request) {
+			messageHandler(w, r, output)
+		})
 		c.Handle("/chat.postEphemeral", func(w http.ResponseWriter, r *http.Request) {
 			messageHandler(w, r, output)
 		})
