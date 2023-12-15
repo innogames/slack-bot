@@ -22,7 +22,7 @@ const (
 
 // we don't use our default clients.HttpClient as we need longer timeouts...
 var client = http.Client{
-	Timeout: 25 * time.Second,
+	Timeout: 60 * time.Second,
 }
 
 func doRequest(cfg Config, apiEndpoint string, data []byte) (*http.Response, error) {
