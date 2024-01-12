@@ -70,13 +70,13 @@ func (c *openaiCommand) GetMatcher() matcher.Matcher {
 // bot function which is called, when the user started a new conversation with openai/chatgpt
 func (c *openaiCommand) newConversation(match matcher.Result, message msg.Message) {
 	text := match.GetString(util.FullMatch)
-	c.startConversation(message.MessageRef, text)
+	c.startConversation(message, text)
 }
 
 func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
 	messageHistory := make([]ChatMessage, 0)
 
-	if c.cfg.InitialSystemMessage != "" {
+	if c.cfg.InitialSystemMessage != "" && c.cfg.CustomGPT == "" {
 		messageHistory = append(messageHistory, ChatMessage{
 			Role:    roleSystem,
 			Content: c.cfg.InitialSystemMessage,
@@ -135,7 +135,12 @@ func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
 		storageIdentifier = getIdentifier(message.GetChannel(), message.GetTimestamp())
 	}
 
-	c.callAndStore(messageHistory, storageIdentifier, message, text)
+	if c.cfg.CustomGPT != "" {
+		c.callCustomGPT(messageHistory, storageIdentifier, message, text)
+	} else {
+		// usual GPT-X model
+		c.callAndStore(messageHistory, storageIdentifier, message, text)
+	}
 	return true
 }
 
@@ -148,6 +153,13 @@ func (c *openaiCommand) reply(message msg.Ref, text string) bool {
 
 	// Load the chat history from storage.
 	identifier := getIdentifier(message.GetChannel(), message.GetThread())
+
+	var threadId string
+	storage.Read("gpt-thread", identifier, &threadId)
+	if threadId != "" {
+		c.callCustomGPT([]ChatMessage{}, identifier, message, text)
+		return true
+	}
 
 	var messages []ChatMessage
 	err := storage.Read(storageKey, identifier, &messages)

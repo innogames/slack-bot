@@ -11,6 +11,7 @@ import (
 const (
 	apiHost                  = "https://api.openai.com"
 	apiCompletionURL         = "/v1/chat/completions"
+	apiThreadsURL            = "/v1/threads"
 	apiDalleGenerateImageURL = "/v1/images/generations"
 )
 
@@ -25,14 +26,15 @@ var client = http.Client{
 	Timeout: 60 * time.Second,
 }
 
-func doRequest(cfg Config, apiEndpoint string, data []byte) (*http.Response, error) {
-	req, err := http.NewRequest("POST", cfg.APIHost+apiEndpoint, bytes.NewBuffer(data))
+func doRequest(cfg Config, method string, apiEndpoint string, data []byte) (*http.Response, error) {
+	req, err := http.NewRequest(method, cfg.APIHost+apiEndpoint, bytes.NewBuffer(data))
 	if err != nil {
 		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+cfg.APIKey)
+	req.Header.Set("OpenAI-Beta", "assistants=v1")
 
 	return client.Do(req)
 }

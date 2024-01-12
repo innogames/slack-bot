@@ -26,7 +26,7 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan s
 			Stream:      stream,
 			Messages:    inputMessages,
 		})
-		resp, err := doRequest(cfg, apiCompletionURL, jsonData)
+		resp, err := doRequest(cfg, "POST", apiCompletionURL, jsonData)
 		if err != nil {
 			messageUpdates <- err.Error()
 			return

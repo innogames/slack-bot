@@ -34,7 +34,7 @@ func (c *openaiCommand) dalleGenerateImage(match matcher.Result, message msg.Mes
 
 		startTime := time.Now()
 		for _, image := range images {
-			err := c.sendImageInSlack(image, message)
+			err := c.sendImageInSlack(image, message.MessageRef)
 			if err != nil {
 				c.ReplyError(
 					message,
@@ -42,11 +42,11 @@ func (c *openaiCommand) dalleGenerateImage(match matcher.Result, message msg.Mes
 				)
 			}
 		}
-		log.Infof("Uploading %d images took %s", len(images), time.Since(startTime))
+		log.Infof("Uploading %d images took %s", len(images), util.FormatDuration(time.Since(startTime)))
 	}()
 }
 
-func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.Message) error {
+func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.Ref) error {
 	req, err := http.NewRequest("GET", image.URL, nil)
 	if err != nil {
 		return err
@@ -60,8 +60,8 @@ func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.M
 	_, err = c.SlackClient.UploadFile(slack.FileUploadParameters{
 		Filename:        "dalle.png",
 		Filetype:        "png",
-		Channels:        []string{message.Channel},
-		ThreadTimestamp: message.Timestamp,
+		Channels:        []string{message.GetChannel()},
+		ThreadTimestamp: message.GetTimestamp(),
 		Reader:          resp.Body,
 		InitialComment:  image.RevisedPrompt,
 	})
@@ -78,7 +78,7 @@ func generateImages(cfg Config, prompt string) ([]DalleResponseImage, error) {
 	})
 
 	start := time.Now()
-	resp, err := doRequest(cfg, apiDalleGenerateImageURL, jsonData)
+	resp, err := doRequest(cfg, "POST", apiDalleGenerateImageURL, jsonData)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func generateImages(cfg Config, prompt string) ([]DalleResponseImage, error) {
 	}
 
 	log.WithField("model", cfg.DalleModel).
-		Infof("Dall-E image generation took %s", time.Since(start))
+		Infof("Dall-E image generation took %s", util.FormatDuration(time.Since(start)))
 	stats.Increase("openai_dalle_images", len(response.Data))
 
 	return response.Data, nil
