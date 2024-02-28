@@ -19,7 +19,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/sdomino/golang-scribble v0.0.0-20230717151034-b95d4df19aa8
 	github.com/sirupsen/logrus v1.9.3
-	github.com/slack-go/slack v0.12.4
+	github.com/slack-go/slack v0.12.5
 	github.com/stretchr/testify v1.8.4
 	github.com/texttheater/golang-levenshtein/levenshtein v0.0.0-20200805054039-cae8b0eaed6c
 	github.com/xanzy/go-gitlab v0.98.0
