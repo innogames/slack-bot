@@ -21,7 +21,7 @@ const (
 )
 
 // we don't use our default clients.HttpClient as we need longer timeouts...
-var client = http.Client{
+var httpClient = http.Client{
 	Timeout: 60 * time.Second,
 }
 
@@ -34,7 +34,7 @@ func doRequest(cfg Config, apiEndpoint string, data []byte) (*http.Response, err
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+cfg.APIKey)
 
-	return client.Do(req)
+	return httpClient.Do(req)
 }
 
 // https://platform.openai.com/docs/api-reference/chat

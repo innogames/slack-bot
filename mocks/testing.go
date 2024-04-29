@@ -148,7 +148,7 @@ func AssertSlackBlocks(t *testing.T, slackClient *SlackClient, message msg.Ref, 
 		}
 
 		return expectedJSON == string(givenJSON)
-	})).Once().Return("")
+	}), mock.Anything).Once().Return("")
 }
 
 // AssertContainsSlackBlocks is a small test helper to check for certain slack.Block

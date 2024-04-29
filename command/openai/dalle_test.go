@@ -100,6 +100,12 @@ func TestDalle(t *testing.T) {
 		mocks.AssertRemoveReaction(slackClient, ":coffee:", message)
 		mocks.AssertReaction(slackClient, ":outbox_tray:", message)
 		mocks.AssertRemoveReaction(slackClient, ":outbox_tray:", message)
+		mocks.AssertSlackBlocks(
+			t,
+			slackClient,
+			message,
+			`[{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"Regenerate","emoji":true},"action_id":"dalle","value":"dall-e revised prompt 1234"}]}]`,
+		)
 
 		slackClient.On(
 			"UploadFile",
