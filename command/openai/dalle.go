@@ -10,6 +10,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/stats"
 	"github.com/innogames/slack-bot/v2/bot/util"
+	"github.com/innogames/slack-bot/v2/client"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 )
@@ -51,7 +52,7 @@ func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.M
 	if err != nil {
 		return err
 	}
-	resp, err := client.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -63,8 +64,19 @@ func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.M
 		Channels:        []string{message.Channel},
 		ThreadTimestamp: message.Timestamp,
 		Reader:          resp.Body,
-		InitialComment:  image.RevisedPrompt,
+		InitialComment:  fmt.Sprintf("Dall-e prompt: %s", image.RevisedPrompt),
 	})
+
+	c.SlackClient.SendBlockMessage(
+		message,
+		[]slack.Block{
+			slack.NewActionBlock(
+				"",
+				client.GetInteractionButton("dalle", "Regenerate", fmt.Sprintf("dall-e %s", image.RevisedPrompt)),
+			),
+		},
+		slack.MsgOptionTS(message.Timestamp),
+	)
 
 	return err
 }

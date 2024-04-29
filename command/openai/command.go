@@ -85,7 +85,7 @@ func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
 
 	var storageIdentifier string
 	if message.GetThread() != "" {
-		// "openai" was triggerd within a existing thread. -> fetch the whole thread history as context
+		// "openai" was triggered within a existing thread. -> fetch the whole thread history as context
 		threadMessages, err := c.SlackClient.GetThreadMessages(message)
 		if err != nil {
 			c.ReplyError(message, fmt.Errorf("can't load thread messages: %w", err))
@@ -236,9 +236,12 @@ func (c *openaiCommand) callAndStore(messages []ChatMessage, storageIdentifier s
 			Role:    roleAssistant,
 			Content: responseText.String(),
 		})
+
+		// truncate the history if needed to the last X messages
 		if len(messages) > c.cfg.HistorySize {
 			messages = messages[len(messages)-c.cfg.HistorySize:]
 		}
+
 		err = storage.Write(storageKey, storageIdentifier, messages)
 		if err != nil {
 			log.Warnf("Error while storing openai history: %s", err)
