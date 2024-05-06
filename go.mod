@@ -24,7 +24,7 @@ require (
 	github.com/texttheater/golang-levenshtein/levenshtein v0.0.0-20200805054039-cae8b0eaed6c
 	github.com/xanzy/go-gitlab v0.103.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
-	golang.org/x/oauth2 v0.19.0
+	golang.org/x/oauth2 v0.20.0
 	golang.org/x/text v0.14.0
 	gopkg.in/yaml.v3 v3.0.1
 )
