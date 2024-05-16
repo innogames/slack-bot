@@ -1,7 +1,7 @@
 package command
 
 import (
-	"fmt"
+	"errors"
 	"testing"
 	"time"
 
@@ -34,7 +34,7 @@ func TestUserStatus(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "notify user <@U123456> active"
 
-		err := fmt.Errorf("some slack error")
+		err := errors.New("some slack error")
 		slackClient.On("GetUserPresence", "U123456").Once().Return(nil, err)
 
 		mocks.AssertReaction(slackClient, "⌛", message)

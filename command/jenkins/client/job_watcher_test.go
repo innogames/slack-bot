@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -29,7 +29,7 @@ func TestWatchJob(t *testing.T) {
 		stop := make(chan bool, 1)
 		builds, err := WatchJob(ctx, client, "notExistingJob", stop)
 
-		assert.Equal(t, fmt.Errorf("404-fail"), err)
+		assert.Equal(t, errors.New("404-fail"), err)
 		assert.Nil(t, builds)
 	})
 
@@ -42,10 +42,10 @@ func TestWatchJob(t *testing.T) {
 		builds, err := WatchJob(ctx, client, "testJob", stop)
 
 		assert.Nil(t, err)
-		assert.Len(t, builds, 0)
+		assert.Empty(t, builds)
 
 		stop <- true
-		assert.Len(t, builds, 0)
+		assert.Empty(t, builds)
 	})
 
 	t.Run("Watch Job with invalid build", func(t *testing.T) {
@@ -56,7 +56,7 @@ func TestWatchJob(t *testing.T) {
 		stop := make(chan bool, 1)
 		builds, err := WatchJob(ctx, client, "testJob2", stop)
 
-		assert.Equal(t, fmt.Errorf("404-fail"), err)
+		assert.Equal(t, errors.New("404-fail"), err)
 		assert.Len(t, builds, 0)
 	})
 }

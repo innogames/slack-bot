@@ -2,7 +2,7 @@ package jenkins
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"testing"
 
 	"github.com/innogames/slack-bot/v2/bot"
@@ -30,7 +30,7 @@ func TestBuildWatcher(t *testing.T) {
 		message.Text = "notify build TestJob"
 
 		ctx := context.Background()
-		jenkinsClient.On("GetJob", ctx, "TestJob").Return(nil, fmt.Errorf(""))
+		jenkinsClient.On("GetJob", ctx, "TestJob").Return(nil, errors.New(""))
 		mocks.AssertSlackMessage(slackClient, message, "Job *TestJob* does not exist")
 		actual := command.Run(message)
 		assert.True(t, actual)
@@ -38,6 +38,6 @@ func TestBuildWatcher(t *testing.T) {
 
 	t.Run("help", func(t *testing.T) {
 		help := command.GetHelp()
-		assert.Equal(t, 2, len(help))
+		assert.Len(t, help, 2)
 	})
 }

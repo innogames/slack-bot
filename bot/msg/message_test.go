@@ -29,7 +29,7 @@ func TestMessage(t *testing.T) {
 		}
 
 		assert.Equal(t, expected, actual)
-		assert.Equal(t, false, actual.IsInternalMessage())
+		assert.False(t, actual.IsInternalMessage())
 	})
 
 	t.Run("Get message time", func(t *testing.T) {

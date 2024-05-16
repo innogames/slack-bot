@@ -38,7 +38,7 @@ func (c *listCommand) GetMatcher() matcher.Matcher {
 
 // ListAll shows a list of all queued commands
 func (c *listCommand) listAll(match matcher.Result, message msg.Message) {
-	c.sendList(message, func(event msg.Message) bool {
+	c.sendList(message, func(_ msg.Message) bool {
 		return true
 	})
 }

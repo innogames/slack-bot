@@ -111,7 +111,7 @@ func TestRipeAtlas(t *testing.T) {
 		assert.Equal(t, 2, commands.Count())
 
 		help := commands.GetHelp()
-		assert.Equal(t, 2, len(help))
+		assert.Len(t, help, 2)
 	})
 
 	t.Run("RIPE Atlas Credits API wrong key", func(t *testing.T) {

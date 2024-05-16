@@ -33,8 +33,8 @@ func TestNumberGuesser(t *testing.T) {
 		assert.Equal(t, 1, len(gameCommand.games))
 
 		game := gameCommand.games[message.User]
-		assert.True(t, game.randomNumber >= 0)
-		assert.True(t, game.randomNumber <= maxNumber)
+		assert.GreaterOrEqual(t, game.randomNumber, 0)
+		assert.LessOrEqual(t, game.randomNumber, maxNumber)
 		assert.Equal(t, 0, game.tries)
 
 		// too low number
@@ -88,8 +88,8 @@ func TestNumberGuesser(t *testing.T) {
 		assert.Equal(t, 1, len(gameCommand.games))
 
 		game := gameCommand.games[message.User]
-		assert.True(t, game.randomNumber >= 0)
-		assert.True(t, game.randomNumber <= maxNumber)
+		assert.GreaterOrEqual(t, game.randomNumber, 0)
+		assert.LessOrEqual(t, game.randomNumber, maxNumber)
 		assert.Equal(t, 0, game.tries)
 
 		// start the game again -> error

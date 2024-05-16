@@ -45,7 +45,7 @@ func TestGithub(t *testing.T) {
 
 		actual := commands.Run(message)
 		queue.WaitTillHavingNoQueuedMessage()
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("valid PR link", func(t *testing.T) {
@@ -59,7 +59,7 @@ func TestGithub(t *testing.T) {
 
 		actual := commands.Run(message)
 		time.Sleep(time.Millisecond * 200)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("get real PR", func(t *testing.T) {

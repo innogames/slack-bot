@@ -1,7 +1,7 @@
 package client
 
 import (
-	"fmt"
+	"errors"
 	"testing"
 
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -130,7 +130,7 @@ func TestSendMessage(t *testing.T) {
 
 	t.Run("ReplyError", func(t *testing.T) {
 		ref := msg.MessageRef{}
-		err := fmt.Errorf("test error")
+		err := errors.New("test error")
 		client.ReplyError(ref, err)
 	})
 }

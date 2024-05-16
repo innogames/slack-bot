@@ -106,7 +106,6 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 
 	var measurementResult MeasurementResult
 	err = json.Unmarshal(body, &measurementResult)
-
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("error unmarshalling MeasurementResult: %w", err))
 		log.Errorf("error unmarshalling MeasurementResult: %s", err)

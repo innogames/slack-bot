@@ -13,7 +13,7 @@ func TestGitLoader(t *testing.T) {
 		}
 
 		branches, err := fetcher.LoadBranches()
-		assert.True(t, len(branches) >= 1)
+		assert.GreaterOrEqual(t, len(branches), 1)
 		assert.Nil(t, err)
 	})
 

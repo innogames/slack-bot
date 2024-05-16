@@ -120,7 +120,7 @@ data: [DONE]`,
 		assert.Equal(t, 1, commands.Count())
 
 		help := commands.GetHelp()
-		assert.Equal(t, 2, len(help))
+		assert.Len(t, help, 2)
 
 		message := msg.Message{}
 		message.Text = "openai whats 1+1?"

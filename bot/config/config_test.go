@@ -14,9 +14,9 @@ func TestLoadExampleConfig(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, cfg.Slack)
 
-	assert.Equal(t, false, cfg.Jenkins.IsEnabled())
-	assert.Equal(t, false, cfg.Jira.IsEnabled())
-	assert.Equal(t, false, cfg.Bitbucket.IsEnabled())
+	assert.False(t, cfg.Jenkins.IsEnabled())
+	assert.False(t, cfg.Jira.IsEnabled())
+	assert.False(t, cfg.Bitbucket.IsEnabled())
 
 	// test "LoadCustom"
 	admins := UserList{}

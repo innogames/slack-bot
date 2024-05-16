@@ -1,6 +1,7 @@
 package command
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -99,7 +100,7 @@ func TestRetry(t *testing.T) {
 		message.Channel = "myChan"
 		message.Text = "<https://foe-workshop.slack.com/archives/D0183HUURA9/p1607971366001000>"
 
-		err := fmt.Errorf("bad")
+		err := errors.New("bad")
 		slackClient.On("GetConversationHistory", &slack.GetConversationHistoryParameters{ChannelID: "D0183HUURA9", Inclusive: true, Latest: "1607971366.001000", Limit: 1}).
 			Once().
 			Return(nil, err)

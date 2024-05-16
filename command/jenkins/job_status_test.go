@@ -2,7 +2,7 @@ package jenkins
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"testing"
 
 	"github.com/innogames/slack-bot/v2/bot"
@@ -51,7 +51,7 @@ func TestJobStatus(t *testing.T) {
 		message.Text = "enable job TestJob"
 
 		ctx := context.TODO()
-		jenkins.On("GetJob", ctx, "TestJob").Return(nil, fmt.Errorf("invalid job TestJob"))
+		jenkins.On("GetJob", ctx, "TestJob").Return(nil, errors.New("invalid job TestJob"))
 		mocks.AssertError(slackClient, message, "invalid job TestJob")
 		actual := command.Run(message)
 		assert.True(t, actual)

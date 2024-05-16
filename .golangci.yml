@@ -10,12 +10,14 @@ linters:
     - asasalint
     - asciicheck
     - bodyclose
+    - copyloopvar
     - dogsled
     - dupl
     - errcheck
     - errorlint
     - exhaustive
     - exportloopref
+    - fatcontext
     - gochecknoinits
     - gocheckcompilerdirectives
     - gocritic
@@ -27,19 +29,23 @@ linters:
     - govet
     - importas
     - ineffassign
+    - intrange
     - loggercheck
     - mirror
     - makezero
-    - megacheck
     - misspell
+    - mirror
     - nakedret
     - nolintlint
+    - perfsprint
     - prealloc
     - predeclared
     - revive
     - rowserrcheck
     - staticcheck
     - stylecheck
+    - tagalign
+    - testifylint
     - thelper
     - typecheck
     - unconvert
