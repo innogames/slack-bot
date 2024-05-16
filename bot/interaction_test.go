@@ -14,6 +14,7 @@ import (
 	"github.com/slack-go/slack/slackevents"
 	"github.com/slack-go/slack/socketmode"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // dummy command which set "called" flag when a command was called with the text "dummy"
@@ -67,7 +68,7 @@ func TestInteraction(t *testing.T) {
 		time.Sleep(time.Millisecond * 20)
 
 		commandsProcessed, err := stats.Get(stats.TotalCommands)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, uint(0), commandsProcessed)
 	})
 
@@ -94,7 +95,7 @@ func TestInteraction(t *testing.T) {
 		time.Sleep(time.Millisecond * 20)
 
 		commandsProcessed, err := stats.Get(stats.TotalCommands)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, uint(0), commandsProcessed)
 	})
 
@@ -124,7 +125,7 @@ func TestInteraction(t *testing.T) {
 		time.Sleep(time.Millisecond * 20)
 
 		commandsProcessed, err := stats.Get(stats.TotalCommands)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, uint(1), commandsProcessed)
 	})
 
@@ -212,6 +213,6 @@ func TestReplaceClickedButton(t *testing.T) {
 
 	expected := `{"replace_original":false,"delete_original":false,"metadata":{"event_type":"","event_payload":null},"blocks":[{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"my text (worked)","emoji":true},"action_id":"reply","style":"danger"}]}]}`
 
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, expected, string(jsonString))
 }

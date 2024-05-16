@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func testStorage(t *testing.T, storage Storage) {
@@ -17,37 +18,37 @@ func testStorage(t *testing.T, storage Storage) {
 	const collection = "collection"
 
 	err = storage.Write(collection, "test-string", "1")
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	err = storage.Write(collection, "test-int", 2)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	err = storage.Write(collection, "test-map", map[int]float32{12: 5.5})
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	// read invalid data
 	err = storage.Read("collection1", "test", &stringValue)
-	assert.Error(t, err)
+	require.Error(t, err)
 	err = storage.Read(collection, "test1", &stringValue)
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Equal(t, "", stringValue)
 
 	// get keys all
 	keys, err := storage.GetKeys(collection)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Len(t, keys, 3)
 
 	keys, err = storage.GetKeys("invalid-collection")
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Len(t, keys, 0)
 
 	// read valid data
 	err = storage.Read(collection, "test-string", &stringValue)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "1", stringValue)
 	err = storage.Read(collection, "test-int", &intValue)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, 2, intValue)
 	err = storage.Read(collection, "test-map", &mapValue)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, map[int]float32{12: 5.5}, mapValue)
 
 	// expected unmarshall error when accessing wrong data
@@ -57,9 +58,9 @@ func testStorage(t *testing.T, storage Storage) {
 	// Atomic
 	Atomic(func() {
 		err = storage.Write(collection, "test-int", 1)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		err = storage.Write(collection, "test-int", 2)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 	})
 	var expectedInt int
 	err = storage.Read(collection, "test-int", &expectedInt)
@@ -67,29 +68,29 @@ func testStorage(t *testing.T, storage Storage) {
 
 	// delete
 	err = storage.Delete(collection, "test-string")
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	err = storage.Delete(collection, "test-int")
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	err = storage.Delete(collection, "test-map")
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	err = storage.Read("collection1", "test-map", &stringValue)
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	// Atomic
 	Atomic(func() {
 		err = storage.Write(collection, "test-int2", 1)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		err = storage.Write(collection, "test-int2", 2)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 	})
 	err = storage.Read(collection, "test-int2", &expectedInt)
 	assert.Equal(t, 2, expectedInt)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	err = storage.Delete(collection, "test-int2")
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	keys, err = storage.GetKeys(collection)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Len(t, keys, 0)
 
 	keys, err = GetKeys("../")
@@ -101,7 +102,7 @@ func TestStorage(t *testing.T) {
 	t.Run("validate keys", func(t *testing.T) {
 		var err error
 		err = validateKey("valid", "also-val-id")
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		err = validateKey("valid", "not#valid")
 		assert.EqualError(t, err, "invalid Storage key: not#valid")
@@ -120,17 +121,17 @@ func TestStorage(t *testing.T) {
 
 		err := InitStorage(".")
 		storage = getStorage()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.IsType(t, &chainStorage{}, storage)
 
 		err = InitStorage("")
 		storage = getStorage()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.IsType(t, &memoryStorage{}, storage)
 
 		fileStorage, _ := newFileStorage(".")
 		SetStorage(fileStorage)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, fileStorage, getStorage())
 	})
 

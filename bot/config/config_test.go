@@ -7,11 +7,12 @@ import (
 
 	"github.com/brainexe/viper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestLoadExampleConfig(t *testing.T) {
 	cfg, err := Load("../../config.example.yaml")
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, cfg.Slack)
 
 	assert.False(t, cfg.Jenkins.IsEnabled())
@@ -30,13 +31,13 @@ func TestLoadDirectory(t *testing.T) {
 	cfg, err := Load("../../")
 
 	// load root pass == okay
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, cfg.Slack)
 
 	// invalid directory
 	cfg, err = Load("/sdsdsdds")
 	cfg.viper = nil
-	assert.NotNil(t, err)
+	require.Error(t, err)
 	assert.Equal(t, DefaultConfig, cfg)
 }
 
@@ -45,7 +46,7 @@ func TestLoadFile(t *testing.T) {
 	configPath := path.Join("..", "..", "readme.sdsdsd")
 	cfg, err := Load(configPath)
 	cfg.viper = nil
-	assert.NotNil(t, err)
+	require.Error(t, err)
 	assert.Equal(t, DefaultConfig, cfg)
 
 	// parse invalid file
@@ -58,7 +59,7 @@ func TestLoadFile(t *testing.T) {
 	// load example file == okay
 	configPath = path.Join("..", "..", "config.example.yaml")
 	cfg, err = Load(configPath)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.NotNil(t, cfg.Slack)
 	assert.Equal(t, "info", cfg.Logger.Level)
 
@@ -76,7 +77,7 @@ func TestEnvironment(t *testing.T) {
 
 	// load example file == okay
 	cfg, err := Load("../../config.example.yaml")
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "Europe/Berlin", cfg.Timezone)
 	assert.Equal(t, "mySlackToken", cfg.Slack.Token)
 	assert.Equal(t, "mySlackSocketToken", cfg.Slack.SocketToken)

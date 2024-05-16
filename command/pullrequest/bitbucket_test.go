@@ -15,6 +15,7 @@ import (
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBitbucketNotActive(t *testing.T) {
@@ -74,35 +75,35 @@ func TestBitbucketFakeServer(t *testing.T) {
 
 	t.Run("Test help when bitbucket is disabled", func(t *testing.T) {
 		help := command.GetHelp()
-		assert.Equal(t, 1, len(help))
+		assert.Len(t, help, 1)
 	})
 
 	t.Run("Render template", func(t *testing.T) {
 		tpl, err := util.CompileTemplate(`{{$pr := bitbucketPullRequest "myProject" "myRepo" "1337"}}PR: {{$pr.Name}} - {{$pr.BuildStatus}}`)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		res, err := util.EvalTemplate(tpl, util.Parameters{})
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		assert.Equal(t, fmt.Sprintf("PR: test - %d", buildStatusFailed), res)
 	})
 
 	t.Run("Render template with not existing PR", func(t *testing.T) {
 		tpl, err := util.CompileTemplate(`{{$pr := bitbucketPullRequest "myProject" "myRepo" "1338"}}{{$pr.Status}} - {{$pr.BuildStatus}}`)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		res, err := util.EvalTemplate(tpl, util.Parameters{})
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		assert.Equal(t, fmt.Sprintf("%d - %d", closedPr.Status, buildStatusUnknown), res)
 	})
 
 	t.Run("Render template with not open PR", func(t *testing.T) {
 		tpl, err := util.CompileTemplate(`{{$pr := bitbucketPullRequest "myProject" "myRepo" "1339"}}{{$pr.Name}}: {{$pr.Status}} - {{$pr.BuildStatus}}`)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		res, err := util.EvalTemplate(tpl, util.Parameters{})
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		assert.Equal(t, fmt.Sprintf("test: %d - %d", prStatusOpen, buildStatusSuccess), res)
 	})

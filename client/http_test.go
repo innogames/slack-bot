@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestHttp(t *testing.T) {
@@ -19,7 +20,7 @@ func TestHttp(t *testing.T) {
 
 		client := GetHTTPClient()
 		resp, err := client.Get(server.URL)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		defer resp.Body.Close()
 
 		bodyBytes, _ := io.ReadAll(resp.Body)

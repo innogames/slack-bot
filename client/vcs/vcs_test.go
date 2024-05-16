@@ -7,6 +7,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestInitBranchWatcher(t *testing.T) {
@@ -72,14 +73,14 @@ func TestGetMatchingBranches(t *testing.T) {
 
 	t.Run("Empty", func(t *testing.T) {
 		actual, err := GetMatchingBranch("")
-		assert.NotNil(t, err)
+		require.Error(t, err)
 		assert.Equal(t, "", actual)
 	})
 
 	t.Run("Not found", func(t *testing.T) {
 		actual, err := GetMatchingBranch("this-might-be-a-branch")
 		assert.Equal(t, "this-might-be-a-branch", actual)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("Not unique", func(t *testing.T) {
@@ -91,14 +92,14 @@ func TestGetMatchingBranches(t *testing.T) {
 	t.Run("Test unique branches", func(t *testing.T) {
 		actual, err := GetMatchingBranch("master")
 		assert.Equal(t, "master", actual)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		actual, err = GetMatchingBranch("PROJ-1235")
 		assert.Equal(t, "bugfix/PROJ-1235-fixed", actual)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		actual, err = GetMatchingBranch("feature/PROJ-1234-do-something")
 		assert.Equal(t, "feature/PROJ-1234-do-something", actual)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 	})
 }

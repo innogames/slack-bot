@@ -11,6 +11,7 @@ import (
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestWatchJob(t *testing.T) {
@@ -24,7 +25,7 @@ func TestWatchJob(t *testing.T) {
 	t.Run("Watch not existing Job", func(t *testing.T) {
 		ctx := context.Background()
 		client, err := GetClient(cfg)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		stop := make(chan bool, 1)
 		builds, err := WatchJob(ctx, client, "notExistingJob", stop)
@@ -36,12 +37,12 @@ func TestWatchJob(t *testing.T) {
 	t.Run("Watch Job", func(t *testing.T) {
 		ctx := context.Background()
 		client, err := GetClient(cfg)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		stop := make(chan bool, 1)
 		builds, err := WatchJob(ctx, client, "testJob", stop)
 
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.Empty(t, builds)
 
 		stop <- true
@@ -51,7 +52,7 @@ func TestWatchJob(t *testing.T) {
 	t.Run("Watch Job with invalid build", func(t *testing.T) {
 		ctx := context.Background()
 		client, err := GetClient(cfg)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		stop := make(chan bool, 1)
 		builds, err := WatchJob(ctx, client, "testJob2", stop)

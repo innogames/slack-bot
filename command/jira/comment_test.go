@@ -10,6 +10,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCommentJira(t *testing.T) {
@@ -31,7 +32,7 @@ func TestCommentJira(t *testing.T) {
 		Project: "TEST",
 	}
 	jiraClient, err := getClient(cfg)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	command := bot.Commands{}
 	command.AddCommand(newCommentCommand(jiraClient, slackClient, cfg))
@@ -72,6 +73,6 @@ func TestCommentJira(t *testing.T) {
 
 	t.Run("Test help", func(t *testing.T) {
 		help := command.GetHelp()
-		assert.Equal(t, 1, len(help))
+		assert.Len(t, help, 1)
 	})
 }

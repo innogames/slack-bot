@@ -11,6 +11,7 @@ import (
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestJiraSearch(t *testing.T) {
@@ -21,7 +22,7 @@ func TestJiraSearch(t *testing.T) {
 		Project: "ZOOKEEPER",
 	}
 	jiraClient, err := getClient(cfg)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	command := bot.Commands{}
 	command.AddCommand(newJiraCommand(jiraClient, slackClient, cfg))
@@ -122,20 +123,20 @@ func TestJiraSearch(t *testing.T) {
 
 	t.Run("Render template with jiraTicket()", func(t *testing.T) {
 		tpl, err := util.CompileTemplate(`{{$ticket := jiraTicket "ZOOKEEPER-3455"}}ID: {{$ticket.ID}} Key: {{$ticket.Key}}`)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		res, err := util.EvalTemplate(tpl, util.Parameters{})
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		assert.Equal(t, "ID: 13242741 Key: ZOOKEEPER-3455", res)
 	})
 
 	t.Run("Render template with jiraTicketUrl()", func(t *testing.T) {
 		tpl, err := util.CompileTemplate(`{{ jiraTicketUrl "ZOOKEEPER-3455"}}`)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		res, err := util.EvalTemplate(tpl, util.Parameters{})
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		assert.Equal(t, "https://issues.apache.org/jira/browse/ZOOKEEPER-3455", res)
 	})

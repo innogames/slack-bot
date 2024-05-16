@@ -5,6 +5,7 @@ import (
 	"text/template"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFunctions(t *testing.T) {
@@ -29,7 +30,7 @@ func TestTemplate(t *testing.T) {
 	text := "{{ test }} {{ $users := makeSlice \"2222\"}}{{ $users }} {{ .foo }}"
 
 	temp, err := CompileTemplate(text)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	finalText, _ := EvalTemplate(temp, map[string]string{"foo": "bar"})
 
 	assert.Equal(t, finalText, "foo [2222] bar")

@@ -3,6 +3,8 @@ package jira
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,7 +16,7 @@ func TestJiraClient(t *testing.T) {
 		}
 		client, err := getClient(cfg)
 
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "jira.example.com", client.GetBaseURL().Host)
 	})
 
@@ -26,7 +28,7 @@ func TestJiraClient(t *testing.T) {
 		}
 		client, err := getClient(cfg)
 
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.False(t, client.Authentication.Authenticated())
 	})
 
@@ -38,7 +40,7 @@ func TestJiraClient(t *testing.T) {
 		}
 		client, err := getClient(cfg)
 
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.False(t, client.Authentication.Authenticated())
 		client.Authentication.GetCurrentUser()
 	})

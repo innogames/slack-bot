@@ -10,6 +10,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/xanzy/go-gitlab"
 )
 
@@ -33,7 +34,7 @@ func TestGitlab(t *testing.T) {
 
 	t.Run("help", func(t *testing.T) {
 		help := commands.GetHelp()
-		assert.Equal(t, 1, len(help))
+		assert.Len(t, help, 1)
 	})
 
 	t.Run("get status", func(t *testing.T) {
@@ -102,19 +103,19 @@ func TestGitlab(t *testing.T) {
 
 	t.Run("Render template with gitlabPullRequest()", func(t *testing.T) {
 		tpl, err := util.CompileTemplate(`{{ $pr := gitlabPullRequest "12" "13" }}{{$pr.Name}} - {{$pr.Approvers}}`)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		res, err := util.EvalTemplate(tpl, util.Parameters{})
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, "Update XYZ - [foobar]", res)
 	})
 
 	t.Run("Render template with gitlabPullRequest() with not existing PR", func(t *testing.T) {
 		tpl, err := util.CompileTemplate(`{{ gitlabPullRequest "12" "14" }}`)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		_, err = util.EvalTemplate(tpl, util.Parameters{})
-		assert.NotNil(t, err)
+		require.Error(t, err)
 	})
 }
 

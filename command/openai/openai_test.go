@@ -19,6 +19,7 @@ import (
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 type testRequest struct {
@@ -278,10 +279,10 @@ data: [DONE]`,
 
 		util.RegisterFunctions(command.GetTemplateFunction())
 		tpl, err := util.CompileTemplate(`{{ openai "whats 1+1?"}}`)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		res, err := util.EvalTemplate(tpl, util.Parameters{})
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		assert.Equal(t, "The answer is 2", res)
 	})

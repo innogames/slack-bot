@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var parserTestCases = []struct {
@@ -30,12 +31,12 @@ func TestParseDuration(t *testing.T) {
 	t.Run("ParseDuration", func(t *testing.T) {
 		for _, testCase := range parserTestCases {
 			native, err := time.ParseDuration(testCase.normal)
-			assert.Nil(t, err)
+			require.NoError(t, err)
 
 			actualFull, err := ParseDuration(testCase.long)
-			assert.Nil(t, err)
+			require.NoError(t, err)
 			actualShort, err := ParseDuration(testCase.normal)
-			assert.Nil(t, err)
+			require.NoError(t, err)
 
 			assert.Equal(t, native.String(), actualFull.String())
 			assert.Equal(t, native.String(), actualShort.String())

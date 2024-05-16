@@ -12,6 +12,7 @@ import (
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestQueue(t *testing.T) {
@@ -66,10 +67,10 @@ func TestQueue(t *testing.T) {
 
 	t.Run("Render template with not open PR", func(t *testing.T) {
 		tpl, err := util.CompileTemplate(`{{$count1 := countBackgroundJobs}}{{$count2 := countBackgroundJobsInChannel "C1234"}}{{$count1}} - {{$count2}}`)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		res, err := util.EvalTemplate(tpl, util.Parameters{})
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		assert.Equal(t, "0 - 0", res)
 	})
@@ -125,10 +126,10 @@ func TestQueue(t *testing.T) {
 
 		t.Run("Render template with not open PR", func(t *testing.T) {
 			tpl, err := util.CompileTemplate(`{{$count1 := countBackgroundJobs}}{{$count2 := countBackgroundJobsInChannel "C1234"}}{{$count3 := countBackgroundJobsInChannel "C4321"}}{{$count1}} - {{$count2}} - {{$count3}}`)
-			assert.Nil(t, err)
+			require.NoError(t, err)
 
 			res, err := util.EvalTemplate(tpl, util.Parameters{})
-			assert.Nil(t, err)
+			require.NoError(t, err)
 
 			assert.Equal(t, "1 - 1 - 0", res)
 		})

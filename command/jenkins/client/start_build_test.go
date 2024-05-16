@@ -15,6 +15,7 @@ import (
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestStartBuild(t *testing.T) {
@@ -46,7 +47,7 @@ func TestStartBuild(t *testing.T) {
 
 		jobCfg := config.JobConfig{}
 		client, err := GetClient(cfg)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		jobName := "testJob"
 		params := Parameters{
@@ -59,7 +60,7 @@ func TestStartBuild(t *testing.T) {
 
 		err = TriggerJenkinsJob(jobCfg, jobName, params, slackClient, client, message)
 		time.Sleep(time.Millisecond * 100)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("format finish build", func(t *testing.T) {

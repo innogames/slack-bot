@@ -9,6 +9,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBitbucketLoader(t *testing.T) {
@@ -29,7 +30,7 @@ func TestBitbucketLoader(t *testing.T) {
 		}
 
 		branches, err := fetcher.LoadBranches()
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []string{"master", "release"}, branches)
 	})
 

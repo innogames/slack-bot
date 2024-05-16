@@ -8,6 +8,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestWatchJira(t *testing.T) {
@@ -18,7 +19,7 @@ func TestWatchJira(t *testing.T) {
 		Host: "https://issues.apache.org/jira/",
 	}
 	jiraClient, err := getClient(cfg)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	command := bot.Commands{}
 	command.AddCommand(newWatchCommand(jiraClient, slackClient, cfg))
@@ -47,6 +48,6 @@ func TestWatchJira(t *testing.T) {
 
 	t.Run("Test help", func(t *testing.T) {
 		help := command.GetHelp()
-		assert.Equal(t, 1, len(help))
+		assert.Len(t, help, 1)
 	})
 }
