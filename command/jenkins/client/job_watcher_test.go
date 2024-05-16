@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,6 +11,7 @@ import (
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestWatchJob(t *testing.T) {
@@ -24,39 +25,39 @@ func TestWatchJob(t *testing.T) {
 	t.Run("Watch not existing Job", func(t *testing.T) {
 		ctx := context.Background()
 		client, err := GetClient(cfg)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		stop := make(chan bool, 1)
 		builds, err := WatchJob(ctx, client, "notExistingJob", stop)
 
-		assert.Equal(t, fmt.Errorf("404-fail"), err)
+		assert.Equal(t, errors.New("404-fail"), err)
 		assert.Nil(t, builds)
 	})
 
 	t.Run("Watch Job", func(t *testing.T) {
 		ctx := context.Background()
 		client, err := GetClient(cfg)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		stop := make(chan bool, 1)
 		builds, err := WatchJob(ctx, client, "testJob", stop)
 
-		assert.Nil(t, err)
-		assert.Len(t, builds, 0)
+		require.NoError(t, err)
+		assert.Empty(t, builds)
 
 		stop <- true
-		assert.Len(t, builds, 0)
+		assert.Empty(t, builds)
 	})
 
 	t.Run("Watch Job with invalid build", func(t *testing.T) {
 		ctx := context.Background()
 		client, err := GetClient(cfg)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		stop := make(chan bool, 1)
 		builds, err := WatchJob(ctx, client, "testJob2", stop)
 
-		assert.Equal(t, fmt.Errorf("404-fail"), err)
+		assert.Equal(t, errors.New("404-fail"), err)
 		assert.Len(t, builds, 0)
 	})
 }

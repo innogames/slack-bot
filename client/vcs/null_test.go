@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNullLoader(t *testing.T) {
@@ -11,6 +12,6 @@ func TestNullLoader(t *testing.T) {
 	t.Run("Load branches with null loader", func(t *testing.T) {
 		branches, err := fetcher.LoadBranches()
 		assert.Len(t, branches, 0)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 	})
 }

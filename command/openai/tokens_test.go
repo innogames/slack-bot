@@ -39,7 +39,7 @@ func TestTruncate(t *testing.T) {
 
 	outputMessages, inputTokens, truncatedMessages := truncateMessages("dummy-test", messages)
 
-	assert.Equal(t, 5, len(outputMessages))
+	assert.Len(t, outputMessages, 5)
 	assert.Equal(t, 85, inputTokens)
 	assert.Equal(t, 2, truncatedMessages)
 }

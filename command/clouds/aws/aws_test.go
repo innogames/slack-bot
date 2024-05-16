@@ -32,7 +32,7 @@ func TestGetCommands(t *testing.T) {
 
 		// test help
 		help := commands.GetHelp()
-		assert.Equal(t, 2, len(help))
+		assert.Len(t, help, 2)
 
 		// list the CF
 		message := msg.Message{}

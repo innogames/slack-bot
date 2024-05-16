@@ -55,9 +55,9 @@ var AllChannels map[string]string
 // GetSlackClient establishes a connection to the slack server.
 func GetSlackClient(cfg config.Slack) (*Slack, error) {
 	if !strings.HasPrefix(cfg.Token, "xoxb-") {
-		return nil, fmt.Errorf("config slack.token needs to start with 'xoxb-'")
+		return nil, errors.New("config slack.token needs to start with 'xoxb-'")
 	} else if !strings.HasPrefix(cfg.SocketToken, "xapp-") {
-		return nil, fmt.Errorf("config slack.socket_token needs to start with 'xapp-'")
+		return nil, errors.New("config slack.socket_token needs to start with 'xapp-'")
 	}
 
 	options := []slack.Option{

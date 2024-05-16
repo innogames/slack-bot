@@ -15,6 +15,7 @@ import (
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGithub(t *testing.T) {
@@ -31,7 +32,7 @@ func TestGithub(t *testing.T) {
 
 	t.Run("help", func(t *testing.T) {
 		help := commands.GetHelp()
-		assert.Equal(t, 1, len(help))
+		assert.Len(t, help, 1)
 	})
 
 	t.Run("invalid PR", func(t *testing.T) {
@@ -45,7 +46,7 @@ func TestGithub(t *testing.T) {
 
 		actual := commands.Run(message)
 		queue.WaitTillHavingNoQueuedMessage()
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("valid PR link", func(t *testing.T) {
@@ -59,7 +60,7 @@ func TestGithub(t *testing.T) {
 
 		actual := commands.Run(message)
 		time.Sleep(time.Millisecond * 200)
-		assert.Equal(t, true, actual)
+		assert.True(t, actual)
 	})
 
 	t.Run("get real PR", func(t *testing.T) {
@@ -77,16 +78,16 @@ func TestGithub(t *testing.T) {
 			Approvers: []string{},
 		}
 
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, expected, pr)
 	})
 
 	t.Run("Render template ", func(t *testing.T) {
 		tpl, err := util.CompileTemplate(`{{$pr := githubPullRequest "innogames" "slack-bot" "1"}}PR: "{{$pr.Name}}"`)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		res, err := util.EvalTemplate(tpl, util.Parameters{})
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		assert.Equal(t, `PR: "Add weather command"`, res)
 	})

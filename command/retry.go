@@ -41,7 +41,7 @@ func (c *retryCommand) GetMatcher() matcher.Matcher {
 }
 
 // retry the last stored message
-func (c *retryCommand) retry(match matcher.Result, message msg.Message) {
+func (c *retryCommand) retry(_ matcher.Result, message msg.Message) {
 	key := message.GetUniqueKey()
 
 	var lastCommand string

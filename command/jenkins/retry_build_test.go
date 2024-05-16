@@ -2,7 +2,7 @@ package jenkins
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"testing"
 
 	"github.com/innogames/slack-bot/v2/bot"
@@ -56,13 +56,13 @@ func TestJenkinsRetry(t *testing.T) {
 		mocks.AssertSlackMessage(slackClient, message, "Job *TestJob* does not exist")
 
 		ctx := context.TODO()
-		jenkinsClient.On("GetJob", ctx, "TestJob").Return(nil, fmt.Errorf(""))
+		jenkinsClient.On("GetJob", ctx, "TestJob").Return(nil, errors.New(""))
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
 
 	t.Run("Test help", func(t *testing.T) {
 		help := command.GetHelp()
-		assert.Equal(t, 1, len(help))
+		assert.Len(t, help, 1)
 	})
 }

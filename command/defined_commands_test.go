@@ -50,7 +50,7 @@ func TestInvalidMacro(t *testing.T) {
 
 	t.Run("Test help", func(t *testing.T) {
 		help := command.GetHelp()
-		assert.Equal(t, 2, len(help))
+		assert.Len(t, help, 2)
 	})
 }
 

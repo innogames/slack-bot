@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestChainStorage(t *testing.T) {
@@ -12,7 +12,7 @@ func TestChainStorage(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	fileStorage, err := newFileStorage(dir)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	storage := NewChainStorage(fileStorage, newMemoryStorage())
 

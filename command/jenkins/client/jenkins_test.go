@@ -9,12 +9,13 @@ import (
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetClient(t *testing.T) {
 	cfg := config.Jenkins{}
 	jenkinsClient, err := GetClient(cfg)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 	assert.Nil(t, jenkinsClient)
 }
 
@@ -23,12 +24,12 @@ func TestJenkinsNoParameters(t *testing.T) {
 
 	params := &Parameters{}
 	err := ParseParameters(jobConfig, "", *params)
-	assert.Equal(t, nil, err)
+	require.NoError(t, err)
 	assert.Equal(t, &Parameters{}, params)
 
 	params = &Parameters{}
 	err = ParseParameters(jobConfig, "test", *params)
-	assert.Equal(t, nil, err)
+	require.NoError(t, err)
 	assert.Equal(t, &Parameters{}, params)
 }
 
@@ -59,7 +60,7 @@ func TestJenkinsParameters(t *testing.T) {
 
 	params = &Parameters{}
 	err = ParseParameters(jobConfig, `testname testvalue "" ""`, *params)
-	assert.Equal(t, nil, err)
+	require.NoError(t, err)
 	assert.Equal(t, &Parameters{
 		"NAME":  "testname",
 		"VALUE": "testvalue",
@@ -69,7 +70,7 @@ func TestJenkinsParameters(t *testing.T) {
 
 	params = &Parameters{}
 	err = ParseParameters(jobConfig, "testname \"test value\" uPper lOwer", *params)
-	assert.Equal(t, nil, err)
+	require.NoError(t, err)
 	assert.Equal(t, &Parameters{
 		"NAME":  "testname",
 		"VALUE": "test value",
@@ -94,7 +95,7 @@ func TestJenkinsDefaultParameters(t *testing.T) {
 
 	params = &Parameters{}
 	err = ParseParameters(jobConfig, "testname TRUE", *params)
-	assert.Equal(t, nil, err)
+	require.NoError(t, err)
 	assert.Equal(t, &Parameters{
 		"NAME":  "testname",
 		"FLAG":  "true",
@@ -103,7 +104,7 @@ func TestJenkinsDefaultParameters(t *testing.T) {
 
 	params = &Parameters{}
 	err = ParseParameters(jobConfig, "testname false testvalue", *params)
-	assert.Equal(t, nil, err)
+	require.NoError(t, err)
 	assert.Equal(t, &Parameters{
 		"NAME":  "testname",
 		"FLAG":  "false",
@@ -184,7 +185,7 @@ func TestJenkinsMixedParameters(t *testing.T) {
 		"SUBTYPE": "mySubtype",
 	}
 	err = ParseParameters(jobConfig, "testname", *params)
-	assert.Equal(t, nil, err)
+	require.NoError(t, err)
 	assert.Equal(t, &Parameters{
 		"NAME":    "testname",
 		"SUBTYPE": "mySubtype",
@@ -193,7 +194,7 @@ func TestJenkinsMixedParameters(t *testing.T) {
 
 	params = &Parameters{}
 	err = ParseParameters(jobConfig, "testname testsubtype testvalue", *params)
-	assert.Equal(t, nil, err)
+	require.NoError(t, err)
 	assert.Equal(t, &Parameters{
 		"NAME":    "testname",
 		"SUBTYPE": "testsubtype",

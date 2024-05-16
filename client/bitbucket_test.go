@@ -5,6 +5,7 @@ import (
 
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBitbucket(t *testing.T) {
@@ -23,7 +24,7 @@ func TestBitbucket(t *testing.T) {
 		}
 
 		client, err := GetBitbucketClient(cfg)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, client)
 	})
 
@@ -36,7 +37,7 @@ func TestBitbucket(t *testing.T) {
 
 		client, err := GetBitbucketClient(cfg)
 
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, client)
 	})
 
@@ -48,7 +49,7 @@ func TestBitbucket(t *testing.T) {
 
 		client, err := GetBitbucketClient(cfg)
 
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, client)
 	})
 }

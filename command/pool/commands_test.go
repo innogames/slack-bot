@@ -38,7 +38,7 @@ func TestPools(t *testing.T) {
 			},
 		}
 		commands := GetCommands(cfg, base)
-		assert.Equal(t, 1, len(commands.GetCommandNames()))
+		assert.Len(t, commands.GetCommandNames(), 1)
 
 		runCommand := func(message msg.Message) {
 			actual := commands.Run(message)

@@ -2,7 +2,7 @@ package storage
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"golang.org/x/exp/maps"
@@ -49,11 +49,11 @@ func (s *memoryStorage) Read(collection, key string, v any) error {
 	defer lock.Unlock()
 
 	if _, ok := s.storage[collection]; !ok {
-		return fmt.Errorf("collection is empty")
+		return errors.New("collection is empty")
 	}
 
 	if _, ok := s.storage[collection][key]; !ok {
-		return fmt.Errorf("value is empty")
+		return errors.New("value is empty")
 	}
 
 	return json.Unmarshal(s.storage[collection][key], v)

@@ -18,6 +18,7 @@ import (
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 // testLock is only used in integration test to avoid running some tests in parallel as we use one shared Message list
@@ -70,7 +71,7 @@ func AssertQueuedMessage(t *testing.T, expected msg.Message) {
 	t.Helper()
 
 	actual := <-client.InternalMessages
-	assert.Equal(t, actual, expected)
+	assert.Equal(t, expected, actual)
 }
 
 // WaitForQueuedMessages waits until all "count" messages are queued and returns them in the returned function.
@@ -139,7 +140,7 @@ func AssertSlackBlocks(t *testing.T, slackClient *SlackClient, message msg.Ref, 
 
 	slackClient.On("SendBlockMessage", message, mock.MatchedBy(func(givenBlocks []slack.Block) bool {
 		givenJSON, err := json.Marshal(givenBlocks)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		if expectedJSON != string(givenJSON) {
 			fmt.Println(expectedJSON)
@@ -157,9 +158,9 @@ func AssertContainsSlackBlocks(t *testing.T, slackClient *SlackClient, message m
 
 	slackClient.On("SendBlockMessage", message, mock.MatchedBy(func(givenBlocks []slack.Block) bool {
 		givenJSON, err := json.Marshal(givenBlocks)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 		expectedJSONBlock, err := json.Marshal(block)
-		assert.Nil(t, err)
+		require.NoError(t, err)
 
 		if bytes.Contains(givenJSON, expectedJSONBlock) {
 			// all good!

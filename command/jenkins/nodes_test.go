@@ -85,7 +85,7 @@ In total there are 0 build(s) running right now`)
 
 	t.Run("Test help", func(t *testing.T) {
 		help := command.GetHelp()
-		assert.Equal(t, 1, len(help))
+		assert.Len(t, help, 1)
 	})
 }
 

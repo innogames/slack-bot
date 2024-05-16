@@ -15,6 +15,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAll(t *testing.T) {
@@ -57,7 +58,7 @@ func TestAll(t *testing.T) {
 
 	testURL := tester.FakeServerURL + "command?command=reply%20X"
 	r, err := http.Get(testURL) //nolint:gosec
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	resp, _ := io.ReadAll(r.Body)
 	defer r.Body.Close()

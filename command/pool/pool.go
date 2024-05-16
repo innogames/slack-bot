@@ -1,7 +1,6 @@
 package pool
 
 import (
-	"fmt"
 	"sort"
 	"sync"
 	"time"
@@ -18,9 +17,9 @@ const (
 )
 
 var (
-	ErrResourceLockedByDifferentUser = fmt.Errorf("resources locked by different user")
-	ErrNoLockedResourceFound         = fmt.Errorf("no locked resource found")
-	ErrNoResourceAvailable           = fmt.Errorf("no resource available")
+	ErrResourceLockedByDifferentUser = errors.New("resources locked by different user")
+	ErrNoLockedResourceFound         = errors.New("no locked resource found")
+	ErrNoResourceAvailable           = errors.New("no resource available")
 )
 
 // ResourceLock struct to hold and store the current locks

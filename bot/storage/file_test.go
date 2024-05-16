@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFileStorage(t *testing.T) {
@@ -12,7 +12,7 @@ func TestFileStorage(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	storage, err := newFileStorage(dir)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	t.Run("test file", func(t *testing.T) {
 		testStorage(t, storage)

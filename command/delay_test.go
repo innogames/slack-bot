@@ -66,7 +66,7 @@ func TestDelay(t *testing.T) {
 			Text: "my command",
 		}
 
-		assert.Equal(t, handledEvent, expectedEvent)
+		assert.Equal(t, expectedEvent, handledEvent)
 	})
 
 	t.Run("Test quiet option", func(t *testing.T) {

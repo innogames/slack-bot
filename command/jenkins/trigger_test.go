@@ -45,7 +45,7 @@ func TestJenkinsTrigger(t *testing.T) {
 
 	t.Run("Test help", func(t *testing.T) {
 		help := command.GetHelp()
-		assert.Equal(t, 3, len(help))
+		assert.Len(t, help, 3)
 	})
 
 	t.Run("Trigger not existing job", func(t *testing.T) {

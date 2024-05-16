@@ -1,7 +1,7 @@
 package queue
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
@@ -33,7 +33,7 @@ func (c *thenCommand) run(match matcher.Result, message msg.Message) {
 	if !found {
 		c.ReplyError(
 			message,
-			fmt.Errorf("you have to call this command when another long running command is already running"),
+			errors.New("you have to call this command when another long running command is already running"),
 		)
 		return
 	}

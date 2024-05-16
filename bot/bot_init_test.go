@@ -9,6 +9,7 @@ import (
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBot(t *testing.T) {
@@ -20,7 +21,7 @@ func TestBot(t *testing.T) {
 	}
 
 	slackClient, err := client.GetSlackClient(cfg.Slack)
-	assert.Nil(t, err)
+	require.NoError(t, err)
 
 	commands := &Commands{}
 	commands.AddCommand(testCommand2{})

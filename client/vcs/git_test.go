@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGitLoader(t *testing.T) {
@@ -13,8 +14,8 @@ func TestGitLoader(t *testing.T) {
 		}
 
 		branches, err := fetcher.LoadBranches()
-		assert.True(t, len(branches) >= 1)
-		assert.Nil(t, err)
+		assert.GreaterOrEqual(t, len(branches), 1)
+		require.NoError(t, err)
 	})
 
 	t.Run("Load branches with invalid repoURL", func(t *testing.T) {
@@ -25,6 +26,6 @@ func TestGitLoader(t *testing.T) {
 		branches, err := fetcher.LoadBranches()
 
 		assert.Empty(t, branches)
-		assert.NotNil(t, err)
+		require.Error(t, err)
 	})
 }

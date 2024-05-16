@@ -2,6 +2,7 @@ package openai
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -39,7 +40,7 @@ func (c *openaiCommand) dalleGenerateImage(match matcher.Result, message msg.Mes
 			if err != nil {
 				c.ReplyError(
 					message,
-					fmt.Errorf("failed to download image: %s %s", image.URL, err),
+					fmt.Errorf("failed to download image: %s %w", image.URL, err),
 				)
 			}
 		}
@@ -103,7 +104,7 @@ func generateImages(cfg Config, prompt string) ([]DalleResponseImage, error) {
 	}
 
 	if response.Error.Message != "" {
-		return nil, fmt.Errorf(response.Error.Message)
+		return nil, errors.New(response.Error.Message)
 	}
 
 	log.WithField("model", cfg.DalleModel).
