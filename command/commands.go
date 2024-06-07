@@ -9,6 +9,7 @@ import (
 	"github.com/innogames/slack-bot/v2/command/cron"
 	"github.com/innogames/slack-bot/v2/command/custom_commmands"
 	"github.com/innogames/slack-bot/v2/command/custom_variables"
+	"github.com/innogames/slack-bot/v2/command/export"
 	"github.com/innogames/slack-bot/v2/command/games"
 	"github.com/innogames/slack-bot/v2/command/jenkins"
 	"github.com/innogames/slack-bot/v2/command/jira"
@@ -50,6 +51,7 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 
 		custom_commmands.GetCommand(base, &cfg),
 		custom_variables.GetCommand(base, &cfg),
+		export.NewExportCommand(base),
 	)
 
 	commands.Merge(admin.GetCommands(base, &cfg))
