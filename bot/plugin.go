@@ -3,39 +3,100 @@ package bot
 import (
 	"fmt"
 	"github.com/hashicorp/go-hclog"
-	plugin "github.com/hashicorp/go-plugin"
-	"github.com/innogames/slack-bot/v2/client"
+	"github.com/hashicorp/go-plugin"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"net/rpc"
 	"os"
 	"os/exec"
 )
 
-type SlackBotPluginI interface {
-	GetCommands(cfg *Bot, slack client.SlackClient) Commands
+// Interface for SlackBotPlugin to get commands
+type Plugin interface {
+	GetCommands() string
 }
+
+// RPC Client structure
+type SlackBotPluginRPC struct {
+	client *rpc.Client
+}
+
+func (g *SlackBotPluginRPC) GetCommands(cfg any, slack *string) string {
+	var resp string
+	err := g.client.Call("Plugin.GetCommands", new(any), &resp)
+	if err != nil {
+		panic(err)
+	}
+	return resp
+}
+
+// Structure for SlackBotPlugin to allow for RPC server and methods
 type SlackBotPlugin struct {
-	GetCommands func(cfg *Bot, slack client.SlackClient) Commands
+	Impl Plugin
+}
+
+// Implements Plugin and GRPCPlugin for SlackBot
+type SlackBotPluginPlugin struct {
+	plugin.NetRPCUnsupportedPlugin
+	Impl Plugin
+}
+
+func (p *SlackBotPluginPlugin) Server(*plugin.MuxBroker) (interface{}, error) {
+	s := &CommandRPCServer{Impl: p.Impl}
+	server := rpc.NewServer()
+	err := server.Register(s)
+	if err != nil {
+		return nil, err
+	}
+	return server, nil
+}
+
+func (p *SlackBotPluginPlugin) Client(b *plugin.MuxBroker, c *rpc.Client) (interface{}, error) {
+	return &SlackBotPluginRPC{client: c}, nil
+}
+
+func (p *SlackBotPluginPlugin) XXX(b any, c *string) error {
+	return nil
+}
+
+// RPC Server structure
+type CommandRPCServer struct {
+	Impl Plugin
+}
+
+func (s *CommandRPCServer) GetCommands(args any, resp *string) error {
+	if s.Impl == nil {
+		return errors.New("implementation is missing for Plugin")
+	}
+
+	//	*resp = s.Impl.GetCommands(nil, &client.Slack{})
+	return nil
 }
 
 func LoadPlugins(b *Bot) Commands {
 	commands := Commands{}
 
+	// todo binaries, err := goplugin.Discover("*", path)
 	for _, pluginPath := range b.config.Plugins {
 		log.Infof("Load plugin %s...", pluginPath)
 
 		c, err := loadPlugin(pluginPath)
-		fmt.Println(err)
-		c.GetCommands()
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		s := ""
+		pluginCommands := c.GetCommands(b, &s)
+		fmt.Println(pluginCommands)
+		//commands.Merge(pluginCommands)
 	}
 
 	return commands
 }
 
-func loadPlugin(pluginPath string) (*CommandRPC, error) {
-	// todo use only one logger, and use logrus
+func loadPlugin(pluginPath string) (*SlackBotPluginRPC, error) {
 	logger := hclog.New(&hclog.LoggerOptions{
-		Name:   "plugin",
+		Name:   "plugin.master",
 		Output: os.Stdout,
 		Level:  hclog.Debug,
 	})
@@ -47,12 +108,11 @@ func loadPlugin(pluginPath string) (*CommandRPC, error) {
 			MagicCookieValue: "bar",
 		},
 		Plugins: map[string]plugin.Plugin{
-			"command": &SlackBotPlugin{},
+			"command": &SlackBotPluginPlugin{},
 		},
 		Cmd:    exec.Command(pluginPath),
 		Logger: logger,
 	})
-	defer client.Kill()
 
 	rpcClient, err := client.Client()
 	if err != nil {
@@ -64,18 +124,17 @@ func loadPlugin(pluginPath string) (*CommandRPC, error) {
 		return nil, err
 	}
 
-	return raw.(*CommandRPC), nil
+	return raw.(*SlackBotPluginRPC), nil
 }
 
-// ServePlugin serves the plugin
-func ServePlugin(impl *SlackBotPlugin) {
+// Serve the plugin implementation
+func ServePlugin(impl Plugin) {
 	logger := hclog.New(&hclog.LoggerOptions{
-		Name:   "plugin",
+		Name:   "plugin.sub",
 		Output: os.Stdout,
 		Level:  hclog.Debug,
 	})
 
-	fmt.Println("start serving plugin")
 	plugin.Serve(&plugin.ServeConfig{
 		HandshakeConfig: plugin.HandshakeConfig{
 			ProtocolVersion:  1,
@@ -83,47 +142,9 @@ func ServePlugin(impl *SlackBotPlugin) {
 			MagicCookieValue: "bar",
 		},
 		Plugins: map[string]plugin.Plugin{
-			"command": impl,
+			"command": &SlackBotPluginPlugin{Impl: impl},
 		},
-		//GRPCServer: plugin.DefaultGRPCServer,
-		Logger: logger,
+		GRPCServer: plugin.DefaultGRPCServer,
+		Logger:     logger,
 	})
-	fmt.Println("end serving plugin")
-}
-
-// Plugin Server Implementation
-func (p *SlackBotPlugin) Server(*plugin.MuxBroker) (any, error) {
-	return &CommandRPCServer{Impl: p}, nil
-	// todo? return &GreeterRPCServer{Impl: p.Impl, b: b}, nil
-}
-
-// Plugin Client Implementation
-func (p *SlackBotPlugin) Client(b *plugin.MuxBroker, c *rpc.Client) (any, error) {
-	return &CommandRPC{client: c}, nil
-}
-
-// Concrete implementation of the plugin Command that wraps RPC client.
-type CommandRPC struct {
-	client *rpc.Client
-}
-
-func (g *CommandRPC) GetCommands() {
-	var resp string
-	err := g.client.Call("Plugin.GetCommands", new(any), &resp)
-	fmt.Println(err)
-	fmt.Println(resp)
-	if err != nil {
-		panic(err)
-	}
-}
-
-type CommandRPCServer struct {
-	// This is the real implementation
-	Impl *SlackBotPlugin
-}
-
-func (s *CommandRPCServer) GetCommands(args interface{}, resp *string) error {
-	commands := s.Impl.GetCommands(&Bot{}, &client.Slack{})
-	fmt.Println(commands)
-	return nil
 }

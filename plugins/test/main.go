@@ -3,21 +3,23 @@ package main
 //go:generate go build -o ./test.so ./main.go
 
 import (
-	"fmt"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
-	"github.com/innogames/slack-bot/v2/client"
 )
 
-func GetCommands(cfg *bot.Bot, slack client.SlackClient) bot.Commands {
-	fmt.Println("loading...")
-	base := bot.BaseCommand{SlackClient: slack}
+// Plugin implementation structure
+type PluginImpl struct{}
 
-	commands := bot.Commands{}
-	commands.AddCommand(testCommand{base})
-
-	return commands
+func (p *PluginImpl) GetCommands() string {
+	//	fmt.Println("loading...")
+	//	base := bot.BaseCommand{SlackClient: slack}
+	//
+	//	commands := bot.Commands{}
+	//	commands.AddCommand(testCommand{base})
+	//
+	//	return commands
+	return "jop"
 }
 
 type testCommand struct {
@@ -30,8 +32,7 @@ func (c testCommand) GetMatcher() matcher.Matcher {
 	})
 }
 
+// Main function to serve the plugin
 func main() {
-	bot.ServePlugin(&bot.SlackBotPlugin{
-		GetCommands: GetCommands,
-	})
+	bot.ServePlugin(&PluginImpl{})
 }
