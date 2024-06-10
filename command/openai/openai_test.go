@@ -77,25 +77,25 @@ func TestOpenai(t *testing.T) {
 			apiCompletionURL,
 			[]testRequest{
 				{
-					`{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"user","content":"whats 1+1?"}],"stream":true}`,
-					`data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"role":"assistant"},"index":0,"finish_reason":null}]}
+					`{"model":"gpt-4o","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"user","content":"whats 1+1?"}],"stream":true}`,
+					`data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"role":"assistant"},"index":0,"finish_reason":null}]}
 
-data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"The answer "},"index":0,"finish_reason":null}]}
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"content":"The answer "},"index":0,"finish_reason":null}]}
 
-data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"is 2"},"index":0,"finish_reason":null}]}
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"content":"is 2"},"index":0,"finish_reason":null}]}
 
-data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{},"index":0,"finish_reason":"stop"}]}
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{},"index":0,"finish_reason":"stop"}]}
 
 data: [DONE]`,
 					http.StatusOK,
 				},
 				{
-					`{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"user","content":"whats 1+1?"},{"role":"assistant","content":"The answer is 2"},{"role":"user","content":"whats 2+1?"}],"stream":true}`,
+					`{"model":"gpt-4o","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"user","content":"whats 1+1?"},{"role":"assistant","content":"The answer is 2"},{"role":"user","content":"whats 2+1?"}],"stream":true}`,
 					`{
 						 "id": "chatcmpl-6p9XYPYSTTRi0xEviKjjilqrWU2Ve",
 						 "object": "chat.completion",
 						 "created": 1677649420,
-						 "model": "gpt-3.5-turbo",
+						 "model": "gpt-4o",
 						 "usage": {"prompt_tokens": 56, "completion_tokens": 31, "total_tokens": 87},
 						 "choices": [
 						   {
@@ -171,7 +171,7 @@ data: [DONE]`,
 			apiCompletionURL,
 			[]testRequest{
 				{
-					`{"model":"gpt-3.5-turbo","messages":[{"role":"user","content":"whats 1+1?"}],"stream":true}`,
+					`{"model":"gpt-4o","messages":[{"role":"user","content":"whats 1+1?"}],"stream":true}`,
 					`{
 					  "error": {
 						"code": "invalid_api_key",
@@ -212,7 +212,7 @@ data: [DONE]`,
 
 			[]testRequest{
 				{
-					`{"model":"gpt-3.5-turbo","messages":[{"role":"user","content":"whats 1+1?"}],"stream":true}`,
+					`{"model":"gpt-4o","messages":[{"role":"user","content":"whats 1+1?"}],"stream":true}`,
 					`{
 					  "error": {
 						"code": "invalid_api_key",
@@ -252,12 +252,12 @@ data: [DONE]`,
 			apiCompletionURL,
 			[]testRequest{
 				{
-					`{"model":"gpt-3.5-turbo","messages":[{"role":"user","content":"whats 1+1?"}]}`,
+					`{"model":"gpt-4o","messages":[{"role":"user","content":"whats 1+1?"}]}`,
 					`{
 						 "id": "chatcmpl-6p9XYPYSTTRi0xEviKjjilqrWU2Ve",
 						 "object": "chat.completion",
 						 "created": 1677649420,
-						 "model": "gpt-3.5-turbo",
+						 "model": "gpt-4o",
 						 "usage": {"prompt_tokens": 56, "completion_tokens": 31, "total_tokens": 87},
 						 "choices": [
 						   {
@@ -293,12 +293,12 @@ data: [DONE]`,
 			apiCompletionURL,
 			[]testRequest{
 				{
-					`{"model":"gpt-3.5-turbo","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"system","content":"This is a Slack bot receiving a slack thread s context, using slack user ids as identifiers. Please use user mentions in the format \u003c@U123456\u003e"},{"role":"user","content":"User \u003c@U1234\u003e wrote: thread message 1"},{"role":"user","content":"whats 1+1?"}],"stream":true}`,
-					`data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"role":"assistant"},"index":0,"finish_reason":null}]}
+					`{"model":"gpt-4o","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"system","content":"This is a Slack bot receiving a slack thread s context, using slack user ids as identifiers. Please use user mentions in the format \u003c@U123456\u003e"},{"role":"user","content":"User \u003c@U1234\u003e wrote: thread message 1"},{"role":"user","content":"whats 1+1?"}],"stream":true}`,
+					`data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"role":"assistant"},"index":0,"finish_reason":null}]}
 
-data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"Jolo!"},"index":0,"finish_reason":null}]}
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"content":"Jolo!"},"index":0,"finish_reason":null}]}
 
-data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{},"index":0,"finish_reason":"stop"}]}
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{},"index":0,"finish_reason":"stop"}]}
 
 data: [DONE]`,
 					http.StatusOK,
@@ -352,11 +352,11 @@ data: [DONE]`,
 			[]testRequest{
 				{
 					`{"model":"dummy-test","messages":[{"role":"user","content":"User \u003c@U1234\u003e wrote: i had a great weekend"},{"role":"user","content":"summarize this thread "}],"stream":true}`,
-					`data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"role":"assistant"},"index":0,"finish_reason":null}]}
+					`data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"role":"assistant"},"index":0,"finish_reason":null}]}
 
-data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{"content":"Jolo!"},"index":0,"finish_reason":null}]}
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"content":"Jolo!"},"index":0,"finish_reason":null}]}
 
-data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-3.5-turbo-0301","choices":[{"delta":{},"index":0,"finish_reason":"stop"}]}
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{},"index":0,"finish_reason":"stop"}]}
 
 data: [DONE]`,
 					http.StatusOK,
