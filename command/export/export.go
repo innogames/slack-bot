@@ -15,6 +15,7 @@ import (
 	"github.com/slack-go/slack"
 )
 
+// limit the number of exported messages (incl thread messages)
 const limit = 3000
 
 // NewExportCommand is a constructor to create a new export command

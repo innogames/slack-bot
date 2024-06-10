@@ -14,15 +14,14 @@ func TestModels(t *testing.T) {
 		{"", 128000},
 		{"jolo", 128000},
 		{"gpt-4", 8192},
+		{"gpt-4o", 128000},
 		{"gpt-4-0613", 8192},
-		{"gpt-4-32k-0613", 32768},
-		{"gpt-3.5-turbo", 4096},
-		{"gpt-3.5-turbo-16k-0613", 16385},
+		{"gpt-3.5-turbo", 16385},
 	}
 
 	for _, testCase := range modelsTestCases {
 		actual := getMaxTokensForModel(testCase.input)
-		assert.Equal(t, testCase.expected, actual)
+		assert.Equal(t, testCase.expected, actual, "Model "+testCase.input)
 	}
 }
 
