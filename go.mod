@@ -1,6 +1,6 @@
 module github.com/innogames/slack-bot/v2
 
-go 1.21
+go 1.21.9
 
 require (
 	github.com/alicebob/miniredis/v2 v2.32.1
