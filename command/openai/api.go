@@ -106,10 +106,11 @@ type ChatChoice struct {
 	  }
 */
 type DalleRequest struct {
-	Model  string `json:"model"`
-	Prompt string `json:"prompt"`
-	N      int    `json:"n"`
-	Size   string `json:"size"`
+	Model   string `json:"model"`
+	Quality string `json:"quality,omitempty"`
+	Prompt  string `json:"prompt"`
+	N       int    `json:"n"`
+	Size    string `json:"size"`
 }
 
 /*

@@ -104,7 +104,7 @@ func TestDalle(t *testing.T) {
 			t,
 			slackClient,
 			message,
-			`[{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"Regenerate","emoji":true},"action_id":"dalle","value":"dall-e revised prompt 1234"}]}]`,
+			`[{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"New (original prompt)","emoji":true},"action_id":"dalle_original","value":"dall-e a nice cat"},{"type":"button","text":{"type":"plain_text","text":"New (advanced prompt)","emoji":true},"action_id":"dalle_advanced","value":"dall-e revised prompt 1234"}]}]`,
 		)
 
 		slackClient.On(

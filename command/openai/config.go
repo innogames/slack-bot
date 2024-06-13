@@ -32,6 +32,7 @@ type Config struct {
 	DalleModel          string `mapstructure:"dalle_model"`
 	DalleImageSize      string `mapstructure:"dalle_image_size"`
 	DalleNumberOfImages int    `mapstructure:"dalle_number_of_images"`
+	DalleQuality        string `mapstructure:"dalle_quality"`
 }
 
 // IsEnabled checks if token is set
