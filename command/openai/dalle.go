@@ -36,7 +36,7 @@ func (c *openaiCommand) dalleGenerateImage(match matcher.Result, message msg.Mes
 
 		startTime := time.Now()
 		for _, image := range images {
-			err := c.sendImageInSlack(image, message)
+			err := c.sendImageInSlack(image, message, prompt)
 			if err != nil {
 				c.ReplyError(
 					message,
@@ -48,7 +48,7 @@ func (c *openaiCommand) dalleGenerateImage(match matcher.Result, message msg.Mes
 	}()
 }
 
-func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.Message) error {
+func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.Message, prompt string) error {
 	req, err := http.NewRequest("GET", image.URL, nil)
 	if err != nil {
 		return err
@@ -73,7 +73,8 @@ func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.M
 		[]slack.Block{
 			slack.NewActionBlock(
 				"",
-				client.GetInteractionButton("dalle", "Regenerate", fmt.Sprintf("dall-e %s", image.RevisedPrompt)),
+				client.GetInteractionButton("dalle_original", "New (original prompt)", "dall-e "+prompt),
+				client.GetInteractionButton("dalle_advanced", "New (advanced prompt)", "dall-e "+image.RevisedPrompt),
 			),
 		},
 		slack.MsgOptionTS(message.Timestamp),
@@ -84,10 +85,11 @@ func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.M
 
 func generateImages(cfg Config, prompt string) ([]DalleResponseImage, error) {
 	jsonData, _ := json.Marshal(DalleRequest{
-		Model:  cfg.DalleModel,
-		Size:   cfg.DalleImageSize,
-		N:      cfg.DalleNumberOfImages,
-		Prompt: prompt,
+		Model:   cfg.DalleModel,
+		Size:    cfg.DalleImageSize,
+		N:       cfg.DalleNumberOfImages,
+		Quality: cfg.DalleQuality,
+		Prompt:  prompt,
 	})
 
 	start := time.Now()
