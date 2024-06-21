@@ -1,4 +1,4 @@
-package test
+package main
 
 import (
 	"github.com/innogames/slack-bot/v2/bot"
@@ -27,7 +27,7 @@ func (c *testCommand) reply(match matcher.Result, message msg.Message) {
 	c.SendMessage(message, text)
 }
 
-func start(b *bot.Bot, slackClient client.SlackClient) bot.Commands {
+func start(_ *bot.Bot, slackClient client.SlackClient) bot.Commands {
 	commands := bot.Commands{}
 
 	commands.AddCommand(&testCommand{bot.BaseCommand{SlackClient: slackClient}})

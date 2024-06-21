@@ -1,6 +1,8 @@
 package bot
 
-import "github.com/innogames/slack-bot/v2/client"
+import (
+	"github.com/innogames/slack-bot/v2/client"
+)
 
 // Plugin is a extended command which can be registered to the bot at compile time
 type Plugin struct {

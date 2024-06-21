@@ -88,49 +88,55 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
 		log.Warnf("User %s tried to execute a command", payload.User.ID)
 		return false
 	}
-
-	action := payload.ActionCallback.BlockActions[0]
-	command := action.Value
-
-	if action.Value == "" {
-		log.Infof("Action '%s' got already executed (user: %s)", action.Value, payload.User.Name)
-		return false
-	}
-
-	interactionLock.Lock()
-	defer interactionLock.Unlock()
-
-	log.Infof(
-		"Received interaction from user %s/%s (action-id: %s, command: %s)",
-		payload.User.ID,
-		payload.User.Name,
-		action.Value,
-		command,
-	)
-
-	ref := msg.MessageRef{
-		Channel:        payload.Container.ChannelID,
-		Thread:         payload.Container.ThreadTs,
-		User:           payload.User.ID,
-		Timestamp:      payload.Message.Timestamp,
-		UpdatedMessage: true,
-	}
-
-	// update the original slack message (with the button) and disable the button
-	newMessage := replaceClickedButton(&payload.Message, action.Value, " (clicked)")
-
-	b.slackClient.SendMessage(
-		ref,
-		newMessage.Text,
-		slack.MsgOptionUpdate(newMessage.Timestamp),
-		slack.MsgOptionAttachments(newMessage.Attachments...),
-		slack.MsgOptionBlocks(newMessage.Blocks.BlockSet...),
-	)
-
-	// execute the command which is stored for this interaction
-	go b.ProcessMessage(ref.WithText(command), true)
-
 	stats.IncreaseOne(stats.Interactions)
+
+	if payload.Type == "block_actions" {
+		// user clicked on one of our interactive buttons
+		action := payload.ActionCallback.BlockActions[0]
+		command := action.Value
+
+		if action.Value == "" {
+			log.Infof("Action '%s' got already executed (user: %s)", action.Value, payload.User.Name)
+			return false
+		}
+
+		interactionLock.Lock()
+		defer interactionLock.Unlock()
+
+		log.Infof(
+			"Received interaction from user %s/%s (action-id: %s, command: %s)",
+			payload.User.ID,
+			payload.User.Name,
+			action.Value,
+			command,
+		)
+
+		ref := msg.MessageRef{
+			Channel:        payload.Container.ChannelID,
+			Thread:         payload.Container.ThreadTs,
+			User:           payload.User.ID,
+			Timestamp:      payload.Message.Timestamp,
+			UpdatedMessage: true,
+		}
+
+		// update the original slack message (with the button) and disable the button
+		newMessage := replaceClickedButton(&payload.Message, action.Value, " (clicked)")
+
+		b.slackClient.SendMessage(
+			ref,
+			newMessage.Text,
+			slack.MsgOptionUpdate(newMessage.Timestamp),
+			slack.MsgOptionAttachments(newMessage.Attachments...),
+			slack.MsgOptionBlocks(newMessage.Blocks.BlockSet...),
+		)
+
+		// execute the command which is stored for this interaction
+		go b.ProcessMessage(ref.WithText(command), true)
+	} else if payload.Type == "message_action" {
+		// todo implement interactive slack messages (right click menu)
+		log.Warnf("Received unhandled message action: %+v", payload)
+		return true
+	}
 
 	return true
 }
