@@ -16,6 +16,9 @@ import (
 	"github.com/slack-go/slack/socketmode"
 )
 
+// messageLimit is the maximum length of a message which can be sent to slack
+const messageLimit = 40000
+
 // InternalMessages is internal queue of internal messages
 // @deprecated -> use HandleMessageWithDoneHandler instead
 var InternalMessages = make(chan msg.Message, 50)
@@ -175,6 +178,11 @@ func (s *Slack) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption
 		return ""
 	}
 
+	if len(text) > messageLimit {
+		log.Warnf("Message is too long (%d), truncating to %d", len(text), messageLimit)
+		text = text[:messageLimit] + "..."
+	}
+
 	defaultOptions := []slack.MsgOption{
 		slack.MsgOptionTS(ref.GetThread()), // send in current thread by default
 		slack.MsgOptionAsUser(true),
@@ -188,8 +196,14 @@ func (s *Slack) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption
 		options...,
 	)
 	if err != nil {
+		truncated := text
+		if len(truncated) > 20 {
+			truncated = fmt.Sprintf("%s... (%d total), ", text[:20], len(text))
+		}
 		log.
 			WithField("user", ref.GetUser()).
+			WithField("message", truncated).
+			WithField("channel", ref.GetChannel()).
 			Error(err.Error())
 	}
 
@@ -198,7 +212,10 @@ func (s *Slack) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption
 
 // ReplyError send a error message as a reply to the user and log it in the log + send it to ErrorChannel (if defined)
 func (s *Slack) ReplyError(ref msg.Ref, err error) {
-	log.WithError(err).Warnf("Error while sending reply")
+	log.WithError(err).
+		WithField("user", ref.GetUser()).
+		Warn("Error while sending reply")
+
 	s.SendMessage(ref, err.Error())
 
 	if s.config.ErrorChannel != "" {
@@ -217,7 +234,7 @@ func (s *Slack) ReplyError(ref msg.Ref, err error) {
 func (s *Slack) SendToUser(user string, text string) {
 	channel, err := s.getUserConversation(user)
 	if err != nil {
-		log.WithError(err).Errorf("Cannot send Slack message")
+		log.WithError(err).Error("Cannot send Slack message")
 		return
 	}
 
@@ -231,7 +248,7 @@ func (s *Slack) SendToUser(user string, text string) {
 func (s *Slack) SendBlockMessageToUser(user string, blocks []slack.Block, options ...slack.MsgOption) string {
 	channel, err := s.getUserConversation(user)
 	if err != nil {
-		log.WithError(err).Errorf("Cannot send Slack message")
+		log.WithError(err).Error("Cannot send Slack message")
 		return ""
 	}
 	message := msg.Message{}
