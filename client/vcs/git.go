@@ -1,8 +1,11 @@
 package vcs
 
 import (
+	"fmt"
 	"os/exec"
 	"regexp"
+
+	"github.com/pkg/errors"
 )
 
 // git fetcher to load all branch names from a remote repository
@@ -18,6 +21,13 @@ func (f git) LoadBranches() (branchNames []string, err error) {
 	cmd := exec.Command("git", "ls-remote", "--refs", f.repoURL)
 	output, err := cmd.Output()
 	if err != nil {
+		err = errors.Wrap(
+			err,
+			fmt.Sprintf(
+				"failed to load branches: %s",
+				cmd.String(),
+			),
+		)
 		return
 	}
 

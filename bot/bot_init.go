@@ -65,6 +65,10 @@ func (b *Bot) Init() (err error) {
 	log.Infof("Loaded %d allowed users and %d channels", len(b.allowedUsers), len(client.AllChannels))
 	log.Infof("Bot user: @%s with ID %s on workspace %s", b.auth.User, b.auth.UserID, b.auth.URL)
 
+	pluginCommands := loadPlugins(b, b.slackClient)
+	log.Infof("Loaded %d plugin commands", len(pluginCommands.commands))
+	b.commands.Merge(pluginCommands)
+
 	commands := b.commands.GetCommandNames()
 	log.Infof("Initialized %d commands:", len(commands))
 	log.Info(strings.Join(commands, ", "))

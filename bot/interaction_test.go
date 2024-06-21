@@ -140,6 +140,7 @@ func TestInteraction(t *testing.T) {
 		assert.Equal(t, "dummy", actionID)
 
 		callback := slack.InteractionCallback{
+			Type: "block_actions",
 			User: slack.User{
 				ID: "user1",
 			},
@@ -157,12 +158,14 @@ func TestInteraction(t *testing.T) {
 
 		// "press the button" again -> should not work!
 		callback.ActionCallback.BlockActions[0].Value = ""
+		callback.Type = "block_actions"
 		success = bot.handleInteraction(callback)
 		assert.False(t, success)
 	})
 
 	t.Run("handle invalid interaction", func(t *testing.T) {
 		callback := slack.InteractionCallback{
+			Type: "block_actions",
 			User: slack.User{
 				ID: "user1",
 			},
@@ -191,6 +194,12 @@ func TestInteraction(t *testing.T) {
 
 		success := bot.handleInteraction(callback)
 		assert.False(t, success)
+	})
+
+	t.Run("load file content without file", func(t *testing.T) {
+		event := &slackevents.MessageEvent{}
+		actual := bot.loadFileContent(event)
+		assert.Equal(t, "", actual)
 	})
 }
 
