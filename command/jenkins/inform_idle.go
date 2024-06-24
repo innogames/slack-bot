@@ -31,7 +31,7 @@ func newIdleWatcherCommand(base jenkinsCommand) bot.Command {
 func (c *idleWatcherCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewTextMatcher("wait until jenkins is idle", c.checkAllNodes),
-		matcher.NewRegexpMatcher(`wait until jenkins node (?P<node>\w+) is idle`, c.checkSingleNode),
+		matcher.NewRegexpMatcher(`wait until jenkins node (?P<node>[\w\-\.]+) is idle`, c.checkSingleNode),
 	)
 }
 
