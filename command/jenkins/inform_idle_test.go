@@ -83,7 +83,7 @@ func TestInformIdle(t *testing.T) {
 
 	t.Run("Test job running on other node", func(t *testing.T) {
 		message := msg.Message{}
-		message.Text = "wait until jenkins node swarm1 is idle"
+		message.Text = "wait until jenkins node swarm1.local is idle"
 
 		// we have 2 nodes with only idle executors
 		mocks.AssertReaction(slackClient, doneReaction, message)
