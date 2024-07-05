@@ -32,7 +32,7 @@ func NewListCommand(base bot.BaseCommand) bot.Command {
 func (c *listCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewTextMatcher("list queue", c.listAll),
-		matcher.NewRegexpMatcher("list queue in channel(?P<pin> pin=true)?", c.listChannel),
+		matcher.NewOptionMatcher("list queue in channel", []string{"pin"}, c.listChannel, c.SlackClient),
 	)
 }
 

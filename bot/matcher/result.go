@@ -25,5 +25,5 @@ func (m Result) Has(key string) bool {
 		return false
 	}
 
-	return len(value) > 0
+	return len(value) > 0 && value != "false"
 }
