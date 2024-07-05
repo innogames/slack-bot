@@ -17,3 +17,13 @@ func (m Result) GetInt(key string) int {
 	number, _ := strconv.Atoi(m[key])
 	return number
 }
+
+// Has checks if a key exists in the result
+func (m Result) Has(key string) bool {
+	value, ok := m[key]
+	if !ok {
+		return false
+	}
+
+	return len(value) > 0
+}

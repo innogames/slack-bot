@@ -121,6 +121,9 @@ type SlackClient interface {
 
 	// UploadFile uploads a file to Slack
 	UploadFile(params slack.FileUploadParameters) (*slack.File, error)
+
+	// PinMessage will pin a message to the channel
+	PinMessage(ref msg.Ref) error
 }
 
 // Slack is wrapper to the slack.Client which also holds the the socketmode.Client and all needed config
@@ -212,9 +215,13 @@ func (s *Slack) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption
 
 // ReplyError send a error message as a reply to the user and log it in the log + send it to ErrorChannel (if defined)
 func (s *Slack) ReplyError(ref msg.Ref, err error) {
+	if err == nil {
+		return
+	}
+
 	log.WithError(err).
 		WithField("user", ref.GetUser()).
-		Warn("Error while sending reply")
+		Warn("Error while processing command")
 
 	s.SendMessage(ref, err.Error())
 
@@ -339,6 +346,14 @@ func GetUserIDAndName(identifier string) (id string, name string) {
 	}
 
 	return "", ""
+}
+
+// PinMessage will pin a message to the channel
+func (s *Slack) PinMessage(ref msg.Ref) error {
+	return s.Client.AddPin(ref.GetChannel(), slack.ItemRef{
+		Channel:   ref.GetChannel(),
+		Timestamp: ref.GetTimestamp(),
+	})
 }
 
 // GetChannelIDAndName returns channel-id and channel-name by an identifier which can be an id or a name

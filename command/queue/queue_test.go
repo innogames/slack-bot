@@ -106,23 +106,25 @@ func TestQueue(t *testing.T) {
 		assert.True(t, actual)
 
 		// list queue for current channel
-		message.Text = "list queue in channel"
-		mocks.AssertReaction(slackClient, processingReaction, message)
-		mocks.AssertRemoveReaction(slackClient, processingReaction, message)
-		mocks.AssertContainsSlackBlocks(t, slackClient, message, client.GetTextBlock("*1 queued commands*"))
+		t.Run("list queue in channel", func(t *testing.T) {
+			message.Text = "list queue in channel"
+			mocks.AssertReaction(slackClient, processingReaction, message)
+			mocks.AssertRemoveReaction(slackClient, processingReaction, message)
+			mocks.AssertContainsSlackBlocks(t, slackClient, message, client.GetTextBlock("*1 queued commands*"))
 
-		actual = command.Run(message)
-		assert.True(t, actual)
+			actual = command.Run(message)
+			assert.True(t, actual)
 
-		// list queue for other channel
-		message.Text = "list queue in channel"
-		message.Channel = "C1212121"
-		mocks.AssertReaction(slackClient, processingReaction, message)
-		mocks.AssertRemoveReaction(slackClient, processingReaction, message)
-		mocks.AssertContainsSlackBlocks(t, slackClient, message, client.GetTextBlock("*0 queued commands*"))
+			// list queue for other channel
+			message.Text = "list queue in channel"
+			message.Channel = "C1212121"
+			mocks.AssertReaction(slackClient, processingReaction, message)
+			mocks.AssertRemoveReaction(slackClient, processingReaction, message)
+			mocks.AssertContainsSlackBlocks(t, slackClient, message, client.GetTextBlock("*0 queued commands*"))
 
-		actual = command.Run(message)
-		assert.True(t, actual)
+			actual = command.Run(message)
+			assert.True(t, actual)
+		})
 
 		t.Run("Render template with not open PR", func(t *testing.T) {
 			tpl, err := util.CompileTemplate(`{{$count1 := countBackgroundJobs}}{{$count2 := countBackgroundJobsInChannel "C1234"}}{{$count3 := countBackgroundJobsInChannel "C4321"}}{{$count1}} - {{$count2}} - {{$count3}}`)

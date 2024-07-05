@@ -53,6 +53,8 @@ func TestRegexp(t *testing.T) {
 		assert.Equal(t, "", match.GetString("number_invalid"))
 		assert.Equal(t, 12, match.GetInt("number"))
 		assert.Equal(t, 0, match.GetInt("number_invalid"))
+		assert.True(t, match.Has("number"))
+		assert.False(t, match.Has("invalid"))
 	})
 }
 

@@ -32,7 +32,7 @@ func NewListCommand(base bot.BaseCommand) bot.Command {
 func (c *listCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewTextMatcher("list queue", c.listAll),
-		matcher.NewTextMatcher("list queue in channel", c.listChannel),
+		matcher.NewRegexpMatcher("list queue in channel(?P<pin> pin=true)?", c.listChannel),
 	)
 }
 
@@ -48,6 +48,11 @@ func (c *listCommand) listChannel(match matcher.Result, message msg.Message) {
 	c.sendList(message, func(queuedEvent msg.Message) bool {
 		return message.GetChannel() == queuedEvent.GetChannel()
 	})
+
+	if match.Has("pin") {
+		err := c.PinMessage(message)
+		c.ReplyError(message, err)
+	}
 }
 
 // format a block-based message with all matching commands
@@ -180,6 +185,7 @@ func (c *listCommand) GetHelp() []bot.Help {
 			Description: "list queued commands in current channel",
 			Examples: []string{
 				"list queue in channel",
+				"list queue in channel pin=true",
 			},
 		},
 	}
