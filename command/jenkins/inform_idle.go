@@ -35,7 +35,7 @@ func (c *idleWatcherCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-// command like "wait until node swarm-1234 is idle"
+// command like "wait until jenkins node swarm-1234 is idle"
 func (c *idleWatcherCommand) checkSingleNode(match matcher.Result, message msg.Message) {
 	nodeName := match.GetString("node")
 
@@ -131,11 +131,11 @@ func (c *idleWatcherCommand) GetHelp() []bot.Help {
 			Category: category,
 		},
 		{
-			Command:     "wait until node <nodeId> is idle",
+			Command:     "wait until jenkins node <nodeId> is idle",
 			Description: "Informs you if no Jenkins job is running on the given node anymore. Useful when we're planning updates/maintenance which requires a idle server.",
 			Examples: []string{
 				"wait until jenkins is idle",
-				"wait until node swarm-1234 is idle",
+				"wait until jenkins node swarm-1234 is idle",
 			},
 			Category: category,
 		},

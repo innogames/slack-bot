@@ -216,7 +216,11 @@ func (s *Slack) ReplyError(ref msg.Ref, err error) {
 		WithField("user", ref.GetUser()).
 		Warn("Error while sending reply")
 
-	s.SendMessage(ref, err.Error())
+	s.SendMessage(
+		ref,
+		err.Error(),
+		slack.MsgOptionTS(ref.GetTimestamp()),
+	)
 
 	if s.config.ErrorChannel != "" {
 		text := fmt.Sprintf(
