@@ -82,10 +82,10 @@ func (c *listCommand) sendList(message msg.Message, options matcher.Result, filt
 		msgOptions = append(msgOptions, slack.MsgOptionUpdate(message.Timestamp))
 	}
 
-	c.SendBlockMessage(message, blocks, msgOptions...)
+	messageTimestamp := c.SendBlockMessage(message, blocks, msgOptions...)
 
 	if options.Has("pin") {
-		err := c.PinMessage(message)
+		err := c.PinMessage(message.Channel, messageTimestamp)
 		c.ReplyError(message, err)
 	}
 }

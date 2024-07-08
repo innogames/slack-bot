@@ -123,7 +123,7 @@ type SlackClient interface {
 	UploadFile(params slack.FileUploadParameters) (*slack.File, error)
 
 	// PinMessage will pin a message to the channel
-	PinMessage(ref msg.Ref) error
+	PinMessage(channel string, timestamp string) error
 }
 
 // Slack is wrapper to the slack.Client which also holds the the socketmode.Client and all needed config
@@ -353,10 +353,10 @@ func GetUserIDAndName(identifier string) (id string, name string) {
 }
 
 // PinMessage will pin a message to the channel
-func (s *Slack) PinMessage(ref msg.Ref) error {
-	return s.Client.AddPin(ref.GetChannel(), slack.ItemRef{
-		Channel:   ref.GetChannel(),
-		Timestamp: ref.GetTimestamp(),
+func (s *Slack) PinMessage(channel string, timestamp string) error {
+	return s.Client.AddPin(channel, slack.ItemRef{
+		Channel:   channel,
+		Timestamp: timestamp,
 	})
 }
 
