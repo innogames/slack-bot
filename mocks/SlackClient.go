@@ -141,17 +141,17 @@ func (_m *SlackClient) GetUserPresence(user string) (*slack.UserPresence, error)
 	return r0, r1
 }
 
-// PinMessage provides a mock function with given fields: ref
-func (_m *SlackClient) PinMessage(ref msg.Ref) error {
-	ret := _m.Called(ref)
+// PinMessage provides a mock function with given fields: channel, timestamp
+func (_m *SlackClient) PinMessage(channel string, timestamp string) error {
+	ret := _m.Called(channel, timestamp)
 
 	if len(ret) == 0 {
 		panic("no return value specified for PinMessage")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(msg.Ref) error); ok {
-		r0 = rf(ref)
+	if rf, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = rf(channel, timestamp)
 	} else {
 		r0 = ret.Error(0)
 	}
