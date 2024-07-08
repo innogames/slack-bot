@@ -14,7 +14,10 @@ import (
 	"github.com/slack-go/slack"
 )
 
-const processingReaction = "eyes"
+const (
+	processingReaction = "eyes"
+	defaultName        = "queued commands"
+)
 
 type listCommand struct {
 	bot.BaseCommand
@@ -32,34 +35,44 @@ func NewListCommand(base bot.BaseCommand) bot.Command {
 func (c *listCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
 		matcher.NewTextMatcher("list queue", c.listAll),
-		matcher.NewTextMatcher("list queue in channel", c.listChannel),
+		matcher.NewOptionMatcher("list queue in channel", []string{"pin", "hide-empty", "element-name"}, c.listChannel, c.SlackClient),
 	)
 }
 
 // ListAll shows a list of all queued commands
 func (c *listCommand) listAll(match matcher.Result, message msg.Message) {
-	c.sendList(message, func(_ msg.Message) bool {
+	c.sendList(message, match, func(_ msg.Message) bool {
 		return true
 	})
 }
 
 // ListChannel shows a list of all queued commands within the current channel
 func (c *listCommand) listChannel(match matcher.Result, message msg.Message) {
-	c.sendList(message, func(queuedEvent msg.Message) bool {
+	c.sendList(message, match, func(queuedEvent msg.Message) bool {
 		return message.GetChannel() == queuedEvent.GetChannel()
 	})
 }
 
 // format a block-based message with all matching commands
-func (c *listCommand) sendList(message msg.Message, filter filterFunc) {
+func (c *listCommand) sendList(message msg.Message, options matcher.Result, filter filterFunc) {
 	// add :eyes: temporary because loading the list might take some seconds
 	c.AddReaction(processingReaction, message)
 	defer c.RemoveReaction(processingReaction, message)
 
 	count, queueBlocks := c.getQueueAsBlocks(message, filter)
 
+	if count == 0 && options.Has("hide-empty") {
+		// hide empty list
+		return
+	}
+
+	elementName := defaultName
+	if options.Has("element-name") {
+		elementName = options.GetString("element-name")
+	}
+
 	blocks := []slack.Block{
-		client.GetTextBlock(fmt.Sprintf("*%d queued commands*", count)),
+		client.GetTextBlock(fmt.Sprintf("*%d %s*", count, elementName)),
 	}
 	blocks = append(blocks, queueBlocks...)
 
@@ -70,6 +83,11 @@ func (c *listCommand) sendList(message msg.Message, filter filterFunc) {
 	}
 
 	c.SendBlockMessage(message, blocks, msgOptions...)
+
+	if options.Has("pin") {
+		err := c.PinMessage(message)
+		c.ReplyError(message, err)
+	}
 }
 
 // loads all matching queue entries and format them into slack.Block
@@ -180,6 +198,7 @@ func (c *listCommand) GetHelp() []bot.Help {
 			Description: "list queued commands in current channel",
 			Examples: []string{
 				"list queue in channel",
+				"list queue in channel pin=true",
 			},
 		},
 	}

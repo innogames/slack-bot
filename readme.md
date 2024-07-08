@@ -50,6 +50,7 @@ oauth_config:
       - reactions:write
       - users:read
       - files:read
+      - pins:write
 settings:
   event_subscriptions:
     bot_events:
