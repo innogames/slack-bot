@@ -49,12 +49,12 @@ func (c *bitbucketFetcher) getPullRequest(match matcher.Result) (pullRequest, er
 	number := match.GetInt("number")
 	rawResponse, err := c.bitbucketClient.GetPullRequest(project, repo, number)
 	if err != nil {
-		// handle deleted PR
+		// handle deleted PR as already "closed" one
 		if strings.Contains(err.Error(), "Status: 404") {
 			return closedPr, nil
 		}
 
-		return pr, err
+		return pr, errors.Wrap(err, "error while loading data from Bitbucket")
 	}
 
 	rawPullRequest, err := bitbucket.GetPullRequestResponse(rawResponse)
