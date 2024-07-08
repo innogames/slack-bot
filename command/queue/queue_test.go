@@ -116,11 +116,11 @@ func TestQueue(t *testing.T) {
 			assert.True(t, actual)
 
 			// list queue for other channel
-			message.Text = "list queue in channel"
+			message.Text = "list queue in channel element-name=pull-requests"
 			message.Channel = "C1212121"
 			mocks.AssertReaction(slackClient, processingReaction, message)
 			mocks.AssertRemoveReaction(slackClient, processingReaction, message)
-			mocks.AssertContainsSlackBlocks(t, slackClient, message, client.GetTextBlock("*0 queued commands*"))
+			mocks.AssertContainsSlackBlocks(t, slackClient, message, client.GetTextBlock("*0 pull-requests*"))
 
 			actual = command.Run(message)
 			assert.True(t, actual)
@@ -158,6 +158,19 @@ func TestQueue(t *testing.T) {
 		mocks.AssertReaction(slackClient, processingReaction, message)
 		mocks.AssertRemoveReaction(slackClient, processingReaction, message)
 		mocks.AssertContainsSlackBlocks(t, slackClient, message, client.GetTextBlock("*0 queued commands*"))
+
+		actual := command.Run(message)
+		assert.True(t, actual)
+	})
+
+	t.Run("Test refresh queue command", func(t *testing.T) {
+		message.Text = "list queue in channel hide-empty=true pin=true"
+		message.UpdatedMessage = true
+
+		assert.Empty(t, client.InternalMessages)
+
+		mocks.AssertReaction(slackClient, processingReaction, message)
+		mocks.AssertRemoveReaction(slackClient, processingReaction, message)
 
 		actual := command.Run(message)
 		assert.True(t, actual)

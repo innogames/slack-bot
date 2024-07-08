@@ -34,14 +34,11 @@ func (m optionMatcher) Match(message msg.Message) (Runner, Result) {
 		return nil, nil
 	}
 
-	fmt.Println(message.Text)
-	fmt.Println(m.command)
-	fmt.Println(optionsString)
 	options := parseOptions(optionsString)
 
 	for option := range options {
 		if !slices.Contains(m.whiteList, option) {
-			return func(match Result, message msg.Message) {
+			return func(_ Result, message msg.Message) {
 				m.slackClient.AddReaction("❌", message)
 				m.slackClient.ReplyError(
 					message,
@@ -59,18 +56,19 @@ func (m optionMatcher) Match(message msg.Message) (Runner, Result) {
 	return m.run, options
 }
 
+// parseOptions parses a string like "option1=value1 --option2='value 2' option3="value 3""
 func parseOptions(given string) Result {
-	re := regexp.MustCompile(`(\w+)=('([^']*)'|"([^"]*)"|(\S+))|(\w+)`)
+	re := regexp.MustCompile(`(--)?([\w\-]+)=('([^']*)'|"([^"]*)"|(\S+))|(\w+)`)
 	matches := re.FindAllStringSubmatch(given, -1)
 
 	options := make(Result)
 	for _, match := range matches {
-		if match[1] != "" {
-			key := match[1]
-			value := match[3] + match[4] + match[5]
+		if match[2] != "" {
+			key := match[2]
+			value := match[4] + match[5] + match[6]
 			options[key] = value
-		} else if match[6] != "" {
-			key := match[6]
+		} else if match[7] != "" {
+			key := match[7]
 			options[key] = "true"
 		}
 	}

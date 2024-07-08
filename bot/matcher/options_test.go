@@ -45,6 +45,10 @@ func TestOptions(t *testing.T) {
 				input:    `foo=bar test=true`,
 				expected: Result{"foo": "bar", "test": "true"},
 			},
+			{
+				input:    `--foo=bar --test=true`,
+				expected: Result{"foo": "bar", "test": "true"},
+			},
 		}
 
 		for _, test := range tests {
