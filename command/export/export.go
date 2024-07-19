@@ -86,7 +86,7 @@ func getConversations(client client.SlackClient, channelID string) ([]slack.Mess
 			break
 		}
 		params.Cursor = history.ResponseMetaData.NextCursor
-		time.Sleep(250 * time.Millisecond) // Avoid rate limiting
+		time.Sleep(500 * time.Millisecond) // Avoid rate limiting
 	}
 	return messages, nil
 }
@@ -135,7 +135,7 @@ func exportChannelMessagesToBuffer(client client.SlackClient, channelID string) 
 				}
 			}
 			// rate limit...
-			time.Sleep(50 * time.Millisecond)
+			time.Sleep(250 * time.Millisecond)
 		}
 
 		if lines > limit {
