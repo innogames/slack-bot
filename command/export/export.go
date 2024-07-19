@@ -135,7 +135,7 @@ func exportChannelMessagesToBuffer(client client.SlackClient, channelID string) 
 				}
 			}
 			// rate limit...
-			time.Sleep(250 * time.Millisecond)
+			time.Sleep(200 * time.Millisecond)
 		}
 
 		if lines > limit {
