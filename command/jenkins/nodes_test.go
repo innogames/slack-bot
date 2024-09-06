@@ -2,7 +2,6 @@ package jenkins
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/bndr/gojenkins"
@@ -11,6 +10,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/command/jenkins/client"
 	"github.com/innogames/slack-bot/v2/mocks"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -37,8 +37,8 @@ func TestNodes(t *testing.T) {
 		message.Text = "list jenkins nodes"
 
 		ctx := context.Background()
-		jenkinsClient.On("GetAllNodes", ctx).Return(nil, fmt.Errorf("an error occurred")).Once()
-		mocks.AssertError(slackClient, message, fmt.Errorf("an error occurred"))
+		jenkinsClient.On("GetAllNodes", ctx).Return(nil, errors.New("an error occurred")).Once()
+		mocks.AssertError(slackClient, message, errors.New("an error occurred"))
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})

@@ -1,7 +1,6 @@
 package config
 
 import (
-	"os"
 	"path"
 	"testing"
 
@@ -70,10 +69,10 @@ func TestLoadFile(t *testing.T) {
 }
 
 func TestEnvironment(t *testing.T) {
-	os.Setenv("BOT_TIMEZONE", "Europe/Berlin")
-	os.Setenv("BOT_SLACK_TOKEN", "mySlackToken")
-	os.Setenv("BOT_SLACK_SOCKET_TOKEN", "mySlackSocketToken")
-	os.Setenv("BOT_GITHUB_ACCESS_TOKEN", "myGithubToken")
+	t.Setenv("BOT_TIMEZONE", "Europe/Berlin")
+	t.Setenv("BOT_SLACK_TOKEN", "mySlackToken")
+	t.Setenv("BOT_SLACK_SOCKET_TOKEN", "mySlackSocketToken")
+	t.Setenv("BOT_GITHUB_ACCESS_TOKEN", "myGithubToken")
 
 	// load example file == okay
 	cfg, err := Load("../../config.example.yaml")

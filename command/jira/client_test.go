@@ -3,10 +3,9 @@ package jira
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestJiraClient(t *testing.T) {
