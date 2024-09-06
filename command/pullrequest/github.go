@@ -4,13 +4,12 @@ import (
 	"context"
 	"text/template"
 
-	"github.com/pkg/errors"
-
 	"github.com/google/go-github/github"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/client"
+	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 )
 

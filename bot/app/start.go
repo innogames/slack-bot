@@ -11,7 +11,6 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/innogames/slack-bot/v2/command"
-
 	log "github.com/sirupsen/logrus"
 )
 

@@ -2,6 +2,7 @@ package admin
 
 import (
 	"fmt"
+	"math"
 	"runtime"
 	"strings"
 	"time"
@@ -95,6 +96,10 @@ func formatStats(key string) string {
 	value, err := stats.Get(key)
 	if err != nil {
 		return "0"
+	}
+
+	if value > uint(math.MaxInt) {
+		return fmt.Sprintf("overflow: %d", value)
 	}
 
 	return util.FormatInt(int(value))

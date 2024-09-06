@@ -6,9 +6,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/innogames/slack-bot/v2/client"
-
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/client"
 )
 
 func NewOptionMatcher(baseCommand string, whiteList []string, run Runner, slackClient client.SlackClient) Matcher {

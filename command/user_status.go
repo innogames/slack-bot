@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/innogames/slack-bot/v2/command/queue"
-
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/command/queue"
 )
 
 const notifyCheckInterval = time.Minute * 1

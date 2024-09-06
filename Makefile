@@ -31,7 +31,7 @@ dep:
 	@go mod vendor
 
 lint:
-	golangci-lint run
+	golangci-lint run --fix
 
 docker-build:
 	docker build . --force-rm -t brainexe/slack-bot:latest

@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/innogames/slack-bot/v2/bot/util"
-
 	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client/vcs"
 )
 

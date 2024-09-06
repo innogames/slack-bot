@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/gookit/color"
-
 	"github.com/stretchr/testify/assert"
 )
 

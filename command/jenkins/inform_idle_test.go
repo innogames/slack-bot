@@ -6,12 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/innogames/slack-bot/v2/mocks"
-
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/command/queue"
+	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -114,12 +113,12 @@ func getNodeWithExecutors(running int, idle int, name string) *gojenkins.Node {
 	}
 
 	executors := make([]executor, 0, running+idle)
-	for i := 0; i < idle; i++ {
+	for range idle {
 		executors = append(executors, executor{
 			currentExecutable{0},
 		})
 	}
-	for i := 0; i < running; i++ {
+	for range running {
 		executors = append(executors, executor{
 			currentExecutable{12},
 		})
