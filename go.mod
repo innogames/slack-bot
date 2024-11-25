@@ -20,7 +20,7 @@ require (
 	github.com/sdomino/golang-scribble v0.0.0-20230717151034-b95d4df19aa8
 	github.com/sirupsen/logrus v1.9.3
 	github.com/slack-go/slack v0.15.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/texttheater/golang-levenshtein/levenshtein v0.0.0-20200805054039-cae8b0eaed6c
 	github.com/xanzy/go-gitlab v0.114.0
 	golang.org/x/exp v0.0.0-20240904232852-e7e105dedf7e
