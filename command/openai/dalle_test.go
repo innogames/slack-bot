@@ -109,7 +109,7 @@ func TestDalle(t *testing.T) {
 
 		slackClient.On(
 			"UploadFile",
-			mock.MatchedBy(func(params slack.FileUploadParameters) bool {
+			mock.MatchedBy(func(params slack.UploadFileV2Parameters) bool {
 				assert.Equal(t, "dalle.png", params.Filename)
 				return true
 			}),
