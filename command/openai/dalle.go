@@ -59,12 +59,12 @@ func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.M
 	}
 	defer resp.Body.Close()
 
-	_, err = c.SlackClient.UploadFile(slack.FileUploadParameters{
+	_, err = c.SlackClient.UploadFile(slack.UploadFileV2Parameters{
 		Filename:        "dalle.png",
-		Filetype:        "png",
-		Channels:        []string{message.Channel},
-		ThreadTimestamp: message.Timestamp,
+		FileSize:        int(resp.ContentLength),
 		Reader:          resp.Body,
+		Channel:         message.Channel,
+		ThreadTimestamp: message.Timestamp,
 		InitialComment:  fmt.Sprintf("Dall-e prompt: %s", image.RevisedPrompt),
 	})
 

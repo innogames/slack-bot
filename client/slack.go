@@ -120,7 +120,7 @@ type SlackClient interface {
 	GetUserPresence(user string) (*slack.UserPresence, error)
 
 	// UploadFile uploads a file to Slack
-	UploadFile(params slack.FileUploadParameters) (*slack.File, error)
+	UploadFile(params slack.UploadFileV2Parameters) (*slack.FileSummary, error)
 
 	// PinMessage will pin a message to the channel
 	PinMessage(channel string, timestamp string) error
@@ -331,8 +331,8 @@ func (s *Slack) GetUserPresence(user string) (*slack.UserPresence, error) {
 }
 
 // UploadFile uploads a file to Slack
-func (s *Slack) UploadFile(params slack.FileUploadParameters) (*slack.File, error) {
-	return s.Client.UploadFile(params)
+func (s *Slack) UploadFile(params slack.UploadFileV2Parameters) (*slack.FileSummary, error) {
+	return s.Client.UploadFileV2(params)
 }
 
 // GetUserIDAndName returns the user-id and user-name based on a identifier. If can get a user-id or name

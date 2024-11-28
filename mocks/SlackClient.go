@@ -262,27 +262,27 @@ func (_m *SlackClient) SendToUser(user string, text string) {
 }
 
 // UploadFile provides a mock function with given fields: params
-func (_m *SlackClient) UploadFile(params slack.FileUploadParameters) (*slack.File, error) {
+func (_m *SlackClient) UploadFile(params slack.UploadFileV2Parameters) (*slack.FileSummary, error) {
 	ret := _m.Called(params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UploadFile")
 	}
 
-	var r0 *slack.File
+	var r0 *slack.FileSummary
 	var r1 error
-	if rf, ok := ret.Get(0).(func(slack.FileUploadParameters) (*slack.File, error)); ok {
+	if rf, ok := ret.Get(0).(func(slack.UploadFileV2Parameters) (*slack.FileSummary, error)); ok {
 		return rf(params)
 	}
-	if rf, ok := ret.Get(0).(func(slack.FileUploadParameters) *slack.File); ok {
+	if rf, ok := ret.Get(0).(func(slack.UploadFileV2Parameters) *slack.FileSummary); ok {
 		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*slack.File)
+			r0 = ret.Get(0).(*slack.FileSummary)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(slack.FileUploadParameters) error); ok {
+	if rf, ok := ret.Get(1).(func(slack.UploadFileV2Parameters) error); ok {
 		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)
