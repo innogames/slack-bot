@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/csv"
 	"fmt"
-	"io"
 	"sort"
 	"time"
 
@@ -48,10 +47,10 @@ func (c *exportCommand) exportChannel(match matcher.Result, message msg.Message)
 	if lines >= limit {
 		c.SendMessage(message, fmt.Sprintf("Attention: The export is limited to %d messages.", limit))
 	}
-	_, err = c.UploadFile(slack.FileUploadParameters{
+	_, err = c.UploadFile(slack.UploadFileV2Parameters{
 		Filename:        "export.csv",
-		Filetype:        "csv",
-		Channels:        []string{message.Channel},
+		FileSize:        buffer.Len(),
+		Channel:         message.Channel,
 		ThreadTimestamp: message.Timestamp,
 		Reader:          buffer,
 		InitialComment:  fmt.Sprintf("Export %d messages from channel <#%s|%s>", lines, channelID, channelName),
@@ -91,7 +90,7 @@ func getConversations(client client.SlackClient, channelID string) ([]slack.Mess
 	return messages, nil
 }
 
-func exportChannelMessagesToBuffer(client client.SlackClient, channelID string) (io.Reader, int, error) {
+func exportChannelMessagesToBuffer(client client.SlackClient, channelID string) (*bytes.Buffer, int, error) {
 	buffer := new(bytes.Buffer)
 	messages, err := getConversations(client, channelID)
 	if err != nil {
