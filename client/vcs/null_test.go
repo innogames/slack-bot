@@ -11,7 +11,7 @@ func TestNullLoader(t *testing.T) {
 	fetcher := &null{}
 	t.Run("Load branches with null loader", func(t *testing.T) {
 		branches, err := fetcher.LoadBranches()
-		assert.Len(t, branches, 0)
+		assert.Empty(t, branches)
 		require.NoError(t, err)
 	})
 }

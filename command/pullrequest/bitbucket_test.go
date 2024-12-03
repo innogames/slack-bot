@@ -113,7 +113,7 @@ func spawnBitbucketTestServer() *httptest.Server {
 	mux := http.NewServeMux()
 
 	// 1337: merged pr
-	mux.HandleFunc("/rest/api/1.0/projects/myProject/repos/myRepo/pull-requests/1337", func(res http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/rest/api/1.0/projects/myProject/repos/myRepo/pull-requests/1337", func(res http.ResponseWriter, _ *http.Request) {
 		res.Write([]byte(`{
 			"id": 1337,
 			"title": "test",
@@ -131,7 +131,7 @@ func spawnBitbucketTestServer() *httptest.Server {
 	})
 
 	// 1339: open PR
-	mux.HandleFunc("/rest/api/1.0/projects/myProject/repos/myRepo/pull-requests/1339", func(res http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/rest/api/1.0/projects/myProject/repos/myRepo/pull-requests/1339", func(res http.ResponseWriter, _ *http.Request) {
 		res.Write([]byte(`{
 			"id": 1339,
 			"title": "test",
@@ -144,7 +144,7 @@ func spawnBitbucketTestServer() *httptest.Server {
 	})
 
 	// successful build
-	mux.HandleFunc("/rest/build-status/1.0/commits/commitWithSuccessfulBuild", func(res http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/rest/build-status/1.0/commits/commitWithSuccessfulBuild", func(res http.ResponseWriter, _ *http.Request) {
 		res.Write([]byte(`{
 			"values": [{
 				"state": "SUCCESS"
@@ -153,7 +153,7 @@ func spawnBitbucketTestServer() *httptest.Server {
 	})
 
 	// failed build
-	mux.HandleFunc("/rest/build-status/1.0/commits/commitWithFailedBuild", func(res http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/rest/build-status/1.0/commits/commitWithFailedBuild", func(res http.ResponseWriter, _ *http.Request) {
 		res.Write([]byte(`{
 			"values": [{
 				"state": "FAILED"

@@ -27,7 +27,7 @@ func TestInitBranchWatcher(t *testing.T) {
 		ctx.StopTheWorld()
 
 		// as a nullFetcher is used -> should be empty now
-		assert.Len(t, GetBranches(), 0)
+		assert.Empty(t, GetBranches())
 	})
 
 	t.Run("Git", func(t *testing.T) {
@@ -85,7 +85,7 @@ func TestGetMatchingBranches(t *testing.T) {
 
 	t.Run("Not unique", func(t *testing.T) {
 		actual, err := GetMatchingBranch("PROJ-1234")
-		assert.EqualError(t, err, "multiple branches found: feature/PROJ-1234-do-something, feature/PROJ-1234-do-something-hotfix")
+		require.EqualError(t, err, "multiple branches found: feature/PROJ-1234-do-something, feature/PROJ-1234-do-something-hotfix")
 		assert.Equal(t, "", actual)
 	})
 

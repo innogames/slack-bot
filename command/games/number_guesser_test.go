@@ -30,7 +30,7 @@ func TestNumberGuesser(t *testing.T) {
 
 		actual := commands.Run(message)
 		assert.True(t, actual)
-		assert.Equal(t, 1, len(gameCommand.games))
+		assert.Len(t, gameCommand.games, 1)
 
 		game := gameCommand.games[message.User]
 		assert.GreaterOrEqual(t, game.randomNumber, 0)
@@ -100,6 +100,6 @@ func TestNumberGuesser(t *testing.T) {
 
 		actual = commands.Run(message)
 		assert.True(t, actual)
-		assert.Equal(t, 1, len(gameCommand.games))
+		assert.Len(t, gameCommand.games, 1)
 	})
 }

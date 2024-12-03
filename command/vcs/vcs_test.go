@@ -38,7 +38,7 @@ func TestVCS(t *testing.T) {
 
 		commands := GetCommands(base, cfg)
 		assert.Equal(t, 1, commands.Count())
-		assert.Equal(t, 1, len(commands.GetHelp()))
+		assert.Len(t, commands.GetHelp(), 1)
 
 		actual := commands.Run(message)
 		time.Sleep(100 * time.Millisecond)

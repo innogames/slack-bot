@@ -34,7 +34,7 @@ func TestStartBuild(t *testing.T) {
 
 		err := TriggerJenkinsJob(cfg, jobName, params, slackClient, client, message)
 
-		assert.EqualError(t, err, "Job *TestJob* could not start build with parameters: -none-: 404")
+		require.EqualError(t, err, "Job *TestJob* could not start build with parameters: -none-: 404")
 	})
 
 	t.Run("start job", func(t *testing.T) {
@@ -172,7 +172,7 @@ func spawnJenkinsServer() *httptest.Server {
 	buildNumber := 42
 
 	// test connection
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		w.Write([]byte(`ok`))
 	})
 

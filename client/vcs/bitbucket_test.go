@@ -49,7 +49,7 @@ func TestBitbucketLoader(t *testing.T) {
 
 		branches, err := fetcher.LoadBranches()
 		assert.True(t, strings.HasPrefix(err.Error(), "Status: 404 Not Found, Body: 404 page not found"))
-		assert.Len(t, branches, 0)
+		assert.Empty(t, branches)
 	})
 }
 
@@ -57,7 +57,7 @@ func spawnBitbucketTestServer() *httptest.Server {
 	mux := http.NewServeMux()
 
 	// 1337: merged pr
-	mux.HandleFunc("/rest/api/1.0/projects/myProject/repos/myRepo/branches", func(res http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/rest/api/1.0/projects/myProject/repos/myRepo/branches", func(res http.ResponseWriter, _ *http.Request) {
 		res.Write([]byte(`{
 			"values": [
 				{

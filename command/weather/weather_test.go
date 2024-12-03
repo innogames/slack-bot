@@ -22,7 +22,7 @@ func TestWeather(t *testing.T) {
 	// set default timezone
 	time.Local, _ = time.LoadLocation("Europe/Berlin")
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		file, _ := os.ReadFile("./dump_current_weather.json")
 		w.Write(file)
 	}))

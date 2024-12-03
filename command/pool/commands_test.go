@@ -76,6 +76,6 @@ func TestPools(t *testing.T) {
 		runCommand(message)
 
 		help := commands.GetHelp()
-		assert.Equal(t, 6, len(help))
+		assert.Len(t, help, 6)
 	})
 }

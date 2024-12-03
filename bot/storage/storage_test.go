@@ -38,7 +38,7 @@ func testStorage(t *testing.T, storage Storage) {
 
 	keys, err = storage.GetKeys("invalid-collection")
 	require.NoError(t, err)
-	assert.Len(t, keys, 0)
+	assert.Empty(t, keys)
 
 	// read valid data
 	err = storage.Read(collection, "test-string", &stringValue)
@@ -53,7 +53,7 @@ func testStorage(t *testing.T, storage Storage) {
 
 	// expected unmarshall error when accessing wrong data
 	err = storage.Read(collection, "test-int", &mapValue)
-	assert.EqualError(t, err, "json: cannot unmarshal number into Go value of type map[int]float32")
+	require.EqualError(t, err, "json: cannot unmarshal number into Go value of type map[int]float32")
 
 	// Atomic
 	Atomic(func() {
@@ -91,11 +91,11 @@ func testStorage(t *testing.T, storage Storage) {
 
 	keys, err = storage.GetKeys(collection)
 	require.NoError(t, err)
-	assert.Len(t, keys, 0)
+	assert.Empty(t, keys)
 
 	keys, err = GetKeys("../")
-	assert.EqualError(t, err, "invalid Storage key: ../")
-	assert.Len(t, keys, 0)
+	require.EqualError(t, err, "invalid Storage key: ../")
+	assert.Empty(t, keys)
 }
 
 func TestStorage(t *testing.T) {
@@ -105,13 +105,13 @@ func TestStorage(t *testing.T) {
 		require.NoError(t, err)
 
 		err = validateKey("valid", "not#valid")
-		assert.EqualError(t, err, "invalid Storage key: not#valid")
+		require.EqualError(t, err, "invalid Storage key: not#valid")
 
 		err = validateKey("valid", "../../passwd")
-		assert.EqualError(t, err, "invalid Storage key: ../../passwd")
+		require.EqualError(t, err, "invalid Storage key: ../../passwd")
 
 		err = validateKey("")
-		assert.EqualError(t, err, "invalid Storage key: ")
+		require.EqualError(t, err, "invalid Storage key: ")
 	})
 
 	t.Run("test init Storage", func(t *testing.T) {
@@ -137,16 +137,16 @@ func TestStorage(t *testing.T) {
 
 	t.Run("Validate keys", func(t *testing.T) {
 		err := Write("../test", "foo", "")
-		assert.EqualError(t, err, "invalid Storage key: ../test")
+		require.EqualError(t, err, "invalid Storage key: ../test")
 
 		err = Delete("../test", "foo")
-		assert.EqualError(t, err, "invalid Storage key: ../test")
+		require.EqualError(t, err, "invalid Storage key: ../test")
 
 		err = DeleteCollection("../test")
-		assert.EqualError(t, err, "invalid Storage key: ../test")
+		require.EqualError(t, err, "invalid Storage key: ../test")
 
 		var i int
 		err = Read("../test", "dd", &i)
-		assert.EqualError(t, err, "invalid Storage key: ../test")
+		require.EqualError(t, err, "invalid Storage key: ../test")
 	})
 }

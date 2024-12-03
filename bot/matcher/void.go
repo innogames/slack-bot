@@ -11,6 +11,6 @@ func NewVoidMatcher() Matcher {
 
 type voidMatcher struct{}
 
-func (m voidMatcher) Match(message msg.Message) (Runner, Result) {
+func (m voidMatcher) Match(_ msg.Message) (Runner, Result) {
 	return nil, nil
 }

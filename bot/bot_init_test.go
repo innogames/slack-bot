@@ -67,7 +67,7 @@ func TestBot(t *testing.T) {
 		bot.config.Slack.Token = "invalid"
 
 		err := bot.Init()
-		assert.EqualError(t, err, "auth error: invalid_auth")
+		require.EqualError(t, err, "auth error: invalid_auth")
 	})
 
 	/*
@@ -76,13 +76,13 @@ func TestBot(t *testing.T) {
 				bot.config.Timezone = "foo/bar"
 
 				err := bot.Init()
-				assert.EqualError(t, err, "unknown time zone foo/bar")
+				require.EqualError(t, err, "unknown time zone foo/bar")
 			})
 	*/
 
 	t.Run("Load channels without token", func(t *testing.T) {
 		channels, err := bot.loadChannels()
-		assert.Len(t, channels, 0)
+		assert.Empty(t, channels)
 		assert.Contains(t, err.Error(), "invalid_auth")
 	})
 }

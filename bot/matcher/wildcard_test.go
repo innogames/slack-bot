@@ -9,7 +9,7 @@ import (
 
 func TestWildcard(t *testing.T) {
 	t.Run("Match", func(t *testing.T) {
-		runner := func(ref msg.Ref, text string) bool {
+		runner := func(_ msg.Ref, _ string) bool {
 			return true
 		}
 		subject := WildcardMatcher(runner)
@@ -23,7 +23,7 @@ func TestWildcard(t *testing.T) {
 	})
 
 	t.Run("NoMatch", func(t *testing.T) {
-		runner := func(ref msg.Ref, text string) bool {
+		runner := func(_ msg.Ref, _ string) bool {
 			return false
 		}
 		subject := WildcardMatcher(runner)

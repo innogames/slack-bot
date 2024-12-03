@@ -19,7 +19,6 @@ linters:
     - errname
     - errorlint
     - exhaustive
-    - exportloopref
     - fatcontext
     - gci
     - gocheckcompilerdirectives

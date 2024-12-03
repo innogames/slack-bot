@@ -98,7 +98,7 @@ func TestRealNodes(t *testing.T) {
 			Host: "https://ci.jenkins.io",
 		}
 		client, err := client.GetClient(cfg)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 
 		base.jenkins = client
 		command := bot.Commands{}

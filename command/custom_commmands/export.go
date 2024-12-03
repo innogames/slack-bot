@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func (c command) export(match matcher.Result, message msg.Message) {
+func (c command) export(_ matcher.Result, message msg.Message) {
 	list := loadList(message)
 	if len(list) == 0 {
 		c.SendMessage(message, "No commands define yet. Use `add command 'your alias' 'command to execute'`")

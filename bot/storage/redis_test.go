@@ -37,7 +37,7 @@ func TestRedisStorage(t *testing.T) {
 		assert.Equal(t, "dial tcp: address invalid.host: missing port in address", err.Error())
 
 		keys, err := storage.GetKeys("test")
-		assert.Len(t, keys, 0)
+		assert.Empty(t, keys)
 		assert.Equal(t, "dial tcp: address invalid.host: missing port in address", err.Error())
 	})
 }
