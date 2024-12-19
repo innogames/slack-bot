@@ -63,7 +63,7 @@ func (c *gitlabFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 
 func (c *gitlabFetcher) getStatus(pr *gitlab.MergeRequest) prStatus {
 	// https://docs.gitlab.com/ce/api/merge_requests.html
-	var inReview = false
+	inReview := false
 	if len(pr.Reviewers) > 0 {
 		inReview = true
 	}
