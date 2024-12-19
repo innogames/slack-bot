@@ -1,15 +1,16 @@
 package pullrequest
 
 import (
+	"regexp"
+	"strings"
+	"text/template"
+
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"gitlab.com/gitlab-org/api/client-go"
-	"regexp"
-	"strings"
-	"text/template"
+	"github.com/xanzy/go-gitlab"
 )
 
 type gitlabFetcher struct {
