@@ -63,11 +63,17 @@ func (c *gitlabFetcher) getPullRequest(match matcher.Result) (pullRequest, error
 
 func (c *gitlabFetcher) getStatus(pr *gitlab.MergeRequest) prStatus {
 	// https://docs.gitlab.com/ce/api/merge_requests.html
-	switch pr.State {
-	case "merged":
+	inReview := false
+	if len(pr.Reviewers) > 0 {
+		inReview = true
+	}
+	switch {
+	case pr.State == "merged":
 		return prStatusMerged
-	case "closed", "locked":
+	case pr.State == "closed" || pr.State == "locked":
 		return prStatusClosed
+	case inReview:
+		return prStatusInReview
 	default:
 		return prStatusOpen
 	}

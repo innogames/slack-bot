@@ -51,6 +51,15 @@ func TestGitlab(t *testing.T) {
 		mr.State = "closed"
 		actual = gitlabFetcher.getStatus(mr)
 		assert.Equal(t, prStatusClosed, actual)
+
+		mr = &gitlab.MergeRequest{}
+		mr.Reviewers = []*gitlab.BasicUser{
+			{
+				Username: "user",
+			},
+		}
+		actual = gitlabFetcher.getStatus(mr)
+		assert.Equal(t, prStatusInReview, actual)
 	})
 
 	t.Run("test convertToPullRequest", func(t *testing.T) {
