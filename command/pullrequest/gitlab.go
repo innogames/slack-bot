@@ -10,7 +10,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"github.com/xanzy/go-gitlab"
+	"gitlab.com/gitlab-org/api/client-go"
 )
 
 type gitlabFetcher struct {
