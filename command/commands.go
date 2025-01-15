@@ -41,6 +41,7 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 		NewRandomCommand(base),
 		NewHelpCommand(base, commands),
 		newUserStatusCommand(base),
+		NewRequestCommand(base),
 
 		weather.NewWeatherCommand(base, cfg.OpenWeather),
 
