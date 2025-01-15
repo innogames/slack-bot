@@ -64,6 +64,9 @@ jobs:
   security:
     name: Security
     runs-on: ubuntu-latest
+    env:
+      GOSECGOVERSION: go1.23.4
+      GOLANG_VERSION: 1.23.4
     steps:
       - uses: actions/checkout@v4
       - name: Run Gosec Security Scanner
