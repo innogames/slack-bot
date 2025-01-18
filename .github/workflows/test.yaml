@@ -64,19 +64,16 @@ jobs:
   security:
     name: Security
     runs-on: ubuntu-latest
-    env:
-      GOSECGOVERSION: go1.23.4
-      GOLANG_VERSION: 1.23.4
     steps:
       - uses: actions/checkout@v4
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
         with:
           args: -exclude=G404,G307,G104 ./...
-      - name: Run govulncheck
-        uses: Templum/govulncheck-action@v1
+      - id: govulncheck
+        uses: golang/govulncheck-action@v1
         with:
-          package: ./...
+          go-package: ./...
   docker:
     name: Build Docker image
     runs-on: ubuntu-latest
