@@ -1,2 +1,4 @@
 {
+    "gitlens.defaultDateLocale": null,
+    "gitlens.launchpad.indicator.useColors": true
 }
