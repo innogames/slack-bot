@@ -113,13 +113,27 @@ func (b *Bot) loadChannels() (map[string]string, error) {
 
 // load the public channels and list of all users from current space
 func (b *Bot) loadSlackData() error {
-	// whitelist users by group
-	for _, groupName := range b.config.Slack.AllowedGroups {
-		group, err := b.slackClient.GetUserGroupMembers(groupName)
+	// whitelist users by group, can be the plain group-id, @dev-group1
+	if len(b.config.Slack.AllowedGroups) > 0 {
+		allUserGroups, err := b.slackClient.GetUserGroups()
 		if err != nil {
-			return errors.Wrap(err, "error fetching user of group. You need a user token with 'usergroups:read' scope permission")
+			log.Fatalf("error fetching user groups: %s", err)
 		}
-		b.config.AllowedUsers = append(b.config.AllowedUsers, group...)
+
+		for _, groupId := range b.config.Slack.AllowedGroups {
+			for _, group := range allUserGroups {
+				if "@"+group.Handle == groupId {
+					groupId = group.ID
+					break
+				}
+			}
+
+			group, err := b.slackClient.GetUserGroupMembers(groupId)
+			if err != nil {
+				return errors.Wrap(err, "error fetching user of group. You need a user token with 'usergroups:read' scope permission")
+			}
+			b.config.AllowedUsers = append(b.config.AllowedUsers, group...)
+		}
 	}
 
 	// load user list

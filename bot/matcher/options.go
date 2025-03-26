@@ -27,6 +27,10 @@ type optionMatcher struct {
 }
 
 func (m optionMatcher) Match(message msg.Message) (Runner, Result) {
+	if !strings.HasPrefix(strings.ToLower(message.Text), m.command) {
+		// no match
+		return nil, nil
+	}
 	_, optionsString, ok := strings.Cut(strings.ToLower(message.Text), m.command)
 	if !ok {
 		// no match
