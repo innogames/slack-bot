@@ -65,6 +65,7 @@ func TestOptions(t *testing.T) {
 			match    Result
 		}{
 			{"test", "", false, nil},
+			{"test", "no test", false, nil},
 			{"test", "test foo=bar", true, Result{"foo": "bar"}},
 			{"test", "test foo=bar", true, Result{"foo": "bar"}},
 			{"test", "test foo=bar jolo", true, Result{"foo": "bar", "jolo": "true"}},
