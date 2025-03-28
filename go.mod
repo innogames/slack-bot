@@ -1,6 +1,7 @@
 module github.com/innogames/slack-bot/v2
 
 go 1.23.4
+toolchain go1.24.1
 
 require (
 	github.com/alicebob/miniredis/v2 v2.34.0
@@ -13,7 +14,7 @@ require (
 	github.com/gookit/color v1.5.4
 	github.com/hackebrot/turtle v0.2.0
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.21.0
+	github.com/prometheus/client_golang v1.21.1
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/robfig/cron/v3 v3.0.1
