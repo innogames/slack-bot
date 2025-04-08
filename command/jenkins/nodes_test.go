@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNodes(t *testing.T) {
@@ -98,7 +99,7 @@ func TestRealNodes(t *testing.T) {
 			Host: "https://ci.jenkins.io",
 		}
 		client, err := client.GetClient(cfg)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		base.jenkins = client
 		command := bot.Commands{}
