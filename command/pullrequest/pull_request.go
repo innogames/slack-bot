@@ -181,9 +181,10 @@ func (c command) setPRReactions(pr pullRequest, currentReactions reactionMap, me
 		c.removeReaction(currentReactions, c.cfg.Reactions.InReview, message)
 	}
 
-	if pr.Status == prStatusMerged {
+	switch pr.Status {
+	case prStatusMerged:
 		c.addReaction(currentReactions, c.cfg.Reactions.Merged, message)
-	} else if pr.Status == prStatusClosed {
+	case prStatusClosed:
 		c.removeReaction(currentReactions, c.cfg.Reactions.Approved, message)
 		c.addReaction(currentReactions, c.cfg.Reactions.Closed, message)
 	}
@@ -281,7 +282,7 @@ func (c *command) getAllApprovedReactions() []util.Reaction {
 
 func getPRLinkMessage(prw *pullRequestWatch) string {
 	if len(prw.PullRequest.Link) > 0 {
-		return fmt.Sprintf("\nYou can check it here: %s", prw.PullRequest.Link)
+		return "\nYou can check it here: " + prw.PullRequest.Link
 	}
 	return ""
 }

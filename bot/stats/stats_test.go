@@ -32,10 +32,10 @@ func TestStats(t *testing.T) {
 	Increase("test", 1)
 	value, err = Get("test")
 	require.NoError(t, err)
-	assert.Equal(t, value, uint(45))
+	assert.Equal(t, uint(45), value)
 
 	IncreaseOne("test")
 	value, err = Get("test")
 	require.NoError(t, err)
-	assert.Equal(t, value, uint(46))
+	assert.Equal(t, uint(46), value)
 }

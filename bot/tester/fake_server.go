@@ -51,10 +51,9 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 			commandText := request.URL.Query().Get("command")
 
 			_, _ = fmt.Fprintln(output, formatSlackMessage(fmt.Sprintf("Clicked link with message: *%s*", commandText)))
-			_, _ = writer.Write([]byte(fmt.Sprintf(
+			_, _ = fmt.Fprintf(writer,
 				"Executed command '%s'. You can close the browser and go back to the terminal.",
-				html.EscapeString(commandText),
-			)))
+				html.EscapeString(commandText))
 			HandleMessage(commandText)
 		})
 

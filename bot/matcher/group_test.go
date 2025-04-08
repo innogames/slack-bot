@@ -71,7 +71,7 @@ func BenchmarkMatchChained(b *testing.B) {
 		message := msg.Message{}
 		message.Text = "haha reaction :foo:"
 
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			regexpChainMatcher.Match(message)
 		}
 	})
@@ -80,7 +80,7 @@ func BenchmarkMatchChained(b *testing.B) {
 		message := msg.Message{}
 		message.Text = "add reaction :foo:"
 
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			regexpChainMatcher.Match(message)
 		}
 	})

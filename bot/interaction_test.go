@@ -199,7 +199,7 @@ func TestInteraction(t *testing.T) {
 	t.Run("load file content without file", func(t *testing.T) {
 		event := &slackevents.MessageEvent{}
 		actual := bot.loadFileContent(event)
-		assert.Equal(t, "", actual)
+		assert.Empty(t, actual)
 	})
 }
 
@@ -223,5 +223,5 @@ func TestReplaceClickedButton(t *testing.T) {
 	expected := `{"replace_original":false,"delete_original":false,"metadata":{"event_type":"","event_payload":null},"blocks":[{"type":"actions","elements":[{"type":"button","text":{"type":"plain_text","text":"my text (worked)","emoji":true},"action_id":"reply","style":"danger"}]}]}`
 
 	require.NoError(t, err)
-	assert.Equal(t, expected, string(jsonString))
+	assert.JSONEq(t, expected, string(jsonString))
 }

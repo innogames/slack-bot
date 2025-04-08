@@ -1,12 +1,4 @@
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - errcheck
-        - perfsprint
-        - usestdlibvars
-
-
+version: "2"
 linters:
   enable:
     - asasalint
@@ -15,23 +7,17 @@ linters:
     - copyloopvar
     - dogsled
     - dupl
-    - errcheck
     - errname
     - errorlint
     - exhaustive
     - fatcontext
-    - gci
     - gocheckcompilerdirectives
     - gochecknoinits
     - gocritic
     - gocyclo
-    - gofumpt
     - goprintffuncname
     - gosec
-    - gosimple
-    - govet
     - importas
-    - ineffassign
     - intrange
     - loggercheck
     - makezero
@@ -40,36 +26,46 @@ linters:
     - musttag
     - nakedret
     - nilerr
-    - nolintlint
     - noctx
+    - nolintlint
     - perfsprint
     - prealloc
     - predeclared
     - revive
     - rowserrcheck
     - staticcheck
-    - stylecheck
     - tagalign
-    - tenv
     - testifylint
     - thelper
-    - typecheck
     - unconvert
     - unparam
-    - unused
     - usestdlibvars
     - wastedassign
     - whitespace
-  fast: false
-
-  govet:
-    enable-all: true
-    disable:
-      - structtag
-
-  gofumpt:
-    extra-rules: true
-
-  perfsprint:
-    errorf: false
-    strconcat: false
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - errcheck
+          - perfsprint
+          - usestdlibvars
+        path: _test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofumpt
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

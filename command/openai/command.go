@@ -85,7 +85,7 @@ func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
 	var storageIdentifier string
 	if message.GetThread() != "" {
 		// "openai" was triggered within a existing thread. -> fetch the whole thread history as context
-		threadMessages, err := c.SlackClient.GetThreadMessages(message)
+		threadMessages, err := c.GetThreadMessages(message)
 		if err != nil {
 			c.ReplyError(message, fmt.Errorf("can't load thread messages: %w", err))
 			return true
@@ -115,7 +115,7 @@ func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
 			Channel: link[2],
 			Thread:  link[3][0:10] + "." + link[3][10:],
 		}
-		threadMessages, err := c.SlackClient.GetThreadMessages(relatedMessage)
+		threadMessages, err := c.GetThreadMessages(relatedMessage)
 		if err != nil {
 			c.ReplyError(message, fmt.Errorf("can't load thread messages: %w", err))
 			return true

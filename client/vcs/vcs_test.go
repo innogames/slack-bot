@@ -74,7 +74,7 @@ func TestGetMatchingBranches(t *testing.T) {
 	t.Run("Empty", func(t *testing.T) {
 		actual, err := GetMatchingBranch("")
 		require.Error(t, err)
-		assert.Equal(t, "", actual)
+		assert.Empty(t, actual)
 	})
 
 	t.Run("Not found", func(t *testing.T) {
@@ -86,7 +86,7 @@ func TestGetMatchingBranches(t *testing.T) {
 	t.Run("Not unique", func(t *testing.T) {
 		actual, err := GetMatchingBranch("PROJ-1234")
 		require.EqualError(t, err, "multiple branches found: feature/PROJ-1234-do-something, feature/PROJ-1234-do-something-hotfix")
-		assert.Equal(t, "", actual)
+		assert.Empty(t, actual)
 	})
 
 	t.Run("Test unique branches", func(t *testing.T) {

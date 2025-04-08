@@ -50,7 +50,7 @@ func (c *retryCommand) retry(_ matcher.Result, message msg.Message) {
 	}
 
 	if lastCommand != "" {
-		c.SendMessage(message, fmt.Sprintf("Executing command: %s", lastCommand))
+		c.SendMessage(message, "Executing command: "+lastCommand)
 
 		client.HandleMessage(message.WithText(lastCommand))
 	} else {
@@ -78,7 +78,7 @@ func (c *retryCommand) slackMessage(match matcher.Result, message msg.Message) {
 	channel := match.GetString("channel")
 	timestamp := match.GetString("timestamp")
 
-	m, err := c.SlackClient.GetConversationHistory(&slack.GetConversationHistoryParameters{
+	m, err := c.GetConversationHistory(&slack.GetConversationHistoryParameters{
 		ChannelID: channel,
 		Latest:    timestamp[0:10] + "." + timestamp[10:],
 		Inclusive: true,

@@ -158,7 +158,7 @@ func BenchmarkConvertMarkdown(b *testing.B) {
 	message1 := "h1. hallo how are {code}you{code}?"
 	message2 := "hallo how are you?"
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		convertMarkdown(message1)
 		convertMarkdown(message2)
 	}

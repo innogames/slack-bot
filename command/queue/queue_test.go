@@ -144,7 +144,7 @@ func TestQueue(t *testing.T) {
 		expectedMessage.User = "testUser1"
 		expectedMessage.Text = "reply test"
 		expectedMessage.Channel = "C1234"
-		assert.Equal(t, handledEvent, expectedMessage)
+		assert.Equal(t, expectedMessage, handledEvent)
 
 		assert.Empty(t, client.InternalMessages)
 	})
@@ -197,7 +197,7 @@ func TestFallbackQueue(t *testing.T) {
 	expectedMessage.Timestamp = message.Timestamp
 	expectedMessage.User = message.User
 	expectedMessage.Text = "reply yep"
-	assert.Equal(t, handledEvent, expectedMessage)
+	assert.Equal(t, expectedMessage, handledEvent)
 
 	runningCommand.Done()
 }

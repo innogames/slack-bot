@@ -29,7 +29,7 @@ func testStorage(t *testing.T, storage Storage) {
 	require.Error(t, err)
 	err = storage.Read(collection, "test1", &stringValue)
 	require.Error(t, err)
-	assert.Equal(t, "", stringValue)
+	assert.Empty(t, stringValue)
 
 	// get keys all
 	keys, err := storage.GetKeys(collection)

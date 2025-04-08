@@ -38,7 +38,7 @@ func TestBitbucketNotActive(t *testing.T) {
 
 	t.Run("Test help when bitbucket is disabled", func(t *testing.T) {
 		help := command.GetHelp()
-		assert.Equal(t, 0, len(help))
+		assert.Empty(t, help)
 	})
 }
 
