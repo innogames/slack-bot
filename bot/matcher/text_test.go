@@ -54,7 +54,7 @@ func BenchmarkTextMatcher(b *testing.B) {
 		message := msg.Message{}
 		message.Text = "i am not the loweredText"
 
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			run, result = textMatcher.Match(message)
 		}
 		assert.Nil(b, run)
@@ -65,7 +65,7 @@ func BenchmarkTextMatcher(b *testing.B) {
 		message := msg.Message{}
 		message.Text = "i am the loweredText"
 
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			run, result = textMatcher.Match(message)
 		}
 		assert.NotNil(b, run)

@@ -58,7 +58,7 @@ func TestWatchJob(t *testing.T) {
 		builds, err := WatchJob(ctx, client, "testJob2", stop)
 
 		assert.Equal(t, errors.New("404-fail"), err)
-		assert.Len(t, builds, 0)
+		assert.Empty(t, builds)
 	})
 }
 

@@ -71,7 +71,7 @@ func (b *Bot) loadFileContent(event *slackevents.MessageEvent) string {
 		var downloadedText bytes.Buffer
 		log.Infof("Downloading message attachment file %s", file.Name)
 
-		err := b.slackClient.Client.GetFile(file.URLPrivate, &downloadedText)
+		err := b.slackClient.GetFile(file.URLPrivate, &downloadedText)
 		if err != nil {
 			log.Errorf("Failed to download file %s: %s", file.URLPrivate, err.Error())
 			continue
@@ -90,7 +90,8 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
 	}
 	stats.IncreaseOne(stats.Interactions)
 
-	if payload.Type == "block_actions" {
+	switch payload.Type {
+	case "block_actions":
 		// user clicked on one of our interactive buttons
 		action := payload.ActionCallback.BlockActions[0]
 		command := action.Value
@@ -132,7 +133,7 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
 
 		// execute the command which is stored for this interaction
 		go b.ProcessMessage(ref.WithText(command), true)
-	} else if payload.Type == "message_action" {
+	case "message_action":
 		// todo implement interactive slack messages (right click menu)
 		log.Warnf("Received unhandled message action: %+v", payload)
 		return true

@@ -21,7 +21,7 @@ func TestPools(t *testing.T) {
 	t.Run("Pools are not active", func(t *testing.T) {
 		cfg := &config.Pool{}
 		commands := GetCommands(cfg, base)
-		assert.Equal(t, 0, len(commands.GetCommandNames()))
+		assert.Empty(t, commands.GetCommandNames())
 	})
 
 	t.Run("Full test", func(t *testing.T) {

@@ -26,7 +26,7 @@ var httpClient = http.Client{
 }
 
 func doRequest(cfg Config, apiEndpoint string, data []byte) (*http.Response, error) {
-	req, err := http.NewRequest("POST", cfg.APIHost+apiEndpoint, bytes.NewBuffer(data))
+	req, err := http.NewRequest(http.MethodPost, cfg.APIHost+apiEndpoint, bytes.NewBuffer(data))
 	if err != nil {
 		return nil, err
 	}

@@ -92,7 +92,7 @@ func TestGetAttachment(t *testing.T) {
 		jsonResponse, _ := json.Marshal(actual)
 
 		expected := `{"color":"#00EE00","title":"myMessage","title_link":"https://jenkins.example.com/build/","actions":[{"name":"","text":"Build :white_check_mark:","style":"default","type":"button","url":"https://jenkins.example.com/build/"},{"name":"","text":"Console :page_with_curl:","style":"default","type":"button","url":"https://jenkins.example.com/build/console"},{"name":"","text":"Rebuild :arrows_counterclockwise:","style":"default","type":"button","url":"https://jenkins.example.com/build/rebuild/parameterized"}],"blocks":null}`
-		assert.Equal(t, expected, string(jsonResponse))
+		assert.JSONEq(t, expected, string(jsonResponse))
 	})
 
 	t.Run("Running Job", func(t *testing.T) {
@@ -107,7 +107,7 @@ func TestGetAttachment(t *testing.T) {
 		jsonResponse, _ := json.Marshal(actual)
 
 		expected := `{"color":"#E0E000","title":"myMessage","title_link":"https://jenkins.example.com/build/","actions":[{"name":"","text":"Build :arrows_counterclockwise:","style":"default","type":"button","url":"https://jenkins.example.com/build/"},{"name":"","text":"Console :page_with_curl:","style":"default","type":"button","url":"https://jenkins.example.com/build/console"},{"name":"","text":"Abort :bomb:","style":"danger","type":"button","url":"https://jenkins.example.com/build/stop/"}],"blocks":null}`
-		assert.Equal(t, expected, string(jsonResponse))
+		assert.JSONEq(t, expected, string(jsonResponse))
 	})
 
 	t.Run("Aborted Job", func(t *testing.T) {
@@ -123,7 +123,7 @@ func TestGetAttachment(t *testing.T) {
 		jsonResponse, _ := json.Marshal(actual)
 
 		expected := `{"color":"#CCCCCC","title":"myMessage","title_link":"https://jenkins.example.com/build/","actions":[{"name":"","text":"Build :black_circle_for_record:","style":"default","type":"button","url":"https://jenkins.example.com/build/"},{"name":"","text":"Console :page_with_curl:","style":"default","type":"button","url":"https://jenkins.example.com/build/console"},{"name":"","text":"Rebuild :arrows_counterclockwise:","style":"default","type":"button","url":"https://jenkins.example.com/build/rebuild/parameterized"}],"blocks":null}`
-		assert.Equal(t, expected, string(jsonResponse))
+		assert.JSONEq(t, expected, string(jsonResponse))
 	})
 
 	t.Run("Failed Job", func(t *testing.T) {
@@ -139,7 +139,7 @@ func TestGetAttachment(t *testing.T) {
 		jsonResponse, _ := json.Marshal(actual)
 
 		expected := `{"color":"#CC0000","title":"myMessage","title_link":"https://jenkins.example.com/build/","actions":[{"name":"","text":"Build :x:","style":"default","type":"button","url":"https://jenkins.example.com/build/"},{"name":"","text":"Console :page_with_curl:","style":"default","type":"button","url":"https://jenkins.example.com/build/console"},{"name":"","text":"Rebuild :arrows_counterclockwise:","style":"default","type":"button","url":"https://jenkins.example.com/build/rebuild/parameterized"}],"blocks":null}`
-		assert.Equal(t, expected, string(jsonResponse))
+		assert.JSONEq(t, expected, string(jsonResponse))
 	})
 }
 
@@ -163,7 +163,7 @@ func TestSendBuildStartedMessage(t *testing.T) {
 	mocks.AssertSlackJSON(t, slackClient, ref, `[{"color":"#E0E000","title":"Job MyJob started (#0 - estimated: 0s)","title_link":"https://jenkins.example.com/build/","actions":[{"name":"","text":"Build :arrows_counterclockwise:","style":"default","type":"button","url":"https://jenkins.example.com/build/"},{"name":"","text":"Console :page_with_curl:","style":"default","type":"button","url":"https://jenkins.example.com/build/console"},{"name":"","text":"Abort :bomb:","style":"danger","type":"button","url":"https://jenkins.example.com/build/stop/"}],"blocks":null}]`)
 
 	msgTimestamp := sendBuildStartedMessage(build, slackClient, ref)
-	assert.Equal(t, "", msgTimestamp)
+	assert.Empty(t, msgTimestamp)
 }
 
 func spawnJenkinsServer() *httptest.Server {

@@ -19,7 +19,7 @@ func TestGetSlackClient(t *testing.T) {
 		}
 
 		client, err := GetSlackClient(cfg)
-		assert.Equal(t, err.Error(), "config slack.token needs to start with 'xoxb-'")
+		assert.Equal(t, "config slack.token needs to start with 'xoxb-'", err.Error())
 		assert.Nil(t, client)
 	})
 
@@ -32,7 +32,7 @@ func TestGetSlackClient(t *testing.T) {
 		}
 
 		client, err := GetSlackClient(cfg)
-		assert.Equal(t, err.Error(), "config slack.socket_token needs to start with 'xapp-'")
+		assert.Equal(t, "config slack.socket_token needs to start with 'xapp-'", err.Error())
 		assert.Nil(t, client)
 	})
 
@@ -45,7 +45,7 @@ func TestGetSlackClient(t *testing.T) {
 		}
 
 		client, err := GetSlackClient(cfg)
-		assert.Equal(t, err.Error(), "config slack.socket_token needs to start with 'xapp-'")
+		assert.Equal(t, "config slack.socket_token needs to start with 'xapp-'", err.Error())
 		assert.Nil(t, client)
 	})
 
@@ -86,8 +86,8 @@ func TestGetSlackChannel(t *testing.T) {
 	assert.Equal(t, "general", name)
 
 	id, name = GetChannelIDAndName("foobar")
-	assert.Equal(t, "", id)
-	assert.Equal(t, "", name)
+	assert.Empty(t, id)
+	assert.Empty(t, name)
 }
 
 func TestGetMessageArchiveLink(t *testing.T) {
@@ -118,14 +118,14 @@ func TestSendMessage(t *testing.T) {
 		ref := msg.MessageRef{}
 		ref.Channel = "C1233"
 		actual := client.SendMessage(ref, "")
-		assert.Equal(t, "", actual)
+		assert.Empty(t, actual)
 	})
 
 	t.Run("No target", func(t *testing.T) {
 		ref := msg.MessageRef{}
 		ref.Channel = ""
 		actual := client.SendMessage(ref, "test")
-		assert.Equal(t, "", actual)
+		assert.Empty(t, actual)
 	})
 
 	t.Run("ReplyError", func(t *testing.T) {

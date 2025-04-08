@@ -42,7 +42,7 @@ func (c *userStatus) NotifyUserActive(match matcher.Result, message msg.Message)
 		defer runningCommand.Done()
 
 		for {
-			presence, err := c.SlackClient.GetUserPresence(user)
+			presence, err := c.GetUserPresence(user)
 			if err != nil {
 				c.ReplyError(message, err)
 				return

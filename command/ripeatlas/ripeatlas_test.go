@@ -82,7 +82,7 @@ func spawnRIPEAtlasServer(t *testing.T) *httptest.Server {
 		responseJSON := `{"measurements":[58913886]}`
 
 		givenInputJSON, _ := io.ReadAll(req.Body)
-		assert.Equal(t, expectedJSON, string(givenInputJSON))
+		assert.JSONEq(t, expectedJSON, string(givenInputJSON))
 
 		res.WriteHeader(http.StatusOK)
 		res.Write([]byte(responseJSON))
@@ -165,9 +165,9 @@ func TestRipeAtlas(t *testing.T) {
 	})
 
 	t.Run("RIPE Atlas Traceroute Destination Parsing", func(t *testing.T) {
-		assert.Equal(t, parseDestination("8.8.8.8"), 4)
-		assert.Equal(t, parseDestination("2001:4860:4860::8844"), 6)
-		assert.Equal(t, parseDestination("example.com"), 6)
+		assert.Equal(t, 4, parseDestination("8.8.8.8"))
+		assert.Equal(t, 6, parseDestination("2001:4860:4860::8844"))
+		assert.Equal(t, 6, parseDestination("example.com"))
 	})
 
 	t.Run("RIPE Atlas Traceroute API wrong key", func(t *testing.T) {

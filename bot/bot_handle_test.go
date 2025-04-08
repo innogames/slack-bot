@@ -87,7 +87,7 @@ func TestIsBotMessage(t *testing.T) {
 	})
 
 	t.Run("Trim + Clean", func(t *testing.T) {
-		assert.Equal(t, "", bot.cleanMessage(" ", true))
+		assert.Empty(t, bot.cleanMessage(" ", true))
 		assert.Equal(t, "random 'test'", bot.cleanMessage("*<@BOT> random ’test’*", true))
 		assert.Equal(t, "random 'test'", bot.cleanMessage("<@BOT> random ’test’", true))
 		assert.Equal(t, "random Ananas Banane", bot.cleanMessage("<@BOT> random Ananas Banane", true))
@@ -105,7 +105,7 @@ func BenchmarkTrimMessage(b *testing.B) {
 	message := "<@botId> hallo how are `you’?"
 
 	b.Run("trim", func(b *testing.B) {
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			bot.cleanMessage(message, false)
 		}
 	})
@@ -123,7 +123,7 @@ func BenchmarkShouldHandle(b *testing.B) {
 		event.Channel = "D123"
 		event.User = "U123"
 
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			result = bot.canHandleMessage(event)
 		}
 		assert.True(b, result)

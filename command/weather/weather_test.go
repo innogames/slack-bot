@@ -90,7 +90,7 @@ func TestWeather(t *testing.T) {
 
 	t.Run("Test weather icon", func(t *testing.T) {
 		// tests for each possible icon code that we have a valid reaction/emoji
-		for code := 0; code <= 1000; code++ {
+		for code := range 1001 {
 			icon := getIcon(code)
 
 			reaction := util.Reaction(icon)

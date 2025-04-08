@@ -31,12 +31,12 @@ func (c *sendMessageCommand) sendMessage(match matcher.Result, message msg.Messa
 		// send to channel
 		newEvent := msg.Message{}
 		newEvent.Channel = match.GetString("receiver")
-		c.SlackClient.SendMessage(newEvent, text)
+		c.SendMessage(newEvent, text)
 	} else {
 		c.SendToUser(match.GetString("receiver"), text)
 	}
 
-	c.SlackClient.SendMessage(
+	c.SendMessage(
 		message,
 		fmt.Sprintf("I'll send `%s` to %s", match.GetString("text"), match.GetString("fullChannel")),
 	)

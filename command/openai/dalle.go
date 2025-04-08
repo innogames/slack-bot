@@ -49,7 +49,7 @@ func (c *openaiCommand) dalleGenerateImage(match matcher.Result, message msg.Mes
 }
 
 func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.Message, prompt string) error {
-	req, err := http.NewRequest("GET", image.URL, nil)
+	req, err := http.NewRequest(http.MethodGet, image.URL, nil)
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.M
 	}
 	defer resp.Body.Close()
 
-	_, err = c.SlackClient.UploadFile(slack.UploadFileV2Parameters{
+	_, err = c.UploadFile(slack.UploadFileV2Parameters{
 		Filename:        "dalle.png",
 		FileSize:        int(resp.ContentLength),
 		Reader:          resp.Body,
@@ -68,7 +68,7 @@ func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.M
 		InitialComment:  fmt.Sprintf("Dall-e prompt: %s", image.RevisedPrompt),
 	})
 
-	c.SlackClient.SendBlockMessage(
+	c.SendBlockMessage(
 		message,
 		[]slack.Block{
 			slack.NewActionBlock(

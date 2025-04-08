@@ -33,5 +33,5 @@ func TestTemplate(t *testing.T) {
 	require.NoError(t, err)
 	finalText, _ := EvalTemplate(temp, map[string]string{"foo": "bar"})
 
-	assert.Equal(t, finalText, "foo [2222] bar")
+	assert.Equal(t, "foo [2222] bar", finalText)
 }

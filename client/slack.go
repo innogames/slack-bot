@@ -159,7 +159,7 @@ func (s *Slack) SendEphemeralMessage(ref msg.Ref, text string, options ...slack.
 		slack.MsgOptionText(text, false),
 	)
 
-	_, err := s.Client.PostEphemeral(
+	_, err := s.PostEphemeral(
 		ref.GetChannel(),
 		ref.GetUser(),
 		options...,
@@ -280,7 +280,7 @@ func (s *Slack) getUserConversation(user string) (string, error) {
 		Users: []string{userID},
 	}
 
-	channel, _, _, err := s.Client.OpenConversation(conversationOptions)
+	channel, _, _, err := s.OpenConversation(conversationOptions)
 	if err != nil {
 		return "", fmt.Errorf("cannot open channel with user %s/%s", user, userID)
 	}
@@ -312,7 +312,7 @@ func (s *Slack) GetThreadMessages(ref msg.Ref) ([]slack.Message, error) {
 		}
 
 		var messages []slack.Message
-		messages, _, cursor, err = s.Client.GetConversationReplies(options)
+		messages, _, cursor, err = s.GetConversationReplies(options)
 		if err != nil {
 			return allMessages, err
 		}
@@ -332,7 +332,7 @@ func (s *Slack) GetUserPresence(user string) (*slack.UserPresence, error) {
 
 // UploadFile uploads a file to Slack
 func (s *Slack) UploadFile(params slack.UploadFileV2Parameters) (*slack.FileSummary, error) {
-	return s.Client.UploadFileV2(params)
+	return s.UploadFileV2(params)
 }
 
 // GetUserIDAndName returns the user-id and user-name based on a identifier. If can get a user-id or name
@@ -354,7 +354,7 @@ func GetUserIDAndName(identifier string) (id string, name string) {
 
 // PinMessage will pin a message to the channel
 func (s *Slack) PinMessage(channel string, timestamp string) error {
-	return s.Client.AddPin(channel, slack.ItemRef{
+	return s.AddPin(channel, slack.ItemRef{
 		Channel:   channel,
 		Timestamp: timestamp,
 	})

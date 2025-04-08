@@ -13,7 +13,7 @@ import (
 func TestHttp(t *testing.T) {
 	t.Run("test user agent", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-			assert.Equal(t, req.Header.Get("User-Agent"), "slack-bot/unknown")
+			assert.Equal(t, "slack-bot/unknown", req.Header.Get("User-Agent"))
 			rw.Write([]byte("ok"))
 		}))
 		defer server.Close()

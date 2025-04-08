@@ -77,7 +77,7 @@ func (c *poolCommands) RunAsync(ctx *util.ServerContext) {
 						client.GetInteractionButton("action_1h", "1 hour", fmt.Sprintf("pool extend %s 1h", lock.Resource.Name)),
 						client.GetInteractionButton("action_2h", "2 hours", fmt.Sprintf("pool extend %s 2h", lock.Resource.Name)),
 						client.GetInteractionButton("action_1d", "1 day", fmt.Sprintf("pool extend %s 24h", lock.Resource.Name)),
-						client.GetInteractionButton("action_unlock", "unlock now!", fmt.Sprintf("pool unlock %s", lock.Resource.Name)),
+						client.GetInteractionButton("action_unlock", "unlock now!", "pool unlock "+lock.Resource.Name),
 					),
 				}
 				c.slackClient.SendBlockMessageToUser(lock.User, blocks)
@@ -137,11 +137,11 @@ func (c *poolCommands) unlockResource(match matcher.Result, message msg.Message)
 
 			for i, lock := range lockedByUser {
 				locks[i] = fmt.Sprintf("`%s` until %s\n%s", lock.Resource.Name, lock.LockUntil.Format(time.RFC1123), getFormattedReason(lock.Reason))
-				unlockButtons[i] = client.GetInteractionButton(fmt.Sprintf("action_unlock_%s", lock.Resource.Name), lock.Resource.Name, fmt.Sprintf("pool unlock %s", lock.Resource.Name))
+				unlockButtons[i] = client.GetInteractionButton("action_unlock_"+lock.Resource.Name, lock.Resource.Name, "pool unlock "+lock.Resource.Name)
 			}
 
 			blocks := []slack.Block{
-				client.GetTextBlock(fmt.Sprintf("You have multible markets locked: which one should be unlocked?\n%s", strings.Join(locks, "\n"))),
+				client.GetTextBlock("You have multible markets locked: which one should be unlocked?\n" + strings.Join(locks, "\n")),
 				slack.NewActionBlock(
 					"unlock_market",
 					unlockButtons...,
@@ -219,7 +219,7 @@ func (c *poolCommands) listUserResources(match matcher.Result, message msg.Messa
 	for _, lock := range lockedByUser {
 		locks = append(locks, fmt.Sprintf("`%s` until %s\n%s", lock.Resource.Name, lock.LockUntil.Format(time.RFC1123), getFormattedReason(lock.Reason)))
 	}
-	c.slackClient.SendMessage(message, fmt.Sprintf(" %s", strings.Join(locks, "\n")))
+	c.slackClient.SendMessage(message, " "+strings.Join(locks, "\n"))
 }
 
 func (c *poolCommands) listPoolInfo(match matcher.Result, message msg.Message) {
@@ -266,12 +266,12 @@ func getAddressesAndFeatures(resource config.Resource) string {
 	var lines []string
 	lines = append(lines, ">_Addresses:_")
 	for _, address := range resource.Addresses {
-		lines = append(lines, fmt.Sprintf(">- %s", address))
+		lines = append(lines, ">- "+address)
 	}
 
 	lines = append(lines, ">_Features:_")
 	for _, address := range resource.Features {
-		lines = append(lines, fmt.Sprintf(">- %s", address))
+		lines = append(lines, ">- "+address)
 	}
 	return strings.Join(lines, "\n")
 }

@@ -20,7 +20,7 @@ func TestNumberGuesser(t *testing.T) {
 
 	gameCommand := command.(*numberGuesserCommand)
 	t.Run("Full Game", func(t *testing.T) {
-		assert.Equal(t, 0, len(gameCommand.games))
+		assert.Empty(t, gameCommand.games)
 
 		// start the game
 		message := msg.Message{}
@@ -62,11 +62,11 @@ func TestNumberGuesser(t *testing.T) {
 
 		actual = commands.Run(message)
 		assert.True(t, actual)
-		assert.Equal(t, 0, len(gameCommand.games))
+		assert.Empty(t, gameCommand.games)
 	})
 
 	t.Run("Invalid states", func(t *testing.T) {
-		assert.Equal(t, 0, len(gameCommand.games))
+		assert.Empty(t, gameCommand.games)
 
 		// guess without running game -> error message
 		message := msg.Message{}
