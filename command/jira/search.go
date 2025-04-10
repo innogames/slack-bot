@@ -205,8 +205,6 @@ func (c *jiraCommand) getField(fieldType string, name string) string {
 }
 
 func (c *jiraCommand) jqlList(message msg.Message, jql string) {
-	search := &url.URL{Path: jql}
-
 	tickets, _, err := c.jira.Issue.Search(jql, nil)
 	if err != nil {
 		c.slackClient.SendMessage(message, err.Error())
@@ -230,7 +228,7 @@ func (c *jiraCommand) jqlList(message msg.Message, jql string) {
 	}
 
 	// add button which leads to search
-	searchLink := fmt.Sprintf("%sissues/?jql=%s", c.config.Host, search.String())
+	searchLink := fmt.Sprintf("%sissues/?jql=%s", c.config.Host, url.QueryEscape(jql))
 	attachment := slack.Attachment{}
 	attachment.Title = fmt.Sprintf("I found <%s|%d matching ticket(s)>.\n", searchLink, len(tickets))
 	attachment.Text = listText
