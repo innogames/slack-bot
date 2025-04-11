@@ -80,7 +80,7 @@ func TestDalle(t *testing.T) {
 				},
 				{
 					``,
-					`just something`,
+					``,
 					http.StatusOK,
 				},
 			},

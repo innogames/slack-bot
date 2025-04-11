@@ -17,7 +17,6 @@ require (
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/sdomino/golang-scribble v0.0.0-20230717151034-b95d4df19aa8
 	github.com/sirupsen/logrus v1.9.3
 	github.com/slack-go/slack v0.16.0
 	github.com/stretchr/testify v1.10.0
@@ -43,7 +42,6 @@ require (
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.7 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/jcelliott/lumber v0.0.0-20160324203708-dd349441af25 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/magiconair/properties v1.8.9 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
