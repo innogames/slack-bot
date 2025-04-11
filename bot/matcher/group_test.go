@@ -18,16 +18,33 @@ func TestGroup(t *testing.T) {
 		"UADMIN",
 	}
 
-	matcher := NewGroupMatcher(
-		NewRegexpMatcher(`add reaction :(?P<reaction>.*):`, testRunner),
-		NewAdminMatcher(
-			cfg.AdminUsers,
-			mocks.NewSlackClient(t),
-			NewRegexpMatcher(`remove reaction :(?P<reaction>.*):`, testRunner),
-		),
-	)
+	t.Run("Match empty", func(t *testing.T) {
+		matcher := NewGroupMatcher()
 
-	t.Run("Match simple", func(t *testing.T) {
+		run, result := matcher.Match(message)
+		assert.Nil(t, run)
+		assert.Nil(t, result)
+	})
+	t.Run("Match One", func(t *testing.T) {
+		matcher := NewGroupMatcher(
+			NewVoidMatcher(),
+		)
+
+		run, result := matcher.Match(message)
+		assert.Nil(t, run)
+		assert.Nil(t, result)
+	})
+
+	t.Run("Match multi cacses", func(t *testing.T) {
+		matcher := NewGroupMatcher(
+			NewRegexpMatcher(`add reaction :(?P<reaction>.*):`, testRunner),
+			NewAdminMatcher(
+				cfg.AdminUsers,
+				mocks.NewSlackClient(t),
+				NewRegexpMatcher(`remove reaction :(?P<reaction>.*):`, testRunner),
+			),
+		)
+
 		matchTest := []struct {
 			input    string
 			expected bool
