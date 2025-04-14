@@ -281,5 +281,33 @@ func (c *jiraCommand) GetTemplateFunction() template.FuncMap {
 		"jiraTicketUrl": func(ticketId string) string {
 			return fmt.Sprintf("%sbrowse/%s", c.config.Host, ticketId)
 		},
+		"jiraSearch": func(jql string, opts ...searchOption) []jira.Issue {
+			var jqlOpts jira.SearchOptions
+			for _, opt := range opts {
+				opt(&jqlOpts)
+			}
+
+			issues, _, _ := c.jira.Issue.Search(jql, &jqlOpts)
+
+			return issues
+		},
+		"jiraComponentNames": func(components []*jira.Component) string {
+			var names []string
+			for _, comp := range components {
+				names = append(names, comp.Name)
+			}
+
+			return strings.Join(names, ", ")
+		},
+		// search options, e.g. `jiraSearch "project=Zookeeper AND issuetype=Bug" (issueLimit 5)`
+		"issueLimit": issueLimit,
+	}
+}
+
+type searchOption func(opt *jira.SearchOptions)
+
+func issueLimit(limit int) searchOption {
+	return func(opt *jira.SearchOptions) {
+		opt.MaxResults = limit
 	}
 }

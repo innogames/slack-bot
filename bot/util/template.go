@@ -2,6 +2,8 @@ package util
 
 import (
 	"bytes"
+	"fmt"
+	"github.com/pkg/errors"
 	"text/template"
 )
 
@@ -18,6 +20,25 @@ var functions = template.FuncMap{
 	// creates a slice out of argument
 	"makeSlice": func(args ...any) []any {
 		return args
+	},
+	"makeMap": func(args ...any) (map[string]any, error) {
+		if len(args)%2 != 0 {
+			return nil, errors.New("makeMap: expected alternating key-value pairs as arguments")
+		}
+
+		m := make(map[string]any, len(args)/2)
+		for i := 0; i < len(args); i += 2 {
+			key, ok := args[i].(string)
+			if !ok {
+				return nil, fmt.Errorf("makeMap: arg at index %d: key must be string", i)
+			}
+
+			val := args[i+1]
+
+			m[key] = val
+		}
+
+		return m, nil
 	},
 	"slice": func(str string, start int, end int) string {
 		return str[start:end]
