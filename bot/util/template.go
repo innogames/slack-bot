@@ -3,8 +3,10 @@ package util
 import (
 	"bytes"
 	"fmt"
-	"github.com/pkg/errors"
 	"text/template"
+	"time"
+
+	"github.com/pkg/errors"
 )
 
 // TemplateFunctionProvider can be provided by Commands to register template functions to the internal parser.
@@ -42,6 +44,13 @@ var functions = template.FuncMap{
 	},
 	"slice": func(str string, start int, end int) string {
 		return str[start:end]
+	},
+	"date": func(date string, inFormat string, outFormat string) (string, error) {
+		t, err := time.Parse(inFormat, date)
+		if err != nil {
+			return "invalid format", err
+		}
+		return t.In(time.Local).Format(outFormat), nil
 	},
 }
 
