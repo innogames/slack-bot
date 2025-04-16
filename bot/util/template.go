@@ -2,7 +2,11 @@ package util
 
 import (
 	"bytes"
+	"fmt"
 	"text/template"
+	"time"
+
+	"github.com/pkg/errors"
 )
 
 // TemplateFunctionProvider can be provided by Commands to register template functions to the internal parser.
@@ -19,8 +23,34 @@ var functions = template.FuncMap{
 	"makeSlice": func(args ...any) []any {
 		return args
 	},
+	"makeMap": func(args ...any) (map[string]any, error) {
+		if len(args)%2 != 0 {
+			return nil, errors.New("makeMap: expected alternating key-value pairs as arguments")
+		}
+
+		m := make(map[string]any, len(args)/2)
+		for i := 0; i < len(args); i += 2 {
+			key, ok := args[i].(string)
+			if !ok {
+				return nil, fmt.Errorf("makeMap: arg at index %d: key must be string", i)
+			}
+
+			val := args[i+1]
+
+			m[key] = val
+		}
+
+		return m, nil
+	},
 	"slice": func(str string, start int, end int) string {
 		return str[start:end]
+	},
+	"date": func(date string, inFormat string, outFormat string) (string, error) {
+		t, err := time.Parse(inFormat, date)
+		if err != nil {
+			return "invalid format", err
+		}
+		return t.In(time.Local).Format(outFormat), nil
 	},
 }
 

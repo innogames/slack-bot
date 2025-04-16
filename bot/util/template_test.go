@@ -14,6 +14,28 @@ func TestFunctions(t *testing.T) {
 		assert.Equal(t, []any{"1", "2", "3"}, actual)
 	})
 
+	t.Run("makeMap", func(t *testing.T) {
+		fn := functions["makeMap"].(func(args ...any) (map[string]any, error))
+
+		t.Run("make map successfully", func(t *testing.T) {
+			actual, err := fn("foo", 1, "bar", true, "baz", "xyz")
+			require.NoError(t, err)
+			assert.Equal(t, map[string]any{"foo": 1, "bar": true, "baz": "xyz"}, actual)
+		})
+
+		t.Run("fail with wrong amount of arguments", func(t *testing.T) {
+			actual, err := fn("foo", 1, "bar", true, "baz")
+			require.EqualError(t, err, "makeMap: expected alternating key-value pairs as arguments")
+			assert.Nil(t, actual)
+		})
+
+		t.Run("fail with key not a string", func(t *testing.T) {
+			actual, err := fn("foo", 1, "bar", true, 42, "xyz")
+			require.EqualError(t, err, "makeMap: arg at index 4: key must be string")
+			assert.Nil(t, actual)
+		})
+	})
+
 	t.Run("stringSlice", func(t *testing.T) {
 		actual := functions["slice"].(func(string, int, int) string)("test me", 1, 3)
 		assert.Equal(t, "es", actual)
