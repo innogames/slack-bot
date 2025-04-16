@@ -67,6 +67,8 @@ func TestDefinedCommands(t *testing.T) {
 			Commands: []string{
 				"macro 1",
 				"macro {{ .text }}",
+				"", // ignore empty lines
+				"  ",
 			},
 			Trigger: "start (?P<text>.*)",
 		},

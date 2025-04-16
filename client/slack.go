@@ -36,6 +36,7 @@ func HandleMessage(message msg.Message) {
 func HandleMessageWithDoneHandler(message msg.Message) *sync.WaitGroup {
 	done := message.AddDoneHandler()
 
+	message.Text = strings.TrimSpace(message.Text)
 	if message.Text != "" {
 		HandleMessage(message)
 	} else {
