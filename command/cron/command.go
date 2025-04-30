@@ -69,7 +69,7 @@ func (c *command) getCallback(cron config.Cron) func() {
 				newMessage.User = "cron"
 				newMessage.Channel = cron.Channel
 				newMessage.Text = line
-				client.HandleMessage(newMessage)
+				client.HandleMessageWithDoneHandler(newMessage).Wait()
 			}
 		}
 	}

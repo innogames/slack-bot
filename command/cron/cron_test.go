@@ -71,6 +71,8 @@ func TestCron(t *testing.T) {
 	t.Run("Execute", func(t *testing.T) {
 		jobs := command.cron.Entries()
 		assert.Len(t, jobs, 2)
+		getMessages := mocks.WaitForQueuedMessages(t, 4)
+
 		for _, job := range jobs {
 			job.Job.Run()
 		}
@@ -79,9 +81,10 @@ func TestCron(t *testing.T) {
 		baseMessage.User = "cron"
 		baseMessage.Channel = "#dev"
 
-		mocks.AssertQueuedMessage(t, baseMessage.WithText("reply foo"))
-		mocks.AssertQueuedMessage(t, baseMessage.WithText("reply bar1"))
-		mocks.AssertQueuedMessage(t, baseMessage.WithText("reply bar2"))
+		actualMessages := getMessages()
+		assert.Equal(t, baseMessage.WithText("reply foo"), actualMessages[0])
+		assert.Equal(t, baseMessage.WithText("reply bar1"), actualMessages[1])
+		assert.Equal(t, baseMessage.WithText("reply bar2"), actualMessages[2])
 	})
 
 	t.Run("Test help", func(t *testing.T) {
