@@ -77,6 +77,7 @@ func TestCron(t *testing.T) {
 
 		baseMessage := msg.Message{}
 		baseMessage.User = "cron"
+		baseMessage.Channel = "#dev"
 
 		mocks.AssertQueuedMessage(t, baseMessage.WithText("reply foo"))
 		mocks.AssertQueuedMessage(t, baseMessage.WithText("reply bar1"))
