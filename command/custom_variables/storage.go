@@ -11,11 +11,11 @@ const storeKey = "user_variables"
 type list map[string]string
 
 func loadList(userID string) list {
-	list := make(list)
+	userList := make(list)
 
-	_ = storage.Read(storeKey, userID, &list)
+	_ = storage.Read(storeKey, userID, &userList)
 
-	return list
+	return userList
 }
 
 func storeList(ref msg.Ref, list list) {

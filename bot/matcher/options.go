@@ -19,6 +19,8 @@ func NewOptionMatcher(baseCommand string, whiteList []string, run Runner, slackC
 	}
 }
 
+var optionsRe = regexp.MustCompile(`(--)?([\w\-]+)=('([^']*)'|"([^"]*)"|(\S+))|(\w+)`)
+
 type optionMatcher struct {
 	command     string
 	run         Runner
@@ -61,8 +63,7 @@ func (m optionMatcher) Match(message msg.Message) (Runner, Result) {
 
 // parseOptions parses a string like "option1=value1 --option2='value 2' option3="value 3""
 func parseOptions(given string) Result {
-	re := regexp.MustCompile(`(--)?([\w\-]+)=('([^']*)'|"([^"]*)"|(\S+))|(\w+)`)
-	matches := re.FindAllStringSubmatch(given, -1)
+	matches := optionsRe.FindAllStringSubmatch(given, -1)
 
 	options := make(Result)
 	for _, match := range matches {
