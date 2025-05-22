@@ -241,6 +241,11 @@ func (c *command) addReaction(currentReactions reactionMap, reaction util.Reacti
 		return
 	}
 
+	if reaction == "none" {
+		// don't add reaction for cross component devs
+		return
+	}
+
 	currentReactions[reaction] = true
 
 	c.AddReaction(reaction, message)
@@ -266,7 +271,7 @@ func (c command) getApproveReactions(approvers []string) reactionMap {
 	return reactions
 }
 
-// we have to get rid of all possivle approve reactions in case someone revoked the approval
+// we have to get rid of all possible approve reactions in case someone revoked the approval
 func (c *command) getAllApprovedReactions() []util.Reaction {
 	reactions := make([]util.Reaction, 0)
 	reactions = append(reactions, c.cfg.Reactions.Approved)
