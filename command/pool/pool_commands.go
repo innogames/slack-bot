@@ -263,7 +263,7 @@ func getFormattedReason(reason string) string {
 }
 
 func getAddressesAndFeatures(resource config.Resource) string {
-	var lines []string
+	lines := make([]string, 0, len(resource.Addresses)+len(resource.Features)+2)
 	lines = append(lines, ">_Addresses:_")
 	for _, address := range resource.Addresses {
 		lines = append(lines, ">- "+address)
