@@ -13,7 +13,7 @@ func newCronLogger() cronLogger {
 
 func (l cronLogger) Info(msg string, keysAndValues ...any) {
 	data := append([]any{"Cron", msg}, keysAndValues...)
-	l.logger.Debug(data...)
+	l.logger.Debug(data...) // we use Debug here because cron lib is kinda verbose
 }
 
 func (l cronLogger) Error(err error, msg string, keysAndValues ...any) {
