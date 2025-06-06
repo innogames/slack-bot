@@ -28,7 +28,7 @@ func (b *Bot) handleEvent(eventsAPIEvent slackevents.EventsAPIEvent) {
 				return
 			}
 
-			if len(ev.Files) > 0 && ev.User != b.auth.UserID {
+			if len(ev.Message.Files) > 0 && ev.User != b.auth.UserID {
 				ev.Text += b.loadFileContent(ev)
 			}
 
@@ -62,7 +62,7 @@ func (b *Bot) handleEvent(eventsAPIEvent slackevents.EventsAPIEvent) {
 func (b *Bot) loadFileContent(event *slackevents.MessageEvent) string {
 	response := ""
 
-	for _, file := range event.Files {
+	for _, file := range event.Message.Files {
 		if !strings.HasPrefix(file.Mimetype, "text/") {
 			log.Infof("Can't load file %s: mimetype is %s", file.Name, file.Mimetype)
 			continue
