@@ -19,13 +19,17 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan s
 		defer close(messageUpdates)
 
 		jsonData, _ := json.Marshal(ChatRequest{
-			Model:       cfg.Model,
-			Temperature: cfg.Temperature,
-			Seed:        cfg.Seed,
-			MaxTokens:   cfg.MaxTokens,
-			Stream:      stream,
-			Messages:    inputMessages,
+			Model:           cfg.Model,
+			Temperature:     cfg.Temperature,
+			Seed:            cfg.Seed,
+			MaxTokens:       cfg.MaxTokens,
+			ReasoningEffort: cfg.ReasoningEffort,
+			Stream:          stream,
+			Messages:        inputMessages,
 		})
+
+		log.Println(string(jsonData))
+
 		resp, err := doRequest(cfg, apiCompletionURL, jsonData)
 		if err != nil {
 			messageUpdates <- err.Error()
@@ -66,6 +70,8 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan s
 						// end of event stream
 						return
 					}
+
+					fmt.Println(deltaJSON)
 
 					var delta ChatResponse
 					err = json.Unmarshal([]byte(deltaJSON), &delta)
