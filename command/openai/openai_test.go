@@ -56,6 +56,7 @@ func startTestServer(t *testing.T, url string, requests []testRequest) (Config, 
 
 	openaiCfg.APIHost = server.URL
 	openaiCfg.APIKey = "0815pass"
+	openaiCfg.Model = "gpt-4o"
 
 	return openaiCfg, server
 }

@@ -60,7 +60,7 @@ func TestRequest(t *testing.T) {
 
 	t.Run("test 200", func(t *testing.T) {
 		message := msg.Message{}
-		message.Text = "request --url=https://httpstat.us/200"
+		message.Text = "request --url=https://mock.httpstatus.io/200"
 
 		mocks.AssertReaction(slackClient, "white_check_mark", message)
 
@@ -70,7 +70,7 @@ func TestRequest(t *testing.T) {
 
 	t.Run("test 404", func(t *testing.T) {
 		message := msg.Message{}
-		message.Text = "request --url=https://httpstat.us/404"
+		message.Text = "request --url=https://mock.httpstatus.io/404"
 
 		mocks.AssertReaction(slackClient, "❌", message)
 		mocks.AssertError(slackClient, message, "request failed with status 404 Not Found")
