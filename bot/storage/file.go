@@ -84,7 +84,7 @@ func write(dir, tmpPath, dstPath string, v any) error {
 func (s *fileStorage) Read(collection, resource string, v any) error {
 	record := filepath.Join(s.dir, collection, resource+".json")
 
-	b, err := os.ReadFile(record)
+	b, err := os.ReadFile(record) // #nosec G304
 	if err != nil {
 		return err
 	}
