@@ -1,14 +1,15 @@
 package command
 
 import (
-	"context"
-	"net/http"
+    "context"
+    "errors"
+    "fmt"
+    "net/http"
 
-	"github.com/innogames/slack-bot/v2/bot"
-	"github.com/innogames/slack-bot/v2/bot/matcher"
-	"github.com/innogames/slack-bot/v2/bot/msg"
-	"github.com/innogames/slack-bot/v2/client"
-	"github.com/pkg/errors"
+    "github.com/innogames/slack-bot/v2/bot"
+    "github.com/innogames/slack-bot/v2/bot/matcher"
+    "github.com/innogames/slack-bot/v2/bot/msg"
+    "github.com/innogames/slack-bot/v2/client"
 )
 
 func NewRequestCommand(base bot.BaseCommand) bot.Command {
@@ -33,23 +34,23 @@ func (c requestCommand) doRequest(match matcher.Result, message msg.Message) {
 	if method == "" {
 		method = "GET"
 	}
-	url := match.GetString("url")
+    url := match.GetString("url")
 	if url == "" {
 		c.ReplyError(message, errors.New("please provide a valid url"))
 		return
 	}
 
-	request, err := http.NewRequestWithContext(context.Background(), method, url, nil)
+    request, err := http.NewRequestWithContext(context.Background(), method, url, nil)
 	if err != nil {
-		c.ReplyError(message, errors.Wrap(err, "invalid request"))
+        c.ReplyError(message, fmt.Errorf("invalid request: %w", err))
 		return
 	}
 
 	httpClient := client.GetHTTPClient()
-	response, err := httpClient.Do(request)
+    response, err := httpClient.Do(request)
 	if err != nil {
 		c.AddReaction("❌", message)
-		c.ReplyError(message, errors.Wrap(err, "request failed"))
+        c.ReplyError(message, fmt.Errorf("request failed: %w", err))
 		return
 	}
 	defer response.Body.Close()

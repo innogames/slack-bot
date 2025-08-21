@@ -10,7 +10,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client/vcs"
-	"golang.org/x/exp/slices"
+	"slices"
 )
 
 func GetCommands(base bot.BaseCommand, config *config.Config) bot.Commands {

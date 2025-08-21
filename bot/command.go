@@ -10,7 +10,8 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
-	"golang.org/x/exp/maps"
+	"maps"
+	"slices"
 )
 
 var lock sync.Mutex
@@ -127,7 +128,7 @@ func (c *Commands) Count() int {
 func (c *Commands) GetCommandNames() []string {
 	c.compile()
 
-	names := maps.Values(c.matcherNames)
+    names := slices.Collect(maps.Values(c.matcherNames))
 
 	sort.Strings(names)
 

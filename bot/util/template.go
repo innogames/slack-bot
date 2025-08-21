@@ -1,12 +1,11 @@
 package util
 
 import (
-	"bytes"
-	"fmt"
-	"text/template"
-	"time"
-
-	"github.com/pkg/errors"
+    "bytes"
+    "errors"
+    "fmt"
+    "text/template"
+    "time"
 )
 
 // TemplateFunctionProvider can be provided by Commands to register template functions to the internal parser.
@@ -25,7 +24,7 @@ var functions = template.FuncMap{
 	},
 	"makeMap": func(args ...any) (map[string]any, error) {
 		if len(args)%2 != 0 {
-			return nil, errors.New("makeMap: expected alternating key-value pairs as arguments")
+            return nil, errors.New("makeMap: expected alternating key-value pairs as arguments")
 		}
 
 		m := make(map[string]any, len(args)/2)
