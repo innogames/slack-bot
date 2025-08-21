@@ -2,11 +2,10 @@ package util
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"text/template"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 // TemplateFunctionProvider can be provided by Commands to register template functions to the internal parser.

@@ -33,19 +33,19 @@ func formatSlackMessage(msg string) string {
 	})
 
 	msg = userRe.ReplaceAllStringFunc(msg, func(part string) string {
-		return color.Bold.Sprintf(strings.Trim(part, "<>"))
+		return color.Bold.Sprintf("%s", strings.Trim(part, "<>"))
 	})
 
 	msg = boldRe.ReplaceAllStringFunc(msg, func(part string) string {
-		return color.Bold.Sprintf(strings.Trim(part, "*"))
+		return color.Bold.Sprintf("%s", strings.Trim(part, "*"))
 	})
 
 	msg = codeRe.ReplaceAllStringFunc(msg, func(part string) string {
-		return color.BgGray.Sprintf(strings.Trim(part, "`"))
+		return color.BgGray.Sprintf("%s", strings.Trim(part, "`"))
 	})
 
 	msg = italicRe.ReplaceAllStringFunc(msg, func(part string) string {
-		return color.OpItalic.Sprintf(strings.Trim(part, "_"))
+		return color.OpItalic.Sprintf("%s", strings.Trim(part, "_"))
 	})
 
 	return msg

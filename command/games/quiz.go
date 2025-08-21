@@ -159,7 +159,7 @@ func (c *quizCommand) printCurrentQuestion(message msg.Message) {
 			blocks,
 			slack.NewActionBlock(
 				"",
-				client.GetInteractionButton(fmt.Sprintf("answer_%d", i), answer, fmt.Sprintf("answer %s", answer)),
+				client.GetInteractionButton(fmt.Sprintf("answer_%d", i), answer, "answer "+answer),
 			),
 		)
 	}

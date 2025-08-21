@@ -3,9 +3,10 @@ package storage
 import (
 	"encoding/json"
 	"errors"
+	"maps"
+	"slices"
 
 	"github.com/innogames/slack-bot/v2/bot/util"
-	"golang.org/x/exp/maps"
 )
 
 // this is a primitive in-memory storage which is used for faster storage of data.
@@ -63,7 +64,7 @@ func (s *memoryStorage) GetKeys(collection string) ([]string, error) {
 	lock := s.locks.GetRLock(collection)
 	defer lock.Unlock()
 
-	keys := maps.Keys(s.storage[collection])
+	keys := slices.Collect(maps.Keys(s.storage[collection]))
 
 	return keys, nil
 }
