@@ -1,9 +1,9 @@
 package stats
 
 import (
-    "github.com/innogames/slack-bot/v2/bot/storage"
-    log "github.com/sirupsen/logrus"
-    "golang.org/x/exp/constraints"
+	"github.com/innogames/slack-bot/v2/bot/storage"
+	log "github.com/sirupsen/logrus"
+	"golang.org/x/exp/constraints"
 )
 
 const collection = "stats"
@@ -41,9 +41,9 @@ func Increase[T constraints.Signed](key string, count T) {
 
 // Set the stats to a specific value
 func Set[T constraints.Signed](key string, value T) {
-    if err := storage.Write(collection, key, value); err != nil {
-        log.Warnf("error while set stats: %v", err)
-    }
+	if err := storage.Write(collection, key, value); err != nil {
+		log.Warnf("error while set stats: %v", err)
+	}
 }
 
 // Get the counter value of of type

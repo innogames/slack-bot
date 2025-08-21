@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"fmt"
 	"math"
 	"strings"
 
@@ -37,7 +36,7 @@ func (b *Bot) sendFallbackMessage(message msg.Message) {
 	b.slackClient.SendMessage(message, "Command `"+message.Text+"` not found...do you mean *"+bestMatching.Command+"* command?")
 
 	client.HandleMessage(
-		message.WithText(fmt.Sprintf("help %s", bestMatching.Command)),
+		message.WithText("help " + bestMatching.Command),
 	)
 }
 

@@ -3,10 +3,10 @@ package storage
 import (
 	"encoding/json"
 	"errors"
-
-	"github.com/innogames/slack-bot/v2/bot/util"
 	"maps"
 	"slices"
+
+	"github.com/innogames/slack-bot/v2/bot/util"
 )
 
 // this is a primitive in-memory storage which is used for faster storage of data.

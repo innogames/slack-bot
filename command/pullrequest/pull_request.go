@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"slices"
 	"text/template"
 	"time"
 
@@ -16,7 +17,6 @@ import (
 	"github.com/innogames/slack-bot/v2/command/queue"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
-	"slices"
 )
 
 const (
