@@ -46,6 +46,38 @@ func TestJobStatus(t *testing.T) {
 		assert.True(t, actual)
 	})
 
+	t.Run("Enable URL-encoded job name not whitelisted", func(t *testing.T) {
+		message := msg.Message{}
+		message.Text = "enable job backend/game-backend/xandreas%2FHC-7231"
+
+		// The decoded job name should be used in the error message
+		decodedJobName := "backend/game-backend/xandreas/HC-7231"
+		mocks.AssertSlackMessage(slackClient, message, "Sorry, job *"+decodedJobName+"* is not whitelisted")
+		actual := command.Run(message)
+		assert.True(t, actual)
+	})
+
+	t.Run("Disable URL-encoded job name that is whitelisted", func(t *testing.T) {
+		// Add a URL-encoded job to the config for testing
+		cfg["backend/game-backend/xandreas%2FHC-7231"] = config.JobConfig{
+			Parameters: []config.JobParameter{
+				{Name: "PARAM1"},
+			},
+		}
+
+		message := msg.Message{}
+		message.Text = "disable job backend%2Fgame-backend%2Fxandreas%252FHC-7231"
+
+		ctx := context.TODO()
+		// The decoded job name should be passed to Jenkins
+		decodedJobName := "backend/game-backend/xandreas%2FHC-7231"
+		jenkins.On("GetJob", ctx, decodedJobName).Return(nil, errors.New("job not found"))
+		mocks.AssertError(slackClient, message, "job not found")
+
+		actual := command.Run(message)
+		assert.True(t, actual)
+	})
+
 	t.Run("GetRandom trigger with invalid job", func(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "enable job TestJob"
