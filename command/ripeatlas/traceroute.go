@@ -78,7 +78,7 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 	})
 
 	url := fmt.Sprintf("%s/measurements", c.cfg.APIURL)
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("request creation returned an err: %w", err))
 		log.Errorf("request creation returned an err: %s", err)

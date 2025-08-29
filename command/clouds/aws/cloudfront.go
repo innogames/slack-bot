@@ -1,12 +1,14 @@
 package aws
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/cloudfront"
+	"github.com/aws/aws-sdk-go-v2/service/cloudfront"
+	"github.com/aws/aws-sdk-go-v2/service/cloudfront/types"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
@@ -18,13 +20,13 @@ import (
 // command to trigger/start jenkins jobs
 type cloudFrontCommand struct {
 	awsCommand
-	service *cloudfront.CloudFront
+	service *cloudfront.Client
 	cfg     []config.AwsCfDistribution
 }
 
 // NewAwsCommand is a command to interact with aws resources
 func newCloudFrontCommands(cfg []config.AwsCfDistribution, base awsCommand) bot.Command {
-	svc := cloudfront.New(base.session)
+	svc := cloudfront.NewFromConfig(base.cfg)
 	return &cloudFrontCommand{base, svc, cfg}
 }
 
@@ -50,33 +52,41 @@ func (c *cloudFrontCommand) distributions(match matcher.Result, message msg.Mess
 }
 
 func (c *cloudFrontCommand) clearCache(match matcher.Result, message msg.Message) {
+	ctx := context.Background()
 	dist := match.GetString("DIST")
-	paths := []*string{}
-	for _, v := range strings.Split(match.GetString("PATH"), ",") {
-		_tempVal := v
-		paths = append(paths, &_tempVal)
+	paths := []string{}
+	paths = append(paths, strings.Split(match.GetString("PATH"), ",")...)
+
+	// Safe conversion to int32 to avoid potential overflow
+	pathCount := len(paths)
+	if pathCount > 2147483647 { // max int32 value
+		c.ReplyError(message, fmt.Errorf("too many paths specified: %d", pathCount))
+		return
 	}
-	quantity := int64(len(paths))
+	quantity := int32(pathCount)
+
 	ref := strconv.FormatInt(time.Now().Unix(), 10)
 
 	invalidation := &cloudfront.CreateInvalidationInput{
 		DistributionId: &dist,
-		InvalidationBatch: &cloudfront.InvalidationBatch{
+		InvalidationBatch: &types.InvalidationBatch{
 			CallerReference: &ref,
-			Paths: &cloudfront.Paths{
+			Paths: &types.Paths{
 				Items:    paths,
 				Quantity: &quantity,
 			},
 		},
 	}
 
-	output, err := c.service.CreateInvalidation(invalidation)
+	output, err := c.service.CreateInvalidation(ctx, invalidation)
 
-	if nil != output.Invalidation {
-		fmt.Println(output.String())
+	if output != nil && output.Invalidation != nil {
+		fmt.Printf("Invalidation created: %+v\n", output.Invalidation)
 		c.SendMessage(message, fmt.Sprintf("cache %s cleared", dist))
 	} else {
-		fmt.Println(err.Error())
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 		blocks := []slack.Block{
 			client.GetTextBlock(
 				"Oops! Command `" + message.GetText() + "` failed...",

@@ -1,14 +1,15 @@
 package aws
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"path"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
@@ -19,7 +20,7 @@ type ecsCommand struct {
 	awsCommand
 }
 
-var _ecs *ecs.ECS
+var _ecs *ecs.Client
 
 // NewAwsCommand is a command to interact with aws resources
 func newEcsCommands(base awsCommand) bot.Command {
@@ -92,55 +93,76 @@ func (c *ecsCommand) GetHelp() []bot.Help {
 }
 
 func ListServices(cluster string) ([]string, error) {
+	ctx := context.Background()
 	svc := assertECS()
-	params := &ecs.ListServicesInput{Cluster: aws.String(cluster)}
-	result := make([]*string, 0)
-	err := svc.ListServicesPages(params, func(services *ecs.ListServicesOutput, lastPage bool) bool {
-		result = append(result, services.ServiceArns...)
-		return !lastPage
-	})
-	if err != nil {
-		return nil, err
+
+	params := &ecs.ListServicesInput{Cluster: &cluster}
+	paginator := ecs.NewListServicesPaginator(svc, params)
+
+	result := make([]string, 0)
+	for paginator.HasMorePages() {
+		output, err := paginator.NextPage(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, serviceArn := range output.ServiceArns {
+			result = append(result, path.Base(serviceArn))
+		}
 	}
-	out := make([]string, len(result))
-	for i, s := range result {
-		out[i] = path.Base(*s)
-	}
-	log.Println(out)
-	return out, nil
+
+	log.Println(result)
+	return result, nil
 }
 
-func assertECS() *ecs.ECS {
+func assertECS() *ecs.Client {
 	if _ecs == nil {
-		sess, _ := session.NewSession(getServiceConfiguration())
-		_ecs = ecs.New(sess)
+		ctx := context.Background()
+
+		// Load AWS config with optional region override
+		var cfg aws.Config
+		var err error
+
+		if region := os.Getenv("AWS_REGION"); region != "" {
+			cfg, err = awsconfig.LoadDefaultConfig(ctx, awsconfig.WithRegion(region))
+		} else {
+			cfg, err = awsconfig.LoadDefaultConfig(ctx, awsconfig.WithRegion("us-east-1"))
+		}
+
+		if err != nil {
+			log.Printf("Error loading AWS config: %v", err)
+			return nil
+		}
+
+		log.Println("Using AWS region ", cfg.Region)
+		_ecs = ecs.NewFromConfig(cfg)
 	}
 	return _ecs
 }
 
-func getServiceConfiguration() *aws.Config {
-	region := os.Getenv("AWS_REGION")
-	if region == "" {
-		region = "us-east-1"
-	}
-	log.Println("Using AWS region ", region)
-	return &aws.Config{Region: aws.String(region)}
-}
-
 func ForceNewDeployment(clusterName string, serviceName string) error {
-	sess, err := session.NewSession()
+	ctx := context.Background()
+
+	// Load AWS config with optional region override
+	var cfg aws.Config
+	var err error
+
+	if region := os.Getenv("AWS_REGION"); region != "" {
+		cfg, err = awsconfig.LoadDefaultConfig(ctx, awsconfig.WithRegion(region))
+	} else {
+		cfg, err = awsconfig.LoadDefaultConfig(ctx, awsconfig.WithRegion("us-east-1"))
+	}
+
 	if err != nil {
 		return err
 	}
-	ecsSvc := ecs.New(sess, &aws.Config{Region: aws.String(os.Getenv("AWS_REGION"))})
+
+	ecsSvc := ecs.NewFromConfig(cfg)
 
 	serviceParams := &ecs.DescribeServicesInput{
-		Services: []*string{
-			aws.String(serviceName),
-		},
-		Cluster: aws.String(clusterName),
+		Services: []string{serviceName},
+		Cluster:  &clusterName,
 	}
-	result, err := ecsSvc.DescribeServices(serviceParams)
+	result, err := ecsSvc.DescribeServices(ctx, serviceParams)
 	if err != nil {
 		return err
 	}
@@ -154,10 +176,10 @@ func ForceNewDeployment(clusterName string, serviceName string) error {
 		if *service.ServiceName == serviceName {
 			newServiceParams := &ecs.UpdateServiceInput{
 				Service:            service.ServiceName,
-				Cluster:            aws.String(clusterName),
-				ForceNewDeployment: aws.Bool(true),
+				Cluster:            &clusterName,
+				ForceNewDeployment: true,
 			}
-			_, err := ecsSvc.UpdateService(newServiceParams)
+			_, err := ecsSvc.UpdateService(ctx, newServiceParams)
 			if err != nil {
 				return err
 			}
