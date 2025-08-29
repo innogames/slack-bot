@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/bndr/gojenkins"
+	log "github.com/sirupsen/logrus"
 )
 
 const watchInterval = time.Second * 15
@@ -31,7 +32,11 @@ func WatchJob(ctx context.Context, jenkins Client, jobName string, stop chan boo
 			case <-stop:
 				return
 			case <-timer.C:
-				job.Poll(ctx)
+				_, err := job.Poll(ctx)
+				if err != nil {
+					log.Errorf("Error polling job: %v", err)
+					continue
+				}
 
 				build, _ := job.GetLastBuild(context.TODO())
 				if build == nil || build.Raw.Building {

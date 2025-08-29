@@ -122,7 +122,11 @@ func startJob(ctx context.Context, jenkins Client, jobName string, jobParams Par
 
 	// wait until build ios really really running not just queued
 	for range ticker.C {
-		job.Poll(ctx)
+		_, err := job.Poll(ctx)
+		if err != nil {
+			log.Errorf("Error polling job: %v", err)
+			continue
+		}
 
 		newBuildID = job.Raw.LastBuild.Number
 		if newBuildID > lastBuildID {

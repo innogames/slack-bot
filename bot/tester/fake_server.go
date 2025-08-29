@@ -57,15 +57,15 @@ func StartFakeSlack(cfg *config.Config, output io.Writer) *slacktest.Server {
 			HandleMessage(commandText)
 		})
 
-		c.Handle("/reactions.remove", func(w http.ResponseWriter, r *http.Request) {
+		c.Handle("/reactions.remove", func(_ http.ResponseWriter, r *http.Request) {
 			// just do noting
 		})
 
-		c.Handle("/apps.connections.open", func(w http.ResponseWriter, r *http.Request) {
+		c.Handle("/apps.connections.open", func(_ http.ResponseWriter, r *http.Request) {
 			// just do noting
 		})
 
-		c.Handle("/", func(w http.ResponseWriter, r *http.Request) {
+		c.Handle("/", func(_ http.ResponseWriter, r *http.Request) {
 			// check for unhandled methods
 			fmt.Println(r.RequestURI)
 		})

@@ -7,7 +7,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/msg"
 )
 
-func (c *command) list(match matcher.Result, message msg.Message) {
+func (c *command) list(_ matcher.Result, message msg.Message) {
 	list := loadList(message.GetUser())
 	if len(list) == 0 {
 		c.SendMessage(message, "No variables define yet. Use `add variable 'defaultServer' 'beta'`")
