@@ -255,7 +255,7 @@ func (c *jiraCommand) GetHelp() []bot.Help {
 			Category:    category,
 			Examples: []string{
 				"issue 43234",
-				fmt.Sprintf("%s/browse/PROJ-1234", strings.TrimRight(c.config.Host, "/")),
+				strings.TrimRight(c.config.Host, "/") + "/browse/PROJ-1234",
 				"issue PROJ-23123",
 				"issue \"second city\"",
 			},

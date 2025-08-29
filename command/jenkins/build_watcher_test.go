@@ -36,6 +36,45 @@ func TestBuildWatcher(t *testing.T) {
 		assert.True(t, actual)
 	})
 
+	t.Run("build notifier with URL-encoded job name", func(t *testing.T) {
+		message := msg.Message{}
+		message.Text = "notify build backend/game-backend/xandreas%2FHC-7231"
+
+		ctx := context.Background()
+		// The decoded job name should be passed to Jenkins
+		decodedJobName := "backend/game-backend/xandreas/HC-7231"
+		jenkinsClient.On("GetJob", ctx, decodedJobName).Return(nil, errors.New(""))
+		mocks.AssertSlackMessage(slackClient, message, "Job *backend/game-backend/xandreas/HC-7231* does not exist")
+		actual := command.Run(message)
+		assert.True(t, actual)
+	})
+
+	t.Run("build notifier with double URL-encoded job name", func(t *testing.T) {
+		message := msg.Message{}
+		message.Text = "notify build backend/game-backend/xandreas%252FHC-7231"
+
+		ctx := context.Background()
+		// The decoded job name should be passed to Jenkins (%252F becomes %2F, then /)
+		decodedJobName := "backend/game-backend/xandreas%2FHC-7231"
+		jenkinsClient.On("GetJob", ctx, decodedJobName).Return(nil, errors.New(""))
+		mocks.AssertSlackMessage(slackClient, message, "Job *backend/game-backend/xandreas%2FHC-7231* does not exist")
+		actual := command.Run(message)
+		assert.True(t, actual)
+	})
+
+	t.Run("build notifier with special characters in job name", func(t *testing.T) {
+		message := msg.Message{}
+		message.Text = "notify build backend/game-backend/feature%2Fbranch%2Btest"
+
+		ctx := context.Background()
+		// The decoded job name should handle multiple URL-encoded characters
+		decodedJobName := "backend/game-backend/feature/branch+test"
+		jenkinsClient.On("GetJob", ctx, decodedJobName).Return(nil, errors.New(""))
+		mocks.AssertSlackMessage(slackClient, message, "Job *backend/game-backend/feature/branch+test* does not exist")
+		actual := command.Run(message)
+		assert.True(t, actual)
+	})
+
 	t.Run("help", func(t *testing.T) {
 		help := command.GetHelp()
 		assert.Len(t, help, 2)

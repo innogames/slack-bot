@@ -2,6 +2,7 @@ package jenkins
 
 import (
 	"fmt"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -46,7 +47,7 @@ func newTriggerCommand(
 
 func (c *triggerCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewGroupMatcher(
-		matcher.NewRegexpMatcher(`((trigger|start) (jenkins|build|job)) (?P<job>[\w\-_\\/]*)(?P<parameters>.*)`, c.genericCall),
+		matcher.NewRegexpMatcher(`((trigger|start) (jenkins|build|job)) (?P<job>[\w\-_\\/%.]+)(?P<parameters>.*)`, c.genericCall),
 		matcher.WildcardMatcher(c.configTrigger),
 	)
 }
@@ -54,7 +55,15 @@ func (c *triggerCommand) GetMatcher() matcher.Matcher {
 // e.g. triggered by "trigger job DeployBranch master de3"
 func (c *triggerCommand) genericCall(match matcher.Result, message msg.Message) {
 	jobName := match.GetString("job")
-	if _, ok := c.jobs[jobName]; !ok {
+
+	// URL decode the job name to handle multibranch pipeline names with encoded characters
+	decodedJobName, err := url.QueryUnescape(jobName)
+	if err != nil {
+		// If decoding fails, use the original job name
+		decodedJobName = jobName
+	}
+
+	if _, ok := c.jobs[decodedJobName]; !ok {
 		if len(c.jobs) == 0 {
 			c.SendMessage(message, "no job defined in config: jenkins.jobs")
 			return
@@ -62,24 +71,24 @@ func (c *triggerCommand) genericCall(match matcher.Result, message msg.Message) 
 
 		text := fmt.Sprintf(
 			"Sorry, job *%s* is not startable. Possible jobs: \n - *%s*",
-			jobName,
+			decodedJobName,
 			strings.Join(c.cfg.GetSortedNames(), "* \n - *"),
 		)
 		c.SendMessage(message, text)
 		return
 	}
 
-	jobConfig := c.jobs[jobName]
+	jobConfig := c.jobs[decodedJobName]
 	parameterString := strings.TrimSpace(match.GetString("parameters"))
 
 	finalParameters := make(client.Parameters)
-	err := client.ParseParameters(jobConfig.config, parameterString, finalParameters)
+	err = client.ParseParameters(jobConfig.config, parameterString, finalParameters)
 	if err != nil {
 		c.ReplyError(message, err)
 		return
 	}
 
-	err = client.TriggerJenkinsJob(jobConfig.config, jobName, finalParameters, c.SlackClient, c.jenkins, message)
+	err = client.TriggerJenkinsJob(jobConfig.config, decodedJobName, finalParameters, c.SlackClient, c.jenkins, message)
 	if err != nil {
 		c.ReplyError(message, err)
 		return
@@ -127,7 +136,7 @@ func (c *triggerCommand) GetHelp() []bot.Help {
 
 	help := make([]bot.Help, 0, len(c.jobs))
 	for jobName, jobConfig := range c.jobs {
-		examples = append(examples, fmt.Sprintf("trigger job %s", jobName))
+		examples = append(examples, "trigger job "+jobName)
 
 		if jobConfig.config.Trigger == "" {
 			continue
