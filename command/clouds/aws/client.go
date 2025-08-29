@@ -1,9 +1,12 @@
 package aws
 
 import (
-	"github.com/aws/aws-sdk-go/aws/session"
+	"context"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 )
 
-func getSession() (*session.Session, error) {
-	return session.NewSession()
+func getAWSConfig(ctx context.Context) (aws.Config, error) {
+	return awsconfig.LoadDefaultConfig(ctx)
 }
