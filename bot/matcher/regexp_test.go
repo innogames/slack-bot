@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var testRunner = func(match Result, message msg.Message) {}
+var testRunner = func(_ Result, _ msg.Message) {}
 
 func TestRegexp(t *testing.T) {
 	matchTest := []struct {

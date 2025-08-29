@@ -21,7 +21,7 @@ import (
 type dummyCommand struct{}
 
 func (d dummyCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewTextMatcher("dummy", func(match matcher.Result, message msg.Message) {
+	return matcher.NewTextMatcher("dummy", func(_ matcher.Result, _ msg.Message) {
 	})
 }
 
@@ -164,7 +164,7 @@ func TestInteraction(t *testing.T) {
 		assert.False(t, success)
 	})
 
-	t.Run("handle invalid interaction", func(t *testing.T) {
+	t.Run("handle invalid interaction", func(_ *testing.T) {
 		callback := slack.InteractionCallback{
 			Type: "block_actions",
 			User: slack.User{

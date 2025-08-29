@@ -38,14 +38,14 @@ func TestBot(t *testing.T) {
 		"U123": "User123",
 	}
 
-	t.Run("handle empty message", func(t *testing.T) {
+	t.Run("handle empty message", func(_ *testing.T) {
 		message := msg.Message{}
 		message.Text = ""
 		message.Channel = "C123"
 		bot.ProcessMessage(message, true)
 	})
 
-	t.Run("handle unauthenticated message", func(t *testing.T) {
+	t.Run("handle unauthenticated message", func(_ *testing.T) {
 		message := msg.Message{}
 
 		message.Text = "test"

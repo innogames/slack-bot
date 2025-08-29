@@ -18,7 +18,7 @@ func TestAdmin(t *testing.T) {
 			"UADMIN",
 		}
 
-		testRunner := func(match Result, message msg.Message) {}
+		testRunner := func(_ Result, _ msg.Message) {}
 		matcher := NewTextMatcher("test", testRunner)
 		subject := NewAdminMatcher(cfg.AdminUsers, slackClient, matcher)
 

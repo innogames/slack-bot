@@ -10,6 +10,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	log "github.com/sirupsen/logrus"
 )
 
 const logChars = 4000
@@ -74,7 +75,11 @@ func (c *botLogCommand) readFile(filename string, chars int64) []byte {
 		start = 0
 	}
 
-	file.ReadAt(buf, start)
+	_, err = file.ReadAt(buf, start)
+	if err != nil && err.Error() != "EOF" {
+		log.Errorf("Error reading file: %v", err)
+		return buf
+	}
 
 	return bytes.Trim(buf, "\x00")
 }
