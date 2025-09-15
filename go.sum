@@ -331,8 +331,8 @@ github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/yuin/gopher-lua v1.1.1 h1:kYKnWBjvbNP4XLT3+bPEwAXJx262OhaHDWDVOPjL46M=
 github.com/yuin/gopher-lua v1.1.1/go.mod h1:GBR0iDaNXjAgGg9zfCvksxSRnQx76gclCIb7kdAd1Pw=
-gitlab.com/gitlab-org/api/client-go v0.143.3 h1:4Q4zumLVUnxn/s06RD9U3fyibD1/zr43gTDDtRkjqbA=
-gitlab.com/gitlab-org/api/client-go v0.143.3/go.mod h1:rw89Kl9AsKmxRhzkfUSfZ+1jpTewwueKvAYwoYmUoQ8=
+gitlab.com/gitlab-org/api/client-go v0.145.0 h1:gvi4bwoF6fyQq6kJix4WicApy/jBRpGlqzI0PDRD9kU=
+gitlab.com/gitlab-org/api/client-go v0.145.0/go.mod h1:eABRp++g3IbUP10ZeBIys+9g59dgJnlQLEk8XgKNB54=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
