@@ -160,10 +160,42 @@ func TestSendBuildStartedMessage(t *testing.T) {
 		Job: job,
 	}
 
-	mocks.AssertSlackJSON(t, slackClient, ref, `[{"color":"#E0E000","title":"Job MyJob started (#0 - estimated: 0s)","title_link":"https://jenkins.example.com/build/","actions":[{"name":"","text":"Build :arrows_counterclockwise:","style":"default","type":"button","url":"https://jenkins.example.com/build/"},{"name":"","text":"Console :page_with_curl:","style":"default","type":"button","url":"https://jenkins.example.com/build/console"},{"name":"","text":"Abort :bomb:","style":"danger","type":"button","url":"https://jenkins.example.com/build/stop/"}],"blocks":null}]`)
+	mocks.AssertSlackJSON(t, slackClient, ref, `[{"color":"#E0E000","title":"Job MyJob started (#0 - [░░░░░░░░░░] 0% - estimated: 0s)","title_link":"https://jenkins.example.com/build/","actions":[{"name":"","text":"Build :arrows_counterclockwise:","style":"default","type":"button","url":"https://jenkins.example.com/build/"},{"name":"","text":"Console :page_with_curl:","style":"default","type":"button","url":"https://jenkins.example.com/build/console"},{"name":"","text":"Abort :bomb:","style":"danger","type":"button","url":"https://jenkins.example.com/build/stop/"}],"blocks":null}]`)
 
 	msgTimestamp := sendBuildStartedMessage(build, slackClient, ref)
 	assert.Empty(t, msgTimestamp)
+}
+
+func TestGenerateProgressBar(t *testing.T) {
+	t.Run("zero progress", func(t *testing.T) {
+		result := generateProgressBar(0, time.Minute*5)
+		expected := "[░░░░░░░░░░] 0%"
+		assert.Equal(t, expected, result)
+	})
+
+	t.Run("half progress", func(t *testing.T) {
+		result := generateProgressBar(time.Minute*2, time.Minute*4)
+		expected := "[█████░░░░░] 50%"
+		assert.Equal(t, expected, result)
+	})
+
+	t.Run("full progress", func(t *testing.T) {
+		result := generateProgressBar(time.Minute*5, time.Minute*5)
+		expected := "[██████████] 100%"
+		assert.Equal(t, expected, result)
+	})
+
+	t.Run("over progress", func(t *testing.T) {
+		result := generateProgressBar(time.Minute*6, time.Minute*5)
+		expected := "[██████████] 100%"
+		assert.Equal(t, expected, result)
+	})
+
+	t.Run("no estimated duration", func(t *testing.T) {
+		result := generateProgressBar(time.Minute*2, 0)
+		expected := "[░░░░░░░░░░] 0%"
+		assert.Equal(t, expected, result)
+	})
 }
 
 func spawnJenkinsServer() *httptest.Server {
