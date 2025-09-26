@@ -21,6 +21,7 @@ type Notifications struct {
 	BuildStatusSuccess         bool `mapstructure:"build_status_success"`
 	BuildStatusFailed          bool `mapstructure:"build_status_failed"`
 	PullRequestStatusMergeable bool `mapstructure:"pr_status_mergeable"`
+	NewReviewComments          bool `mapstructure:"new_review_comments"`
 }
 
 // PullRequestReactions can be defined in the config.yaml to have custom reactions for pull requests.

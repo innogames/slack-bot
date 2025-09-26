@@ -46,8 +46,9 @@ const (
 type reactionMap map[util.Reaction]bool
 
 type fetcher interface {
-	getPullRequest(match matcher.Result) (pullRequest, error)
+	getPullRequest(match matcher.Result, cfg *config.PullRequest) (pullRequest, error)
 	getHelp() []bot.Help
+	GetTemplateFunction(cfg *config.PullRequest) template.FuncMap
 }
 
 type command struct {
@@ -73,6 +74,8 @@ type pullRequest struct {
 
 	// list of usernames which approved the PR
 	Approvers []string
+
+	LatestReviewCommentsTimestamp int64
 }
 
 func (c command) GetMatcher() matcher.Matcher {
@@ -80,7 +83,7 @@ func (c command) GetMatcher() matcher.Matcher {
 }
 
 func (c command) execute(match matcher.Result, message msg.Message) {
-	_, err := c.fetcher.getPullRequest(match)
+	_, err := c.fetcher.getPullRequest(match, &c.cfg)
 	if err != nil {
 		c.AddReaction(c.cfg.Reactions.Error, message)
 		c.ReplyError(message, err)
@@ -91,11 +94,12 @@ func (c command) execute(match matcher.Result, message msg.Message) {
 }
 
 type pullRequestWatch struct {
-	DidNotifyMergeable bool
-	Author             string
-	PullRequest        pullRequest
-	LastBuildStatus    buildStatus
-	PullRequestStatus  prStatus
+	DidNotifyMergeable                bool
+	Author                            string
+	PullRequest                       pullRequest
+	LastBuildStatus                   buildStatus
+	PullRequestStatus                 prStatus
+	SavedLatestReviewCommentTimestamp int64
 }
 
 func (c command) watch(match matcher.Result, message msg.Message) {
@@ -114,7 +118,7 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 	prw.Author = message.GetUser()
 
 	for {
-		prw.PullRequest, err = c.fetcher.getPullRequest(match)
+		prw.PullRequest, err = c.fetcher.getPullRequest(match, &c.cfg)
 		// something failed while loading the PR data...retry if it was temporary, else quit watching
 		if err != nil {
 			var nerr net.Error
@@ -146,6 +150,8 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 		c.notifyBuildStatus(&prw)
 
 		c.notifyPullRequestStatus(&prw)
+
+		c.notifyNewReviewComments(&prw)
 
 		// stop watching!
 		if prw.PullRequest.Status == prStatusClosed || prw.PullRequest.Status == prStatusMerged {
@@ -359,13 +365,23 @@ func (c command) sendPrivateMessage(username string, format string, parameter ..
 }
 
 func (c command) GetTemplateFunction() template.FuncMap {
-	if functions, ok := c.fetcher.(util.TemplateFunctionProvider); ok {
-		return functions.GetTemplateFunction()
-	}
-
-	return template.FuncMap{}
+	return c.fetcher.GetTemplateFunction(&c.cfg)
 }
 
 func (c command) GetHelp() []bot.Help {
 	return c.fetcher.getHelp()
+}
+
+func (c *command) notifyNewReviewComments(prw *pullRequestWatch) {
+	if !c.cfg.Notifications.NewReviewComments {
+		return
+	}
+
+	if prw.PullRequest.LatestReviewCommentsTimestamp <= prw.SavedLatestReviewCommentTimestamp || prw.PullRequest.LatestReviewCommentsTimestamp == 0 {
+		return
+	}
+
+	prw.SavedLatestReviewCommentTimestamp = prw.PullRequest.LatestReviewCommentsTimestamp
+
+	c.sendPrivateMessage(prw.Author, "PR '%s' \nNew review comments were added: %s", prw.PullRequest.Name, getPRLinkMessage(prw))
 }
