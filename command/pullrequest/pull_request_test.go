@@ -22,7 +22,7 @@ type testFetcher struct {
 	err error
 }
 
-func (t *testFetcher) getPullRequest(match matcher.Result, cfg *config.PullRequest) (pullRequest, error) {
+func (t *testFetcher) getPullRequest(_ matcher.Result, _ *config.PullRequest) (pullRequest, error) {
 	return t.pr, t.err
 }
 
@@ -30,7 +30,7 @@ func (t *testFetcher) getHelp() []bot.Help {
 	return []bot.Help{}
 }
 
-func (t *testFetcher) GetTemplateFunction(cfg *config.PullRequest) template.FuncMap {
+func (t *testFetcher) GetTemplateFunction(_ *config.PullRequest) template.FuncMap {
 	return template.FuncMap{}
 }
 

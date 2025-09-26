@@ -41,7 +41,7 @@ func newGithubCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 	}
 }
 
-func (c *githubFetcher) getPullRequest(match matcher.Result, config *config.PullRequest) (pullRequest, error) {
+func (c *githubFetcher) getPullRequest(match matcher.Result, _ *config.PullRequest) (pullRequest, error) {
 	var pr pullRequest
 
 	project := match.GetString("project")

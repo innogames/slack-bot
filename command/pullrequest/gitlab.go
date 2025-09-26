@@ -36,7 +36,7 @@ func newGitlabCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 	}
 }
 
-func (c *gitlabFetcher) getPullRequest(match matcher.Result, config *config.PullRequest) (pullRequest, error) {
+func (c *gitlabFetcher) getPullRequest(match matcher.Result, _ *config.PullRequest) (pullRequest, error) {
 	var pr pullRequest
 
 	repo := match.GetString("repo")
