@@ -41,7 +41,7 @@ func newGithubCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 	}
 }
 
-func (c *githubFetcher) getPullRequest(match matcher.Result) (pullRequest, error) {
+func (c *githubFetcher) getPullRequest(match matcher.Result, _ *config.PullRequest) (pullRequest, error) {
 	var pr pullRequest
 
 	project := match.GetString("project")
@@ -113,14 +113,14 @@ func (c *githubFetcher) getStatus(pr *github.PullRequest, inReview bool) prStatu
 	}
 }
 
-func (c *githubFetcher) GetTemplateFunction() template.FuncMap {
+func (c *githubFetcher) GetTemplateFunction(cfg *config.PullRequest) template.FuncMap {
 	return template.FuncMap{
 		"githubPullRequest": func(project string, repo string, number string) (pullRequest, error) {
 			return c.getPullRequest(matcher.Result{
 				"project": project,
 				"repo":    repo,
 				"number":  number,
-			})
+			}, cfg)
 		},
 	}
 }

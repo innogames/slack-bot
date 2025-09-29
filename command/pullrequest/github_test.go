@@ -68,7 +68,7 @@ func TestGithub(t *testing.T) {
 			"project": "innogames",
 			"repo":    "slack-bot",
 			"number":  "1",
-		})
+		}, &cfg.PullRequest)
 
 		expected := pullRequest{
 			Name:      "Add weather command",

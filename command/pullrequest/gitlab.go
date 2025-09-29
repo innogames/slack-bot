@@ -36,7 +36,7 @@ func newGitlabCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 	}
 }
 
-func (c *gitlabFetcher) getPullRequest(match matcher.Result) (pullRequest, error) {
+func (c *gitlabFetcher) getPullRequest(match matcher.Result, _ *config.PullRequest) (pullRequest, error) {
 	var pr pullRequest
 
 	repo := match.GetString("repo")
@@ -93,13 +93,13 @@ func (c *gitlabFetcher) getApprovers(rawPullRequest *gitlab.MergeRequest, prNumb
 	return approvers
 }
 
-func (c *gitlabFetcher) GetTemplateFunction() template.FuncMap {
+func (c *gitlabFetcher) GetTemplateFunction(cfg *config.PullRequest) template.FuncMap {
 	return template.FuncMap{
 		"gitlabPullRequest": func(repo string, number string) (pullRequest, error) {
 			return c.getPullRequest(matcher.Result{
 				"repo":   repo,
 				"number": number,
-			})
+			}, cfg)
 		},
 	}
 }

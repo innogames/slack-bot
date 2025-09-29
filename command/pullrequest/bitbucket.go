@@ -2,6 +2,7 @@ package pullrequest
 
 import (
 	"regexp"
+	"slices"
 	"strings"
 	"text/template"
 
@@ -41,7 +42,7 @@ func newBitbucketCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 	}
 }
 
-func (c *bitbucketFetcher) getPullRequest(match matcher.Result) (pullRequest, error) {
+func (c *bitbucketFetcher) getPullRequest(match matcher.Result, config *config.PullRequest) (pullRequest, error) {
 	var pr pullRequest
 
 	project := match.GetString("project")
@@ -79,13 +80,23 @@ func (c *bitbucketFetcher) getPullRequest(match matcher.Result) (pullRequest, er
 		link = rawPullRequest.Links.Self[0].Href
 	}
 
+	var latestCommentTimestamp int64
+
+	if config.Notifications.NewReviewComments {
+		latestCommentTimestamp, err = c.getLatestReviewCommentTimestamp(&rawPullRequest)
+		if err != nil {
+			return pr, errors.Wrap(err, "error while loading review comments from Bitbucket")
+		}
+	}
+
 	pr = pullRequest{
-		Name:        rawPullRequest.Title,
-		Status:      c.getStatus(&rawPullRequest),
-		BuildStatus: c.getBuildStatus(rawPullRequest.FromRef.LatestCommit),
-		Author:      author,
-		Link:        link,
-		Approvers:   approvers,
+		Name:                          rawPullRequest.Title,
+		Status:                        c.getStatus(&rawPullRequest),
+		BuildStatus:                   c.getBuildStatus(rawPullRequest.FromRef.LatestCommit),
+		Author:                        author,
+		Link:                          link,
+		Approvers:                     approvers,
+		LatestReviewCommentsTimestamp: latestCommentTimestamp,
 	}
 
 	return pr, nil
@@ -142,14 +153,106 @@ func (c *bitbucketFetcher) getBuildStatus(lastCommit string) buildStatus {
 	return status
 }
 
-func (c *bitbucketFetcher) GetTemplateFunction() template.FuncMap {
+func (c *bitbucketFetcher) getLatestReviewCommentTimestamp(pr *bitbucket.PullRequest) (int64, error) {
+	activities, err := c.loadAllPrActivities(pr)
+	if err != nil {
+		return 0, err
+	}
+
+	activities = slices.DeleteFunc(activities, func(activity bitbucket.Activity) bool {
+		return activity.Action != bitbucket.ActionCommented
+	})
+
+	if len(activities) == 0 {
+		return 0, nil
+	}
+
+	var latestTimeStamp int64
+
+	for _, activity := range activities {
+		reviewComments := getAllReviewComments(&activity.Comment, pr)
+		for _, reviewComment := range reviewComments {
+			latestTimeStamp = max(latestTimeStamp, reviewComment.CreatedDate)
+		}
+	}
+
+	return latestTimeStamp, nil
+}
+
+func getAllReviewComments(comment *bitbucket.ActivityComment, pr *bitbucket.PullRequest) []bitbucket.ActivityComment {
+	if comment == nil {
+		return nil
+	}
+
+	var reviewComments []bitbucket.ActivityComment
+
+	if isCommentFromRealReviewer(comment, pr) {
+		reviewComments = append(reviewComments, *comment)
+	}
+
+	for _, nestedComment := range comment.Comments {
+		nestedReviewComments := getAllReviewComments(&nestedComment, pr)
+		reviewComments = append(reviewComments, nestedReviewComments...)
+	}
+
+	return reviewComments
+}
+
+func isCommentFromRealReviewer(comment *bitbucket.ActivityComment, pr *bitbucket.PullRequest) bool {
+	if len(pr.Reviewers) == 0 {
+		return false
+	}
+
+	isReviewer := slices.ContainsFunc(pr.Reviewers, func(userMetadata bitbucket.UserWithMetadata) bool {
+		return userMetadata.User.Name == comment.Author.Name
+	})
+
+	return isReviewer
+}
+
+func (c *bitbucketFetcher) loadAllPrActivities(pr *bitbucket.PullRequest) ([]bitbucket.Activity, error) {
+	apiResponse, err := c.bitbucketClient.GetActivities(pr.FromRef.Repository.Project.Key, pr.FromRef.Repository.Slug, pr.ID, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	activities, err := bitbucket.GetActivitiesResponse(apiResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	allActivities := activities.Values
+
+	hasNextPage, nextPage := bitbucket.HasNextPage(apiResponse)
+	requestOptions := map[string]interface{}{}
+
+	for hasNextPage {
+		requestOptions["start"] = nextPage
+		apiResponse, err := c.bitbucketClient.GetActivities(pr.FromRef.Repository.Project.Key, pr.FromRef.Repository.Slug, pr.ID, requestOptions)
+		if err != nil {
+			return allActivities, err
+		}
+
+		activities, err := bitbucket.GetActivitiesResponse(apiResponse)
+		if err != nil {
+			return allActivities, err
+		}
+
+		allActivities = append(allActivities, activities.Values...)
+		hasNextPage, nextPage = bitbucket.HasNextPage(apiResponse)
+	}
+
+	return allActivities, nil
+}
+
+func (c *bitbucketFetcher) GetTemplateFunction(cfg *config.PullRequest) template.FuncMap {
 	return template.FuncMap{
 		"bitbucketPullRequest": func(project string, repo string, number string) (pullRequest, error) {
 			return c.getPullRequest(matcher.Result{
 				"project": project,
 				"repo":    repo,
 				"number":  number,
-			})
+			}, cfg)
 		},
 	}
 }
