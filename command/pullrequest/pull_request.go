@@ -373,11 +373,11 @@ func (c command) GetHelp() []bot.Help {
 }
 
 func (c *command) notifyNewReviewComments(prw *pullRequestWatch) {
-	if !c.cfg.Notifications.NewReviewComments {
+	if !c.cfg.Notifications.NewReviewComments.IsEnabled() {
 		return
 	}
 
-	if prw.PullRequest.LatestReviewCommentsTimestamp <= prw.SavedLatestReviewCommentTimestamp || prw.PullRequest.LatestReviewCommentsTimestamp == 0 {
+	if prw.PullRequest.LatestReviewCommentsTimestamp == 0 || prw.PullRequest.LatestReviewCommentsTimestamp <= prw.SavedLatestReviewCommentTimestamp {
 		return
 	}
 

@@ -82,10 +82,14 @@ func (c *bitbucketFetcher) getPullRequest(match matcher.Result, config *config.P
 
 	var latestCommentTimestamp int64
 
-	if config.Notifications.NewReviewComments {
-		latestCommentTimestamp, err = c.getLatestReviewCommentTimestamp(&rawPullRequest)
-		if err != nil {
-			return pr, errors.Wrap(err, "error while loading review comments from Bitbucket")
+	if config.Notifications.NewReviewComments.IsEnabled() {
+		newCommentsEnabledForRepo := slices.Contains(config.Notifications.NewReviewComments.Repos, repo)
+
+		if newCommentsEnabledForRepo {
+			latestCommentTimestamp, err = c.getLatestReviewCommentTimestamp(&rawPullRequest)
+			if err != nil {
+				return pr, errors.Wrap(err, "error while loading review comments from Bitbucket")
+			}
 		}
 	}
 

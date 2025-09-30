@@ -17,11 +17,20 @@ type PullRequest struct {
 // Notifications can be defined in the config.yaml to enable notifications for pull request builds.
 // the defaults are defined in default.go
 type Notifications struct {
-	BuildStatusInProgress      bool `mapstructure:"build_status_in_progress"`
-	BuildStatusSuccess         bool `mapstructure:"build_status_success"`
-	BuildStatusFailed          bool `mapstructure:"build_status_failed"`
-	PullRequestStatusMergeable bool `mapstructure:"pr_status_mergeable"`
-	NewReviewComments          bool `mapstructure:"new_review_comments"`
+	BuildStatusInProgress      bool              `mapstructure:"build_status_in_progress"`
+	BuildStatusSuccess         bool              `mapstructure:"build_status_success"`
+	BuildStatusFailed          bool              `mapstructure:"build_status_failed"`
+	PullRequestStatusMergeable bool              `mapstructure:"pr_status_mergeable"`
+	NewReviewComments          NewReviewComments `mapstructure:"new_review_comments"`
+}
+
+type NewReviewComments struct {
+	Enabled bool     `mapstructure:"enabled"`
+	Repos   []string `mapstructure:"repos"`
+}
+
+func (c NewReviewComments) IsEnabled() bool {
+	return c.Enabled
 }
 
 // PullRequestReactions can be defined in the config.yaml to have custom reactions for pull requests.
