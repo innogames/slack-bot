@@ -32,7 +32,7 @@ func (m adminMatcher) Match(message msg.Message) (Runner, Result) {
 		return run, result
 	}
 
-	return func(match Result, message msg.Message) {
+	return func(_ Result, message msg.Message) {
 		m.slackClient.AddReaction("❌", message)
 		m.slackClient.ReplyError(
 			message,

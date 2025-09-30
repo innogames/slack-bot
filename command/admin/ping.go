@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/innogames/slack-bot/v2/bot"
@@ -26,10 +25,7 @@ func (c *pingCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c *pingCommand) ping(match matcher.Result, message msg.Message) {
-	c.SendMessage(message, fmt.Sprintf(
-		"PONG in %s",
-		util.FormatDuration(time.Since(message.GetTime())),
-	))
+	c.SendMessage(message, "PONG in "+util.FormatDuration(time.Since(message.GetTime())))
 }
 
 func (c *pingCommand) GetHelp() []bot.Help {

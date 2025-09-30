@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/innogames/slack-bot/v2/bot"
@@ -10,7 +11,6 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client/vcs"
-	"golang.org/x/exp/slices"
 )
 
 func GetCommands(base bot.BaseCommand, config *config.Config) bot.Commands {

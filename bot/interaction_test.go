@@ -21,7 +21,7 @@ import (
 type dummyCommand struct{}
 
 func (d dummyCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewTextMatcher("dummy", func(match matcher.Result, message msg.Message) {
+	return matcher.NewTextMatcher("dummy", func(_ matcher.Result, _ msg.Message) {
 	})
 }
 
@@ -51,6 +51,7 @@ func TestInteraction(t *testing.T) {
 			User:    "user1",
 			Text:    "dummy",
 			Channel: "1234", // we're not in a direct chang and have no annotation -> ignore the event
+			Message: &slack.Msg{},
 		}
 
 		innerEvent := slackevents.EventsAPIInnerEvent{
@@ -163,7 +164,7 @@ func TestInteraction(t *testing.T) {
 		assert.False(t, success)
 	})
 
-	t.Run("handle invalid interaction", func(t *testing.T) {
+	t.Run("handle invalid interaction", func(_ *testing.T) {
 		callback := slack.InteractionCallback{
 			Type: "block_actions",
 			User: slack.User{
@@ -198,6 +199,8 @@ func TestInteraction(t *testing.T) {
 
 	t.Run("load file content without file", func(t *testing.T) {
 		event := &slackevents.MessageEvent{}
+		event.Message = &slack.Msg{}
+
 		actual := bot.loadFileContent(event)
 		assert.Empty(t, actual)
 	})

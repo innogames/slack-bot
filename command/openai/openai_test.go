@@ -42,7 +42,9 @@ func startTestServer(t *testing.T, url string, requests []testRequest) (Config, 
 
 		givenInputJSON, _ := io.ReadAll(req.Body)
 
-		assert.Equal(t, expected.inputJSON, string(givenInputJSON))
+		if len(expected.inputJSON) > 0 {
+			assert.JSONEq(t, expected.inputJSON, string(givenInputJSON))
+		}
 
 		res.WriteHeader(expected.responseCode)
 
@@ -54,6 +56,7 @@ func startTestServer(t *testing.T, url string, requests []testRequest) (Config, 
 
 	openaiCfg.APIHost = server.URL
 	openaiCfg.APIKey = "0815pass"
+	openaiCfg.Model = "gpt-4o"
 
 	return openaiCfg, server
 }

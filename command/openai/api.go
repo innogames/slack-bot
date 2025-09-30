@@ -9,8 +9,11 @@ import (
 )
 
 const (
-	apiHost                  = "https://api.openai.com"
-	apiCompletionURL         = "/v1/chat/completions"
+	apiHost = "https://api.openai.com"
+
+	// API docs: https://platform.openai.com/docs/api-reference/chat
+	apiCompletionURL = "/v1/chat/completions"
+
 	apiDalleGenerateImageURL = "/v1/images/generations"
 )
 
@@ -37,7 +40,7 @@ func doRequest(cfg Config, apiEndpoint string, data []byte) (*http.Response, err
 	return httpClient.Do(req)
 }
 
-// https://platform.openai.com/docs/api-reference/chat
+// ChatRequest API reference: https://platform.openai.com/docs/api-reference/chat
 type ChatRequest struct {
 	Model            string        `json:"model"`
 	Messages         []ChatMessage `json:"messages"`
@@ -48,6 +51,7 @@ type ChatRequest struct {
 	Stream           bool          `json:"stream,omitempty"`
 	MaxTokens        int           `json:"max_tokens,omitempty"`
 	PresencePenalty  float32       `json:"presence_penalty,omitempty"`
+	ReasoningEffort  string        `json:"reasoning_effort,omitempty"`
 	FrequencyPenalty float32       `json:"frequency_penalty,omitempty"`
 	User             string        `json:"user,omitempty"`
 	Seed             string        `json:"seed,omitempty"`

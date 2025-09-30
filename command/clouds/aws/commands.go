@@ -1,7 +1,9 @@
 package aws
 
 import (
-	"github.com/aws/aws-sdk-go/aws/session"
+	"context"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/pkg/errors"
@@ -17,7 +19,7 @@ var category = bot.Category{
 // base command to access Slack+Jenkins directly
 type awsCommand struct {
 	bot.BaseCommand
-	session *session.Session
+	cfg aws.Config
 }
 
 // GetCommands will return a list of available Jenkins commands...if the config is set!
@@ -28,15 +30,16 @@ func GetCommands(cfg config.Aws, base bot.BaseCommand) bot.Commands {
 		return commands
 	}
 
-	AWSSession, err := getSession()
+	ctx := context.Background()
+	awsConfig, err := getAWSConfig(ctx)
 	if nil != err {
-		log.Error(errors.Wrap(err, "Error while getting aws sdk session"))
+		log.Error(errors.Wrap(err, "Error while getting aws sdk config"))
 		return commands
 	}
 
 	awsBase := awsCommand{
 		base,
-		AWSSession,
+		awsConfig,
 	}
 
 	distributions := setCloudFrontDistributions(cfg)

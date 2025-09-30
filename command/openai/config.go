@@ -15,6 +15,7 @@ type Config struct {
 	Temperature          float32 `mapstructure:"temperature"`
 	Seed                 string  `mapstructure:"seed"`
 	MaxTokens            int     `mapstructure:"max_tokens"`
+	ReasoningEffort      string  `mapstructure:"reasoning_effort"` // "minimum, "low", "medium", "high" or empty for default
 
 	// number of thread messages stored which are used as a context for further requests
 	HistorySize int `mapstructure:"history_size"`
@@ -42,7 +43,7 @@ func (c *Config) IsEnabled() bool {
 
 var defaultConfig = Config{
 	APIHost:              apiHost,
-	Model:                "gpt-4o", // aka model behind ChatGPT
+	Model:                "gpt-5", // aka model behind ChatGPT
 	UpdateInterval:       time.Second * 1,
 	HistorySize:          25,
 	InitialSystemMessage: "You are a helpful Slack bot. By default, keep your answer short and truthful",

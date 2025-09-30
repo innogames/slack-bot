@@ -20,7 +20,11 @@ func (b *Bot) Run(ctx *util.ServerContext) {
 
 	// initialize Socket Mode:
 	// https://api.slack.com/apis/connections/socket
-	go b.slackClient.Socket.Run()
+	go func() {
+		if err := b.slackClient.Socket.Run(); err != nil {
+			log.Errorf("Socket run error: %v", err)
+		}
+	}()
 
 	// graceful shutdown via sigterm/sigint
 	stopChan := make(chan os.Signal, 2)

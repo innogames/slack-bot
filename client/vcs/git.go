@@ -1,7 +1,6 @@
 package vcs
 
 import (
-	"fmt"
 	"os/exec"
 	"regexp"
 
@@ -23,10 +22,7 @@ func (f git) LoadBranches() (branchNames []string, err error) {
 	if err != nil {
 		err = errors.Wrap(
 			err,
-			fmt.Sprintf(
-				"failed to load branches: %s",
-				cmd.String(),
-			),
+			"failed to load branches: "+cmd.String(),
 		)
 		return
 	}

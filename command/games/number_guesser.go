@@ -37,7 +37,7 @@ func (c *numberGuesserCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *numberGuesserCommand) start(match matcher.Result, message msg.Message) {
+func (c *numberGuesserCommand) start(_ matcher.Result, message msg.Message) {
 	if _, ok := c.games[message.GetUser()]; ok {
 		c.SendMessage(message, "There is already a game :smile: use `guess number XX` instead")
 		return

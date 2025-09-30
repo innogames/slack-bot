@@ -2,7 +2,6 @@ package stats
 
 import (
 	"github.com/innogames/slack-bot/v2/bot/storage"
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/exp/constraints"
 )
@@ -43,7 +42,7 @@ func Increase[T constraints.Signed](key string, count T) {
 // Set the stats to a specific value
 func Set[T constraints.Signed](key string, value T) {
 	if err := storage.Write(collection, key, value); err != nil {
-		log.Warn(errors.Wrap(err, "error while set stats"))
+		log.Warnf("error while set stats: %v", err)
 	}
 }
 
