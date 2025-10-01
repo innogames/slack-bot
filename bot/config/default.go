@@ -29,7 +29,10 @@ var DefaultConfig = Config{
 			BuildStatusSuccess:         false,
 			BuildStatusFailed:          false,
 			PullRequestStatusMergeable: false,
-			NewReviewComments:          false,
+			NewReviewComments: NewReviewComments{
+				Enabled: false,
+				Repos:   nil,
+			},
 		},
 		Reactions: PullRequestReactions{
 			InReview:     "eyes",

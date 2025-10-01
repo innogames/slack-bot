@@ -378,15 +378,15 @@ func (c command) GetHelp() []bot.Help {
 }
 
 func (c *command) notifyNewReviewComments(prw *pullRequestWatch) {
-	if !c.cfg.Notifications.NewReviewComments {
+	if !c.cfg.Notifications.NewReviewComments.IsEnabled() || prw.DidNotifyMergeable {
 		return
 	}
 
-	if prw.PullRequest.LatestReviewCommentsTimestamp <= prw.SavedLatestReviewCommentTimestamp || prw.PullRequest.LatestReviewCommentsTimestamp == 0 {
+	if prw.PullRequest.LatestReviewCommentsTimestamp == 0 || prw.PullRequest.LatestReviewCommentsTimestamp <= prw.SavedLatestReviewCommentTimestamp {
 		return
 	}
 
 	prw.SavedLatestReviewCommentTimestamp = prw.PullRequest.LatestReviewCommentsTimestamp
 
-	c.sendPrivateMessage(prw.Author, "PR '%s' \nNew review comments were added: %s", prw.PullRequest.Name, getPRLinkMessage(prw))
+	c.sendPrivateMessage(prw.PullRequest.Author, "PR *'%s'* \nNew review comments were added: %s", prw.PullRequest.Name, getPRLinkMessage(prw))
 }
