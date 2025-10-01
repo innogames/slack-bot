@@ -378,7 +378,7 @@ func (c command) GetHelp() []bot.Help {
 }
 
 func (c *command) notifyNewReviewComments(prw *pullRequestWatch) {
-	if !c.cfg.Notifications.NewReviewComments.IsEnabled() {
+	if !c.cfg.Notifications.NewReviewComments.IsEnabled() || prw.DidNotifyMergeable {
 		return
 	}
 
@@ -388,5 +388,5 @@ func (c *command) notifyNewReviewComments(prw *pullRequestWatch) {
 
 	prw.SavedLatestReviewCommentTimestamp = prw.PullRequest.LatestReviewCommentsTimestamp
 
-	c.sendPrivateMessage(prw.Author, "PR '%s' \nNew review comments were added: %s", prw.PullRequest.Name, getPRLinkMessage(prw))
+	c.sendPrivateMessage(prw.PullRequest.Author, "PR *'%s'* \nNew review comments were added: %s", prw.PullRequest.Name, getPRLinkMessage(prw))
 }
