@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.39.2
 	github.com/aws/aws-sdk-go-v2/config v1.31.12
 	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.54.4
-	github.com/aws/aws-sdk-go-v2/service/ecs v1.64.2
+	github.com/aws/aws-sdk-go-v2/service/ecs v1.65.1
 	github.com/bndr/gojenkins v1.1.0
 	github.com/brainexe/viper v1.8.2
 	github.com/gfleury/go-bitbucket-v1 v0.0.0-20240917142304-df385efaac68
