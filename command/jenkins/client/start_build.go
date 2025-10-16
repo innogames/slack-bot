@@ -78,13 +78,41 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams Parameter
 	return nil
 }
 
+// generateProgressBar creates a visual progress bar for job execution
+func generateProgressBar(currentRuntime, estimatedDuration time.Duration) string {
+	const barWidth = 10
+	progress := float64(0)
+
+	if estimatedDuration > 0 && currentRuntime > 0 {
+		progress = float64(currentRuntime) / float64(estimatedDuration)
+		if progress > 1.0 {
+			progress = 1.0
+		}
+	}
+
+	filled := int(progress * barWidth)
+	bar := ""
+
+	for i := 0; i < barWidth; i++ {
+		if i < filled {
+			bar += "█"
+		} else {
+			bar += "░"
+		}
+	}
+
+	return fmt.Sprintf("[%s] %.0f%%", bar, progress*100)
+}
+
 // send main response (with parameters)
 func sendBuildStartedMessage(build *gojenkins.Build, slackClient client.SlackClient, ref msg.Ref) string {
 	estimatedDuration := time.Duration(build.Raw.EstimatedDuration) * time.Millisecond
+	progressBar := generateProgressBar(0, estimatedDuration)
 	text := fmt.Sprintf(
-		"Job %s started (#%d - estimated: %s)",
+		"Job %s started (#%d - %s - estimated: %s)",
 		build.Job.GetName(),
 		build.GetBuildNumber(),
+		progressBar,
 		util.FormatDuration(estimatedDuration),
 	)
 
