@@ -26,6 +26,9 @@ type Config struct {
 	// maximum update frequency of slack messages when "stream" is active
 	UpdateInterval time.Duration `mapstructure:"update_interval"`
 
+	// timeout for API requests to OpenAI
+	APITimeout time.Duration `mapstructure:"api_timeout"`
+
 	// log all input+output text to the logger. This could include personal information, therefore disabled by default!
 	LogTexts bool `mapstructure:"log_texts"`
 
@@ -45,6 +48,7 @@ var defaultConfig = Config{
 	APIHost:              apiHost,
 	Model:                "gpt-5", // aka model behind ChatGPT
 	UpdateInterval:       time.Second * 1,
+	APITimeout:           time.Second * 120,
 	HistorySize:          25,
 	InitialSystemMessage: "You are a helpful Slack bot. By default, keep your answer short and truthful",
 

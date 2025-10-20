@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -31,13 +32,28 @@ var httpClient = http.Client{
 func doRequest(cfg Config, apiEndpoint string, data []byte) (*http.Response, error) {
 	req, err := http.NewRequest(http.MethodPost, cfg.APIHost+apiEndpoint, bytes.NewBuffer(data))
 	if err != nil {
+		log.WithError(err).Error("OpenAI: Failed to create HTTP request")
 		return nil, err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+cfg.APIKey)
 
-	return httpClient.Do(req)
+	// Create a client with the configured timeout
+	client := &http.Client{
+		Timeout: cfg.APITimeout,
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.WithError(err).
+			WithField("endpoint", apiEndpoint).
+			WithField("timeout", cfg.APITimeout).
+			Error("OpenAI: API request failed (timeout or connection error)")
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 // ChatRequest API reference: https://platform.openai.com/docs/api-reference/chat

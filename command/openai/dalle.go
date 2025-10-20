@@ -95,6 +95,9 @@ func generateImages(cfg Config, prompt string) ([]DalleResponseImage, error) {
 	start := time.Now()
 	resp, err := doRequest(cfg, apiDalleGenerateImageURL, jsonData)
 	if err != nil {
+		log.WithError(err).
+			WithField("model", cfg.DalleModel).
+			Error("Dall-E image generation request failed")
 		return nil, err
 	}
 	defer resp.Body.Close()
