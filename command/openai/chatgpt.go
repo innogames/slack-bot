@@ -32,6 +32,10 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan s
 
 		resp, err := doRequest(cfg, apiCompletionURL, jsonData)
 		if err != nil {
+			log.WithError(err).
+				WithField("model", cfg.Model).
+				WithField("stream", stream).
+				Error("ChatGPT request failed")
 			messageUpdates <- err.Error()
 			return
 		}
@@ -70,8 +74,6 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan s
 						// end of event stream
 						return
 					}
-
-					fmt.Println(deltaJSON)
 
 					var delta ChatResponse
 					err = json.Unmarshal([]byte(deltaJSON), &delta)
