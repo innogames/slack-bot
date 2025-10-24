@@ -65,7 +65,7 @@ func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.M
 		Reader:          resp.Body,
 		Channel:         message.Channel,
 		ThreadTimestamp: message.Timestamp,
-		InitialComment:  fmt.Sprintf("Dall-e prompt: %s", image.RevisedPrompt),
+		InitialComment:  "Dall-e prompt: " + image.RevisedPrompt,
 	})
 
 	c.SendBlockMessage(

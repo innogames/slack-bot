@@ -291,6 +291,30 @@ It's also possible to have a [ChatGPT](https://chat.openai.com)-like conversatio
 Just type "openai" or "chatgpt" before your question to create a new thread which behaves like the well-known ChatGPT page. The content of the last 10 messages is used as context.
 To make it work, a valid "openai.api_key" must be provided in the configuration.
 
+### Hashtag Options
+You can customize each request using hashtags:
+
+**Model Selection:**
+- `#model-<name>` - Override the default model (e.g., `#model-gpt-4o`, `#model-o1`)
+
+**Reasoning Control:**
+- `#high-thinking` - Use high reasoning effort (for complex problems)
+- `#medium-thinking` - Use medium reasoning effort
+- `#low-thinking` - Use low reasoning effort
+- `#no-thinking` - Disable reasoning (faster responses)
+
+**Channel Context:**
+- `#message-history` - Include last 10 channel messages as context (default)
+- `#message-history-<N>` - Include last N channel messages (e.g., `#message-history-25`)
+
+**Examples:**
+- `openai #model-gpt-4o What's the best way to handle errors in Go?`
+- `chatgpt #high-thinking #model-o1 Design a distributed caching system`
+- `openai #message-history-20 Can you summarize what we discussed about this bug?`
+- `chatgpt #model-gpt-4 #low-thinking #message-history Quick update on the deployment?`
+
+These hashtags work in both new conversations and thread replies, allowing you to adjust the model, reasoning level, and context on a per-message basis.
+
 **Extended config:**
 ```yaml
 openai:

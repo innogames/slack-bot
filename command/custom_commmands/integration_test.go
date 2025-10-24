@@ -87,7 +87,7 @@ func TestCustomCommands(t *testing.T) {
 		message.User = "user1"
 		message.Text = "alias 1"
 
-		mocks.AssertSlackMessage(slackClient, message, "executing command: `reply 1`")
+		mocks.AssertSlackEphemeralMessage(slackClient, message, "executing command: `reply 1`")
 
 		getMessages := mocks.WaitForQueuedMessages(t, 1)
 
