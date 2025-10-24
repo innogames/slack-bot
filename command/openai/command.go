@@ -73,6 +73,9 @@ func (c *openaiCommand) newConversation(match matcher.Result, message msg.Messag
 }
 
 func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
+	// Parse hashtags and get cleaned text
+	cleanText, hashtagOptions := ParseHashtags(text)
+
 	messageHistory := make([]ChatMessage, 0)
 
 	if c.cfg.InitialSystemMessage != "" {
@@ -80,6 +83,28 @@ func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
 			Role:    roleSystem,
 			Content: c.cfg.InitialSystemMessage,
 		})
+	}
+
+	// Handle #message-history hashtag
+	if hashtagOptions.MessageHistory > 0 {
+		channelMessages, err := c.getChannelHistory(message.GetChannel(), hashtagOptions.MessageHistory)
+		if err != nil {
+			c.ReplyError(message, fmt.Errorf("can't load channel history: %w", err))
+			return true
+		}
+
+		// Add channel history as context
+		messageHistory = append(messageHistory, ChatMessage{
+			Role:    roleSystem,
+			Content: fmt.Sprintf("Recent channel conversation history (last %d messages):", hashtagOptions.MessageHistory),
+		})
+
+		for _, channelMsg := range channelMessages {
+			messageHistory = append(messageHistory, ChatMessage{
+				Role:    roleUser,
+				Content: fmt.Sprintf("User <@%s> wrote: %s", channelMsg.User, channelMsg.Text),
+			})
+		}
 	}
 
 	var storageIdentifier string
@@ -106,10 +131,10 @@ func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
 		if c.cfg.LogTexts {
 			log.Infof("openai thread context: %s", messageHistory)
 		}
-	} else if linkRe.MatchString(text) {
+	} else if linkRe.MatchString(cleanText) {
 		// a link to another thread was posted -> use this messages as context
-		link := linkRe.FindStringSubmatch(text)
-		text = linkRe.ReplaceAllString(text, "")
+		link := linkRe.FindStringSubmatch(cleanText)
+		cleanText = linkRe.ReplaceAllString(cleanText, "")
 
 		relatedMessage := msg.MessageRef{
 			Channel: link[2],
@@ -134,7 +159,7 @@ func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
 		storageIdentifier = getIdentifier(message.GetChannel(), message.GetTimestamp())
 	}
 
-	c.callAndStore(messageHistory, storageIdentifier, message, text)
+	c.callAndStore(messageHistory, storageIdentifier, message, cleanText, hashtagOptions)
 	return true
 }
 
@@ -144,6 +169,9 @@ func (c *openaiCommand) reply(message msg.Ref, text string) bool {
 		// We're only interested in thread replies
 		return false
 	}
+
+	// Parse hashtags from reply message
+	cleanText, hashtagOptions := ParseHashtags(text)
 
 	// Load the chat history from storage.
 	identifier := getIdentifier(message.GetChannel(), message.GetThread())
@@ -156,24 +184,40 @@ func (c *openaiCommand) reply(message msg.Ref, text string) bool {
 	}
 
 	// Call the API and send the last messages as history to give a proper context
-	c.callAndStore(messages, identifier, message, text)
+	c.callAndStore(messages, identifier, message, cleanText, hashtagOptions)
 
 	return true
 }
 
 // call the GPT-3 API, sends the response to the user, and stores the updated chat history.
-func (c *openaiCommand) callAndStore(messages []ChatMessage, storageIdentifier string, message msg.Ref, inputText string) {
+func (c *openaiCommand) callAndStore(messages []ChatMessage, storageIdentifier string, message msg.Ref, inputText string, options HashtagOptions) {
 	// Append the actual user input to the message list.
 	messages = append(messages, ChatMessage{
 		Role:    roleUser,
 		Content: inputText,
 	})
 
-	messages, inputTokens, truncatedMessages := truncateMessages(c.cfg.Model, messages)
+	// Create a custom config based on hashtag options
+	customCfg := c.cfg
+
+	// Apply model override if specified
+	if options.Model != "" {
+		customCfg.Model = options.Model
+	}
+
+	// Apply reasoning effort if specified
+	if options.ReasoningEffort == "none" {
+		// User explicitly requested no reasoning effort with #no-thinking
+		customCfg.ReasoningEffort = ""
+	} else if options.ReasoningEffort != "" {
+		customCfg.ReasoningEffort = options.ReasoningEffort
+	}
+
+	messages, inputTokens, truncatedMessages := truncateMessages(customCfg.Model, messages)
 	if truncatedMessages > 0 {
 		c.SendMessage(
 			message,
-			fmt.Sprintf("Note: The token length of %d exceeded! %d messages were not sent", getMaxTokensForModel(c.cfg.Model), truncatedMessages),
+			fmt.Sprintf("Note: The token length of %d exceeded! %d messages were not sent", getMaxTokensForModel(customCfg.Model), truncatedMessages),
 			slack.MsgOptionTS(message.GetTimestamp()),
 		)
 	}
@@ -186,7 +230,8 @@ func (c *openaiCommand) callAndStore(messages []ChatMessage, storageIdentifier s
 
 		startTime := time.Now()
 
-		response, err := CallChatGPT(c.cfg, messages, true)
+		// Use customCfg instead of c.cfg
+		response, err := CallChatGPT(customCfg, messages, true)
 		if err != nil {
 			c.ReplyError(message, fmt.Errorf("openai error: %w", err))
 			return
@@ -254,7 +299,16 @@ func (c *openaiCommand) callAndStore(messages []ChatMessage, storageIdentifier s
 		logFields := log.Fields{
 			"input_tokens":  inputTokens,
 			"output_tokens": outputTokens,
-			"model":         c.cfg.Model,
+			"model":         customCfg.Model,
+		}
+		if options.Model != "" {
+			logFields["model_override"] = options.Model
+		}
+		if options.ReasoningEffort != "" {
+			logFields["reasoning_effort"] = customCfg.ReasoningEffort
+		}
+		if options.MessageHistory > 0 {
+			logFields["message_history_count"] = options.MessageHistory
 		}
 		if c.cfg.LogTexts {
 			logFields["input_text"] = inputText
@@ -297,15 +351,49 @@ func (c *openaiCommand) GetTemplateFunction() template.FuncMap {
 	}
 }
 
+// getChannelHistory fetches the last N messages from a channel (excluding threads)
+func (c *openaiCommand) getChannelHistory(channel string, count int) ([]slack.Message, error) {
+	params := &slack.GetConversationHistoryParameters{
+		ChannelID: channel,
+		Limit:     count,
+	}
+
+	response, err := c.GetConversationHistory(params)
+	if err != nil {
+		return nil, err
+	}
+
+	// Filter out messages that are thread replies (have ThreadTimestamp set)
+	mainMessages := make([]slack.Message, 0)
+	for _, message := range response.Messages {
+		// Only include main channel messages, not thread replies
+		if message.ThreadTimestamp == "" || message.ThreadTimestamp == message.Timestamp {
+			mainMessages = append(mainMessages, message)
+		}
+	}
+
+	// Reverse to get chronological order (API returns newest first)
+	for i := range len(mainMessages) / 2 {
+		j := len(mainMessages) - i - 1
+		mainMessages[i], mainMessages[j] = mainMessages[j], mainMessages[i]
+	}
+
+	return mainMessages, nil
+}
+
 func (c *openaiCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "openai <question>",
-			Description: "Starts a chatgpt/openai conversation in a new thread",
+			Description: "Starts a chatgpt/openai conversation in a new thread. Supports hashtags for advanced options: #model-<name> (e.g., #model-gpt-4o), #high-thinking/#medium-thinking/#low-thinking/#no-thinking for reasoning control, #message-history or #message-history-<N> to include recent channel messages as context",
 			Category:    category,
 			Examples: []string{
 				"openai whats 1+1?",
 				"chatgpt whats 1+1?",
+				"openai #model-gpt-4o explain quantum computing",
+				"chatgpt #high-thinking #model-o1 solve this complex problem",
+				"openai #message-history-20 what did we discuss about the deployment?",
+				"chatgpt #model-gpt-4 #low-thinking #message-history quick summary please",
 			},
 		},
 		{
