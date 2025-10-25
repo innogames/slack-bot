@@ -215,70 +215,94 @@ func (c *openaiCommand) callAndStore(messages []ChatMessage, storageIdentifier s
 
 	messages, inputTokens, truncatedMessages := truncateMessages(customCfg.Model, messages)
 	if truncatedMessages > 0 {
+		// Build message options based on NoThread setting
+		msgOptions := []slack.MsgOption{}
+		if !options.NoThread || message.GetThread() != "" {
+			// Normal behavior: reply in thread
+			msgOptions = append(msgOptions, slack.MsgOptionTS(message.GetTimestamp()))
+		}
 		c.SendMessage(
 			message,
 			fmt.Sprintf("Note: The token length of %d exceeded! %d messages were not sent", getMaxTokensForModel(customCfg.Model), truncatedMessages),
-			slack.MsgOptionTS(message.GetTimestamp()),
+			msgOptions...,
 		)
 	}
 
 	// wait for the full event stream in the background to not block other user requests
 	go func() {
-		// Use a custom coffee emoji reaction while we wait for the full OpenAI response
-		c.AddReaction(":coffee:", message)
-		defer c.RemoveReaction(":coffee:", message)
+		// Use a bulb emoji reaction while we wait for OpenAI to start responding (thinking/reasoning phase)
+		c.AddReaction(":bulb:", message)
+
+		var speechBalloonAdded bool
+		defer func() {
+			if speechBalloonAdded {
+				c.RemoveReaction(":speech_balloon:", message)
+			} else {
+				// If we never got a response, remove the bulb
+				c.RemoveReaction(":bulb:", message)
+			}
+		}()
 
 		startTime := time.Now()
 
+		// Determine if streaming should be used based on hashtag option
+		useStreaming := !options.NoStreaming
+
 		// Use customCfg instead of c.cfg
-		response, err := CallChatGPT(customCfg, messages, true)
+		response, err := CallChatGPT(customCfg, messages, useStreaming)
 		if err != nil {
 			c.ReplyError(message, fmt.Errorf("openai error: %w", err))
 			return
 		}
 
 		// Create a dummy message which gets updated every X seconds
+		// Build message options based on NoThread setting
+		msgOptions := []slack.MsgOption{}
+		if !options.NoThread || message.GetThread() != "" {
+			// Normal behavior: reply in thread
+			msgOptions = append(msgOptions, slack.MsgOptionTS(message.GetTimestamp()))
+		}
 		replyRef := c.SendMessage(
 			message,
-			"...",
-			slack.MsgOptionTS(message.GetTimestamp()),
+			":bulb: thinking...",
+			msgOptions...,
 		)
 
-		responseText := strings.Builder{}
+		// Initialize message chunker with 3500 char limit per chunk
+		// Pass NoThread option to chunker so it knows whether to use thread timestamps
+		useNoThread := options.NoThread && message.GetThread() == ""
+		chunker := newMessageChunker(c.BaseCommand, message, replyRef, 3500, useNoThread)
+
 		var lastUpdate time.Time
 		var dirty bool
 		var outputTokens int
 		for delta := range response {
-			responseText.WriteString(delta)
+			// On first token received, switch from bulb (thinking) to speech_balloon (streaming response)
+			if !speechBalloonAdded {
+				c.RemoveReaction(":bulb:", message)
+				c.AddReaction(":speech_balloon:", message)
+				speechBalloonAdded = true
+			}
+
+			chunker.appendContent(delta)
 			outputTokens++
 			dirty = true
-			if responseText.Len() > 0 && lastUpdate.Add(c.cfg.UpdateInterval).Before(time.Now()) {
+			if chunker.getTotalLength() > 0 && lastUpdate.Add(c.cfg.UpdateInterval).Before(time.Now()) {
 				lastUpdate = time.Now()
-
-				c.SendMessage(
-					message,
-					responseText.String(),
-					slack.MsgOptionTS(message.GetTimestamp()),
-					slack.MsgOptionUpdate(replyRef),
-				)
+				chunker.updateMessages()
 				dirty = false
 			}
 		}
 
 		// update with the final message to make sure everything is formatted properly
 		if dirty {
-			c.SendMessage(
-				message,
-				responseText.String(),
-				slack.MsgOptionTS(message.GetTimestamp()),
-				slack.MsgOptionUpdate(replyRef),
-			)
+			chunker.updateMessages()
 		}
 
 		// Store the last X chat history entries for further questions
 		messages = append(messages, ChatMessage{
 			Role:    roleAssistant,
-			Content: responseText.String(),
+			Content: chunker.getFullText(),
 		})
 
 		// truncate the history if needed to the last X messages
@@ -301,9 +325,6 @@ func (c *openaiCommand) callAndStore(messages []ChatMessage, storageIdentifier s
 			"output_tokens": outputTokens,
 			"model":         customCfg.Model,
 		}
-		if options.Model != "" {
-			logFields["model_override"] = options.Model
-		}
 		if options.ReasoningEffort != "" {
 			logFields["reasoning_effort"] = customCfg.ReasoningEffort
 		}
@@ -312,7 +333,7 @@ func (c *openaiCommand) callAndStore(messages []ChatMessage, storageIdentifier s
 		}
 		if c.cfg.LogTexts {
 			logFields["input_text"] = inputText
-			logFields["output_text"] = responseText.String()
+			logFields["output_text"] = chunker.getFullText()
 		}
 
 		log.WithFields(logFields).Infof(
@@ -385,15 +406,15 @@ func (c *openaiCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "openai <question>",
-			Description: "Starts a chatgpt/openai conversation in a new thread. Supports hashtags for advanced options: #model-<name> (e.g., #model-gpt-4o), #high-thinking/#medium-thinking/#low-thinking/#no-thinking for reasoning control, #message-history or #message-history-<N> to include recent channel messages as context",
+			Description: "Starts a chatgpt/openai conversation in a new thread. Supports hashtags for advanced options: #model-<name> (e.g., #model-gpt-4o), #high-thinking/#medium-thinking/#low-thinking/#no-thinking for reasoning control, #message-history or #message-history-<N> to include recent channel messages as context, #no-streaming to disable streaming and get the full response at once, #no-thread to reply directly without creating a thread",
 			Category:    category,
 			Examples: []string{
-				"openai whats 1+1?",
-				"chatgpt whats 1+1?",
-				"openai #model-gpt-4o explain quantum computing",
-				"chatgpt #high-thinking #model-o1 solve this complex problem",
+				"openai why is the sky blue?",
+				"openai #high-thinking #model-gpt-5-pro explain quantum computing",
 				"openai #message-history-20 what did we discuss about the deployment?",
-				"chatgpt #model-gpt-4 #low-thinking #message-history quick summary please",
+				"chatgpt #model-gpt-5-nano #low-thinking #message-history quick summary please",
+				"openai #no-streaming give me a detailed explanation",
+				"openai #no-thread quick question without a thread",
 			},
 		},
 		{

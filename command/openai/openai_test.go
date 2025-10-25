@@ -132,9 +132,11 @@ data: [DONE]`,
 		message.Timestamp = "1234"
 		ref := message.MessageRef
 
-		mocks.AssertReaction(slackClient, ":coffee:", ref)
-		mocks.AssertRemoveReaction(slackClient, ":coffee:", ref)
-		mocks.AssertSlackMessage(slackClient, ref, "...", mock.Anything)
+		mocks.AssertReaction(slackClient, ":bulb:", ref)
+		mocks.AssertReaction(slackClient, ":speech_balloon:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":bulb:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":speech_balloon:", ref)
+		mocks.AssertSlackMessage(slackClient, ref, ":bulb: thinking...", mock.Anything)
 		mocks.AssertSlackMessage(slackClient, ref, "The answer ", mock.Anything, mock.Anything)
 		mocks.AssertSlackMessage(slackClient, ref, "The answer is 2", mock.Anything, mock.Anything)
 
@@ -158,9 +160,11 @@ data: [DONE]`,
 		message.Channel = "testchan"
 		message.Thread = "1234"
 
-		mocks.AssertReaction(slackClient, ":coffee:", message)
-		mocks.AssertRemoveReaction(slackClient, ":coffee:", message)
-		mocks.AssertSlackMessage(slackClient, message, "...", mock.Anything)
+		mocks.AssertReaction(slackClient, ":bulb:", message)
+		mocks.AssertReaction(slackClient, ":speech_balloon:", message)
+		mocks.AssertRemoveReaction(slackClient, ":bulb:", message)
+		mocks.AssertRemoveReaction(slackClient, ":speech_balloon:", message)
+		mocks.AssertSlackMessage(slackClient, message, ":bulb: thinking...", mock.Anything)
 
 		actual = commands.Run(message)
 		queue.WaitTillHavingNoQueuedMessage()
@@ -197,9 +201,9 @@ data: [DONE]`,
 		message.Text = "openai whats 1+1?"
 		ref := message.MessageRef
 
-		mocks.AssertReaction(slackClient, ":coffee:", ref)
-		mocks.AssertRemoveReaction(slackClient, ":coffee:", ref)
-		mocks.AssertSlackMessage(slackClient, ref, "...", mock.Anything)
+		mocks.AssertReaction(slackClient, ":bulb:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":bulb:", ref)
+		mocks.AssertSlackMessage(slackClient, ref, ":bulb: thinking...", mock.Anything)
 		mocks.AssertSlackMessage(slackClient, ref, "Incorrect API key provided: sk-1234**************************************567.", mock.Anything, mock.Anything)
 
 		actual := commands.Run(message)
@@ -238,9 +242,9 @@ data: [DONE]`,
 		message := msg.Message{}
 		message.Text = "whats 1+1?"
 
-		mocks.AssertReaction(slackClient, ":coffee:", message)
-		mocks.AssertRemoveReaction(slackClient, ":coffee:", message)
-		mocks.AssertSlackMessage(slackClient, message, "...", mock.Anything)
+		mocks.AssertReaction(slackClient, ":bulb:", message)
+		mocks.AssertRemoveReaction(slackClient, ":bulb:", message)
+		mocks.AssertSlackMessage(slackClient, message, ":bulb: thinking...", mock.Anything)
 		mocks.AssertSlackMessage(slackClient, message, "Incorrect API key provided: sk-1234**************************************567.", mock.Anything, mock.Anything)
 
 		actual := commands.Run(message)
@@ -338,9 +342,11 @@ data: [DONE]`,
 		threadMessages := []slack.Message{threadMessage}
 		slackClient.On("GetThreadMessages", ref).Once().Return(threadMessages, nil)
 
-		mocks.AssertReaction(slackClient, ":coffee:", ref)
-		mocks.AssertRemoveReaction(slackClient, ":coffee:", ref)
-		mocks.AssertSlackMessage(slackClient, ref, "...", mock.Anything)
+		mocks.AssertReaction(slackClient, ":bulb:", ref)
+		mocks.AssertReaction(slackClient, ":speech_balloon:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":bulb:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":speech_balloon:", ref)
+		mocks.AssertSlackMessage(slackClient, ref, ":bulb: thinking...", mock.Anything)
 		mocks.AssertSlackMessage(slackClient, ref, "Jolo!", mock.Anything, mock.Anything)
 
 		actual = commands.Run(message)
@@ -397,14 +403,171 @@ data: [DONE]`,
 		threadMessages := []slack.Message{threadMessage1, threadMessage2}
 		slackClient.On("GetThreadMessages", ref).Once().Return(threadMessages, nil)
 
-		mocks.AssertReaction(slackClient, ":coffee:", message.MessageRef)
-		mocks.AssertRemoveReaction(slackClient, ":coffee:", message.MessageRef)
+		mocks.AssertReaction(slackClient, ":bulb:", message.MessageRef)
+		mocks.AssertReaction(slackClient, ":speech_balloon:", message.MessageRef)
+		mocks.AssertRemoveReaction(slackClient, ":bulb:", message.MessageRef)
+		mocks.AssertRemoveReaction(slackClient, ":speech_balloon:", message.MessageRef)
 		mocks.AssertSlackMessage(slackClient, message.MessageRef, "Note: The token length of 100 exceeded! 1 messages were not sent", mock.Anything)
-		mocks.AssertSlackMessage(slackClient, message.MessageRef, "...", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, message.MessageRef, ":bulb: thinking...", mock.Anything)
 		mocks.AssertSlackMessage(slackClient, message.MessageRef, "Jolo!", mock.Anything, mock.Anything)
 
 		actual := commands.Run(message)
 		time.Sleep(time.Millisecond * 10)
+		queue.WaitTillHavingNoQueuedMessage()
+		assert.True(t, actual)
+	})
+
+	t.Run("Test no-streaming hashtag", func(t *testing.T) {
+		openaiCfg, ts := startTestServer(
+			t,
+			apiCompletionURL,
+			[]testRequest{
+				{
+					`{"model":"gpt-4o","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"user","content":"whats 1+1?"}]}`,
+					`{
+						 "id": "chatcmpl-6p9XYPYSTTRi0xEviKjjilqrWU2Ve",
+						 "object": "chat.completion",
+						 "created": 1677649420,
+						 "model": "gpt-4o",
+						 "usage": {"prompt_tokens": 56, "completion_tokens": 31, "total_tokens": 87},
+						 "choices": [
+						   {
+							"message": {
+							  "role": "assistant",
+							  "content": "The answer is 2"},
+							"finish_reason": "stop",
+							"index": 0
+						   }
+						  ]
+						}`,
+					http.StatusOK,
+				},
+			},
+		)
+		defer ts.Close()
+
+		openaiCfg.LogTexts = true
+		cfg := &config.Config{}
+		cfg.Set("openai", openaiCfg)
+
+		commands := GetCommands(base, cfg)
+
+		message := msg.Message{}
+		message.Text = "openai #no-streaming whats 1+1?"
+		message.Channel = "testchan"
+		message.Timestamp = "1234"
+		ref := message.MessageRef
+
+		mocks.AssertReaction(slackClient, ":bulb:", ref)
+		mocks.AssertReaction(slackClient, ":speech_balloon:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":bulb:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":speech_balloon:", ref)
+		mocks.AssertSlackMessage(slackClient, ref, ":bulb: thinking...", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, ref, "The answer is 2", mock.Anything, mock.Anything)
+
+		actual := commands.Run(message)
+		queue.WaitTillHavingNoQueuedMessage()
+		assert.True(t, actual)
+	})
+
+	t.Run("Test no-thread hashtag on channel level", func(t *testing.T) {
+		openaiCfg, ts := startTestServer(
+			t,
+			apiCompletionURL,
+			[]testRequest{
+				{
+					`{"model":"gpt-4o","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"user","content":"quick question"}],"stream":true}`,
+					`data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"role":"assistant"},"index":0,"finish_reason":null}]}
+
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"content":"Sure, what is it?"},"index":0,"finish_reason":null}]}
+
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{},"index":0,"finish_reason":"stop"}]}
+
+data: [DONE]`,
+					http.StatusOK,
+				},
+			},
+		)
+		defer ts.Close()
+
+		cfg := &config.Config{}
+		cfg.Set("openai", openaiCfg)
+
+		commands := GetCommands(base, cfg)
+
+		message := msg.Message{}
+		message.Text = "openai #no-thread quick question"
+		message.Channel = "testchan"
+		message.Timestamp = "1234"
+		ref := message.MessageRef
+
+		mocks.AssertReaction(slackClient, ":bulb:", ref)
+		mocks.AssertReaction(slackClient, ":speech_balloon:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":bulb:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":speech_balloon:", ref)
+		// When #no-thread is used at channel level, message should be sent without thread
+		slackClient.On("SendMessage", ref, ":bulb: thinking...").Return("1234.1").Once()
+		slackClient.On("SendMessage", ref, "Sure, what is it?", mock.Anything).Return("").Once()
+
+		actual := commands.Run(message)
+		queue.WaitTillHavingNoQueuedMessage()
+		assert.True(t, actual)
+	})
+
+	t.Run("Test no-thread hashtag within a thread (should be ignored)", func(t *testing.T) {
+		openaiCfg, ts := startTestServer(
+			t,
+			apiCompletionURL,
+			[]testRequest{
+				{
+					`{"model":"gpt-4o","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"system","content":"This is a Slack bot receiving a slack thread s context, using slack user ids as identifiers. Please use user mentions in the format \u003c@U123456\u003e"},{"role":"user","content":"User \u003c@U1234\u003e wrote: previous message"},{"role":"user","content":"another question"}],"stream":true}`,
+					`data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"role":"assistant"},"index":0,"finish_reason":null}]}
+
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"content":"Yes, I can help"},"index":0,"finish_reason":null}]}
+
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{},"index":0,"finish_reason":"stop"}]}
+
+data: [DONE]`,
+					http.StatusOK,
+				},
+			},
+		)
+		defer ts.Close()
+
+		cfg := &config.Config{}
+		cfg.Set("openai", openaiCfg)
+
+		commands := GetCommands(base, cfg)
+
+		message := msg.Message{}
+		message.Text = "openai #no-thread another question"
+		message.Channel = "testchan"
+		message.Timestamp = "5678"
+		message.Thread = "1234" // Already in a thread
+		ref := message.MessageRef
+
+		// Mock the thread history load
+		threadMessage := slack.Message{}
+		threadMessage.User = "U1234"
+		threadMessage.Text = "previous message"
+		threadMessages := []slack.Message{threadMessage}
+
+		threadRef := msg.MessageRef{
+			Channel:   "testchan",
+			Thread:    "1234",
+			Timestamp: "5678",
+		}
+		slackClient.On("GetThreadMessages", threadRef).Once().Return(threadMessages, nil)
+
+		mocks.AssertReaction(slackClient, ":bulb:", ref)
+		mocks.AssertReaction(slackClient, ":speech_balloon:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":bulb:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":speech_balloon:", ref)
+		// When already in a thread, #no-thread should be ignored and message should still be in thread
+		mocks.AssertSlackMessage(slackClient, ref, ":bulb: thinking...", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, ref, "Yes, I can help", mock.Anything, mock.Anything)
+
+		actual := commands.Run(message)
 		queue.WaitTillHavingNoQueuedMessage()
 		assert.True(t, actual)
 	})

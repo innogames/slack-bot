@@ -6,12 +6,14 @@ import (
 
 func TestParseHashtags(t *testing.T) {
 	tests := []struct {
-		name            string
-		input           string
-		expectedText    string
-		expectedModel   string
-		expectedReason  string
-		expectedHistory int
+		name              string
+		input             string
+		expectedText      string
+		expectedModel     string
+		expectedReason    string
+		expectedHistory   int
+		expectedStreaming bool
+		expectedNoThread  bool
 	}{
 		{
 			name:          "No hashtags",
@@ -57,6 +59,53 @@ func TestParseHashtags(t *testing.T) {
 			expectedText:   "Quick answer please",
 			expectedReason: "none",
 		},
+		{
+			name:              "No streaming",
+			input:             "#no-streaming Give me a complete response",
+			expectedText:      "Give me a complete response",
+			expectedStreaming: true,
+		},
+		{
+			name:              "No streaming with other hashtags",
+			input:             "#model-gpt-4o #no-streaming #high-thinking Complex task",
+			expectedText:      "Complex task",
+			expectedModel:     "gpt-4o",
+			expectedReason:    "high",
+			expectedStreaming: true,
+		},
+		{
+			name:              "All hashtags combined",
+			input:             "#model-o1 #high-thinking #message-history-20 #no-streaming Analyze this",
+			expectedText:      "Analyze this",
+			expectedModel:     "o1",
+			expectedReason:    "high",
+			expectedHistory:   20,
+			expectedStreaming: true,
+		},
+		{
+			name:             "No thread",
+			input:            "#no-thread Reply directly please",
+			expectedText:     "Reply directly please",
+			expectedNoThread: true,
+		},
+		{
+			name:             "No thread with other hashtags",
+			input:            "#model-gpt-4o #no-thread #high-thinking Quick question",
+			expectedText:     "Quick question",
+			expectedModel:    "gpt-4o",
+			expectedReason:   "high",
+			expectedNoThread: true,
+		},
+		{
+			name:              "All hashtags including no-thread",
+			input:             "#model-o1 #high-thinking #message-history-20 #no-streaming #no-thread Complete request",
+			expectedText:      "Complete request",
+			expectedModel:     "o1",
+			expectedReason:    "high",
+			expectedHistory:   20,
+			expectedStreaming: true,
+			expectedNoThread:  true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -74,6 +123,12 @@ func TestParseHashtags(t *testing.T) {
 			}
 			if options.MessageHistory != tt.expectedHistory {
 				t.Errorf("Expected history %d, got %d", tt.expectedHistory, options.MessageHistory)
+			}
+			if options.NoStreaming != tt.expectedStreaming {
+				t.Errorf("Expected NoStreaming %v, got %v", tt.expectedStreaming, options.NoStreaming)
+			}
+			if options.NoThread != tt.expectedNoThread {
+				t.Errorf("Expected NoThread %v, got %v", tt.expectedNoThread, options.NoThread)
 			}
 		})
 	}
