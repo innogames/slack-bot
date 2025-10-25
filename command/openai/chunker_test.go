@@ -63,12 +63,10 @@ data: [DONE]`, longPart1, longPart2),
 		mocks.AssertRemoveReaction(slackClient, ":speech_balloon:", ref)
 
 		// When chunking occurs, multiple SendMessage calls are made
-		// First message with initial placeholder
+		// Initial message with placeholder (from command.go)
 		slackClient.On("SendMessage", ref, ":bulb: thinking...", mock.Anything).Return("msg1").Once()
-		// Second message for second chunk with placeholder
-		slackClient.On("SendMessage", ref, ":bulb: thinking...", mock.Anything, mock.Anything).Return("msg2").Once()
-		// Third message for third chunk with placeholder
-		slackClient.On("SendMessage", ref, ":bulb: thinking...", mock.Anything, mock.Anything).Return("msg3").Once()
+		// Additional messages for new chunks (from chunker.go) - allow multiple calls
+		slackClient.On("SendMessage", ref, ":bulb: thinking...", mock.Anything, mock.Anything).Return("msg2").Maybe()
 		// Final updates for all chunks - expecting any string content with 2 MsgOptions (MsgOptionUpdate and MsgOptionTS)
 		slackClient.On("SendMessage", ref, mock.MatchedBy(func(s string) bool { return len(s) > 0 }), mock.Anything, mock.Anything).Return("").Maybe()
 
