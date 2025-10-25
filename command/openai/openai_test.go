@@ -94,22 +94,15 @@ data: [DONE]`,
 				},
 				{
 					`{"model":"gpt-4o","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"user","content":"whats 1+1?"},{"role":"assistant","content":"The answer is 2"},{"role":"user","content":"whats 2+1?"}],"stream":true}`,
-					`{
-						 "id": "chatcmpl-6p9XYPYSTTRi0xEviKjjilqrWU2Ve",
-						 "object": "chat.completion",
-						 "created": 1677649420,
-						 "model": "gpt-4o",
-						 "usage": {"prompt_tokens": 56, "completion_tokens": 31, "total_tokens": 87},
-						 "choices": [
-						   {
-							"message": {
-							  "role": "assistant",
-							  "content": "The answer is 3"},
-							"finish_reason": "stop",
-							"index": 0
-						   }
-						  ]
-						}`,
+					`data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"role":"assistant"},"index":0,"finish_reason":null}]}
+
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"content":"The answer "},"index":0,"finish_reason":null}]}
+
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"content":"is 3"},"index":0,"finish_reason":null}]}
+
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{},"index":0,"finish_reason":"stop"}]}
+
+data: [DONE]`,
 					http.StatusOK,
 				},
 			},
@@ -165,6 +158,8 @@ data: [DONE]`,
 		mocks.AssertRemoveReaction(slackClient, ":bulb:", message)
 		mocks.AssertRemoveReaction(slackClient, ":speech_balloon:", message)
 		mocks.AssertSlackMessage(slackClient, message, ":bulb: thinking...", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, message, "The answer ", mock.Anything, mock.Anything)
+		mocks.AssertSlackMessage(slackClient, message, "The answer is 3", mock.Anything, mock.Anything)
 
 		actual = commands.Run(message)
 		queue.WaitTillHavingNoQueuedMessage()
@@ -202,7 +197,9 @@ data: [DONE]`,
 		ref := message.MessageRef
 
 		mocks.AssertReaction(slackClient, ":bulb:", ref)
+		mocks.AssertReaction(slackClient, ":speech_balloon:", ref)
 		mocks.AssertRemoveReaction(slackClient, ":bulb:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":speech_balloon:", ref)
 		mocks.AssertSlackMessage(slackClient, ref, ":bulb: thinking...", mock.Anything)
 		mocks.AssertSlackMessage(slackClient, ref, "Incorrect API key provided: sk-1234**************************************567.", mock.Anything, mock.Anything)
 
@@ -243,7 +240,9 @@ data: [DONE]`,
 		message.Text = "whats 1+1?"
 
 		mocks.AssertReaction(slackClient, ":bulb:", message)
+		mocks.AssertReaction(slackClient, ":speech_balloon:", message)
 		mocks.AssertRemoveReaction(slackClient, ":bulb:", message)
+		mocks.AssertRemoveReaction(slackClient, ":speech_balloon:", message)
 		mocks.AssertSlackMessage(slackClient, message, ":bulb: thinking...", mock.Anything)
 		mocks.AssertSlackMessage(slackClient, message, "Incorrect API key provided: sk-1234**************************************567.", mock.Anything, mock.Anything)
 
