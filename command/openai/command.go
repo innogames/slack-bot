@@ -341,6 +341,36 @@ func (c *openaiCommand) callAndStore(messages []ChatMessage, storageIdentifier s
 			util.FormatDuration(time.Since(startTime)),
 			len(messages),
 		)
+
+		// Send debug message if debug option is enabled
+		if options.Debug {
+			debugMessage := fmt.Sprintf(
+				"🔍 *Debug Info:*\n"+
+					"• Model: `%s`\n"+
+					"• Input tokens: `%d`\n"+
+					"• Output tokens: `%d`\n"+
+					"• Total time: `%s`\n"+
+					"• Reasoning effort: `%s`",
+				customCfg.Model,
+				inputTokens,
+				outputTokens,
+				util.FormatDuration(time.Since(startTime)),
+				customCfg.ReasoningEffort,
+			)
+
+			// Build message options based on NoThread setting
+			debugMsgOptions := []slack.MsgOption{}
+			if !options.NoThread || message.GetThread() != "" {
+				// Normal behavior: reply in thread
+				debugMsgOptions = append(debugMsgOptions, slack.MsgOptionTS(message.GetTimestamp()))
+			}
+
+			c.SendMessage(
+				message,
+				debugMessage,
+				debugMsgOptions...,
+			)
+		}
 	}()
 }
 
@@ -406,7 +436,7 @@ func (c *openaiCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "openai <question>",
-			Description: "Starts a chatgpt/openai conversation in a new thread. Supports hashtags for advanced options: #model-<name> (e.g., #model-gpt-4o), #high-thinking/#medium-thinking/#low-thinking/#no-thinking for reasoning control, #message-history or #message-history-<N> to include recent channel messages as context, #no-streaming to disable streaming and get the full response at once, #no-thread to reply directly without creating a thread",
+			Description: "Starts a chatgpt/openai conversation in a new thread. Supports hashtags for advanced options: #model-<name> (e.g., #model-gpt-4o), #high-thinking/#medium-thinking/#low-thinking/#no-thinking for reasoning control, #message-history or #message-history-<N> to include recent channel messages as context, #no-streaming to disable streaming and get the full response at once, #no-thread to reply directly without creating a thread, #debug to show debug information about the request",
 			Category:    category,
 			Examples: []string{
 				"openai why is the sky blue?",
@@ -415,6 +445,7 @@ func (c *openaiCommand) GetHelp() []bot.Help {
 				"chatgpt #model-gpt-5-nano #low-thinking #message-history quick summary please",
 				"openai #no-streaming give me a detailed explanation",
 				"openai #no-thread quick question without a thread",
+				"openai #debug analyze this code for performance issues",
 			},
 		},
 		{
