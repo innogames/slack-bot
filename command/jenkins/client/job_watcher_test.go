@@ -66,11 +66,11 @@ func spawnJobWatcherServer() *httptest.Server {
 	mux := http.NewServeMux()
 
 	// test connection
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		w.Write([]byte(`ok`))
 	})
 
-	mux.HandleFunc("/job/testJob/api/json", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/job/testJob/api/json", func(w http.ResponseWriter, _ *http.Request) {
 		job := gojenkins.JobResponse{}
 		job.Name = "test"
 		job.LastBuild = gojenkins.JobBuild{
@@ -80,7 +80,7 @@ func spawnJobWatcherServer() *httptest.Server {
 		encoder.Encode(job)
 	})
 
-	mux.HandleFunc("/job/testJob2/api/json", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/job/testJob2/api/json", func(w http.ResponseWriter, _ *http.Request) {
 		job := gojenkins.JobResponse{}
 		job.Name = "test"
 		job.LastBuild = gojenkins.JobBuild{
@@ -90,12 +90,12 @@ func spawnJobWatcherServer() *httptest.Server {
 		encoder.Encode(job)
 	})
 
-	mux.HandleFunc("/job/notExistingJob/api/json", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/job/notExistingJob/api/json", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Add("X-Error", "404-fail")
 		w.WriteHeader(404)
 	})
 
-	mux.HandleFunc("/job/testJob/42/api/json", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/job/testJob/42/api/json", func(w http.ResponseWriter, _ *http.Request) {
 		build := gojenkins.BuildResponse{}
 		build.Number = 42
 		build.Building = true
@@ -104,7 +104,7 @@ func spawnJobWatcherServer() *httptest.Server {
 		encoder.Encode(build)
 	})
 
-	mux.HandleFunc("/job/testJob2/42/api/json", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/job/testJob2/42/api/json", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Add("X-Error", "404-fail")
 		w.WriteHeader(404)
 	})

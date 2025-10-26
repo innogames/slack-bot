@@ -24,12 +24,12 @@ func (f git) LoadBranches() (branchNames []string, err error) {
 			err,
 			"failed to load branches: "+cmd.String(),
 		)
-		return
+		return branchNames, err
 	}
 
 	for _, match := range gitBranchRe.FindAllStringSubmatch(string(output), -1) {
 		branchNames = append(branchNames, match[2])
 	}
 
-	return
+	return branchNames, err
 }

@@ -46,7 +46,7 @@ func (c *idleWatcherCommand) checkSingleNode(match matcher.Result, message msg.M
 }
 
 // command like "wait until jenkins is idle"
-func (c *idleWatcherCommand) checkAllNodes(match matcher.Result, message msg.Message) {
+func (c *idleWatcherCommand) checkAllNodes(_ matcher.Result, message msg.Message) {
 	filter := func(_ *gojenkins.Node) bool { return true }
 	c.check(message, filter)
 }

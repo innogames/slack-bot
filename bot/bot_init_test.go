@@ -54,7 +54,7 @@ func TestBot(t *testing.T) {
 		bot.ProcessMessage(message, true)
 	})
 
-	t.Run("handle valid message", func(t *testing.T) {
+	t.Run("handle valid message", func(_ *testing.T) {
 		message := msg.Message{}
 
 		message.Text = "test"
@@ -98,6 +98,6 @@ func TestInitLogger(t *testing.T) {
 type testCommand2 struct{}
 
 func (c testCommand2) GetMatcher() matcher.Matcher {
-	return matcher.NewTextMatcher("test", func(match matcher.Result, message msg.Message) {
+	return matcher.NewTextMatcher("test", func(_ matcher.Result, _ msg.Message) {
 	})
 }

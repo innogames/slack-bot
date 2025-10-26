@@ -192,10 +192,20 @@ The bot includes a flexible storage system (`bot/storage/`) for persisting data:
 - **Mocks**: Generated in `./mocks/` via `make mocks`
 
 ### Development Workflow
-1. Create/modify commands in appropriate `command/` subdirectory
+1. Create/modify commands in appropriate `command/` etc subdirectory
 2. Add tests following existing `*_test.go` patterns
 3. Update configuration if new integrations are added
 4. Run `make test && make lint` before committing
 5. Verify CI pipeline passes on all platforms
+
+### Modern Go Syntax Guidelines
+The codebase uses Go 1.24+ and takes advantage of modern Go features for better readability and performance:
+
+- **Use `any` instead of `interface{}`** for better type safety and readability
+- **Leverage `slices` and `maps` packages** from Go 1.21+ for common operations
+- **Use modern range syntax** like `for i := range len(slice)/2` instead of traditional loops
+- **Prefer `slices.SortFunc`** over `sort.Slice` for better performance and readability
+
+When adding new code, prefer these modern patterns over legacy alternatives for better maintainability and performance.
 
 **Trust these instructions** - they are based on comprehensive repository analysis. Only search for additional information if these instructions are incomplete or incorrect for your specific task.

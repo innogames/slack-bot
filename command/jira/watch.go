@@ -41,7 +41,7 @@ func (c *watchCommand) run(match matcher.Result, message msg.Message) {
 	// add button to link
 	c.slackClient.SendMessage(
 		message,
-		fmt.Sprintf("I'll inform you about changes of ticket %s", ticketID),
+		"I'll inform you about changes of ticket "+ticketID,
 	)
 }
 

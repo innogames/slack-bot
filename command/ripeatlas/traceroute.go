@@ -58,7 +58,7 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 			{
 				Af:             af,
 				Target:         destination,
-				Description:    fmt.Sprintf("Slackbot measurement to %s", destination),
+				Description:    "Slackbot measurement to " + destination,
 				Type:           "traceroute",
 				Protocol:       "ICMP",
 				Packets:        3,
@@ -77,7 +77,7 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 		IsOneOff: true,
 	})
 
-	url := fmt.Sprintf("%s/measurements", c.cfg.APIURL)
+	url := c.cfg.APIURL + "/measurements"
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("request creation returned an err: %w", err))

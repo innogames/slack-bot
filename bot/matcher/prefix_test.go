@@ -54,3 +54,102 @@ func TestPrefix(t *testing.T) {
 		assert.Equal(t, 15, match.GetInt(util.FullMatch))
 	})
 }
+
+func TestPrefixEdgeCases(t *testing.T) {
+	t.Run("word boundary detection", func(t *testing.T) {
+		testCases := []struct {
+			prefix    string
+			input     string
+			expected  bool
+			fullMatch string
+		}{
+			{"random", "random", true, ""},
+			{"random", "random 123", true, "123"},
+			{"random", "randomness", false, ""},  // Should not match "randomness"
+			{"random", "random\n123", false, ""}, // Should not match across newline
+			{"random", "random\t123", false, ""}, // Should not match across tab
+			{"test", "testing", false, ""},       // Should not match when prefix is substring
+			{"test", "test ", true, ""},          // Should match with trailing space
+		}
+
+		for _, testCase := range testCases {
+			executed := false
+			matcher := NewPrefixMatcher(testCase.prefix, func(match Result, _ msg.Message) {
+				executed = true
+				if testCase.fullMatch != "" {
+					assert.Equal(t, testCase.fullMatch, match.GetString(util.FullMatch))
+				}
+			})
+
+			message := msg.Message{}
+			message.Text = testCase.input
+
+			run, match := matcher.Match(message)
+			if testCase.expected {
+				assert.NotNil(t, run, "Should match: %s with prefix %s", testCase.input, testCase.prefix)
+				assert.NotNil(t, match, "Should have match result")
+				if run != nil {
+					run(match, message)
+				}
+				assert.True(t, executed, "Handler should have been executed")
+			} else {
+				assert.Nil(t, run, "Should not match: %s with prefix %s", testCase.input, testCase.prefix)
+				assert.Nil(t, match, "Should not have match result")
+			}
+		}
+	})
+
+	t.Run("case insensitive matching", func(t *testing.T) {
+		executed := false
+		matcher := NewPrefixMatcher("Hello", func(_ Result, _ msg.Message) {
+			executed = true
+		})
+
+		message := msg.Message{}
+		message.Text = "HELLO world"
+
+		run, match := matcher.Match(message)
+		assert.NotNil(t, run)
+		assert.NotNil(t, match)
+
+		if run != nil {
+			run(match, message)
+		}
+		assert.True(t, executed)
+	})
+
+	t.Run("empty prefix", func(t *testing.T) {
+		matcher := NewPrefixMatcher("", testRunner)
+
+		message := msg.Message{}
+		message.Text = "any text"
+
+		_, _ = matcher.Match(message)
+		// Empty prefix with word boundary logic - this might not match
+		// Let's test with text that starts with space
+		message.Text = " any text"
+
+		run, match := matcher.Match(message)
+		assert.NotNil(t, run) // Empty prefix should match text starting with space
+		assert.NotNil(t, match)
+	})
+
+	t.Run("unicode characters", func(t *testing.T) {
+		executed := false
+		matcher := NewPrefixMatcher("café", func(_ Result, _ msg.Message) {
+			executed = true
+		})
+
+		message := msg.Message{}
+		message.Text = "café menu"
+
+		run, match := matcher.Match(message)
+		assert.NotNil(t, run)
+		assert.NotNil(t, match)
+
+		if run != nil {
+			run(match, message)
+		}
+		assert.True(t, executed)
+	})
+}

@@ -37,7 +37,7 @@ func (c *cloudFrontCommand) GetMatcher() matcher.Matcher {
 	)
 }
 
-func (c *cloudFrontCommand) distributions(match matcher.Result, message msg.Message) {
+func (c *cloudFrontCommand) distributions(_ matcher.Result, message msg.Message) {
 	// show list
 	blocks := []slack.Block{}
 	for _, v := range c.cfg {

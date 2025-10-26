@@ -131,7 +131,7 @@ func (c *listCommand) getQueueAsBlocks(message msg.Message, filter filterFunc) (
 	if message.IsUpdatedMessage() {
 		blocks = append(
 			blocks,
-			client.GetContextBlock(fmt.Sprintf("Updated at: %s", time.Now().Format(time.Stamp))),
+			client.GetContextBlock("Updated at: "+time.Now().Format(time.Stamp)),
 		)
 	}
 

@@ -39,10 +39,7 @@ func (c *jiraCommand) GetMatcher() matcher.Matcher {
 		matcher.NewRegexpMatcher("jira (?P<action>link) (?P<text>.*)", c.run),
 		matcher.NewRegexpMatcher("(?P<action>jira|issue|jql) (?P<text>.*)", c.run),
 		matcher.NewRegexpMatcher(
-			fmt.Sprintf(
-				"%s\\/browse\\/(?P<text>.*)",
-				regexp.QuoteMeta(strings.TrimRight(c.config.Host, "/")),
-			),
+			regexp.QuoteMeta(strings.TrimRight(c.config.Host, "/"))+"\\/browse\\/(?P<text>.*)",
 			c.run,
 		),
 	}
@@ -50,10 +47,7 @@ func (c *jiraCommand) GetMatcher() matcher.Matcher {
 	if c.config.Project != "" {
 		// short alias for "PRO-123"
 		matchers = append(matchers, matcher.NewRegexpMatcher(
-			fmt.Sprintf(
-				`%s-(?P<text>\d+)`,
-				regexp.QuoteMeta(c.config.Project),
-			),
+			regexp.QuoteMeta(c.config.Project)+"-(?P<text>\\d+)",
 			c.run,
 		))
 	}

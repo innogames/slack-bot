@@ -120,5 +120,5 @@ func stat(path string) (fi os.FileInfo, err error) {
 		fi, err = os.Stat(path + ".json")
 	}
 
-	return
+	return fi, err
 }

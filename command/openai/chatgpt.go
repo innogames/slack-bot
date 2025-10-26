@@ -82,9 +82,9 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan s
 						continue
 					}
 
-					if deltaContent := delta.GetDelta().Content; deltaContent != "" {
-						messageUpdates <- deltaContent
-					}
+					deltaContent := delta.GetDelta().Content
+					// Send content if available, or send empty string for role-only deltas to trigger reaction changes
+					messageUpdates <- deltaContent
 				}
 			}
 		}

@@ -71,6 +71,9 @@ func getNewPool(cfg *config.Pool) *pool {
 func (p *pool) Lock(user, reason, resourceName string) (*ResourceLock, error) {
 	specificResource := len(resourceName) > 0
 
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
 	for k, v := range p.locks {
 		if v != nil {
 			// it's already in used
@@ -94,9 +97,6 @@ func (p *pool) Lock(user, reason, resourceName string) (*ResourceLock, error) {
 			LockUntil: time.Now().Add(p.lockDuration),
 		}
 
-		p.mu.Lock()
-		defer p.mu.Unlock()
-
 		p.locks[k] = resourceLock
 
 		if err := storage.Write(storageKey, k.Name, resourceLock); err != nil {
@@ -110,6 +110,9 @@ func (p *pool) Lock(user, reason, resourceName string) (*ResourceLock, error) {
 
 // ExtendLock extends the lock of a resource in the pool for a user
 func (p *pool) ExtendLock(user, resourceName, duration string) (*ResourceLock, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
 	for k, v := range p.locks {
 		if v == nil {
 			continue
@@ -148,6 +151,9 @@ func (p *pool) ExtendLock(user, resourceName, duration string) (*ResourceLock, e
 
 // Unlock a resource of a user
 func (p *pool) Unlock(user, resourceName string) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
 	for k, v := range p.locks {
 		if v == nil {
 			continue
@@ -173,6 +179,9 @@ func (p *pool) Unlock(user, resourceName string) error {
 
 // GetLocks returns a sorted list of all active locks of a user / all users if userName = ""
 func (p *pool) GetLocks(userName string) []*ResourceLock {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
 	var locked []*ResourceLock
 	byUser := len(userName) > 0
 	for _, v := range p.locks {
@@ -189,6 +198,9 @@ func (p *pool) GetLocks(userName string) []*ResourceLock {
 
 // GetFree returns a sorted list of all free / unlocked resources
 func (p *pool) GetFree() []*config.Resource {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
 	var free []*config.Resource
 	for k, v := range p.locks {
 		if v == nil {

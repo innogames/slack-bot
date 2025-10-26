@@ -21,7 +21,7 @@ func TestCommentJira(t *testing.T) {
 	defer server.Close()
 
 	// mock TEST-1234 as ticket
-	mux.HandleFunc("/rest/api/2/issue/TEST-1234", func(res http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/rest/api/2/issue/TEST-1234", func(res http.ResponseWriter, _ *http.Request) {
 		res.Write([]byte(`{
 			"key": "TEST-1234"
 		}`))

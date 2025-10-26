@@ -206,7 +206,7 @@ func (c *poolCommands) listResources(match matcher.Result, message msg.Message) 
 	c.slackClient.SendMessage(message, strings.Join(messages, "\n"))
 }
 
-func (c *poolCommands) listUserResources(match matcher.Result, message msg.Message) {
+func (c *poolCommands) listUserResources(_ matcher.Result, message msg.Message) {
 	_, userName := client.GetUserIDAndName(message.GetUser())
 
 	lockedByUser := c.pool.GetLocks(userName)

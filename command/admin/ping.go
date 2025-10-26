@@ -24,7 +24,7 @@ func (c *pingCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewTextMatcher("ping", c.ping)
 }
 
-func (c *pingCommand) ping(match matcher.Result, message msg.Message) {
+func (c *pingCommand) ping(_ matcher.Result, message msg.Message) {
 	c.SendMessage(message, "PONG in "+util.FormatDuration(time.Since(message.GetTime())))
 }
 

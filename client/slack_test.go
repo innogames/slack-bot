@@ -49,7 +49,7 @@ func TestGetSlackClient(t *testing.T) {
 		assert.Nil(t, client)
 	})
 
-	t.Run("Send to user", func(t *testing.T) {
+	t.Run("Send to user", func(_ *testing.T) {
 		slackClient := &Slack{}
 		slackClient.SendToUser("user", "foo")
 	})
@@ -128,7 +128,7 @@ func TestSendMessage(t *testing.T) {
 		assert.Empty(t, actual)
 	})
 
-	t.Run("ReplyError", func(t *testing.T) {
+	t.Run("ReplyError", func(_ *testing.T) {
 		ref := msg.MessageRef{}
 		err := errors.New("test error")
 		client.ReplyError(ref, err)

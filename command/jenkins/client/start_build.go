@@ -154,15 +154,18 @@ func getAttachment(build *gojenkins.Build, message string) slack.Attachment {
 	if build.Raw.Building {
 		icon = iconRunning
 		color = "#E0E000"
-	} else if build.Raw.Result == gojenkins.STATUS_SUCCESS {
-		icon = iconSuccess
-		color = "#00EE00"
-	} else if build.Raw.Result == gojenkins.STATUS_ABORTED {
-		icon = iconAborted
-		color = "#CCCCCC"
 	} else {
-		icon = iconFailed
-		color = "#CC0000"
+		switch build.Raw.Result {
+		case gojenkins.STATUS_SUCCESS:
+			icon = iconSuccess
+			color = "#00EE00"
+		case gojenkins.STATUS_ABORTED:
+			icon = iconAborted
+			color = "#CCCCCC"
+		default:
+			icon = iconFailed
+			color = "#CC0000"
+		}
 	}
 
 	attachment := slack.Attachment{

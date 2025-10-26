@@ -51,7 +51,7 @@ func TestCron(t *testing.T) {
 	commands := bot.Commands{}
 	commands.AddCommand(command)
 
-	t.Run("Run in background", func(t *testing.T) {
+	t.Run("Run in background", func(_ *testing.T) {
 		ctx := util.NewServerContext()
 		go command.RunAsync(ctx)
 		time.Sleep(time.Millisecond * 10)

@@ -47,7 +47,7 @@ func (t *helpCommand) GetHelp() []bot.Help {
 }
 
 // ShowAll command entries and group them by "category"
-func (t *helpCommand) showAll(match matcher.Result, message msg.Message) {
+func (t *helpCommand) showAll(_ matcher.Result, message msg.Message) {
 	t.once.Do(t.prebuildHelp)
 
 	t.AddReaction("💡", message)
@@ -93,7 +93,7 @@ func (t *helpCommand) printCategoryHeader(commandHelp bot.Help) (text string) {
 
 	text += ":\n"
 
-	return
+	return text
 }
 
 // prints details of a specific command
