@@ -16,7 +16,7 @@ func TestQuiz(t *testing.T) {
 	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		file, _ := os.ReadFile("./quiz_example.json")
 		w.Write(file)
 	}))

@@ -50,7 +50,7 @@ func (c *ecsCommand) list(match matcher.Result, message msg.Message) {
 	text += "Hello <@" + message.User + ">, current services:. \n"
 
 	for _, v := range svc {
-		text += fmt.Sprintf("• %s", v)
+		text += "• " + v
 		text += "\n"
 	}
 

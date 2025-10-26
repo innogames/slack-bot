@@ -192,7 +192,7 @@ The bot includes a flexible storage system (`bot/storage/`) for persisting data:
 - **Mocks**: Generated in `./mocks/` via `make mocks`
 
 ### Development Workflow
-1. Create/modify commands in appropriate `command/` subdirectory
+1. Create/modify commands in appropriate `command/` etc subdirectory
 2. Add tests following existing `*_test.go` patterns
 3. Update configuration if new integrations are added
 4. Run `make test && make lint` before committing

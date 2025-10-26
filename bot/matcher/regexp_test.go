@@ -241,7 +241,7 @@ func TestRegexpEdgeCases(t *testing.T) {
 
 	t.Run("boolean parsing", func(t *testing.T) {
 		executed := false
-		matcher := NewRegexpMatcher(`set\s+debug\s+(?P<enabled>true|false)`, func(match Result, message msg.Message) {
+		matcher := NewRegexpMatcher(`set\s+debug\s+(?P<enabled>true|false)`, func(match Result, _ msg.Message) {
 			executed = true
 			assert.True(t, match.Has("enabled"))
 			assert.Equal(t, "true", match.GetString("enabled"))

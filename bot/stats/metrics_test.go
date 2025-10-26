@@ -1,6 +1,7 @@
 package stats
 
 import (
+	"context"
 	"io"
 	"net"
 	"net/http"
@@ -43,7 +44,8 @@ func TestMetrics(t *testing.T) {
 
 // get a random free port on the host
 func getPort() string {
-	l, _ := net.Listen("tcp4", "localhost:0")
+	lc := &net.ListenConfig{}
+	l, _ := lc.Listen(context.Background(), "tcp4", "localhost:0")
 	defer l.Close()
 
 	return l.Addr().String()

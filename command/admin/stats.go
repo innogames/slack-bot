@@ -34,7 +34,7 @@ func (c *statsCommand) GetMatcher() matcher.Matcher {
 	return matcher.NewTextMatcher("bot stats", c.stats)
 }
 
-func (c *statsCommand) stats(match matcher.Result, message msg.Message) {
+func (c *statsCommand) stats(_ matcher.Result, message msg.Message) {
 	result := statsResult{}
 	result.addLine("Here are some current stats:")
 

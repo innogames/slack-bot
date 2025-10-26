@@ -20,7 +20,7 @@ func (f *bitbucket) LoadBranches() (branchNames []string, err error) {
 		"limit": bitbucketBranchLimit,
 	})
 	if err != nil {
-		return
+		return branchNames, err
 	}
 
 	branchesRaw.Body.Close()
@@ -35,5 +35,5 @@ func (f *bitbucket) LoadBranches() (branchNames []string, err error) {
 		branchNames = append(branchNames, branch.DisplayID)
 	}
 
-	return
+	return branchNames, err
 }

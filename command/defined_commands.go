@@ -96,7 +96,7 @@ func (c *definedCommand) execute(ref msg.Ref, text string) bool {
 }
 
 // receiver for "list template functions". Sort all template functions by name
-func (c *definedCommand) listTemplateFunction(match matcher.Result, message msg.Message) {
+func (c *definedCommand) listTemplateFunction(_ matcher.Result, message msg.Message) {
 	functions := util.GetTemplateFunctions()
 	functionNames := make([]string, 0, len(functions))
 

@@ -188,6 +188,10 @@ func (c command) setPRReactions(pr pullRequest, currentReactions reactionMap, me
 	}
 
 	switch pr.Status {
+	case prStatusOpen:
+		// PR is open - no specific reaction handling needed
+	case prStatusInReview:
+		// PR is in review - no specific reaction handling needed
 	case prStatusMerged:
 		c.addReaction(currentReactions, c.cfg.Reactions.Merged, message)
 	case prStatusClosed:
@@ -325,13 +329,13 @@ func (c command) notifyBuildStatus(prw *pullRequestWatch) {
 	prw.LastBuildStatus = prw.PullRequest.BuildStatus
 
 	if c.cfg.Notifications.BuildStatusInProgress && prw.LastBuildStatus == buildStatusRunning {
-		c.sendPrivateMessage(prw.Author, "PR '%s'\nBuild Status: Started %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
+		c.sendPrivateMessagef(prw.Author, "PR '%s'\nBuild Status: Started %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
 	}
 	if c.cfg.Notifications.BuildStatusSuccess && prw.PullRequest.BuildStatus == buildStatusSuccess {
-		c.sendPrivateMessage(prw.Author, "PR '%s'\nBuild Status: Success %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
+		c.sendPrivateMessagef(prw.Author, "PR '%s'\nBuild Status: Success %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
 	}
 	if c.cfg.Notifications.BuildStatusFailed && prw.PullRequest.BuildStatus == buildStatusFailed {
-		c.sendPrivateMessage(prw.Author, "PR '%s'\nBuild Status: Failed %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
+		c.sendPrivateMessagef(prw.Author, "PR '%s'\nBuild Status: Failed %s%s", prw.PullRequest.Name, c.getBuildStatusIcon(prw.PullRequest), getPRLinkMessage(prw))
 	}
 }
 
@@ -361,10 +365,10 @@ func (c command) notifyPullRequestStatus(prw *pullRequestWatch) {
 
 	prw.DidNotifyMergeable = true
 
-	c.sendPrivateMessage(prw.Author, "Your PR '%s' is ready to merge!%s", prw.PullRequest.Name, getPRLinkMessage(prw))
+	c.sendPrivateMessagef(prw.Author, "Your PR '%s' is ready to merge!%s", prw.PullRequest.Name, getPRLinkMessage(prw))
 }
 
-func (c command) sendPrivateMessage(username string, format string, parameter ...any) {
+func (c command) sendPrivateMessagef(username string, format string, parameter ...any) {
 	message := fmt.Sprintf(format, parameter...)
 	c.SendToUser(username, message)
 }
@@ -388,5 +392,5 @@ func (c *command) notifyNewReviewComments(prw *pullRequestWatch) {
 
 	prw.SavedLatestReviewCommentTimestamp = prw.PullRequest.LatestReviewCommentsTimestamp
 
-	c.sendPrivateMessage(prw.PullRequest.Author, "PR *'%s'* \nNew review comments were added: %s", prw.PullRequest.Name, getPRLinkMessage(prw))
+	c.sendPrivateMessagef(prw.PullRequest.Author, "PR *'%s'* \nNew review comments were added: %s", prw.PullRequest.Name, getPRLinkMessage(prw))
 }

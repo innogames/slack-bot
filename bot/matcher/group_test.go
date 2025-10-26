@@ -119,10 +119,10 @@ func TestGroupMatcherAdvanced(t *testing.T) {
 	t.Run("multiple matchers first match wins", func(t *testing.T) {
 		executed := false
 		matcher := NewGroupMatcher(
-			NewRegexpMatcher("first.*", func(_ Result, message msg.Message) {
+			NewRegexpMatcher("first.*", func(_ Result, _ msg.Message) {
 				executed = true
 			}),
-			NewRegexpMatcher("second pattern", func(_ Result, message msg.Message) {
+			NewRegexpMatcher("second pattern", func(_ Result, _ msg.Message) {
 				t.Error("Second matcher should not execute")
 			}),
 		)
@@ -183,7 +183,7 @@ func TestMatcherIntegration(t *testing.T) {
 		adminMatcher := NewAdminMatcher(
 			cfg.AdminUsers,
 			slackClient,
-			NewPrefixMatcher("admin command", func(_ Result, message msg.Message) {
+			NewPrefixMatcher("admin command", func(_ Result, _ msg.Message) {
 				executed = true
 				// Just verify that the admin command executes - don't worry about exact match content
 			}),

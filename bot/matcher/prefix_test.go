@@ -74,7 +74,7 @@ func TestPrefixEdgeCases(t *testing.T) {
 
 		for _, testCase := range testCases {
 			executed := false
-			matcher := NewPrefixMatcher(testCase.prefix, func(match Result, message msg.Message) {
+			matcher := NewPrefixMatcher(testCase.prefix, func(match Result, _ msg.Message) {
 				executed = true
 				if testCase.fullMatch != "" {
 					assert.Equal(t, testCase.fullMatch, match.GetString(util.FullMatch))
@@ -101,7 +101,7 @@ func TestPrefixEdgeCases(t *testing.T) {
 
 	t.Run("case insensitive matching", func(t *testing.T) {
 		executed := false
-		matcher := NewPrefixMatcher("Hello", func(_ Result, message msg.Message) {
+		matcher := NewPrefixMatcher("Hello", func(_ Result, _ msg.Message) {
 			executed = true
 		})
 
@@ -136,7 +136,7 @@ func TestPrefixEdgeCases(t *testing.T) {
 
 	t.Run("unicode characters", func(t *testing.T) {
 		executed := false
-		matcher := NewPrefixMatcher("café", func(_ Result, message msg.Message) {
+		matcher := NewPrefixMatcher("café", func(_ Result, _ msg.Message) {
 			executed = true
 		})
 

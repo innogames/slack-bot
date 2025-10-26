@@ -176,7 +176,7 @@ func spawnJenkinsServer() *httptest.Server {
 		w.Write([]byte(`ok`))
 	})
 
-	mux.HandleFunc("/job/testJob/api/json", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/job/testJob/api/json", func(w http.ResponseWriter, _ *http.Request) {
 		job := gojenkins.JobResponse{}
 		job.Name = "test"
 		job.LastBuild = gojenkins.JobBuild{
@@ -186,11 +186,11 @@ func spawnJenkinsServer() *httptest.Server {
 		encoder.Encode(job)
 	})
 
-	mux.HandleFunc("/job/notExistingJob/api/json", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/job/notExistingJob/api/json", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(404)
 	})
 
-	mux.HandleFunc("/job/testJob/42/api/json", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/job/testJob/42/api/json", func(w http.ResponseWriter, _ *http.Request) {
 		build := gojenkins.BuildResponse{}
 		build.Number = 42
 		build.Building = true
@@ -198,7 +198,7 @@ func spawnJenkinsServer() *httptest.Server {
 		encoder := json.NewEncoder(w)
 		encoder.Encode(build)
 	})
-	mux.HandleFunc("/job/testJob/build", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/job/testJob/build", func(w http.ResponseWriter, _ *http.Request) {
 		buildNumber++
 		w.Header().Set("Location", "http://foo.bar/job/testJob/111")
 	})

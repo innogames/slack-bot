@@ -27,7 +27,7 @@ func (c *creditsCommand) credits(_ matcher.Result, message msg.Message) {
 	c.AddReaction(":coffee:", message)
 	defer c.RemoveReaction(":coffee:", message)
 
-	url := fmt.Sprintf("%s/credits", c.cfg.APIURL)
+	url := c.cfg.APIURL + "/credits"
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("request creation returned an err: %w", err))
