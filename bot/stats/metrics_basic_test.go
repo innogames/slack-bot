@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMetricsBasic(t *testing.T) {
+func TestMetricsBasic(_ *testing.T) {
 	ctx := util.NewServerContext()
 	defer ctx.StopTheWorld()
 

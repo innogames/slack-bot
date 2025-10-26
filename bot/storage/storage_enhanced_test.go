@@ -46,8 +46,8 @@ func TestStorageEnhanced(t *testing.T) {
 	})
 
 	t.Run("test file storage error handling", func(t *testing.T) {
-		// Test with invalid path
-		_, err := newFileStorage("/invalid/path/that/does/not/exist")
+		// Test with invalid path - we don't check the error as it might not fail immediately
+		_, _ = newFileStorage("/invalid/path/that/does/not/exist")
 		// This might not error immediately, but should handle errors gracefully
 
 		// Test with valid path
@@ -153,7 +153,7 @@ func TestStorageEnhanced(t *testing.T) {
 		// Test concurrent writes
 		done := make(chan bool, 10)
 
-		for i := 0; i < 10; i++ {
+		for i := range 10 {
 			go func(index int) {
 				defer func() { done <- true }()
 
@@ -161,12 +161,12 @@ func TestStorageEnhanced(t *testing.T) {
 				value := "concurrent_value_" + string(rune(index))
 
 				err := storage.Write("test_collection", key, value)
-				require.NoError(t, err)
+				assert.NoError(t, err)
 			}(i)
 		}
 
 		// Wait for all goroutines to complete
-		for i := 0; i < 10; i++ {
+		for range 10 {
 			<-done
 		}
 
@@ -218,7 +218,7 @@ func TestStorageEnhanced(t *testing.T) {
 
 		// Test writing many keys
 		start := time.Now()
-		for i := 0; i < 1000; i++ {
+		for i := range 1000 {
 			key := "perf_key_" + string(rune(i))
 			value := "perf_value_" + string(rune(i))
 			err := storage.Write("test_collection", key, value)
@@ -228,7 +228,7 @@ func TestStorageEnhanced(t *testing.T) {
 
 		// Test reading many keys
 		start = time.Now()
-		for i := 0; i < 1000; i++ {
+		for i := range 1000 {
 			key := "perf_key_" + string(rune(i))
 			var value string
 			err := storage.Read("test_collection", key, &value)

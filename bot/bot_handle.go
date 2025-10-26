@@ -87,6 +87,7 @@ func (b *Bot) ProcessMessage(message msg.Message, fromUserContext bool) {
 	logger := b.getUserBasedLogger(message)
 
 	// prevent messages from one user processed in parallel (usual + internal ones)
+	// Only acquire lock if this message doesn't already have async handling
 	if message.Done == nil {
 		lock := b.locks.GetLock(message.User)
 		defer lock.Unlock()
