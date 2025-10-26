@@ -27,7 +27,7 @@ func TestMetrics(t *testing.T) {
 	Set("test_value", 500)
 
 	InitMetrics(cfg, ctx)
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 10)
 
 	resp, err := http.Get("http://" + metricsPort + "/metrics")
 	if err != nil {

@@ -207,7 +207,7 @@ func TestStorageEnhanced(t *testing.T) {
 		require.NoError(t, err)
 
 		// Test reading nil value
-		var value interface{}
+		var value any
 		err = storage.Read("test_collection", "nil_key", &value)
 		require.NoError(t, err)
 		assert.Nil(t, value)

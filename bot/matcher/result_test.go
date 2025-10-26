@@ -44,7 +44,7 @@ func TestResultEdgeCases(t *testing.T) {
 		}
 
 		assert.Equal(t, "value1", result.GetString("key1"))
-		assert.Equal(t, "", result.GetString("key2"))
-		assert.Equal(t, "", result.GetString("nonexistent"))
+		assert.Empty(t, result.GetString("key2"))
+		assert.Empty(t, result.GetString("nonexistent"))
 	})
 }

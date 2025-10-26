@@ -71,7 +71,7 @@ func TestWildcardAdvanced(t *testing.T) {
 	t.Run("handler returns false continues processing", func(t *testing.T) {
 		executed := false
 
-		matcher := WildcardMatcher(func(ref msg.Ref, text string) bool {
+		matcher := WildcardMatcher(func(_ msg.Ref, _ string) bool {
 			executed = true
 			return false // Command was not handled, continue with other matchers
 		})
@@ -89,9 +89,9 @@ func TestWildcardAdvanced(t *testing.T) {
 	t.Run("wildcard with empty text", func(t *testing.T) {
 		executed := false
 
-		matcher := WildcardMatcher(func(ref msg.Ref, text string) bool {
+		matcher := WildcardMatcher(func(_ msg.Ref, text string) bool {
 			executed = true
-			assert.Equal(t, "", text)
+			assert.Empty(t, text)
 			return true
 		})
 
@@ -108,7 +108,7 @@ func TestWildcardAdvanced(t *testing.T) {
 		executed := false
 		handledText := ""
 
-		matcher := WildcardMatcher(func(ref msg.Ref, text string) bool {
+		matcher := WildcardMatcher(func(_ msg.Ref, text string) bool {
 			executed = true
 			handledText = text
 			return true

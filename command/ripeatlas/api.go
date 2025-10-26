@@ -112,7 +112,7 @@ type StreamingResponse struct {
 }
 
 func (sr *StreamingResponse) UnmarshalJSON(b []byte) error {
-	a := []interface{}{&sr.Type, &sr.Payload}
+	a := []any{&sr.Type, &sr.Payload}
 	return json.Unmarshal(b, &a)
 }
 

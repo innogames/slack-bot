@@ -101,7 +101,7 @@ func TestPrefixEdgeCases(t *testing.T) {
 
 	t.Run("case insensitive matching", func(t *testing.T) {
 		executed := false
-		matcher := NewPrefixMatcher("Hello", func(match Result, message msg.Message) {
+		matcher := NewPrefixMatcher("Hello", func(_ Result, message msg.Message) {
 			executed = true
 		})
 
@@ -124,19 +124,19 @@ func TestPrefixEdgeCases(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "any text"
 
-		run, match := matcher.Match(message)
+		_, _ = matcher.Match(message)
 		// Empty prefix with word boundary logic - this might not match
 		// Let's test with text that starts with space
 		message.Text = " any text"
 
-		run, match = matcher.Match(message)
+		run, match := matcher.Match(message)
 		assert.NotNil(t, run) // Empty prefix should match text starting with space
 		assert.NotNil(t, match)
 	})
 
 	t.Run("unicode characters", func(t *testing.T) {
 		executed := false
-		matcher := NewPrefixMatcher("café", func(match Result, message msg.Message) {
+		matcher := NewPrefixMatcher("café", func(_ Result, message msg.Message) {
 			executed = true
 		})
 

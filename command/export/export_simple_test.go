@@ -168,7 +168,7 @@ func TestExportChannelMessagesToBufferSimple(t *testing.T) {
 			(*slack.GetConversationHistoryResponse)(nil), errors.New("API error"))
 
 		buffer, lines, err := exportChannelMessagesToBuffer(slackClient, "C1234567890")
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, buffer)
 		assert.Equal(t, 0, lines)
 
@@ -225,7 +225,7 @@ func TestExportChannelMessagesToBufferSimple(t *testing.T) {
 		// Create 3001 messages (exceeding the 3000 limit)
 		// The logic breaks when lines > limit, so it processes 3001 before breaking
 		mockMessages := make([]slack.Message, 3001)
-		for i := 0; i < 3001; i++ {
+		for i := range 3001 {
 			mockMessages[i] = slack.Message{
 				Msg: slack.Msg{
 					Timestamp: fmt.Sprintf("123456789%d.123456", i%10),
@@ -320,7 +320,7 @@ func TestExportChannelFunction(t *testing.T) {
 
 		// Test error path in exportChannelMessagesToBuffer
 		_, _, err := exportChannelMessagesToBuffer(slackClient, "C1234567890")
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "channel not found")
 
 		slackClient.AssertExpectations(t)
@@ -353,7 +353,7 @@ func TestExportChannelFunction(t *testing.T) {
 
 		// Should return error when thread messages fail
 		_, _, err := exportChannelMessagesToBuffer(slackClient, "C1234567890")
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "thread not accessible")
 
 		slackClient.AssertExpectations(t)
@@ -380,7 +380,7 @@ func TestExportChannelFunction(t *testing.T) {
 		// Test that the function succeeds and returns data ready for upload
 		buffer, lines, err := exportChannelMessagesToBuffer(slackClient, "C1234567890")
 		require.NoError(t, err)
-		assert.Greater(t, lines, 0)
+		assert.Positive(t, lines)
 		assert.NotNil(t, buffer)
 		assert.Contains(t, buffer.String(), "Test message")
 

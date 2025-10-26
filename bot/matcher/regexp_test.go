@@ -93,7 +93,7 @@ func BenchmarkRegexpMatcher(b *testing.B) {
 func TestRegexpComplexPatterns(t *testing.T) {
 	t.Run("complex named groups", func(t *testing.T) {
 		executed := false
-		matcher := NewRegexpMatcher(`pool lock\s+(?P<resource>\w+)(\s+reason\s+(?P<reason>.+))?`, func(match Result, message msg.Message) {
+		matcher := NewRegexpMatcher(`pool lock\s+(?P<resource>\w+)(\s+reason\s+(?P<reason>.+))?`, func(match Result, _ msg.Message) {
 			executed = true
 			assert.Equal(t, "server1", match.GetString("resource"))
 			assert.Equal(t, "for testing", match.GetString("reason"))
@@ -115,7 +115,7 @@ func TestRegexpComplexPatterns(t *testing.T) {
 
 	t.Run("optional groups", func(t *testing.T) {
 		executed := false
-		matcher := NewRegexpMatcher(`export channel\s+#?(?P<channel>[\w\-]+)\s+as\s+(?P<format>\w+)`, func(match Result, message msg.Message) {
+		matcher := NewRegexpMatcher(`export channel\s+#?(?P<channel>[\w\-]+)\s+as\s+(?P<format>\w+)`, func(match Result, _ msg.Message) {
 			executed = true
 			assert.Equal(t, "general", match.GetString("channel"))
 			assert.Equal(t, "csv", match.GetString("format"))
@@ -136,7 +136,7 @@ func TestRegexpComplexPatterns(t *testing.T) {
 
 	t.Run("multiple matches in group", func(t *testing.T) {
 		executed := false
-		matcher := NewRegexpMatcher(`jira\s+(?P<action>create|update|delete)\s+(?P<project>\w+)-(?P<ticket>\d+)`, func(match Result, message msg.Message) {
+		matcher := NewRegexpMatcher(`jira\s+(?P<action>create|update|delete)\s+(?P<project>\w+)-(?P<ticket>\d+)`, func(match Result, _ msg.Message) {
 			executed = true
 			assert.Equal(t, "create", match.GetString("action"))
 			assert.Equal(t, "PROJ", match.GetString("project"))
@@ -158,7 +158,7 @@ func TestRegexpComplexPatterns(t *testing.T) {
 
 	t.Run("case insensitive matching", func(t *testing.T) {
 		executed := false
-		matcher := NewRegexpMatcher("hello world", func(match Result, message msg.Message) {
+		matcher := NewRegexpMatcher("hello world", func(_ Result, _ msg.Message) {
 			executed = true
 		})
 
@@ -199,7 +199,7 @@ func TestRegexpComplexPatterns(t *testing.T) {
 func TestRegexpEdgeCases(t *testing.T) {
 	t.Run("regex with special characters", func(t *testing.T) {
 		executed := false
-		matcher := NewRegexpMatcher(`send\s+message\s+to\s+<@(?P<user>\w+)\|(?P<name>[\w\s]+)>`, func(match Result, message msg.Message) {
+		matcher := NewRegexpMatcher(`send\s+message\s+to\s+<@(?P<user>\w+)\|(?P<name>[\w\s]+)>`, func(match Result, _ msg.Message) {
 			executed = true
 			assert.Equal(t, "U1234567890", match.GetString("user"))
 			assert.Equal(t, "John Doe", match.GetString("name"))
@@ -220,7 +220,7 @@ func TestRegexpEdgeCases(t *testing.T) {
 
 	t.Run("numeric parsing", func(t *testing.T) {
 		executed := false
-		matcher := NewRegexpMatcher(`set\s+priority\s+(?P<priority>\d+)`, func(match Result, message msg.Message) {
+		matcher := NewRegexpMatcher(`set\s+priority\s+(?P<priority>\d+)`, func(match Result, _ msg.Message) {
 			executed = true
 			assert.Equal(t, 5, match.GetInt("priority"))
 			assert.Equal(t, 0, match.GetInt("nonexistent"))

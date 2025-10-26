@@ -228,7 +228,7 @@ func (c *bitbucketFetcher) loadAllPrActivities(pr *bitbucket.PullRequest) ([]bit
 	allActivities := activities.Values
 
 	hasNextPage, nextPage := bitbucket.HasNextPage(apiResponse)
-	requestOptions := map[string]interface{}{}
+	requestOptions := map[string]any{}
 
 	for hasNextPage {
 		requestOptions["start"] = nextPage

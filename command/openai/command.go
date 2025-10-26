@@ -277,20 +277,23 @@ func (c *openaiCommand) callAndStore(messages []ChatMessage, storageIdentifier s
 		var dirty bool
 		var outputTokens int
 		for delta := range response {
-			// On first token received, switch from bulb (thinking) to speech_balloon (streaming response)
+			// On first token received (including empty deltas), switch from bulb (thinking) to speech_balloon (streaming response)
 			if !speechBalloonAdded {
 				c.RemoveReaction(":bulb:", message)
 				c.AddReaction(":speech_balloon:", message)
 				speechBalloonAdded = true
 			}
 
-			chunker.appendContent(delta)
-			outputTokens++
-			dirty = true
-			if chunker.getTotalLength() > 0 && lastUpdate.Add(c.cfg.UpdateInterval).Before(time.Now()) {
-				lastUpdate = time.Now()
-				chunker.updateMessages()
-				dirty = false
+			// Only append non-empty content to avoid issues with role-only deltas
+			if delta != "" {
+				chunker.appendContent(delta)
+				outputTokens++
+				dirty = true
+				if chunker.getTotalLength() > 0 && lastUpdate.Add(c.cfg.UpdateInterval).Before(time.Now()) {
+					lastUpdate = time.Now()
+					chunker.updateMessages()
+					dirty = false
+				}
 			}
 		}
 

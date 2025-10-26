@@ -119,7 +119,7 @@ func TestPoolCoreOperations(t *testing.T) {
 		assert.Len(t, free, 3)
 
 		locked := p.GetLocks("")
-		assert.Len(t, locked, 0)
+		assert.Empty(t, locked)
 	})
 
 	t.Run("lock resource successfully", func(t *testing.T) {
@@ -190,14 +190,14 @@ func TestPoolCoreOperations(t *testing.T) {
 		require.NoError(t, err)
 
 		err = p.Unlock("user1", "server1")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// Check that resource is now free
 		free := p.GetFree()
 		assert.Len(t, free, 3)
 
 		locked := p.GetLocks("")
-		assert.Len(t, locked, 0)
+		assert.Empty(t, locked)
 	})
 
 	t.Run("unlock resource by different user", func(t *testing.T) {
@@ -359,7 +359,7 @@ func TestPoolConcurrency(t *testing.T) {
 		go func() {
 			_, err := p.Lock("user1", "concurrent test 1", "server1")
 			if err == nil {
-				time.Sleep(100 * time.Millisecond) // Hold lock briefly
+				time.Sleep(10 * time.Millisecond) // Hold lock briefly
 				p.Unlock("user1", "server1")
 			}
 			done <- true
@@ -380,7 +380,7 @@ func TestPoolConcurrency(t *testing.T) {
 
 		// Only one should have succeeded
 		locked := p.GetLocks("")
-		assert.True(t, len(locked) <= 1, "Only one user should have the lock")
+		assert.LessOrEqual(t, len(locked), 1, "Only one user should have the lock")
 	})
 }
 
