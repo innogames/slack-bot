@@ -311,6 +311,9 @@ You can customize each request using hashtags:
 - `#no-streaming` - Disable streaming and get the full response at once (useful for long, complete responses without incremental updates)
 - `#no-thread` - Reply directly to the message instead of creating a new thread (only works for channel-level messages, ignored when already in a thread)
 
+**Debug Information:**
+- `#debug` - Show debug information at the end of the response including model used, token counts, execution time, and context details
+
 **Examples:**
 - `openai #model-gpt-4o What's the best way to handle errors in Go?`
 - `chatgpt #high-thinking #model-o1 Design a distributed caching system`
@@ -318,6 +321,7 @@ You can customize each request using hashtags:
 - `chatgpt #model-gpt-4 #low-thinking #message-history Quick update on the deployment?`
 - `openai #no-streaming Write a comprehensive project plan`
 - `openai #no-thread Quick question without starting a thread`
+- `openai #debug analyze this code for performance issues`
 
 These hashtags work in both new conversations and thread replies, allowing you to adjust the model, reasoning level, context, and response mode on a per-message basis.
 

@@ -12,6 +12,7 @@ import (
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
@@ -149,7 +150,7 @@ func TestQueue(t *testing.T) {
 		assert.Empty(t, client.InternalMessages)
 	})
 
-	t.Run("Test refresh queue command", func(t *testing.T) {
+	t.Run("Test refresh queue command (empty)", func(t *testing.T) {
 		message.Text = "list queue"
 		message.UpdatedMessage = true
 
@@ -157,13 +158,26 @@ func TestQueue(t *testing.T) {
 
 		mocks.AssertReaction(slackClient, processingReaction, message)
 		mocks.AssertRemoveReaction(slackClient, processingReaction, message)
-		mocks.AssertContainsSlackBlocks(t, slackClient, message, client.GetTextBlock("*0 queued commands*"))
+		// Use a more flexible matcher that accepts any blocks containing the expected text
+		slackClient.On("SendBlockMessage", message, mock.MatchedBy(func(blocks []slack.Block) bool {
+			// Check that we have at least 3 blocks (header, context, action)
+			if len(blocks) < 3 {
+				return false
+			}
+			// Verify first block contains "0 queued commands"
+			if section, ok := blocks[0].(*slack.SectionBlock); ok {
+				if section.Text != nil && section.Text.Text == "*0 queued commands*" {
+					return true
+				}
+			}
+			return false
+		}), mock.Anything).Once().Return("")
 
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
 
-	t.Run("Test refresh queue command", func(t *testing.T) {
+	t.Run("Test refresh queue command (hide-empty)", func(t *testing.T) {
 		message.Text = "list queue in channel hide-empty=true pin=true"
 		message.UpdatedMessage = true
 
@@ -171,6 +185,7 @@ func TestQueue(t *testing.T) {
 
 		mocks.AssertReaction(slackClient, processingReaction, message)
 		mocks.AssertRemoveReaction(slackClient, processingReaction, message)
+		// No SendBlockMessage expectation because hide-empty=true should suppress output when queue is empty
 
 		actual := command.Run(message)
 		assert.True(t, actual)

@@ -14,6 +14,7 @@ func TestParseHashtags(t *testing.T) {
 		expectedHistory   int
 		expectedStreaming bool
 		expectedNoThread  bool
+		expectedDebug     bool
 	}{
 		{
 			name:          "No hashtags",
@@ -106,6 +107,31 @@ func TestParseHashtags(t *testing.T) {
 			expectedStreaming: true,
 			expectedNoThread:  true,
 		},
+		{
+			name:          "Debug only",
+			input:         "#debug Analyze this code",
+			expectedText:  "Analyze this code",
+			expectedDebug: true,
+		},
+		{
+			name:           "Debug with other hashtags",
+			input:          "#model-gpt-4o #debug #high-thinking Complex analysis",
+			expectedText:   "Complex analysis",
+			expectedModel:  "gpt-4o",
+			expectedReason: "high",
+			expectedDebug:  true,
+		},
+		{
+			name:              "All hashtags including debug",
+			input:             "#model-o1 #high-thinking #message-history-20 #no-streaming #no-thread #debug Complete debug request",
+			expectedText:      "Complete debug request",
+			expectedModel:     "o1",
+			expectedReason:    "high",
+			expectedHistory:   20,
+			expectedStreaming: true,
+			expectedNoThread:  true,
+			expectedDebug:     true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -129,6 +155,9 @@ func TestParseHashtags(t *testing.T) {
 			}
 			if options.NoThread != tt.expectedNoThread {
 				t.Errorf("Expected NoThread %v, got %v", tt.expectedNoThread, options.NoThread)
+			}
+			if options.Debug != tt.expectedDebug {
+				t.Errorf("Expected Debug %v, got %v", tt.expectedDebug, options.Debug)
 			}
 		})
 	}
