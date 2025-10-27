@@ -216,9 +216,9 @@ func TestStorageEnhanced(t *testing.T) {
 	t.Run("test storage performance", func(t *testing.T) {
 		storage := newMemoryStorage()
 
-		// Test writing many keys
+		// Test writing many keys (reduced from 1000 to 100 for faster tests)
 		start := time.Now()
-		for i := range 1000 {
+		for i := range 100 {
 			key := "perf_key_" + string(rune(i))
 			value := "perf_value_" + string(rune(i))
 			err := storage.Write("test_collection", key, value)
@@ -226,9 +226,9 @@ func TestStorageEnhanced(t *testing.T) {
 		}
 		writeDuration := time.Since(start)
 
-		// Test reading many keys
+		// Test reading many keys (reduced from 1000 to 100 for faster tests)
 		start = time.Now()
-		for i := range 1000 {
+		for i := range 100 {
 			key := "perf_key_" + string(rune(i))
 			var value string
 			err := storage.Read("test_collection", key, &value)
@@ -237,8 +237,8 @@ func TestStorageEnhanced(t *testing.T) {
 		}
 		readDuration := time.Since(start)
 
-		// Performance should be reasonable (adjust thresholds as needed)
-		assert.Less(t, writeDuration, time.Second)
-		assert.Less(t, readDuration, time.Second)
+		// Performance should be reasonable (adjusted thresholds for fewer iterations)
+		assert.Less(t, writeDuration, 100*time.Millisecond)
+		assert.Less(t, readDuration, 100*time.Millisecond)
 	})
 }

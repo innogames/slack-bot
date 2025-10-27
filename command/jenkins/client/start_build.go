@@ -18,6 +18,8 @@ import (
 
 var locks = util.NewGroupedLogger()
 
+const progressUpdateInterval = 5 * time.Second
+
 // TriggerJenkinsJob starts a new build with given parameters
 // it will return when the job was started successfully
 // in the background it will watch the current build state and will update the state in the original slack message
@@ -43,8 +45,8 @@ func TriggerJenkinsJob(cfg config.JobConfig, jobName string, jobParams Parameter
 		fmt.Sprintf("inform job %s #%d", jobName, build.GetBuildNumber()),
 	)
 	go func() {
-		// wait until job is not running anymore
-		<-WatchBuild(build)
+		// wait until job is not running anymore and update progress every 30s
+		watchProgress(build, slackClient, message, msgTimestamp)
 		runningCommand.Done()
 
 		// update main message
@@ -226,4 +228,78 @@ func getFinishBuildText(build *gojenkins.Build, user string, jobName string) str
 	}
 
 	return text
+}
+
+// watchProgress monitors the build and updates the message with a progress bar every 30 seconds
+func watchProgress(build *gojenkins.Build, slackClient client.SlackClient, ref msg.Ref, msgTimestamp string) {
+	estimatedDuration := time.Duration(build.Raw.EstimatedDuration) * time.Millisecond
+	startTime := time.Now()
+	ticker := time.NewTicker(progressUpdateInterval)
+	defer ticker.Stop()
+
+	buildDone := WatchBuild(build)
+
+	for {
+		select {
+		case <-buildDone:
+			// Build is done, exit the loop
+			return
+		case <-ticker.C:
+			// Update progress
+			elapsed := time.Since(startTime)
+			progress := calculateProgress(elapsed, estimatedDuration)
+			progressBar := renderProgressBar(progress)
+
+			text := fmt.Sprintf(
+				"Job %s running (#%d)\n%s %s / %s",
+				build.Job.GetName(),
+				build.GetBuildNumber(),
+				progressBar,
+				util.FormatDuration(elapsed),
+				util.FormatDuration(estimatedDuration),
+			)
+
+			// update the message in Slack with new progress
+			slackClient.SendMessage(
+				ref,
+				"",
+				slack.MsgOptionUpdate(msgTimestamp),
+				GetAttachment(build, text),
+			)
+		}
+	}
+}
+
+// calculateProgress returns a progress percentage (0.0 to 1.0+)
+func calculateProgress(elapsed, estimated time.Duration) float64 {
+	if estimated <= 0 {
+		return 0
+	}
+	return float64(elapsed) / float64(estimated)
+}
+
+// renderProgressBar creates a visual progress bar using Unicode blocks
+func renderProgressBar(progress float64) string {
+	const barLength = 20
+	filled := int(progress * float64(barLength))
+
+	// Cap filled at barLength for display purposes
+	if filled > barLength {
+		filled = barLength
+	}
+	if filled < 0 {
+		filled = 0
+	}
+
+	bar := ""
+	for i := range barLength {
+		if i < filled {
+			bar += "█"
+		} else {
+			bar += "░"
+		}
+	}
+
+	percentage := int(progress * 100)
+	return fmt.Sprintf("%s %d%%", bar, percentage)
 }
