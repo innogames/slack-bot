@@ -7,7 +7,7 @@ require (
 	github.com/andygrunwald/go-jira v1.17.0
 	github.com/aws/aws-sdk-go-v2 v1.39.4
 	github.com/aws/aws-sdk-go-v2/config v1.31.14
-	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.55.1
+	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.55.2
 	github.com/aws/aws-sdk-go-v2/service/ecs v1.65.4
 	github.com/bndr/gojenkins v1.1.0
 	github.com/brainexe/viper v1.8.2
