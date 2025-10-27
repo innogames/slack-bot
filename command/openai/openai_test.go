@@ -185,7 +185,6 @@ data: [DONE]`,
 				},
 			},
 		)
-		defer ts.Close()
 
 		openaiCfg.InitialSystemMessage = ""
 		cfg := &config.Config{}
@@ -205,6 +204,7 @@ data: [DONE]`,
 
 		actual := commands.Run(message)
 		queue.WaitTillHavingNoQueuedMessage()
+		ts.Close()
 		assert.True(t, actual)
 	})
 
@@ -228,7 +228,6 @@ data: [DONE]`,
 				},
 			},
 		)
-		defer ts.Close()
 
 		openaiCfg.UseAsFallback = true
 		openaiCfg.InitialSystemMessage = ""
@@ -248,6 +247,7 @@ data: [DONE]`,
 
 		actual := commands.Run(message)
 		queue.WaitTillHavingNoQueuedMessage()
+		ts.Close()
 		assert.True(t, actual)
 	})
 
