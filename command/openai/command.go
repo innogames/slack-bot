@@ -96,13 +96,18 @@ func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
 		// Add channel history as context
 		messageHistory = append(messageHistory, ChatMessage{
 			Role:    roleSystem,
-			Content: fmt.Sprintf("Recent channel conversation history (last %d messages):", hashtagOptions.MessageHistory),
+			Content: fmt.Sprintf("Recent channel conversation history (last %d messages, including threads):", hashtagOptions.MessageHistory),
 		})
 
 		for _, channelMsg := range channelMessages {
+			var prefix string
+			// Check if this is a thread reply by comparing ThreadTimestamp with Timestamp
+			if channelMsg.ThreadTimestamp != "" && channelMsg.ThreadTimestamp != channelMsg.Timestamp {
+				prefix = "  ↳ " // Indent thread replies
+			}
 			messageHistory = append(messageHistory, ChatMessage{
 				Role:    roleUser,
-				Content: fmt.Sprintf("User <@%s> wrote: %s", channelMsg.User, channelMsg.Text),
+				Content: fmt.Sprintf("%sUser <@%s> wrote: %s", prefix, channelMsg.User, channelMsg.Text),
 			})
 		}
 	}
@@ -405,7 +410,7 @@ func (c *openaiCommand) GetTemplateFunction() template.FuncMap {
 	}
 }
 
-// getChannelHistory fetches the last N messages from a channel (excluding threads)
+// getChannelHistory fetches the last N messages from a channel (including thread messages)
 func (c *openaiCommand) getChannelHistory(channel string, count int) ([]slack.Message, error) {
 	params := &slack.GetConversationHistoryParameters{
 		ChannelID: channel,
@@ -417,29 +422,45 @@ func (c *openaiCommand) getChannelHistory(channel string, count int) ([]slack.Me
 		return nil, err
 	}
 
-	// Filter out messages that are thread replies (have ThreadTimestamp set)
-	mainMessages := make([]slack.Message, 0)
+	// Collect main channel messages and their thread replies
+	allMessages := make([]slack.Message, 0)
 	for _, message := range response.Messages {
-		// Only include main channel messages, not thread replies
-		if message.ThreadTimestamp == "" || message.ThreadTimestamp == message.Timestamp {
-			mainMessages = append(mainMessages, message)
+		allMessages = append(allMessages, message)
+
+		// If this message has replies, fetch the thread messages
+		if message.ReplyCount > 0 {
+			threadRef := msg.MessageRef{
+				Channel:   channel,
+				Timestamp: message.Timestamp,
+				Thread:    message.Timestamp,
+			}
+			threadMessages, err := c.GetThreadMessages(threadRef)
+			if err != nil {
+				log.Warnf("Failed to fetch thread messages for %s: %v", message.Timestamp, err)
+				continue
+			}
+
+			// Skip the first message as it's the parent (already added)
+			if len(threadMessages) > 1 {
+				allMessages = append(allMessages, threadMessages[1:]...)
+			}
 		}
 	}
 
 	// Reverse to get chronological order (API returns newest first)
-	for i := range len(mainMessages) / 2 {
-		j := len(mainMessages) - i - 1
-		mainMessages[i], mainMessages[j] = mainMessages[j], mainMessages[i]
+	for i := range len(allMessages) / 2 {
+		j := len(allMessages) - i - 1
+		allMessages[i], allMessages[j] = allMessages[j], allMessages[i]
 	}
 
-	return mainMessages, nil
+	return allMessages, nil
 }
 
 func (c *openaiCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "openai <question>",
-			Description: "Starts a chatgpt/openai conversation in a new thread. Supports hashtags for advanced options: #model-<name> (e.g., #model-gpt-4o), #high-thinking/#medium-thinking/#low-thinking/#no-thinking for reasoning control, #message-history or #message-history-<N> to include recent channel messages as context, #no-streaming to disable streaming and get the full response at once, #no-thread to reply directly without creating a thread, #debug to show debug information about the request",
+			Description: "Starts a chatgpt/openai conversation in a new thread. Supports hashtags for advanced options: \n- #model-<name> (e.g., #model-gpt-4o), \n- #high-thinking/#medium-thinking/#low-thinking/#no-thinking for reasoning control\n- #message-history or #message-history-<N> to include recent channel messages as context\n- #no-streaming to disable streaming and get the full response at once\n- #no-thread to reply directly without creating a thread\n- #debug to show debug information about the request",
 			Category:    category,
 			Examples: []string{
 				"openai why is the sky blue?",
