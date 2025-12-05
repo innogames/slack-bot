@@ -45,7 +45,7 @@ func (c *gitlabFetcher) getPullRequest(match matcher.Result, _ *config.PullReque
 	prNumber := match.GetInt("number")
 	rawPullRequest, resp, err := c.client.MergeRequests.GetMergeRequest(
 		repo,
-		prNumber,
+		int64(prNumber),
 		&gitlab.GetMergeRequestsOptions{},
 	)
 	if err != nil {
@@ -80,7 +80,7 @@ func (c *gitlabFetcher) getStatus(pr *gitlab.MergeRequest) prStatus {
 func (c *gitlabFetcher) getApprovers(rawPullRequest *gitlab.MergeRequest, prNumber int) []string {
 	approvers := make([]string, 0)
 
-	state, _, err := c.client.MergeRequestApprovals.GetConfiguration(rawPullRequest.SourceProjectID, prNumber)
+	state, _, err := c.client.MergeRequestApprovals.GetConfiguration(rawPullRequest.SourceProjectID, int64(prNumber))
 	if err != nil {
 		log.Errorf("error in gitlab.GetApprovalState: %s", err)
 		return approvers
