@@ -67,7 +67,7 @@ jobs:
     name: Security
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
         with:
