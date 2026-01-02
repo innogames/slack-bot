@@ -22,7 +22,7 @@ jobs:
             goos: darwin
     steps:
       - uses: actions/checkout@v6
-      - uses: wangyoucao577/go-release-action@v1.54
+      - uses: wangyoucao577/go-release-action@v1.55
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goversion: "1.25"
