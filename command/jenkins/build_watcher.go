@@ -2,8 +2,11 @@ package jenkins
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bndr/gojenkins"
@@ -18,6 +21,7 @@ import (
 
 type buildWatcherCommand struct {
 	jenkinsCommand
+	host string // configured Jenkins host for URL validation
 }
 
 const (
@@ -27,16 +31,34 @@ const (
 )
 
 // newBuildWatcherCommand watches the status of an already running jenkins build
-func newBuildWatcherCommand(base jenkinsCommand) bot.Command {
-	return &buildWatcherCommand{base}
+func newBuildWatcherCommand(base jenkinsCommand, host string) bot.Command {
+	return &buildWatcherCommand{base, host}
 }
 
 func (c *buildWatcherCommand) GetMatcher() matcher.Matcher {
-	return matcher.NewRegexpMatcher(`(notify|inform)( me about)? (job|build) ?(?P<job>[\w\-_\\/%.]+)( #?(?P<build>\d+))?`, c.watch)
+	return matcher.NewRegexpMatcher(`(notify|inform)( me about)? (job|build) ?(?P<job>[\w\-_\\/%.]+|https://[^\s]+)( #?(?P<build>\d+))?`, c.watch)
 }
 
 func (c *buildWatcherCommand) watch(match matcher.Result, message msg.Message) {
 	jobName := match.GetString("job")
+	buildNumber := match.GetInt("build")
+
+	// Check if input is a valid build URL
+	if strings.HasPrefix(jobName, "https://") {
+		// Validate host matches configured host
+		parsedURL, err := url.Parse(jobName)
+		if err != nil || !strings.HasPrefix(c.host, "https://"+parsedURL.Host) {
+			c.SendMessage(message, "URL does not match configured Jenkins host")
+			return
+		}
+		// Parse URL to extract job name and build number
+		var parseErr error
+		jobName, buildNumber, parseErr = parseJenkinsURL(jobName)
+		if parseErr != nil {
+			c.SendMessage(message, fmt.Sprintf("Invalid Jenkins URL: %s", parseErr))
+			return
+		}
+	}
 
 	// URL decode the job name to handle multibranch pipeline names with encoded characters
 	decodedJobName, err := url.QueryUnescape(jobName)
@@ -44,8 +66,6 @@ func (c *buildWatcherCommand) watch(match matcher.Result, message msg.Message) {
 		// If decoding fails, use the original job name
 		decodedJobName = jobName
 	}
-
-	buildNumber := match.GetInt("build")
 
 	ctx := context.Background()
 	job, err := c.jenkins.GetJob(ctx, decodedJobName)
@@ -120,6 +140,63 @@ func getBuild(ctx context.Context, job client.Job, buildNumber int) (*gojenkins.
 		return job.GetLastBuild(ctx)
 	}
 	return job.GetBuild(ctx, int64(buildNumber))
+}
+
+// parseJenkinsURL extracts job name and build number from a Jenkins URL
+// URL format: https://host/job/JobName/BuildNumber/ or
+//
+//	https://host/job/Folder/job/JobName/BuildNumber/
+func parseJenkinsURL(urlStr string) (jobName string, buildNumber int, err error) {
+	parsedURL, err := url.Parse(urlStr)
+	if err != nil {
+		return "", 0, err
+	}
+
+	// Use RawPath to preserve URL-encoded characters (e.g., %2F in branch names)
+	// Fall back to Path if RawPath is empty
+	path := parsedURL.RawPath
+	if path == "" {
+		path = parsedURL.Path
+	}
+
+	// Remove trailing slash and split path
+	path = strings.TrimSuffix(path, "/")
+	segments := strings.Split(path, "/")
+
+	// Filter out empty segments
+	var filteredSegments []string
+	for _, seg := range segments {
+		if seg != "" {
+			filteredSegments = append(filteredSegments, seg)
+		}
+	}
+
+	if len(filteredSegments) == 0 {
+		return "", 0, errors.New("invalid Jenkins URL: no path segments")
+	}
+
+	// Parse the path to extract job names and build number
+	// Pattern: /job/X/job/Y/.../BuildNumber or /job/X/job/Y/...
+	var jobParts []string
+	for i := 0; i < len(filteredSegments); i++ {
+		if filteredSegments[i] == "job" && i+1 < len(filteredSegments) {
+			// Next segment is a job/folder name
+			jobParts = append(jobParts, filteredSegments[i+1])
+			i++ // Skip the job name segment
+		} else {
+			// This might be a build number (last non-"job" segment)
+			if num, parseErr := strconv.Atoi(filteredSegments[i]); parseErr == nil {
+				buildNumber = num
+			}
+		}
+	}
+
+	if len(jobParts) == 0 {
+		return "", 0, errors.New("invalid Jenkins URL: no job found in path")
+	}
+
+	jobName = strings.Join(jobParts, "/")
+	return jobName, buildNumber, nil
 }
 
 func (c *buildWatcherCommand) GetHelp() []bot.Help {
