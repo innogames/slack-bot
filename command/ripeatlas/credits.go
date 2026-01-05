@@ -1,6 +1,7 @@
 package ripeatlas
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -28,7 +29,7 @@ func (c *creditsCommand) credits(_ matcher.Result, message msg.Message) {
 	defer c.RemoveReaction(":coffee:", message)
 
 	url := c.cfg.APIURL + "/credits"
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("request creation returned an err: %w", err))
 		log.Errorf("request creation returned an err: %s", err)

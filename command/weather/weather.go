@@ -1,8 +1,10 @@
 package weather
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 	"time"
 
@@ -52,7 +54,13 @@ func (c *command) getWeather(match matcher.Result, message msg.Message) {
 		c.cfg.Apikey,
 	)
 
-	response, err := client.GetHTTPClient().Get(apiURL)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, apiURL, nil)
+	if err != nil {
+		c.ReplyError(message, errors.Wrap(err, "failed to create request"))
+		return
+	}
+
+	response, err := client.GetHTTPClient().Do(req)
 	if err != nil {
 		c.ReplyError(message, errors.Wrap(err, "Api call returned an err"))
 		return
