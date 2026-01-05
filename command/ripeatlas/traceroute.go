@@ -3,6 +3,7 @@ package ripeatlas
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -78,7 +79,7 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 	})
 
 	url := c.cfg.APIURL + "/measurements"
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("request creation returned an err: %w", err))
 		log.Errorf("request creation returned an err: %s", err)
@@ -121,7 +122,13 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 	subscribeURL := fmt.Sprintf("%s?streamType=result&msm=%d", c.cfg.StreamURL, measurementResult.Measurements[0])
 
 	client := http.Client{Timeout: 240 * time.Second}
-	response, err = client.Get(subscribeURL)
+	req, err = http.NewRequestWithContext(context.Background(), http.MethodGet, subscribeURL, nil)
+	if err != nil {
+		c.ReplyError(message, fmt.Errorf("error creating request for results stream: %w", err))
+		log.Errorf("error creating request for results stream: %s", err)
+		return
+	}
+	response, err = client.Do(req)
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("error when unsubscribing to results stream: %w", err))
 		log.Errorf("error when unsubscribing to results stream: %s", err)
