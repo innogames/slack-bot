@@ -230,14 +230,22 @@ func spawnJenkinsServer() *httptest.Server {
 
 	buildNumber := 42
 
-	// test connection
+	// catch-all to debug unhandled requests
 	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
-		w.Write([]byte(`ok`))
+		// Return 404 for unhandled routes
+		w.WriteHeader(404)
 	})
 
-	mux.HandleFunc("/job/testJob/api/json", func(w http.ResponseWriter, _ *http.Request) {
+	// test connection - return valid JSON for gojenkins Init
+	mux.HandleFunc("/api/json", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"_class":"hudson.model.Hudson"}`))
+	})
+
+	mux.HandleFunc("/job/testJob/api/json", func(w http.ResponseWriter, r *http.Request) {
 		job := gojenkins.JobResponse{}
-		job.Name = "test"
+		job.Name = "testJob"
+		job.URL = "http://" + r.Host + "/job/testJob/"
 		job.LastBuild = gojenkins.JobBuild{
 			Number: int64(buildNumber),
 		}
@@ -253,6 +261,15 @@ func spawnJenkinsServer() *httptest.Server {
 		build := gojenkins.BuildResponse{}
 		build.Number = 42
 		build.Building = true
+
+		encoder := json.NewEncoder(w)
+		encoder.Encode(build)
+	})
+	mux.HandleFunc("/job/testJob/43/api/json", func(w http.ResponseWriter, _ *http.Request) {
+		build := gojenkins.BuildResponse{}
+		build.Number = 43
+		build.Building = false
+		build.Result = "SUCCESS"
 
 		encoder := json.NewEncoder(w)
 		encoder.Encode(build)

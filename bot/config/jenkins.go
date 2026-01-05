@@ -6,10 +6,10 @@ import (
 
 // Jenkins is the main Jenkins config, including credentials and the whitelisted jobs
 type Jenkins struct {
-	Host     string
-	Username string
-	Password string
-	Jobs     JenkinsJobs
+	Host     string      `yaml:"host"`
+	Username string      `yaml:"username"`
+	Password string      `yaml:"password"`
+	Jobs     JenkinsJobs `yaml:"jobs"`
 }
 
 // IsEnabled checks if a host was defined...by default it's not set
@@ -19,18 +19,18 @@ func (c Jenkins) IsEnabled() bool {
 
 // JobConfig concrete job configuration -> only defined jobs are (re)startable
 type JobConfig struct {
-	Parameters []JobParameter
-	Trigger    string
-	OnStart    []string
-	OnSuccess  []string
-	OnFailure  []string
+	Parameters []JobParameter `yaml:"parameters"`
+	Trigger    string         `yaml:"trigger"`
+	OnStart    []string       `yaml:"on_start"`
+	OnSuccess  []string       `yaml:"on_success"`
+	OnFailure  []string       `yaml:"on_failure"`
 }
 
 // JobParameter are defined build parameters per job
 type JobParameter struct {
-	Name    string
-	Default string
-	Type    string
+	Name    string `yaml:"name"`
+	Default string `yaml:"default"`
+	Type    string `yaml:"type"`
 }
 
 // JenkinsJobs is the list of all (whitelisted) Jenkins jobs

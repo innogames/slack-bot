@@ -35,6 +35,7 @@ func start(_ *bot.Bot, slackClient client.SlackClient) bot.Commands {
 	return commands
 }
 
+//nolint:gochecknoinits // init required for plugin registration
 func init() {
 	bot.RegisterPlugin(bot.Plugin{
 		Init: start,

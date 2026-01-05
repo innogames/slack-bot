@@ -65,7 +65,7 @@ func HandleMessage(text string) {
 }
 
 type usersResponse struct {
-	Members []slack.User
+	Members []slack.User `json:"members"`
 }
 
 // kinda dirty grown function to format a /chat.postMessage /chat.postEphemeral message on the command like...somehow

@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -19,7 +20,9 @@ func TestHttp(t *testing.T) {
 		defer server.Close()
 
 		client := GetHTTPClient()
-		resp, err := client.Get(server.URL)
+		req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, server.URL, nil)
+		require.NoError(t, err)
+		resp, err := client.Do(req)
 		require.NoError(t, err)
 		defer resp.Body.Close()
 

@@ -177,13 +177,14 @@ func getAttachment(build *gojenkins.Build, message string) slack.Attachment {
 	}
 
 	for _, param := range build.GetParameters() {
-		if param.Value == "" || param.Name == slackUserParameter {
+		valueStr, ok := param.Value.(string)
+		if !ok || valueStr == "" || param.Name == slackUserParameter {
 			continue
 		}
 
 		attachment.Fields = append(attachment.Fields, slack.AttachmentField{
 			Title: param.Name,
-			Value: param.Value,
+			Value: valueStr,
 			Short: true,
 		})
 	}

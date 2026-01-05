@@ -30,7 +30,11 @@ func TestMetrics(t *testing.T) {
 	InitMetrics(cfg, ctx)
 	time.Sleep(time.Millisecond * 10)
 
-	resp, err := http.Get("http://" + metricsPort + "/metrics")
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://"+metricsPort+"/metrics", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		t.Fatal(err)
 	}

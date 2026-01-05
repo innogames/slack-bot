@@ -60,7 +60,9 @@ func (c *retryCommand) run(match matcher.Result, message msg.Message) {
 
 	parameters := make(client.Parameters)
 	for _, param := range build.GetParameters() {
-		parameters[param.Name] = param.Value
+		if valueStr, ok := param.Value.(string); ok {
+			parameters[param.Name] = valueStr
+		}
 	}
 
 	err = client.TriggerJenkinsJob(c.jobs[decodedJobName], decodedJobName, parameters, c.SlackClient, c.jenkins, message)

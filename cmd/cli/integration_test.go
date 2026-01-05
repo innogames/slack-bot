@@ -3,6 +3,7 @@
 package main
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"syscall"
@@ -57,7 +58,9 @@ func TestAll(t *testing.T) {
 	time.Sleep(time.Second * 1)
 
 	testURL := tester.FakeServerURL + "command?command=reply%20X"
-	r, err := http.Get(testURL) //nolint:gosec
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, testURL, nil)
+	require.NoError(t, err)
+	r, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 
 	resp, _ := io.ReadAll(r.Body)

@@ -30,10 +30,11 @@ func Load(configFile string) (Config, error) {
 	_ = v.ReadConfig(bytes.NewBuffer(defaultYaml))
 
 	fileInfo, err := os.Stat(configFile)
-	if err != nil {
+	switch {
+	case err != nil:
 		// no file/directory
 		return cfg, err
-	} else if fileInfo.IsDir() {
+	case fileInfo.IsDir():
 		// read all files in a directory
 		files, err := filepath.Glob(configFile + "/*.yaml")
 		if err != nil {
@@ -45,7 +46,7 @@ func Load(configFile string) (Config, error) {
 				return cfg, err
 			}
 		}
-	} else {
+	default:
 		err := loadFile(v, configFile)
 		if err != nil {
 			return cfg, err
