@@ -349,17 +349,6 @@ Just prefix your prompt with "dalle" and the bot will generate an image based on
 
 ![dall-e](./docs/dalle.png)
 
-## Quiz command
-If you need a small break and want to play a little quiz game, you can do so by calling this command.
-No more than 50 questions are allowed. 
-The questions are from different categories and difficulty levels and are either multiple choice or true/false questions.
-
-**Commands:**
-- `quiz 10` to start a quiz with 10 questions 
-- `answer 1` to answer a question with the first answer
-
-![Quiz game](./docs/quiz.png)
-
 ## Weather command
 It's possible to set up [OpenWeatherMap](https://openweathermap.org/) to get information about the current weather at your location.
 
