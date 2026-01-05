@@ -10,7 +10,6 @@ import (
 	"github.com/innogames/slack-bot/v2/command/custom_commmands"
 	"github.com/innogames/slack-bot/v2/command/custom_variables"
 	"github.com/innogames/slack-bot/v2/command/export"
-	"github.com/innogames/slack-bot/v2/command/games"
 	"github.com/innogames/slack-bot/v2/command/jenkins"
 	"github.com/innogames/slack-bot/v2/command/jira"
 	"github.com/innogames/slack-bot/v2/command/openai"
@@ -56,9 +55,6 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 	)
 
 	commands.Merge(admin.GetCommands(base, &cfg))
-
-	// games
-	commands.Merge(games.GetCommands(base, &cfg))
 
 	// jira
 	commands.Merge(jira.GetCommands(&cfg.Jira, slackClient))
