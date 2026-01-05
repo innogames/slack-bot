@@ -65,9 +65,10 @@ func TestWatchJob(t *testing.T) {
 func spawnJobWatcherServer() *httptest.Server {
 	mux := http.NewServeMux()
 
-	// test connection
-	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
-		w.Write([]byte(`ok`))
+	// test connection - Jenkins API root endpoint
+	mux.HandleFunc("/api/json", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"_class":"hudson.model.Hudson"}`))
 	})
 
 	mux.HandleFunc("/job/testJob/api/json", func(w http.ResponseWriter, _ *http.Request) {

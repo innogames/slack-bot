@@ -183,7 +183,7 @@ func getAttachment(build *gojenkins.Build, message string) slack.Attachment {
 
 		attachment.Fields = append(attachment.Fields, slack.AttachmentField{
 			Title: param.Name,
-			Value: param.Value,
+			Value: fmt.Sprintf("%v", param.Value),
 			Short: true,
 		})
 	}

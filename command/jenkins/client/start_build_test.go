@@ -230,14 +230,16 @@ func spawnJenkinsServer() *httptest.Server {
 
 	buildNumber := 42
 
-	// test connection
-	mux.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
-		w.Write([]byte(`ok`))
+	// test connection - Jenkins API root endpoint
+	mux.HandleFunc("/api/json", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"_class":"hudson.model.Hudson"}`))
 	})
 
-	mux.HandleFunc("/job/testJob/api/json", func(w http.ResponseWriter, _ *http.Request) {
+	mux.HandleFunc("/job/testJob/api/json", func(w http.ResponseWriter, r *http.Request) {
 		job := gojenkins.JobResponse{}
-		job.Name = "test"
+		job.Name = "testJob"
+		job.URL = "http://" + r.Host + "/job/testJob/"
 		job.LastBuild = gojenkins.JobBuild{
 			Number: int64(buildNumber),
 		}
@@ -252,6 +254,14 @@ func spawnJenkinsServer() *httptest.Server {
 	mux.HandleFunc("/job/testJob/42/api/json", func(w http.ResponseWriter, _ *http.Request) {
 		build := gojenkins.BuildResponse{}
 		build.Number = 42
+		build.Building = true
+
+		encoder := json.NewEncoder(w)
+		encoder.Encode(build)
+	})
+	mux.HandleFunc("/job/testJob/43/api/json", func(w http.ResponseWriter, _ *http.Request) {
+		build := gojenkins.BuildResponse{}
+		build.Number = 43
 		build.Building = true
 
 		encoder := json.NewEncoder(w)

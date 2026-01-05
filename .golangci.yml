@@ -55,6 +55,9 @@ linters:
           - perfsprint
           - usestdlibvars
         path: _test\.go
+      - linters:
+          - tagalign
+        path: bot/config/
     paths:
       - third_party$
       - builtin$
