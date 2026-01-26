@@ -1,6 +1,7 @@
 package openai
 
 import (
+	"bytes"
 	"fmt"
 	"regexp"
 	"strings"
@@ -127,9 +128,13 @@ func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
 		})
 
 		for _, threadMessage := range threadMessages {
+			content := threadMessage.Text
+			if len(threadMessage.Files) > 0 {
+				content += c.loadTextAttachments(threadMessage.Files)
+			}
 			messageHistory = append(messageHistory, ChatMessage{
 				Role:    roleUser,
-				Content: fmt.Sprintf("User <@%s> wrote: %s", threadMessage.User, threadMessage.Text),
+				Content: fmt.Sprintf("User <@%s> wrote: %s", threadMessage.User, content),
 			})
 		}
 		storageIdentifier = getIdentifier(message.GetChannel(), message.GetThread())
@@ -152,9 +157,13 @@ func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
 		}
 
 		for _, threadMessage := range threadMessages {
+			content := threadMessage.Text
+			if len(threadMessage.Files) > 0 {
+				content += c.loadTextAttachments(threadMessage.Files)
+			}
 			messageHistory = append(messageHistory, ChatMessage{
 				Role:    roleUser,
-				Content: fmt.Sprintf("User <@%s> wrote: %s", threadMessage.User, threadMessage.Text),
+				Content: fmt.Sprintf("User <@%s> wrote: %s", threadMessage.User, content),
 			})
 		}
 
@@ -410,7 +419,29 @@ func (c *openaiCommand) GetTemplateFunction() template.FuncMap {
 	}
 }
 
-// getChannelHistory fetches the last N messages from a channel (including thread messages)
+// loadTextAttachments downloads text file attachments and returns them formatted
+func (c *openaiCommand) loadTextAttachments(files []slack.File) string {
+	var result strings.Builder
+	for _, file := range files {
+		if !strings.HasPrefix(file.Mimetype, "text/") {
+			log.Infof("Skipping attachment %s: mimetype is %s", file.Name, file.Mimetype)
+			continue
+		}
+
+		var buf bytes.Buffer
+		log.Infof("Downloading attachment %s", file.Name)
+
+		if err := c.GetFile(file.URLPrivate, &buf); err != nil {
+			log.Warnf("Failed to download attachment %s: %v", file.Name, err)
+			continue
+		}
+
+		result.WriteString(fmt.Sprintf(" <Attachment filename=\"%s\">%s</Attachment>", file.Name, buf.String()))
+	}
+	return result.String()
+}
+
+// getChannelHistory fetches the last N messages from a channel (including thread messages and text attachments)
 func (c *openaiCommand) getChannelHistory(channel string, count int) ([]slack.Message, error) {
 	params := &slack.GetConversationHistoryParameters{
 		ChannelID: channel,
@@ -425,6 +456,9 @@ func (c *openaiCommand) getChannelHistory(channel string, count int) ([]slack.Me
 	// Collect main channel messages and their thread replies
 	allMessages := make([]slack.Message, 0)
 	for _, message := range response.Messages {
+		if len(message.Files) > 0 {
+			message.Text += c.loadTextAttachments(message.Files)
+		}
 		allMessages = append(allMessages, message)
 
 		// If this message has replies, fetch the thread messages
@@ -442,6 +476,11 @@ func (c *openaiCommand) getChannelHistory(channel string, count int) ([]slack.Me
 
 			// Skip the first message as it's the parent (already added)
 			if len(threadMessages) > 1 {
+				for i := 1; i < len(threadMessages); i++ {
+					if len(threadMessages[i].Files) > 0 {
+						threadMessages[i].Text += c.loadTextAttachments(threadMessages[i].Files)
+					}
+				}
 				allMessages = append(allMessages, threadMessages[1:]...)
 			}
 		}
@@ -460,7 +499,7 @@ func (c *openaiCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
 			Command:     "openai <question>",
-			Description: "Starts a chatgpt/openai conversation in a new thread. Supports hashtags for advanced options: \n- #model-<name> (e.g., #model-gpt-4o), \n- #high-thinking/#medium-thinking/#low-thinking/#no-thinking for reasoning control\n- #message-history or #message-history-<N> to include recent channel messages as context\n- #no-streaming to disable streaming and get the full response at once\n- #no-thread to reply directly without creating a thread\n- #debug to show debug information about the request",
+			Description: "Starts a chatgpt/openai conversation in a new thread. Text file attachments are automatically included in the context. Supports hashtags for advanced options: \n- #model-<name> (e.g., #model-gpt-4o), \n- #high-thinking/#medium-thinking/#low-thinking/#no-thinking for reasoning control\n- #message-history or #message-history-<N> to include recent channel messages as context\n- #no-streaming to disable streaming and get the full response at once\n- #no-thread to reply directly without creating a thread\n- #debug to show debug information about the request",
 			Category:    category,
 			Examples: []string{
 				"openai why is the sky blue?",
