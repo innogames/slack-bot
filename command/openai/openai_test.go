@@ -513,6 +513,146 @@ data: [DONE]`,
 		assert.True(t, actual)
 	})
 
+	t.Run("Test text attachment in thread is loaded", func(t *testing.T) {
+		openaiCfg, ts := startTestServer(
+			t,
+			apiCompletionURL,
+			[]testRequest{
+				{
+					// The attachment content should be included in the message
+					`{"model":"gpt-4o","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"system","content":"This is a Slack bot receiving a slack thread s context, using slack user ids as identifiers. Please use user mentions in the format \u003c@U123456\u003e"},{"role":"user","content":"User \u003c@U1234\u003e wrote: check this file \u003cAttachment filename=\"data.csv\"\u003ecol1,col2\nval1,val2\n\u003c/Attachment\u003e"},{"role":"user","content":"summarize the attachment"}],"stream":true}`,
+					`data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"role":"assistant"},"index":0,"finish_reason":null}]}
+
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"content":"The file contains two columns."},"index":0,"finish_reason":null}]}
+
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{},"index":0,"finish_reason":"stop"}]}
+
+data: [DONE]`,
+					http.StatusOK,
+				},
+			},
+		)
+		defer ts.Close()
+
+		cfg := &config.Config{}
+		cfg.Set("openai", openaiCfg)
+
+		commands := GetCommands(base, cfg)
+
+		message := msg.Message{}
+		message.Text = "openai summarize the attachment"
+		message.Channel = "testchan"
+		message.Thread = "1234"
+		message.Timestamp = "5678"
+		ref := message.MessageRef
+
+		// Create a thread message with a file attachment
+		threadMessage := slack.Message{}
+		threadMessage.User = "U1234"
+		threadMessage.Text = "check this file"
+		threadMessage.Files = []slack.File{
+			{
+				Name:       "data.csv",
+				Mimetype:   "text/csv",
+				URLPrivate: "https://files.slack.com/files-pri/T123/data.csv",
+			},
+		}
+		threadMessages := []slack.Message{threadMessage}
+
+		threadRef := msg.MessageRef{
+			Channel:   "testchan",
+			Thread:    "1234",
+			Timestamp: "5678",
+		}
+		slackClient.On("GetThreadMessages", threadRef).Once().Return(threadMessages, nil)
+
+		// Mock GetFile to return CSV content
+		slackClient.On("GetFile", "https://files.slack.com/files-pri/T123/data.csv", mock.Anything).
+			Run(func(args mock.Arguments) {
+				writer := args.Get(1).(io.Writer)
+				writer.Write([]byte("col1,col2\nval1,val2\n"))
+			}).
+			Return(nil).Once()
+
+		mocks.AssertReaction(slackClient, ":bulb:", ref)
+		mocks.AssertReaction(slackClient, ":speech_balloon:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":bulb:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":speech_balloon:", ref)
+		mocks.AssertSlackMessage(slackClient, ref, ":bulb: thinking...", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, ref, "The file contains two columns.", mock.Anything, mock.Anything)
+
+		actual := commands.Run(message)
+		queue.WaitTillHavingNoQueuedMessage()
+		assert.True(t, actual)
+	})
+
+	t.Run("Test non-text attachment is skipped", func(t *testing.T) {
+		openaiCfg, ts := startTestServer(
+			t,
+			apiCompletionURL,
+			[]testRequest{
+				{
+					// The image attachment should NOT be included (only text is shown)
+					`{"model":"gpt-4o","messages":[{"role":"system","content":"You are a helpful Slack bot. By default, keep your answer short and truthful"},{"role":"system","content":"This is a Slack bot receiving a slack thread s context, using slack user ids as identifiers. Please use user mentions in the format \u003c@U123456\u003e"},{"role":"user","content":"User \u003c@U1234\u003e wrote: here is an image"},{"role":"user","content":"what do you see?"}],"stream":true}`,
+					`data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"role":"assistant"},"index":0,"finish_reason":null}]}
+
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{"content":"I cannot see images."},"index":0,"finish_reason":null}]}
+
+data: {"id":"chatcmpl-6tuxebSPdmd2IJpb8GrZXHiYXON6r","object":"chat.completion.chunk","created":1678785018,"model":"gpt-4o-0301","choices":[{"delta":{},"index":0,"finish_reason":"stop"}]}
+
+data: [DONE]`,
+					http.StatusOK,
+				},
+			},
+		)
+		defer ts.Close()
+
+		cfg := &config.Config{}
+		cfg.Set("openai", openaiCfg)
+
+		commands := GetCommands(base, cfg)
+
+		message := msg.Message{}
+		message.Text = "openai what do you see?"
+		message.Channel = "testchan"
+		message.Thread = "1234"
+		message.Timestamp = "5679"
+		ref := message.MessageRef
+
+		// Create a thread message with a non-text file attachment (image)
+		threadMessage := slack.Message{}
+		threadMessage.User = "U1234"
+		threadMessage.Text = "here is an image"
+		threadMessage.Files = []slack.File{
+			{
+				Name:       "photo.png",
+				Mimetype:   "image/png",
+				URLPrivate: "https://files.slack.com/files-pri/T123/photo.png",
+			},
+		}
+		threadMessages := []slack.Message{threadMessage}
+
+		threadRef := msg.MessageRef{
+			Channel:   "testchan",
+			Thread:    "1234",
+			Timestamp: "5679",
+		}
+		slackClient.On("GetThreadMessages", threadRef).Once().Return(threadMessages, nil)
+
+		// GetFile should NOT be called for image files
+
+		mocks.AssertReaction(slackClient, ":bulb:", ref)
+		mocks.AssertReaction(slackClient, ":speech_balloon:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":bulb:", ref)
+		mocks.AssertRemoveReaction(slackClient, ":speech_balloon:", ref)
+		mocks.AssertSlackMessage(slackClient, ref, ":bulb: thinking...", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, ref, "I cannot see images.", mock.Anything, mock.Anything)
+
+		actual := commands.Run(message)
+		queue.WaitTillHavingNoQueuedMessage()
+		assert.True(t, actual)
+	})
+
 	t.Run("Test no-thread hashtag within a thread (should be ignored)", func(t *testing.T) {
 		openaiCfg, ts := startTestServer(
 			t,
