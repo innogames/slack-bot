@@ -46,7 +46,7 @@ func (c *Config) IsEnabled() bool {
 
 var defaultConfig = Config{
 	APIHost:              apiHost,
-	Model:                "gpt-5", // aka model behind ChatGPT
+	Model:                "gpt-5.2", // aka model behind ChatGPT
 	UpdateInterval:       time.Second * 1,
 	APITimeout:           time.Second * 120,
 	HistorySize:          25,

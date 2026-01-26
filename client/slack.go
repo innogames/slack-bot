@@ -4,6 +4,7 @@ package client
 
 import (
 	"fmt"
+	"io"
 	"strings"
 	"sync"
 
@@ -125,6 +126,9 @@ type SlackClient interface {
 
 	// PinMessage will pin a message to the channel
 	PinMessage(channel string, timestamp string) error
+
+	// GetFile downloads a file from Slack by its private URL
+	GetFile(downloadURL string, writer io.Writer) error
 }
 
 // Slack is wrapper to the slack.Client which also holds the the socketmode.Client and all needed config
@@ -334,6 +338,11 @@ func (s *Slack) GetUserPresence(user string) (*slack.UserPresence, error) {
 // UploadFile uploads a file to Slack
 func (s *Slack) UploadFile(params slack.UploadFileV2Parameters) (*slack.FileSummary, error) {
 	return s.UploadFileV2(params)
+}
+
+// GetFile downloads a file from Slack by its private URL
+func (s *Slack) GetFile(downloadURL string, writer io.Writer) error {
+	return s.Client.GetFile(downloadURL, writer)
 }
 
 // GetUserIDAndName returns the user-id and user-name based on a identifier. If can get a user-id or name

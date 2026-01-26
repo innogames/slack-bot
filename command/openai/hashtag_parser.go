@@ -6,6 +6,12 @@ import (
 	"strings"
 )
 
+// Pre-compiled regexes for hashtag parsing
+var (
+	messageHistoryWithCountRe = regexp.MustCompile(`#message-history-(\d+)`)
+	modelRe                   = regexp.MustCompile(`#model-([\w.-]+)`)
+)
+
 // removeHashtag removes a hashtag from the text if present and returns whether it was found
 func removeHashtag(text *string, hashtag string) bool {
 	if strings.Contains(*text, hashtag) {
@@ -36,7 +42,6 @@ func ParseHashtags(text string) (cleanText string, options HashtagOptions) {
 	// 4. #high-thinking, #medium-thinking, #minimal-thinking, #no-thinking
 
 	// Parse message-history with number: #message-history-20
-	messageHistoryWithCountRe := regexp.MustCompile(`#message-history-(\d+)`)
 	if matches := messageHistoryWithCountRe.FindStringSubmatch(text); len(matches) > 1 {
 		if count, err := strconv.Atoi(matches[1]); err == nil {
 			options.MessageHistory = count
@@ -48,7 +53,6 @@ func ParseHashtags(text string) (cleanText string, options HashtagOptions) {
 	}
 
 	// Parse model: #model-gpt-4o
-	modelRe := regexp.MustCompile(`#model-([\w.-]+)`)
 	if matches := modelRe.FindStringSubmatch(text); len(matches) > 1 {
 		options.Model = matches[1]
 		text = modelRe.ReplaceAllString(text, "")

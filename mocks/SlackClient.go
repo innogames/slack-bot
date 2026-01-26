@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	"io"
+
 	msg "github.com/innogames/slack-bot/v2/bot/msg"
 	mock "github.com/stretchr/testify/mock"
 
@@ -49,6 +51,24 @@ func (_m *SlackClient) GetConversationHistory(_a0 *slack.GetConversationHistoryP
 	}
 
 	return r0, r1
+}
+
+// GetFile provides a mock function with given fields: downloadURL, writer
+func (_m *SlackClient) GetFile(downloadURL string, writer io.Writer) error {
+	ret := _m.Called(downloadURL, writer)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetFile")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, io.Writer) error); ok {
+		r0 = rf(downloadURL, writer)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // GetReactions provides a mock function with given fields: item, params
