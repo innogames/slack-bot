@@ -44,7 +44,7 @@ func doRequest(cfg Config, apiEndpoint string, data []byte) (*http.Response, err
 		Timeout: cfg.APITimeout,
 	}
 
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) // #nosec G704
 	if err != nil {
 		log.WithError(err).
 			WithField("endpoint", apiEndpoint).

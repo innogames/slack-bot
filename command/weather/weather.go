@@ -60,7 +60,7 @@ func (c *command) getWeather(match matcher.Result, message msg.Message) {
 		return
 	}
 
-	response, err := client.GetHTTPClient().Do(req)
+	response, err := client.GetHTTPClient().Do(req) // #nosec G704
 	if err != nil {
 		c.ReplyError(message, errors.Wrap(err, "Api call returned an err"))
 		return

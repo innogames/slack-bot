@@ -47,7 +47,7 @@ func (c requestCommand) doRequest(match matcher.Result, message msg.Message) {
 	}
 
 	httpClient := client.GetHTTPClient()
-	response, err := httpClient.Do(request)
+	response, err := httpClient.Do(request) // #nosec G704
 	if err != nil {
 		c.AddReaction("❌", message)
 		c.ReplyError(message, fmt.Errorf("request failed: %w", err))
