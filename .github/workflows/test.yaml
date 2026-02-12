@@ -75,6 +75,7 @@ jobs:
       - id: govulncheck
         uses: golang/govulncheck-action@v1
         with:
+          repo-checkout: false
           go-package: ./...
   docker:
     name: Build Docker image

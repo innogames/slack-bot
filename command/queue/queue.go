@@ -57,13 +57,12 @@ func AddRunningCommand(message msg.Message, fallbackCommand string) *RunningComm
 
 		mu.Lock()
 		delete(runningCommands, key)
-		mu.Unlock()
-
 		if queueKey != "" {
 			if err := storage.Delete(storageKey, queueKey); err != nil {
 				log.Error(errors.Wrapf(err, "error while deleting processed queue entry %s", key))
 			}
 		}
+		mu.Unlock()
 	}()
 
 	return runningCommand
