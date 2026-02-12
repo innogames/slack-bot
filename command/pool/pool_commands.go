@@ -48,10 +48,6 @@ func (c *poolCommands) GetMatcher() matcher.Matcher {
 
 // RunAsync function to observe, notify and unlock expired locks
 func (c *poolCommands) RunAsync(ctx *util.ServerContext) {
-	// support clean shutdown
-	ctx.RegisterChild()
-	defer ctx.ChildDone()
-
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()
 

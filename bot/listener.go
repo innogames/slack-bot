@@ -55,7 +55,7 @@ func (b *Bot) startRunnables(ctx *util.ServerContext) {
 	// each command can have a background task which is executed in the background
 	for _, cmd := range b.commands.commands {
 		if runnable, ok := cmd.(Runnable); ok {
-			go runnable.RunAsync(ctx)
+			ctx.Go(func() { runnable.RunAsync(ctx) })
 		}
 	}
 

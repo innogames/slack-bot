@@ -45,3 +45,8 @@ func (c *ServerContext) RegisterChild() {
 func (c *ServerContext) ChildDone() {
 	c.wg.Done()
 }
+
+// Go starts f in a new goroutine and tracks it for graceful shutdown.
+func (c *ServerContext) Go(f func()) {
+	c.wg.Go(f)
+}

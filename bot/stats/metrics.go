@@ -45,10 +45,7 @@ func InitMetrics(cfg config.Config, ctx *util.ServerContext) {
 		collectors.NewGoCollector(),
 	)
 
-	go func() {
-		ctx.RegisterChild()
-		defer ctx.ChildDone()
-
+	ctx.Go(func() {
 		log.Infof("Init prometheus handler on http://%s/metrics", cfg.Metrics.PrometheusListener)
 
 		server := &http.Server{
@@ -72,5 +69,5 @@ func InitMetrics(cfg config.Config, ctx *util.ServerContext) {
 
 		<-ctx.Done()
 		_ = server.Shutdown(ctx)
-	}()
+	})
 }

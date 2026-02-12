@@ -41,9 +41,6 @@ type command struct {
 
 // RunAsync provide proper Cron start/stop in a async context
 func (c *command) RunAsync(ctx *util.ServerContext) {
-	ctx.RegisterChild()
-	defer ctx.ChildDone()
-
 	c.cron.Start()
 	log.Infof("Initialized %d crons", len(c.cfg))
 

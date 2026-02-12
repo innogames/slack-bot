@@ -21,9 +21,6 @@ type BranchFetcher interface {
 
 // InitBranchWatcher will load the current branches each X from the configured VCS -> e.g. used for branch lookup for Jenkins parameters
 func InitBranchWatcher(cfg *config.Config, ctx *util.ServerContext) {
-	ctx.RegisterChild()
-	defer ctx.ChildDone()
-
 	var err error
 	fetcher := createBranchFetcher(cfg)
 

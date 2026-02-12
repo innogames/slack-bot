@@ -25,7 +25,7 @@ jobs:
       - uses: wangyoucao577/go-release-action@v1.55
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          goversion: "1.25"
+          goversion: "1.26"
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           binary_name: slack-bot
