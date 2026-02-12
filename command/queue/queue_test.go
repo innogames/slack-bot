@@ -55,7 +55,7 @@ func TestQueue(t *testing.T) {
 
 		message2 := msg.Message{}
 		message2.User = "testUser2"
-		AddRunningCommand(
+		rc := AddRunningCommand(
 			message2,
 			"",
 		)
@@ -64,6 +64,8 @@ func TestQueue(t *testing.T) {
 		actual := command.Run(message)
 		assert.True(t, actual)
 		assert.Empty(t, client.InternalMessages)
+
+		rc.Done()
 	})
 
 	t.Run("Render template with not open PR", func(t *testing.T) {
@@ -148,6 +150,8 @@ func TestQueue(t *testing.T) {
 		assert.Equal(t, expectedMessage, handledEvent)
 
 		assert.Empty(t, client.InternalMessages)
+
+		WaitTillHavingNoQueuedMessage()
 	})
 
 	t.Run("Test refresh queue command (empty)", func(t *testing.T) {

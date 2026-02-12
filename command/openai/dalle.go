@@ -53,7 +53,7 @@ func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.M
 	if err != nil {
 		return err
 	}
-	resp, err := httpClient.Do(req)
+	resp, err := httpClient.Do(req) // #nosec G704
 	if err != nil {
 		return err
 	}

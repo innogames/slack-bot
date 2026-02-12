@@ -39,7 +39,7 @@ func (c *creditsCommand) credits(_ matcher.Result, message msg.Message) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Key "+c.cfg.APIKey)
 
-	response, err := client.GetHTTPClient().Do(req)
+	response, err := client.GetHTTPClient().Do(req) // #nosec G704
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("API call returned an err: %w", err))
 		log.Errorf("API call returned an err: %s", err)

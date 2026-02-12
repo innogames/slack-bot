@@ -57,13 +57,12 @@ func AddRunningCommand(message msg.Message, fallbackCommand string) *RunningComm
 
 		mu.Lock()
 		delete(runningCommands, key)
-		mu.Unlock()
-
 		if queueKey != "" {
 			if err := storage.Delete(storageKey, queueKey); err != nil {
 				log.Error(errors.Wrapf(err, "error while deleting processed queue entry %s", key))
 			}
 		}
+		mu.Unlock()
 	}()
 
 	return runningCommand
@@ -101,6 +100,10 @@ func executeFallbackCommand() {
 // WaitTillHavingNoQueuedMessage will wait in test context until all background tasks are done.
 // we use a deadline of 2s until we mark the test as failed
 func WaitTillHavingNoQueuedMessage() {
+	// brief sleep to allow goroutines that don't register with the queue
+	// (e.g. openai command) to finish their defer cleanup (like RemoveReaction)
+	time.Sleep(time.Millisecond * 10)
+
 	deadline := time.Second * 2
 	timeout := time.NewTimer(deadline)
 	ticker := time.NewTicker(time.Millisecond * 5)

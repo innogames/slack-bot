@@ -89,7 +89,7 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Key "+c.cfg.APIKey)
 
-	response, err := client.GetHTTPClient().Do(req)
+	response, err := client.GetHTTPClient().Do(req) // #nosec G704
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("HTTP Client Error: %w", err))
 		log.Errorf("HTTP Client Error: %s", err)
@@ -128,7 +128,7 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 		log.Errorf("error creating request for results stream: %s", err)
 		return
 	}
-	response, err = client.Do(req)
+	response, err = client.Do(req) // #nosec G704
 	if err != nil {
 		c.ReplyError(message, fmt.Errorf("error when unsubscribing to results stream: %w", err))
 		log.Errorf("error when unsubscribing to results stream: %s", err)

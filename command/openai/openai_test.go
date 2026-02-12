@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -411,7 +410,6 @@ data: [DONE]`,
 		mocks.AssertSlackMessage(slackClient, message.MessageRef, "Jolo!", mock.Anything, mock.Anything)
 
 		actual := commands.Run(message)
-		time.Sleep(time.Millisecond * 10)
 		queue.WaitTillHavingNoQueuedMessage()
 		assert.True(t, actual)
 	})
