@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"maps"
 	"text/template"
 	"time"
 )
@@ -60,9 +61,7 @@ func GetTemplateFunctions() template.FuncMap {
 
 // RegisterFunctions will add a function to any template renderer
 func RegisterFunctions(funcMap template.FuncMap) {
-	for name, function := range funcMap {
-		functions[name] = function
-	}
+	maps.Copy(functions, funcMap)
 }
 
 // CompileTemplate pre compiles a template and returns an error if an function is not available etc

@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
@@ -45,16 +46,16 @@ func (c *ecsCommand) list(match matcher.Result, message msg.Message) {
 		return
 	}
 
-	var text string
+	var text strings.Builder
 
-	text += "Hello <@" + message.User + ">, current services:. \n"
+	text.WriteString("Hello <@" + message.User + ">, current services:. \n")
 
 	for _, v := range svc {
-		text += "• " + v
-		text += "\n"
+		text.WriteString("• " + v)
+		text.WriteString("\n")
 	}
 
-	c.SendEphemeralMessage(message, text)
+	c.SendEphemeralMessage(message, text.String())
 }
 
 // restart service
@@ -81,15 +82,14 @@ func (c *ecsCommand) GetHelp() []bot.Help {
 		"ecs restart my-cluster-name service // to restart a service in a cluster",
 	}
 
-	help := make([]bot.Help, 0)
-	help = append(help, bot.Help{
-		Command:     "ecs <sub command>",
-		Description: "interact with aws ecs resources",
-		Examples:    examples,
-		Category:    category,
-	})
-
-	return help
+	return []bot.Help{
+		{
+			Command:     "ecs <sub command>",
+			Description: "interact with aws ecs resources",
+			Examples:    examples,
+			Category:    category,
+		},
+	}
 }
 
 func ListServices(cluster string) ([]string, error) {

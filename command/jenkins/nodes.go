@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/bndr/gojenkins"
 	"github.com/innogames/slack-bot/v2/bot"
@@ -39,7 +40,8 @@ func (c *nodesCommand) listNodes(_ matcher.Result, message msg.Message) {
 		return nodes[i].GetName() < nodes[j].GetName()
 	})
 
-	text := fmt.Sprintf("*<%s/computer/|%d Nodes>*\n", c.cfg.Host, len(nodes))
+	var text strings.Builder
+	fmt.Fprintf(&text, "*<%s/computer/|%d Nodes>*\n", c.cfg.Host, len(nodes))
 
 	totalJobsRunning := 0
 
@@ -47,7 +49,7 @@ func (c *nodesCommand) listNodes(_ matcher.Result, message msg.Message) {
 		runningJobs := countBusyExecutors(node)
 		totalJobsRunning += runningJobs
 
-		text += fmt.Sprintf(
+		fmt.Fprintf(&text,
 			"• *<%s/computer/%s/|%s>* - %s - busy executors: %d/%d\n",
 			c.cfg.Host,
 			node.GetName(),
@@ -58,9 +60,9 @@ func (c *nodesCommand) listNodes(_ matcher.Result, message msg.Message) {
 		)
 	}
 
-	text += fmt.Sprintf("\nIn total there are %d build(s) running right now", totalJobsRunning)
+	fmt.Fprintf(&text, "\nIn total there are %d build(s) running right now", totalJobsRunning)
 
-	c.SendMessage(message, text)
+	c.SendMessage(message, text.String())
 }
 
 func getNodeStatus(node *gojenkins.Node) string {

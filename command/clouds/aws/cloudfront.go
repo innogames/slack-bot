@@ -54,8 +54,7 @@ func (c *cloudFrontCommand) distributions(_ matcher.Result, message msg.Message)
 func (c *cloudFrontCommand) clearCache(match matcher.Result, message msg.Message) {
 	ctx := context.Background()
 	dist := match.GetString("DIST")
-	paths := []string{}
-	paths = append(paths, strings.Split(match.GetString("PATH"), ",")...)
+	paths := strings.Split(match.GetString("PATH"), ",")
 
 	// Safe conversion to int32 to avoid potential overflow
 	pathCount := len(paths)
@@ -103,13 +102,12 @@ func (c *cloudFrontCommand) GetHelp() []bot.Help {
 		"aws cf clean cache",
 	}
 
-	help := make([]bot.Help, 0)
-	help = append(help, bot.Help{
-		Command:     "aws cf <sub command>",
-		Description: "interact with aws cf resources",
-		Examples:    examples,
-		Category:    category,
-	})
-
-	return help
+	return []bot.Help{
+		{
+			Command:     "aws cf <sub command>",
+			Description: "interact with aws cf resources",
+			Examples:    examples,
+			Category:    category,
+		},
+	}
 }

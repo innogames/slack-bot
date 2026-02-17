@@ -3,6 +3,8 @@
 package config
 
 import (
+	"slices"
+
 	"github.com/brainexe/viper"
 )
 
@@ -129,13 +131,7 @@ type UserList []string
 
 // Contains checks if the given user is in the UserList
 func (l UserList) Contains(givenUserID string) bool {
-	for _, userID := range l {
-		if userID == givenUserID {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(l, givenUserID)
 }
 
 // UserMap indexed by user id, value is the user name

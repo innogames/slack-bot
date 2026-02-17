@@ -58,6 +58,9 @@ linters:
       - linters:
           - tagalign
         path: bot/config/
+      - linters:
+          - gochecknoinits
+        path: plugins/
     paths:
       - third_party$
       - builtin$

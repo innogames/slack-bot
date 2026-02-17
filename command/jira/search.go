@@ -205,12 +205,12 @@ func (c *jiraCommand) jqlList(message msg.Message, jql string) {
 		return
 	}
 
-	listText := ""
+	var listText strings.Builder
 	for _, ticket := range tickets {
 		if ticket.Fields == nil {
 			continue
 		}
-		listText += fmt.Sprintf(
+		fmt.Fprintf(&listText,
 			"%s %s%s - %s (%s - %s)\n",
 			getFormattedURL(c.config, ticket),
 			idToIcon(ticket.Fields.Priority),
@@ -225,7 +225,7 @@ func (c *jiraCommand) jqlList(message msg.Message, jql string) {
 	searchLink := fmt.Sprintf("%sissues/?jql=%s", c.config.Host, url.QueryEscape(jql))
 	attachment := slack.Attachment{}
 	attachment.Title = fmt.Sprintf("I found <%s|%d matching ticket(s)>.\n", searchLink, len(tickets))
-	attachment.Text = listText
+	attachment.Text = listText.String()
 	attachment.Actions = []slack.AttachmentAction{
 		client.GetSlackLink("Search in Jira", searchLink),
 	}
@@ -286,7 +286,7 @@ func (c *jiraCommand) GetTemplateFunction() template.FuncMap {
 			return issues
 		},
 		"jiraComponentNames": func(components []*jira.Component) string {
-			var names []string
+			names := make([]string, 0, len(components))
 			for _, comp := range components {
 				names = append(names, comp.Name)
 			}

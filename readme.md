@@ -81,7 +81,7 @@ First, prepare the `config.yaml` file. Take a look at [config.example.yaml](./co
 ## 3rd) Run the bot
 
 ### Option 1: Run via Go
-1. [Install Go (at least 1.22)](https://go.dev/doc/install)
+1. [Install Go (at least 1.25)](https://go.dev/doc/install)
 2. Create a config.yaml (at minimum, the Slack token and socket-token are required) or take a look at config.example.yaml
 3. `go run github.com/innogames/slack-bot/v2/cmd/bot`
 

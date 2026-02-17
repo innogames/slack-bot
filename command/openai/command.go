@@ -436,7 +436,7 @@ func (c *openaiCommand) loadTextAttachments(files []slack.File) string {
 			continue
 		}
 
-		result.WriteString(fmt.Sprintf(" <Attachment filename=\"%s\">%s</Attachment>", file.Name, buf.String()))
+		fmt.Fprintf(&result, " <Attachment filename=\"%s\">%s</Attachment>", file.Name, buf.String())
 	}
 	return result.String()
 }

@@ -61,7 +61,7 @@ func (c *command) getCallback(cron config.Cron) func() {
 				continue
 			}
 
-			for _, line := range strings.Split(text, "\n") {
+			for line := range strings.SplitSeq(text, "\n") {
 				newMessage := msg.Message{}
 				newMessage.User = "cron"
 				newMessage.Channel = cron.Channel

@@ -60,7 +60,7 @@ func (b *Bot) handleEvent(eventsAPIEvent slackevents.EventsAPIEvent) {
 }
 
 func (b *Bot) loadFileContent(event *slackevents.MessageEvent) string {
-	response := ""
+	var response strings.Builder
 
 	for _, file := range event.Message.Files {
 		if !strings.HasPrefix(file.Mimetype, "text/") {
@@ -77,10 +77,10 @@ func (b *Bot) loadFileContent(event *slackevents.MessageEvent) string {
 			continue
 		}
 
-		response += "\n" + downloadedText.String()
+		response.WriteString("\n" + downloadedText.String())
 	}
 
-	return response
+	return response.String()
 }
 
 func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
@@ -91,7 +91,7 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
 	stats.IncreaseOne(stats.Interactions)
 
 	switch payload.Type {
-	case "block_actions":
+	case slack.InteractionTypeBlockActions:
 		// user clicked on one of our interactive buttons
 		action := payload.ActionCallback.BlockActions[0]
 		command := action.Value
@@ -133,10 +133,25 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
 
 		// execute the command which is stored for this interaction
 		go b.ProcessMessage(ref.WithText(command), true)
-	case "message_action":
+	case slack.InteractionTypeMessageAction:
 		// todo implement interactive slack messages (right click menu)
 		log.Warnf("Received unhandled message action: %+v", payload)
 		return true
+	case slack.InteractionTypeDialogCancellation,
+		slack.InteractionTypeDialogSubmission,
+		slack.InteractionTypeDialogSuggestion,
+		slack.InteractionTypeInteractionMessage,
+		slack.InteractionTypeBlockSuggestion,
+		slack.InteractionTypeViewSubmission,
+		slack.InteractionTypeViewClosed,
+		slack.InteractionTypeShortcut,
+		slack.InteractionTypeWorkflowStepEdit:
+		// These interaction types are not currently handled by this bot
+		log.Infof("Received unhandled interaction type: %s", payload.Type)
+		return false
+	default:
+		log.Warnf("Received unknown interaction type: %s", payload.Type)
+		return false
 	}
 
 	return true

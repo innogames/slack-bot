@@ -45,9 +45,9 @@ func (c *vcsCommand) listBranches(_ matcher.Result, message msg.Message) {
 	slices.Sort(branches)
 
 	response := strings.Builder{}
-	response.WriteString(fmt.Sprintf("Found %d branches:\n", len(branches)))
+	fmt.Fprintf(&response, "Found %d branches:\n", len(branches))
 	for _, branch := range branches {
-		response.WriteString(fmt.Sprintf("- %s\n", branch))
+		fmt.Fprintf(&response, "- %s\n", branch)
 	}
 
 	c.SendMessage(message, response.String())

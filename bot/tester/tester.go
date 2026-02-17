@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/gookit/color"
 	"github.com/innogames/slack-bot/v2/bot"
@@ -80,32 +81,40 @@ func messageHandler(w http.ResponseWriter, r *http.Request, output io.Writer) {
 		var blocks []map[string]any
 		_ = json.Unmarshal([]byte(blockJSON), &blocks)
 
+		var blockText strings.Builder
 		for _, block := range blocks {
-			text += formatBlock(block) + "\n"
+			blockText.WriteString(formatBlock(block) + "\n")
 		}
+		text += blockText.String()
 	} else if text == "" && query.Get("attachments") != "" {
 		attachmentJSON := query.Get("attachments")
 		var attachments []map[string]any
 		_ = json.Unmarshal([]byte(attachmentJSON), &attachments)
 
+		var attachmentTitles strings.Builder
+		var attachmentActions strings.Builder
 		for _, attachment := range attachments {
 			if txt, ok := attachment["title"].(string); ok {
-				text += txt + "\n"
+				attachmentTitles.WriteString(txt + "\n")
 			}
+			var actionText strings.Builder
 			for _, action := range attachment["actions"].([]any) {
 				actionMap := action.(map[string]any)
 
 				if actionMap["type"] == "button" {
-					text += fmt.Sprintf(
+					fmt.Fprintf(&actionText,
 						"<%s|%s>\n",
 						actionMap["url"],
 						actionMap["text"],
 					)
 				} else {
-					text += fmt.Sprintf("Attachment-actions are not supported yet:\n%v\n", action)
+					fmt.Fprintf(&actionText, "Attachment-actions are not supported yet:\n%v\n", action)
 				}
 			}
+			attachmentActions.WriteString(actionText.String())
 		}
+		text += attachmentActions.String()
+		text += attachmentTitles.String()
 	}
 
 	_, _ = fmt.Fprint(output, formatSlackMessage(text)+"\n")
@@ -139,11 +148,11 @@ func formatBlock(block map[string]any) string {
 // bit hacky way to extract the text from some kind of block element
 func extractText(block map[string]any) string {
 	if fields, ok := block["fields"]; ok {
-		result := ""
+		var result strings.Builder
 		for _, field := range fields.([]any) {
-			result += extractText(field.(map[string]any))
+			result.WriteString(extractText(field.(map[string]any)))
 		}
-		return result
+		return result.String()
 	}
 
 	// contains "text" element

@@ -2,6 +2,7 @@ package custom_variables
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
@@ -14,10 +15,11 @@ func (c *command) list(_ matcher.Result, message msg.Message) {
 		return
 	}
 
-	responseText := fmt.Sprintf("You defined %d variables:", len(list))
+	var responseText strings.Builder
+	fmt.Fprintf(&responseText, "You defined %d variables:", len(list))
 	for name, value := range list {
-		responseText += fmt.Sprintf("\n - %s: `%s`", name, value)
+		fmt.Fprintf(&responseText, "\n - %s: `%s`", name, value)
 	}
 
-	c.SendMessage(message, responseText)
+	c.SendMessage(message, responseText.String())
 }

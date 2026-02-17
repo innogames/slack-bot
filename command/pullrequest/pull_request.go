@@ -224,11 +224,8 @@ func (c command) getOwnReactions(msgRef slack.ItemRef) reactionMap {
 	reactions, _ := c.GetReactions(msgRef, slack.NewGetReactionsParameters())
 
 	for _, reaction := range reactions {
-		for _, user := range reaction.Users {
-			if user == client.AuthResponse.UserID {
-				currentReactions[util.Reaction(reaction.Name)] = true
-				break
-			}
+		if slices.Contains(reaction.Users, client.AuthResponse.UserID) {
+			currentReactions[util.Reaction(reaction.Name)] = true
 		}
 	}
 

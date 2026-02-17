@@ -3,6 +3,7 @@ package ripeatlas
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -144,10 +145,10 @@ func (srp StreamingResponsePayload) String() string {
 	// 1  . AS0        172.20.0.1        0%   0.139
 	// 2  . AS0        172.26.4.1        0%   0.397
 	// 3  . AS0        192.168.144.1     0%   1.693
-	var text string
-	text += "```\n"
-	text += fmt.Sprintf("Start: %s\n", time.Unix(srp.Timestamp, 0))
-	text += fmt.Sprintf("HOST: %-40s Loss%%  RTT\n", srp.SrcAddr)
+	var text strings.Builder
+	text.WriteString("```\n")
+	fmt.Fprintf(&text, "Start: %s\n", time.Unix(srp.Timestamp, 0))
+	fmt.Fprintf(&text, "HOST: %-40s Loss%%  RTT\n", srp.SrcAddr)
 
 	for _, res := range srp.Result {
 		var from string
@@ -162,11 +163,11 @@ func (srp StreamingResponsePayload) String() string {
 			from = "???"
 		}
 
-		text += fmt.Sprintf("%2d .  %-40s %4d%%  %7.3f %7.3f %7.3f\n", res.Hop, from, 0, res.Result[0].Rtt, res.Result[1].Rtt, res.Result[2].Rtt)
+		fmt.Fprintf(&text, "%2d .  %-40s %4d%%  %7.3f %7.3f %7.3f\n", res.Hop, from, 0, res.Result[0].Rtt, res.Result[1].Rtt, res.Result[2].Rtt)
 	}
 
-	text += "```\n"
-	return text
+	text.WriteString("```\n")
+	return text.String()
 }
 
 type HopResult struct {

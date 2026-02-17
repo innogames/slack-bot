@@ -26,7 +26,8 @@ var testLock sync.Mutex
 
 // AssertSlackMessage is a test helper to check for a given slack message
 func AssertSlackMessage(slackClient *SlackClient, ref msg.Ref, text string, option ...any) {
-	args := []any{ref, text}
+	args := make([]any, 0, 2+len(option))
+	args = append(args, ref, text)
 	args = append(args, option...)
 
 	slackClient.On("SendMessage", args...).Once().Return("")
@@ -34,7 +35,8 @@ func AssertSlackMessage(slackClient *SlackClient, ref msg.Ref, text string, opti
 
 // AssertSlackEphemeralMessage is a test helper to check for a given ephemeral slack message
 func AssertSlackEphemeralMessage(slackClient *SlackClient, ref msg.Ref, text string, option ...any) {
-	args := []any{ref, text}
+	args := make([]any, 0, 2+len(option))
+	args = append(args, ref, text)
 	args = append(args, option...)
 
 	slackClient.On("SendEphemeralMessage", args...).Once()

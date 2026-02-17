@@ -231,7 +231,7 @@ func spawnJenkinsServer() *httptest.Server {
 	buildNumber := 42
 
 	// test connection - Jenkins API root endpoint
-	mux.HandleFunc("/api/json", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/json", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"_class":"hudson.model.Hudson"}`))
 	})

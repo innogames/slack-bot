@@ -4,7 +4,7 @@
 
 This is a **Slack Bot** written in **Go** that improves development team workflows with integrations for Jenkins, GitHub, GitLab, and Jira. The bot supports custom commands, macros, cron jobs, and flexible project-specific functionality.
 
-- **Language**: Go (requires Go 1.24+)
+- **Language**: Go (requires Go 1.25+)
 - **Type**: Slack application with Socket Mode support
 - **Size**: ~50+ Go packages across bot/, command/, client/, and cmd/ directories
 - **Architecture**: Modular command-based bot with plugin system
@@ -13,7 +13,7 @@ This is a **Slack Bot** written in **Go** that improves development team workflo
 ## Build and Validation Instructions
 
 ### Prerequisites
-- **Go 1.24 or later**
+- **Go 1.25 or later**
 - **Make** (for build targets)
 - **Docker** (optional, for containerized builds)
 - **golangci-lint** (for linting)
