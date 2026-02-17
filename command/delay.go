@@ -59,16 +59,11 @@ func (c *delayCommand) delay(match matcher.Result, message msg.Message) {
 		)
 		blocks := []slack.Block{
 			client.GetTextBlock(text),
-		}
-
-		// add an "Stop timer" button
-		blocks = append(
-			blocks,
 			slack.NewActionBlock(
 				"",
 				client.GetInteractionButton("stop_timer", "Stop timer!", fmt.Sprintf("stop timer %d", stopNumber)),
 			),
-		)
+		}
 
 		c.SendBlockMessage(message, blocks)
 	}

@@ -53,8 +53,7 @@ func GetCommands(cfg config.Aws, base bot.BaseCommand) bot.Commands {
 }
 
 func setCloudFrontDistributions(cfg config.Aws) []config.AwsCfDistribution {
-	c := []config.AwsCfDistribution{}
-
+	c := make([]config.AwsCfDistribution, 0, len(cfg.CloudFront))
 	for _, v := range cfg.CloudFront {
 		c = append(c, config.AwsCfDistribution{
 			ID:   v.ID,

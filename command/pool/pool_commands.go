@@ -184,7 +184,7 @@ func (c *poolCommands) listResources(match matcher.Result, message msg.Message) 
 	if len(status) == 0 || status == "free" {
 		messages = append(messages, "*Available:*")
 		free := c.pool.GetFree()
-		var resources []string
+		resources := make([]string, 0, len(free))
 		for _, f := range free {
 			resources = append(resources, fmt.Sprintf("`%s`", f.Name))
 		}

@@ -75,13 +75,12 @@ func (c *retryCommand) GetHelp() []bot.Help {
 		"retry job BuildSomeJob #101",
 	}
 
-	var help []bot.Help
-	help = append(help, bot.Help{
-		Command:     "retry job <job> [<build>]",
-		Description: "restart the most recent jenkins build of the given job",
-		Examples:    examples,
-		Category:    category,
-	})
-
-	return help
+	return []bot.Help{
+		{
+			Command:     "retry job <job> [<build>]",
+			Description: "restart the most recent jenkins build of the given job",
+			Examples:    examples,
+			Category:    category,
+		},
+	}
 }

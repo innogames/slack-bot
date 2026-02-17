@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/bndr/gojenkins"
@@ -281,25 +282,21 @@ func calculateProgress(elapsed, estimated time.Duration) float64 {
 // renderProgressBar creates a visual progress bar using Unicode blocks
 func renderProgressBar(progress float64) string {
 	const barLength = 20
-	filled := int(progress * float64(barLength))
+	filled := max(
+		// Cap filled at barLength for display purposes
+		min(
 
-	// Cap filled at barLength for display purposes
-	if filled > barLength {
-		filled = barLength
-	}
-	if filled < 0 {
-		filled = 0
-	}
+			int(progress*float64(barLength)), barLength), 0)
 
-	bar := ""
+	var bar strings.Builder
 	for i := range barLength {
 		if i < filled {
-			bar += "█"
+			bar.WriteString("█")
 		} else {
-			bar += "░"
+			bar.WriteString("░")
 		}
 	}
 
 	percentage := int(progress * 100)
-	return fmt.Sprintf("%s %d%%", bar, percentage)
+	return fmt.Sprintf("%s %d%%", bar.String(), percentage)
 }

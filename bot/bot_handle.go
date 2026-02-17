@@ -101,18 +101,16 @@ func (b *Bot) ProcessMessage(message msg.Message, fromUserContext bool) {
 
 		logger.Errorf("user %s (%s) is not allowed to execute message (authentication is active and user is missing in 'allowed_users' section): %s", userName, message.User, message.Text)
 
-		errorMessage := "Sorry, you are not whitelisted in the config yet."
+		var errorMessage strings.Builder
+		errorMessage.WriteString("Sorry, you are not whitelisted in the config yet.")
 		if len(b.config.AdminUsers) > 0 {
-			errorMessage += " Please ask a slack-bot admin to get access: "
+			errorMessage.WriteString(" Please ask a slack-bot admin to get access: ")
 			for _, admin := range b.config.AdminUsers {
 				adminID, _ := client.GetUserIDAndName(admin)
-				errorMessage += fmt.Sprintf(
-					" <@%s>",
-					adminID,
-				)
+				fmt.Fprintf(&errorMessage, " <@%s>", adminID)
 			}
 		}
-		b.slackClient.SendEphemeralMessage(message, errorMessage)
+		b.slackClient.SendEphemeralMessage(message, errorMessage.String())
 		b.slackClient.AddReaction("❌", message)
 
 		stats.IncreaseOne(stats.UnauthorizedCommands)

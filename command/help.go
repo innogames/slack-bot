@@ -52,31 +52,31 @@ func (t *helpCommand) showAll(_ matcher.Result, message msg.Message) {
 
 	t.AddReaction("💡", message)
 
-	var text string
+	var text strings.Builder
 
-	text += "Hello <@" + message.User + ">, I’m your friendly slack-bot. You want me to show you around? :smile: \n"
-	text += fmt.Sprintf("I currently listen to the following *%d* commands:\n", len(t.sortedCommands))
+	text.WriteString("Hello <@" + message.User + ">, I’m your friendly slack-bot. You want me to show you around? :smile: \n")
+	fmt.Fprintf(&text, "I currently listen to the following *%d* commands:\n", len(t.sortedCommands))
 
 	lastCategory := bot.Category{}
 	for _, commandHelp := range t.sortedCommands {
 		// print new category header
 		if commandHelp.Category.Name != "" && lastCategory != commandHelp.Category {
 			lastCategory = commandHelp.Category
-			text += t.printCategoryHeader(commandHelp)
+			text.WriteString(t.printCategoryHeader(commandHelp))
 		}
 
 		if commandHelp.HelpURL != "" {
-			text += fmt.Sprintf("• <%s|%s>", commandHelp.HelpURL, commandHelp.Command)
+			fmt.Fprintf(&text, "• <%s|%s>", commandHelp.HelpURL, commandHelp.Command)
 		} else {
-			text += fmt.Sprintf("• *%s*", commandHelp.Command)
+			fmt.Fprintf(&text, "• *%s*", commandHelp.Command)
 		}
 		if commandHelp.Description != "" {
-			text += fmt.Sprintf(" _(%s)_", commandHelp.Description)
+			fmt.Fprintf(&text, " _(%s)_", commandHelp.Description)
 		}
-		text += "\n"
+		text.WriteString("\n")
 	}
 
-	t.SendEphemeralMessage(message, text)
+	t.SendEphemeralMessage(message, text.String())
 }
 
 func (t *helpCommand) printCategoryHeader(commandHelp bot.Help) (text string) {
@@ -115,25 +115,25 @@ func (t *helpCommand) showSingleCommand(match matcher.Result, message msg.Messag
 		return
 	}
 
-	text := fmt.Sprintf("*%s*:\n", matchedCommand.Command)
+	var text strings.Builder
+	fmt.Fprintf(&text, "*%s*:\n", matchedCommand.Command)
 	if matchedCommand.Description != "" {
-		text += matchedCommand.Description + "\n"
+		text.WriteString(matchedCommand.Description + "\n")
 	}
 
 	if len(matchedCommand.Examples) > 0 {
-		text += "*Some examples:*\n"
+		text.WriteString("*Some examples:*\n")
 		for _, example := range matchedCommand.Examples {
-			text += " - " + example + "\n"
+			text.WriteString(" - " + example + "\n")
 		}
 	}
 
-	t.SendEphemeralMessage(message, text)
+	t.SendEphemeralMessage(message, text.String())
 }
 
 // generate the list of all commands only once and sort them by category/name
 func (t *helpCommand) prebuildHelp() {
-	allCommands := make([]bot.Help, 0)
-	allCommands = append(allCommands, t.commands.GetHelp()...)
+	allCommands := t.commands.GetHelp()
 
 	sort.Slice(allCommands, func(i, j int) bool {
 		if allCommands[i].Category.Name == allCommands[j].Category.Name {

@@ -70,10 +70,7 @@ func (c *botLogCommand) readFile(filename string, chars int64) []byte {
 	defer file.Close()
 
 	stat, _ := os.Stat(filename)
-	start := stat.Size() - chars
-	if start < 0 {
-		start = 0
-	}
+	start := max(stat.Size()-chars, 0)
 
 	_, err = file.ReadAt(buf, start)
 	if err != nil && err.Error() != "EOF" {

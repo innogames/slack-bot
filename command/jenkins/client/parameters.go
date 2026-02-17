@@ -13,14 +13,15 @@ import (
 type Parameters map[string]string
 
 func (p Parameters) String() string {
-	out := ""
+	var result strings.Builder
 	for key, value := range p {
 		if key == slackUserParameter || key == util.FullMatch {
 			continue
 		}
 
-		out += key + ": '" + value + "' "
+		result.WriteString(key + ": '" + value + "' ")
 	}
+	out := result.String()
 
 	if out == "" {
 		return "-none-"
@@ -107,7 +108,7 @@ func parseWords(parameterString string) []string {
 			if isQuoted {
 				isQuoted = false
 				parameters = append(parameters, string(param))
-				param = make([]byte, 0)
+				param = param[:0]
 			} else {
 				isQuoted = true
 			}
@@ -116,7 +117,7 @@ func parseWords(parameterString string) []string {
 			if len(param) > 0 {
 				parameters = append(parameters, string(param))
 			}
-			param = make([]byte, 0)
+			param = param[:0]
 		default:
 			// append char to current param
 			param = append(param, c)

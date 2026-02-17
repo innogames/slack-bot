@@ -31,6 +31,7 @@ dep:
 	@go mod vendor
 
 lint:
+	go fix ./...
 	golangci-lint run --fix
 
 docker-build:

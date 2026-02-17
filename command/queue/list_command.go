@@ -2,6 +2,7 @@ package queue
 
 import (
 	"fmt"
+	"strings"
 	"text/template"
 	"time"
 
@@ -71,9 +72,8 @@ func (c *listCommand) sendList(message msg.Message, options matcher.Result, filt
 		elementName = options.GetString("element-name")
 	}
 
-	blocks := []slack.Block{
-		client.GetTextBlock(fmt.Sprintf("*%d %s*", count, elementName)),
-	}
+	blocks := make([]slack.Block, 0, 1+len(queueBlocks))
+	blocks = append(blocks, client.GetTextBlock(fmt.Sprintf("*%d %s*", count, elementName)))
 	blocks = append(blocks, queueBlocks...)
 
 	// replace the original message when it's triggered by the "refresh" button
@@ -148,14 +148,14 @@ func (c *listCommand) getQueueAsBlocks(message msg.Message, filter filterFunc) (
 }
 
 func (c *listCommand) getReactions(ref msg.Ref) string {
-	formattedReactions := ""
+	var formattedReactions strings.Builder
 	msgRef := slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp())
 	reactions, _ := c.GetReactions(msgRef, slack.NewGetReactionsParameters())
 
 	for _, reaction := range reactions {
-		formattedReactions += ":" + reaction.Name + ":"
+		formattedReactions.WriteString(":" + reaction.Name + ":")
 	}
-	return formattedReactions
+	return formattedReactions.String()
 }
 
 func (c *listCommand) GetTemplateFunction() template.FuncMap {

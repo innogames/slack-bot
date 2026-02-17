@@ -16,7 +16,8 @@ func (c *command) GetMatcher() matcher.Matcher {
 }
 
 func (c *command) listCrons(_ matcher.Result, message msg.Message) {
-	text := fmt.Sprintf("*%d crons:*\n", len(c.cfg))
+	var text strings.Builder
+	fmt.Fprintf(&text, "*%d crons:*\n", len(c.cfg))
 
 	now := time.Now()
 	for i, entry := range c.cron.Entries() {
@@ -24,7 +25,7 @@ func (c *command) listCrons(_ matcher.Result, message msg.Message) {
 		if !entry.Prev.IsZero() {
 			last = fmt.Sprintf("last %s, ", entry.Prev)
 		}
-		text += fmt.Sprintf(
+		fmt.Fprintf(&text,
 			" - `%s`, %snext in %s (`%s`)\n",
 			c.cfg[i].Schedule,
 			last,
@@ -33,7 +34,7 @@ func (c *command) listCrons(_ matcher.Result, message msg.Message) {
 		)
 	}
 
-	c.SendMessage(message, text)
+	c.SendMessage(message, text.String())
 }
 
 func (c *command) GetHelp() []bot.Help {

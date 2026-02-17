@@ -83,7 +83,7 @@ func (c *definedCommand) execute(ref msg.Ref, text string) bool {
 			}
 
 			// each line is interpreted as separate command and is execute the a blocking mode
-			for _, part := range strings.Split(text, "\n") {
+			for part := range strings.SplitSeq(text, "\n") {
 				message := client.HandleMessageWithDoneHandler(ref.WithText(part))
 				message.Wait()
 			}
@@ -106,17 +106,17 @@ func (c *definedCommand) listTemplateFunction(_ matcher.Result, message msg.Mess
 
 	sort.Strings(functionNames)
 
-	text := fmt.Sprintf("*There are %d available template functions:*\n", len(functions))
+	var text strings.Builder
+	fmt.Fprintf(&text, "*There are %d available template functions:*\n", len(functions))
 	for _, name := range functionNames {
 		signature := reflect.ValueOf(functions[name]).Type()
-		text += fmt.Sprintf(
-			"• %s%s\n",
+		fmt.Fprintf(&text, "• %s%s\n",
 			name,
 			strings.TrimPrefix(signature.String(), "func"),
 		)
 	}
 
-	c.SendMessage(message, text)
+	c.SendMessage(message, text.String())
 }
 
 func (c *definedCommand) GetHelp() []bot.Help {

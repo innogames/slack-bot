@@ -2,6 +2,7 @@ package custom_commmands
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
@@ -14,10 +15,11 @@ func (c command) list(_ matcher.Result, message msg.Message) {
 		return
 	}
 
-	responseText := fmt.Sprintf("You defined %d commands:", len(list))
+	var responseText strings.Builder
+	fmt.Fprintf(&responseText, "You defined %d commands:", len(list))
 	for alias, command := range list {
-		responseText += fmt.Sprintf("\n - %s: `%s`", alias, command)
+		fmt.Fprintf(&responseText, "\n - %s: `%s`", alias, command)
 	}
 
-	c.SendMessage(message, responseText)
+	c.SendMessage(message, responseText.String())
 }

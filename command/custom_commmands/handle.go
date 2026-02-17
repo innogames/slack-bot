@@ -18,7 +18,7 @@ func (c command) handle(ref msg.Ref, text string) bool {
 	}
 
 	c.SendEphemeralMessage(ref, fmt.Sprintf("executing command: `%s`", commands))
-	for _, command := range strings.Split(commands, ";") {
+	for command := range strings.SplitSeq(commands, ";") {
 		message := client.HandleMessageWithDoneHandler(ref.WithText(command))
 		message.Wait()
 	}
