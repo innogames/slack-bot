@@ -5,7 +5,7 @@ package config
 import (
 	"slices"
 
-	"github.com/brainexe/viper"
+	"github.com/spf13/viper"
 )
 
 // Config contains the full config structure of this bot
