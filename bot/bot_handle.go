@@ -18,7 +18,8 @@ import (
 )
 
 var (
-	linkRegexp = regexp.MustCompile(`<\S+?\|(.*?)>`)
+	linkRegexp     = regexp.MustCompile(`<\S+?\|(.*?)>`)
+	bareLinkRegexp = regexp.MustCompile(`<(https?://\S+?)>`)
 
 	// clean copy&paste crap from Mac etc
 	cleanMessage = strings.NewReplacer(
@@ -71,6 +72,7 @@ func (b *Bot) cleanMessage(text string, fromUserContext bool) string {
 	// remove links from incoming messages. for internal ones they might be wanted, as they contain valid links with texts
 	if fromUserContext {
 		text = linkRegexp.ReplaceAllString(text, "$1")
+		text = bareLinkRegexp.ReplaceAllString(text, "$1")
 	}
 
 	return text
