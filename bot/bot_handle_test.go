@@ -94,6 +94,10 @@ func TestIsBotMessage(t *testing.T) {
 		assert.Equal(t, `add button "test" "reply it works"`, bot.cleanMessage("add button “test” “reply it works”", true))
 		assert.Equal(t, "<https://test.com|TEST> <https://example.com|example>", bot.cleanMessage("<https://test.com|TEST> <https://example.com|example>", false))
 		assert.Equal(t, "TEST example", bot.cleanMessage("<https://test.com|TEST> <https://example.com|example>", true))
+		assert.Equal(t, "inform job https://test.com/job/foo/123", bot.cleanMessage("inform job <https://test.com/job/foo/123>", true))
+		assert.Equal(t, "send message general hello", bot.cleanMessage("send message <#C123|general> hello", true))
+		assert.Equal(t, "notify user <@U123> active", bot.cleanMessage("notify user <@U123> active", true))
+		assert.Equal(t, "<https://test.com> <#C123|general>", bot.cleanMessage("<https://test.com> <#C123|general>", false))
 	})
 }
 
