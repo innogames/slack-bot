@@ -136,7 +136,8 @@ func (c *notifyCommand) watch(match matcher.Result, message msg.Message) {
 	}
 
 	if isTerminalStatus(status.state) {
-		c.SendMessage(message, fmt.Sprintf("GitLab %s *%s/%d* already finished with status: *%s*", parsed.kind, parsed.project, parsed.id, status.state))
+		title := fmt.Sprintf("GitLab %s %s/%d already finished", parsed.kind, parsed.project, parsed.id)
+		c.SendMessage(message, "", slack.MsgOptionAttachments(buildAttachment(title, status, rawURL)))
 		return
 	}
 

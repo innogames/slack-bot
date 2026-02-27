@@ -1,11 +1,13 @@
 package gitlab
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/mocks"
+	"github.com/slack-go/slack"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -170,10 +172,17 @@ func TestNotifyCommand(t *testing.T) {
 
 		api.On("GetPipeline", "group/project", int64(100)).Return(&gitlab.Pipeline{
 			Status: "success",
+			Ref:    "main",
 		}, nil)
-		api.On("ListPipelineJobs", "group/project", int64(100)).Return([]*gitlab.Job{}, nil)
+		api.On("ListPipelineJobs", "group/project", int64(100)).Return([]*gitlab.Job{
+			{Status: "success", Name: "build", Stage: "build", WebURL: "https://gitlab.example.com/jobs/1"},
+			{Status: "success", Name: "test", Stage: "test", WebURL: "https://gitlab.example.com/jobs/2"},
+		}, nil)
 
-		mocks.AssertSlackMessage(slackClient, message, "GitLab pipeline *group/project/100* already finished with status: *success*")
+		slackClient.On("SendMessage", message, "", mock.MatchedBy(func(opt slack.MsgOption) bool {
+			_, values, _ := slack.UnsafeApplyMsgOptions("token", "channel", "apiUrl", opt)
+			return strings.Contains(values.Get("attachments"), "already finished")
+		})).Once().Return("")
 		actual := commands.Run(message)
 		assert.True(t, actual)
 	})
@@ -188,9 +197,13 @@ func TestNotifyCommand(t *testing.T) {
 			Status: "failed",
 			Name:   "test",
 			Stage:  "test",
+			WebURL: "https://gitlab.example.com/jobs/200",
 		}, nil)
 
-		mocks.AssertSlackMessage(slackClient, message, "GitLab job *group/project/200* already finished with status: *failed*")
+		slackClient.On("SendMessage", message, "", mock.MatchedBy(func(opt slack.MsgOption) bool {
+			_, values, _ := slack.UnsafeApplyMsgOptions("token", "channel", "apiUrl", opt)
+			return strings.Contains(values.Get("attachments"), "already finished")
+		})).Once().Return("")
 		actual := commands.Run(message)
 		assert.True(t, actual)
 	})
