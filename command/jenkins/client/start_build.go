@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/bndr/gojenkins"
@@ -248,8 +247,8 @@ func watchProgress(build *gojenkins.Build, slackClient client.SlackClient, ref m
 		case <-ticker.C:
 			// Update progress
 			elapsed := time.Since(startTime)
-			progress := calculateProgress(elapsed, estimatedDuration)
-			progressBar := renderProgressBar(progress)
+			progress := util.CalculateProgress(elapsed, estimatedDuration)
+			progressBar := util.RenderProgressBar(progress)
 
 			text := fmt.Sprintf(
 				"Job %s running (#%d)\n%s %s / %s",
@@ -269,34 +268,4 @@ func watchProgress(build *gojenkins.Build, slackClient client.SlackClient, ref m
 			)
 		}
 	}
-}
-
-// calculateProgress returns a progress percentage (0.0 to 1.0+)
-func calculateProgress(elapsed, estimated time.Duration) float64 {
-	if estimated <= 0 {
-		return 0
-	}
-	return float64(elapsed) / float64(estimated)
-}
-
-// renderProgressBar creates a visual progress bar using Unicode blocks
-func renderProgressBar(progress float64) string {
-	const barLength = 20
-	filled := max(
-		// Cap filled at barLength for display purposes
-		min(
-
-			int(progress*float64(barLength)), barLength), 0)
-
-	var bar strings.Builder
-	for i := range barLength {
-		if i < filled {
-			bar.WriteString("█")
-		} else {
-			bar.WriteString("░")
-		}
-	}
-
-	percentage := int(progress * 100)
-	return fmt.Sprintf("%s %d%%", bar.String(), percentage)
 }

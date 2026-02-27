@@ -10,6 +10,7 @@ import (
 	"github.com/innogames/slack-bot/v2/command/custom_commmands"
 	"github.com/innogames/slack-bot/v2/command/custom_variables"
 	"github.com/innogames/slack-bot/v2/command/export"
+	gitlabcmd "github.com/innogames/slack-bot/v2/command/gitlab"
 	"github.com/innogames/slack-bot/v2/command/jenkins"
 	"github.com/innogames/slack-bot/v2/command/jira"
 	"github.com/innogames/slack-bot/v2/command/openai"
@@ -64,6 +65,9 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 
 	// pull-request
 	commands.Merge(pullrequest.GetCommands(base, &cfg))
+
+	// gitlab pipeline/job watcher
+	commands.Merge(gitlabcmd.GetCommands(base, &cfg))
 
 	// aws
 	commands.Merge(aws.GetCommands(cfg.Aws, base))
