@@ -22,7 +22,7 @@ const messageLimit = 40000
 
 // InternalMessages is internal queue of internal messages
 // @deprecated -> use HandleMessageWithDoneHandler instead
-var InternalMessages = make(chan msg.Message, 50)
+var InternalMessages = make(chan msg.Message, 100)
 
 // HandleMessage will register the given message in the queue...and returns a sync.WaitGroup which can be used to see when the message is handled
 func HandleMessage(message msg.Message) {
