@@ -38,7 +38,7 @@ func WatchJob(ctx context.Context, jenkins Client, jobName string, stop chan boo
 					continue
 				}
 
-				build, _ := job.GetLastBuild(context.TODO())
+				build, _ := job.GetLastBuild(ctx)
 				if build == nil || build.Raw.Building {
 					continue
 				}
