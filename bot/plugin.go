@@ -1,12 +1,22 @@
 package bot
 
 import (
+	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/client"
+	log "github.com/sirupsen/logrus"
 )
 
-// Plugin is a extended command which can be registered to the bot at compile time
+// Plugin is an extended command which can be registered to the bot at compile time.
+// Plugin authors create a Go module with an init() function that calls RegisterPlugin().
+// Users activate plugins via blank imports: _ "github.com/company/my-plugin"
 type Plugin struct {
-	Init func(bot *Bot, slackClient client.SlackClient) Commands
+	// Name is a unique identifier for the plugin, used in logging.
+	Name string
+
+	// Init creates the plugin's commands. It receives the SlackClient for Slack
+	// interaction and the Config for reading plugin-specific configuration
+	// via cfg.LoadCustom("my_plugin", &myConfig).
+	Init func(slackClient client.SlackClient, cfg config.Config) Commands
 }
 
 var pluginList []Plugin
@@ -16,14 +26,15 @@ func RegisterPlugin(plugin Plugin) {
 	pluginList = append(pluginList, plugin)
 }
 
-func loadPlugins(bot *Bot, slackClient client.SlackClient) Commands {
+func loadPlugins(slackClient client.SlackClient, cfg config.Config) Commands {
 	commands := Commands{}
 
 	for _, plugin := range pluginList {
-		commands.Merge(plugin.Init(bot, slackClient))
+		log.Infof("Loading plugin: %s", plugin.Name)
+		commands.Merge(plugin.Init(slackClient, cfg))
 	}
 
-	clear(pluginList)
+	pluginList = nil
 
 	return commands
 }

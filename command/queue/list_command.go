@@ -150,9 +150,8 @@ func (c *listCommand) getQueueAsBlocks(message msg.Message, filter filterFunc) (
 func (c *listCommand) getReactions(ref msg.Ref) string {
 	var formattedReactions strings.Builder
 	msgRef := slack.NewRefToMessage(ref.GetChannel(), ref.GetTimestamp())
-	reactions, _ := c.GetReactions(msgRef, slack.NewGetReactionsParameters())
-
-	for _, reaction := range reactions {
+	resp, _ := c.GetReactions(msgRef, slack.NewGetReactionsParameters())
+	for _, reaction := range resp.Reactions {
 		formattedReactions.WriteString(":" + reaction.Name + ":")
 	}
 	return formattedReactions.String()

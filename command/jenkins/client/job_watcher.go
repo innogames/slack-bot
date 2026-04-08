@@ -23,7 +23,7 @@ func WatchJob(ctx context.Context, jenkins Client, jobName string, stop chan boo
 
 	returnChan := make(chan gojenkins.Build, 1)
 
-	go func() {
+	go func() { //#nosec G118 -- goroutine uses the request-scoped ctx passed into WatchJob
 		timer := time.NewTicker(watchInterval)
 		defer timer.Stop()
 

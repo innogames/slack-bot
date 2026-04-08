@@ -47,7 +47,7 @@ func (c *exportCommand) exportChannel(match matcher.Result, message msg.Message)
 	if lines >= limit {
 		c.SendMessage(message, fmt.Sprintf("Attention: The export is limited to %d messages.", limit))
 	}
-	_, err = c.UploadFile(slack.UploadFileV2Parameters{
+	_, err = c.UploadFile(slack.UploadFileParameters{
 		Filename:        "export.csv",
 		FileSize:        buffer.Len(),
 		Channel:         message.Channel,

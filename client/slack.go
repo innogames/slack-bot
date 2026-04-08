@@ -110,7 +110,7 @@ type SlackClient interface {
 	SendToUser(user string, text string)
 	RemoveReaction(reaction util.Reaction, ref msg.Ref)
 	AddReaction(reaction util.Reaction, ref msg.Ref)
-	GetReactions(item slack.ItemRef, params slack.GetReactionsParameters) ([]slack.ItemReaction, error)
+	GetReactions(item slack.ItemRef, params slack.GetReactionsParameters) (slack.ReactedItem, error)
 
 	// GetConversationHistory loads the message history from slack
 	GetConversationHistory(*slack.GetConversationHistoryParameters) (*slack.GetConversationHistoryResponse, error)
@@ -122,7 +122,7 @@ type SlackClient interface {
 	GetUserPresence(user string) (*slack.UserPresence, error)
 
 	// UploadFile uploads a file to Slack
-	UploadFile(params slack.UploadFileV2Parameters) (*slack.FileSummary, error)
+	UploadFile(params slack.UploadFileParameters) (*slack.FileSummary, error)
 
 	// PinMessage will pin a message to the channel
 	PinMessage(channel string, timestamp string) error
@@ -336,8 +336,8 @@ func (s *Slack) GetUserPresence(user string) (*slack.UserPresence, error) {
 }
 
 // UploadFile uploads a file to Slack
-func (s *Slack) UploadFile(params slack.UploadFileV2Parameters) (*slack.FileSummary, error) {
-	return s.UploadFileV2(params)
+func (s *Slack) UploadFile(params slack.UploadFileParameters) (*slack.FileSummary, error) {
+	return s.Client.UploadFile(params)
 }
 
 // GetFile downloads a file from Slack by its private URL

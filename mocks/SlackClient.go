@@ -72,24 +72,22 @@ func (_m *SlackClient) GetFile(downloadURL string, writer io.Writer) error {
 }
 
 // GetReactions provides a mock function with given fields: item, params
-func (_m *SlackClient) GetReactions(item slack.ItemRef, params slack.GetReactionsParameters) ([]slack.ItemReaction, error) {
+func (_m *SlackClient) GetReactions(item slack.ItemRef, params slack.GetReactionsParameters) (slack.ReactedItem, error) {
 	ret := _m.Called(item, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetReactions")
 	}
 
-	var r0 []slack.ItemReaction
+	var r0 slack.ReactedItem
 	var r1 error
-	if rf, ok := ret.Get(0).(func(slack.ItemRef, slack.GetReactionsParameters) ([]slack.ItemReaction, error)); ok {
+	if rf, ok := ret.Get(0).(func(slack.ItemRef, slack.GetReactionsParameters) (slack.ReactedItem, error)); ok {
 		return rf(item, params)
 	}
-	if rf, ok := ret.Get(0).(func(slack.ItemRef, slack.GetReactionsParameters) []slack.ItemReaction); ok {
+	if rf, ok := ret.Get(0).(func(slack.ItemRef, slack.GetReactionsParameters) slack.ReactedItem); ok {
 		r0 = rf(item, params)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]slack.ItemReaction)
-		}
+		r0, _ = ret.Get(0).(slack.ReactedItem)
 	}
 
 	if rf, ok := ret.Get(1).(func(slack.ItemRef, slack.GetReactionsParameters) error); ok {
@@ -282,7 +280,7 @@ func (_m *SlackClient) SendToUser(user string, text string) {
 }
 
 // UploadFile provides a mock function with given fields: params
-func (_m *SlackClient) UploadFile(params slack.UploadFileV2Parameters) (*slack.FileSummary, error) {
+func (_m *SlackClient) UploadFile(params slack.UploadFileParameters) (*slack.FileSummary, error) {
 	ret := _m.Called(params)
 
 	if len(ret) == 0 {
@@ -291,10 +289,10 @@ func (_m *SlackClient) UploadFile(params slack.UploadFileV2Parameters) (*slack.F
 
 	var r0 *slack.FileSummary
 	var r1 error
-	if rf, ok := ret.Get(0).(func(slack.UploadFileV2Parameters) (*slack.FileSummary, error)); ok {
+	if rf, ok := ret.Get(0).(func(slack.UploadFileParameters) (*slack.FileSummary, error)); ok {
 		return rf(params)
 	}
-	if rf, ok := ret.Get(0).(func(slack.UploadFileV2Parameters) *slack.FileSummary); ok {
+	if rf, ok := ret.Get(0).(func(slack.UploadFileParameters) *slack.FileSummary); ok {
 		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
@@ -302,7 +300,7 @@ func (_m *SlackClient) UploadFile(params slack.UploadFileV2Parameters) (*slack.F
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(slack.UploadFileV2Parameters) error); ok {
+	if rf, ok := ret.Get(1).(func(slack.UploadFileParameters) error); ok {
 		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)

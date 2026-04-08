@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"net/http"
+	"net/http/httptest"
 	"regexp"
 	"sync"
 	"testing"
@@ -133,15 +135,41 @@ func AssertSlackJSON(t *testing.T, slackClient *SlackClient, message msg.Ref, ex
 	t.Helper()
 
 	slackClient.On("SendMessage", message, "", mock.MatchedBy(func(option slack.MsgOption) bool {
-		_, values, _ := slack.UnsafeApplyMsgOptions(
-			"token",
-			"channel",
-			"apiUrl",
-			option,
-		)
+		var actual string
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+			if err := r.ParseForm(); err == nil {
+				actual = r.FormValue("attachments")
+			}
+			w.Header().Set("Content-Type", "application/json")
+			fmt.Fprint(w, `{"ok":true}`)
+		}))
+		defer srv.Close()
 
-		return expected == values.Get("attachments")
+		c := slack.New("fake-token", slack.OptionAPIURL(srv.URL+"/"))
+		c.PostMessage("channel", option) //nolint:errcheck
+
+		return expected == actual
 	})).Once().Return("")
+}
+
+// GetAttachmentJSON extracts the attachment JSON from a MsgOption by posting to a local test server.
+// Use this as a replacement for slack.UnsafeApplyMsgOptions which no longer populates attachment values.
+func GetAttachmentJSON(opt slack.MsgOption) string {
+	var actual string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
+		if err := r.ParseForm(); err == nil {
+			actual = r.FormValue("attachments")
+		}
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{"ok":true}`)
+	}))
+	defer srv.Close()
+
+	c := slack.New("fake-token", slack.OptionAPIURL(srv.URL+"/"))
+	c.PostMessage("channel", opt) //nolint:errcheck
+	return actual
 }
 
 // AssertSlackBlocks test helper to assert a given JSON representation of "Blocks"

@@ -99,9 +99,11 @@ func TestQueue(t *testing.T) {
 		mocks.AssertContainsSlackBlocks(t, slackClient, message, client.GetTextBlock("*1 queued commands*"))
 
 		slackClient.On("GetReactions", msgRef, slack.NewGetReactionsParameters()).Return(
-			[]slack.ItemReaction{
-				{Name: "test"},
-				{Name: "foo"},
+			slack.ReactedItem{
+				Reactions: []slack.ItemReaction{
+					{Name: "test"},
+					{Name: "foo"},
+				},
 			},
 			nil,
 		)

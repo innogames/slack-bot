@@ -221,9 +221,8 @@ func (c command) processBuildStatus(pr pullRequest, currentReactions reactionMap
 // get the current reactions in the given message which got created by this bot user
 func (c command) getOwnReactions(msgRef slack.ItemRef) reactionMap {
 	currentReactions := make(reactionMap)
-	reactions, _ := c.GetReactions(msgRef, slack.NewGetReactionsParameters())
-
-	for _, reaction := range reactions {
+	resp, _ := c.GetReactions(msgRef, slack.NewGetReactionsParameters())
+	for _, reaction := range resp.Reactions {
 		if slices.Contains(reaction.Users, client.AuthResponse.UserID) {
 			currentReactions[util.Reaction(reaction.Name)] = true
 		}

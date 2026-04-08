@@ -180,8 +180,7 @@ func TestNotifyCommand(t *testing.T) {
 		}, nil)
 
 		slackClient.On("SendMessage", message, "", mock.MatchedBy(func(opt slack.MsgOption) bool {
-			_, values, _ := slack.UnsafeApplyMsgOptions("token", "channel", "apiUrl", opt)
-			return strings.Contains(values.Get("attachments"), "already finished")
+			return strings.Contains(mocks.GetAttachmentJSON(opt), "already finished")
 		})).Once().Return("")
 		actual := commands.Run(message)
 		assert.True(t, actual)
@@ -201,8 +200,7 @@ func TestNotifyCommand(t *testing.T) {
 		}, nil)
 
 		slackClient.On("SendMessage", message, "", mock.MatchedBy(func(opt slack.MsgOption) bool {
-			_, values, _ := slack.UnsafeApplyMsgOptions("token", "channel", "apiUrl", opt)
-			return strings.Contains(values.Get("attachments"), "already finished")
+			return strings.Contains(mocks.GetAttachmentJSON(opt), "already finished")
 		})).Once().Return("")
 		actual := commands.Run(message)
 		assert.True(t, actual)
