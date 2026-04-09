@@ -59,7 +59,7 @@ func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.M
 	}
 	defer resp.Body.Close()
 
-	_, err = c.UploadFile(slack.UploadFileV2Parameters{
+	_, err = c.UploadFile(slack.UploadFileParameters{
 		Filename:        "dalle.png",
 		FileSize:        int(resp.ContentLength),
 		Reader:          resp.Body,

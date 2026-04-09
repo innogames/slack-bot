@@ -65,7 +65,7 @@ func TestBitbucketFakeServer(t *testing.T) {
 		message := msg.Message{}
 		message.Text = server.URL + "/projects/myProject/repos/myRepo/pull-requests/1339 please review ASAP!"
 
-		slackClient.On("GetReactions", message.GetMessageRef(), slack.NewGetReactionsParameters()).Return([]slack.ItemReaction{}, nil)
+		slackClient.On("GetReactions", message.GetMessageRef(), slack.NewGetReactionsParameters()).Return(slack.ReactedItem{}, nil)
 
 		actual := command.Run(message)
 		assert.True(t, actual)
