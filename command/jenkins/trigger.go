@@ -183,7 +183,7 @@ func (c *triggerCommand) requestApproval(jobName string, cfg config.JobConfig, p
 		),
 	}
 
-	c.SlackClient.SendBlockMessageToUser(message.GetUser(), blocks)
+	c.SendBlockMessageToUser(message.GetUser(), blocks)
 	c.SendMessage(message, fmt.Sprintf("Job *%s* requires approval. Please check your direct messages.", jobName))
 }
 
