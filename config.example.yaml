@@ -44,12 +44,18 @@ commands:
 #  host: https://jenkins.example.com
 #  username: username
 #  password: secret
+#  approval_timeout: 5m  # optional, default timeout for job approvals (default: 5m)
 #  jobs:
 #    BackendTests:
 #      parameters:
 #        - name: BRANCH
 #          default: master
 #          type: branch
+#    DeployProduction:
+#      needs_approval: true  # requires user confirmation via DM before starting
+#      parameters:
+#        - name: BRANCH
+#          default: master
 
 # optional Jira integration
 jira:

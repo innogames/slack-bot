@@ -1,4 +1,4 @@
-# Copilot Instructions for Slack Bot Repository
+# Instructions for Slack Bot Repository
 
 ## Repository Overview
 
