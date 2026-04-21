@@ -14,6 +14,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
 	jenkinsClient "github.com/innogames/slack-bot/v2/command/jenkins/client"
+	"github.com/innogames/slack-bot/v2/command/queue"
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 )
@@ -149,14 +150,16 @@ func (c *triggerCommand) requestApproval(jobName string, cfg config.JobConfig, p
 	id := generateApprovalID()
 	now := time.Now()
 
+	runningCmd := queue.AddRunningCommand(message, "")
 	approval := &pendingApproval{
-		id:        id,
-		jobName:   jobName,
-		jobConfig: cfg,
-		params:    params,
-		message:   message,
-		createdAt: now,
-		expiresAt: now.Add(c.approvalTimeout),
+		id:             id,
+		jobName:        jobName,
+		jobConfig:      cfg,
+		params:         params,
+		message:        message,
+		createdAt:      now,
+		expiresAt:      now.Add(c.approvalTimeout),
+		runningCommand: runningCmd,
 	}
 	c.approvals.add(approval)
 
@@ -205,6 +208,21 @@ func (c *triggerCommand) approveJob(match matcher.Result, message msg.Message) {
 	err := jenkinsClient.TriggerJenkinsJob(approval.jobConfig, approval.jobName, approval.params, c.SlackClient, c.jenkins, approval.message)
 	if err != nil {
 		c.ReplyError(approval.message, err)
+		approval.markDone()
+		return
+	}
+
+	// TriggerJenkinsJob registered a new running command for the job (overwriting ours in the map).
+	// Chain our approval's Done() to the job's completion so "then" commands typed before approval
+	// still wait for the full job to finish, not just for the approval to be granted.
+	jobCmd := queue.GetRunningCommand(approval.message.GetUniqueKey())
+	if jobCmd != nil && jobCmd != approval.runningCommand {
+		go func() {
+			jobCmd.Wait()
+			approval.markDone()
+		}()
+	} else {
+		approval.markDone()
 	}
 }
 
@@ -222,6 +240,7 @@ func (c *triggerCommand) rejectJob(match matcher.Result, message msg.Message) {
 	log.Infof("Job %s rejected by user %s (approval: %s)", approval.jobName, message.GetUser(), id)
 	c.SendMessage(message, fmt.Sprintf("Job *%s* rejected.", approval.jobName))
 	c.SendMessage(approval.message, fmt.Sprintf("Job *%s* was rejected.", approval.jobName))
+	approval.markDone()
 }
 
 // RunAsync periodically cleans up expired approvals
