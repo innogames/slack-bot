@@ -76,6 +76,13 @@ func CountCurrentJobs() int {
 	return len(runningCommands)
 }
 
+func GetRunningCommand(key string) *RunningCommand {
+	mu.RLock()
+	defer mu.RUnlock()
+
+	return runningCommands[key]
+}
+
 func executeFallbackCommand() {
 	keys, _ := storage.GetKeys(storageKey)
 	if len(keys) == 0 {

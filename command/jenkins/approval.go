@@ -9,16 +9,28 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/command/jenkins/client"
+	"github.com/innogames/slack-bot/v2/command/queue"
 )
 
 type pendingApproval struct {
-	id        string
-	jobName   string
-	jobConfig config.JobConfig
-	params    client.Parameters
-	message   msg.Message // original message for posting results back to the original channel
-	createdAt time.Time
-	expiresAt time.Time
+	id             string
+	jobName        string
+	jobConfig      config.JobConfig
+	params         client.Parameters
+	message        msg.Message // original message for posting results back to the original channel
+	createdAt      time.Time
+	expiresAt      time.Time
+	runningCommand *queue.RunningCommand
+	doneOnce       sync.Once
+}
+
+// markDone releases the running command exactly once, unblocking any chained "then" commands
+func (p *pendingApproval) markDone() {
+	p.doneOnce.Do(func() {
+		if p.runningCommand != nil {
+			p.runningCommand.Done()
+		}
+	})
 }
 
 type approvalStore struct {
@@ -51,6 +63,7 @@ func (s *approvalStore) get(id string) *pendingApproval {
 
 	if time.Now().After(approval.expiresAt) {
 		delete(s.pending, id)
+		approval.markDone()
 		return nil
 	}
 
@@ -72,6 +85,7 @@ func (s *approvalStore) cleanup() {
 	for id, approval := range s.pending {
 		if now.After(approval.expiresAt) {
 			delete(s.pending, id)
+			approval.markDone()
 		}
 	}
 }

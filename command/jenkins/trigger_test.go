@@ -9,6 +9,7 @@ import (
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/command/queue"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -335,6 +336,62 @@ func TestJenkinsTriggerApproval(t *testing.T) {
 
 		actual := cmd3.Run(rejectMessage)
 		assert.True(t, actual)
+	})
+
+	t.Run("pending approval registers running command for then chaining", func(t *testing.T) {
+		slackClientR, _, baseR := getTestJenkinsCommand()
+
+		cfgR := config.JenkinsJobs{
+			"ChainJob": {
+				Parameters:    []config.JobParameter{},
+				NeedsApproval: true,
+			},
+		}
+		triggerR := newTriggerCommand(baseR, cfgR, 5*time.Minute).(*triggerCommand)
+		cmdR := bot.Commands{}
+		cmdR.AddCommand(triggerR)
+
+		originalMessage := msg.Message{}
+		originalMessage.Text = "trigger job ChainJob"
+		originalMessage.User = "U999"
+		originalMessage.Channel = "C999"
+
+		slackClientR.On("SendBlockMessageToUser", "U999", mock.AnythingOfType("[]slack.Block")).Return("dm-ts").Once()
+		mocks.AssertSlackMessage(slackClientR, originalMessage, "Job *ChainJob* requires approval. Please check your direct messages.")
+
+		assert.Nil(t, queue.GetRunningCommand(originalMessage.GetUniqueKey()))
+		cmdR.Run(originalMessage)
+
+		// a running command must be registered while approval is pending so chained "then" commands work
+		runningCmd := queue.GetRunningCommand(originalMessage.GetUniqueKey())
+		assert.NotNil(t, runningCmd)
+
+		// rejecting should release the running command
+		triggerR.approvals.mu.Lock()
+		var approvalID string
+		for id := range triggerR.approvals.pending {
+			approvalID = id
+		}
+		triggerR.approvals.mu.Unlock()
+
+		rejectMessage := msg.Message{}
+		rejectMessage.Text = "jenkins reject " + approvalID
+		mocks.AssertSlackMessage(slackClientR, rejectMessage, "Job *ChainJob* rejected.")
+		mocks.AssertSlackMessage(slackClientR, originalMessage, "Job *ChainJob* was rejected.")
+		cmdR.Run(rejectMessage)
+
+		// the Wait() should return immediately now
+		done := make(chan struct{})
+		go func() {
+			runningCmd.Wait()
+			close(done)
+		}()
+		select {
+		case <-done:
+			// good, running command was released
+		case <-time.After(500 * time.Millisecond):
+			t.Fatal("running command was not released after reject")
+		}
 	})
 
 	t.Run("approve expired approval", func(t *testing.T) {
