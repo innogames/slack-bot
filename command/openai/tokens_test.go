@@ -16,7 +16,7 @@ func TestModels(t *testing.T) {
 		{"gpt-4.1", 1047576},
 		{"gpt-4o", 128000},
 		{"gpt-5-mini", 128000},
-		{"gpt-3.5-turbo", 16385},
+		{"gpt-5.5", 1000000},
 	}
 
 	for _, testCase := range modelsTestCases {

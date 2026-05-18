@@ -405,7 +405,7 @@ data: [DONE]`,
 		mocks.AssertReaction(slackClient, ":speech_balloon:", message.MessageRef)
 		mocks.AssertRemoveReaction(slackClient, ":bulb:", message.MessageRef)
 		mocks.AssertRemoveReaction(slackClient, ":speech_balloon:", message.MessageRef)
-		mocks.AssertSlackMessage(slackClient, message.MessageRef, "Note: The token length of 100 exceeded! 1 messages were not sent", mock.Anything)
+		mocks.AssertSlackMessage(slackClient, message.MessageRef, "Note: The token length of 100 for model dummy-test exceeded! 1 messages were not sent", mock.Anything)
 		mocks.AssertSlackMessage(slackClient, message.MessageRef, ":bulb: thinking...", mock.Anything)
 		mocks.AssertSlackMessage(slackClient, message.MessageRef, "Jolo!", mock.Anything, mock.Anything)
 
