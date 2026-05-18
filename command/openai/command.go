@@ -237,7 +237,7 @@ func (c *openaiCommand) callAndStore(messages []ChatMessage, storageIdentifier s
 		}
 		c.SendMessage(
 			message,
-			fmt.Sprintf("Note: The token length of %d exceeded! %d messages were not sent", getMaxTokensForModel(customCfg.Model), truncatedMessages),
+			fmt.Sprintf("Note: The token length of %d for model %s exceeded! %d messages were not sent", getMaxTokensForModel(customCfg.Model), customCfg.Model, truncatedMessages),
 			msgOptions...,
 		)
 	}

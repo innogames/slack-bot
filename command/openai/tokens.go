@@ -6,13 +6,15 @@ import (
 
 // https://platform.openai.com/docs/models/
 var maxTokens = map[string]int{
-	"gpt-4-turbo":   128000,
-	"gpt-4o":        128000,
-	"gpt-4.1":       1047576,
-	"gpt-5":         400000,
-	"gpt-3.5-turbo": 16385,
-	"o3":            200000,
-	"dummy-test":    100, // just for testing
+	"gpt-4-turbo": 128000,
+	"gpt-4o":      128000,
+	"gpt-4.1":     1047576,
+	"gpt-5":       400000,
+	"gpt-5.1":     400000,
+	"gpt-5.2":     400000,
+	"gpt-5.4":     1000000,
+	"gpt-5.5":     1000000,
+	"dummy-test":  100, // just for testing
 }
 
 var modelDateRe = regexp.MustCompile(`-\d{4}`)
