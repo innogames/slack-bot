@@ -91,6 +91,54 @@ func spawnRIPEAtlasServer(t *testing.T) *httptest.Server {
 	return httptest.NewServer(mux)
 }
 
+func TestStreamingResponsePayloadString(t *testing.T) {
+	t.Run("zero hop results - no panic", func(t *testing.T) {
+		srp := StreamingResponsePayload{
+			SrcAddr:   "192.168.1.1",
+			Timestamp: 1234567890,
+			Result: []PayloadResult{
+				{Hop: 1, Result: []HopResult{}},
+			},
+		}
+		out := srp.String()
+		assert.Contains(t, out, "???")
+		assert.Contains(t, out, "0.000")
+	})
+
+	t.Run("one hop result - no panic", func(t *testing.T) {
+		srp := StreamingResponsePayload{
+			SrcAddr:   "192.168.1.1",
+			Timestamp: 1234567890,
+			Result: []PayloadResult{
+				{Hop: 1, Result: []HopResult{{From: "10.0.0.1", Rtt: 1.5}}},
+			},
+		}
+		out := srp.String()
+		assert.Contains(t, out, "10.0.0.1")
+		assert.Contains(t, out, "1.500")
+		assert.Contains(t, out, "0.000")
+	})
+
+	t.Run("three hop results - full output", func(t *testing.T) {
+		srp := StreamingResponsePayload{
+			SrcAddr:   "192.168.1.1",
+			Timestamp: 1234567890,
+			Result: []PayloadResult{
+				{Hop: 1, Result: []HopResult{
+					{From: "10.0.0.1", Rtt: 1.5},
+					{From: "10.0.0.2", Rtt: 2.5},
+					{From: "10.0.0.3", Rtt: 3.5},
+				}},
+			},
+		}
+		out := srp.String()
+		assert.Contains(t, out, "10.0.0.1")
+		assert.Contains(t, out, "1.500")
+		assert.Contains(t, out, "2.500")
+		assert.Contains(t, out, "3.500")
+	})
+}
+
 func TestRipeAtlas(t *testing.T) {
 	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}

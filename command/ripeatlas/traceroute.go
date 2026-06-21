@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -113,6 +114,11 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 		return
 	}
 
+	if len(measurementResult.Measurements) == 0 {
+		c.ReplyError(message, errors.New("API returned no measurement ID"))
+		return
+	}
+
 	c.SendMessage(
 		message,
 		fmt.Sprintf("Measurement created: https://atlas.ripe.net/measurements/%d\n", measurementResult.Measurements[0]),
@@ -136,6 +142,7 @@ func (c *tracerouteCommand) traceroute(match matcher.Result, message msg.Message
 	}
 	defer response.Body.Close()
 	fileScanner := bufio.NewScanner(response.Body)
+	fileScanner.Buffer(make([]byte, 0, 64*1024), 1<<20)
 	fileScanner.Split(bufio.ScanLines)
 	for fileScanner.Scan() {
 		line := fileScanner.Bytes()

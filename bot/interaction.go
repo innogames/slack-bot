@@ -93,6 +93,10 @@ func (b *Bot) handleInteraction(payload slack.InteractionCallback) bool {
 	switch payload.Type {
 	case slack.InteractionTypeBlockActions:
 		// user clicked on one of our interactive buttons
+		if len(payload.ActionCallback.BlockActions) == 0 {
+			log.Warnf("received block action without actions (user: %s)", payload.User.ID)
+			return false
+		}
 		action := payload.ActionCallback.BlockActions[0]
 		command := action.Value
 
