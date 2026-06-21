@@ -26,9 +26,7 @@ func (s redisStorage) Write(collection, key string, v any) error {
 		return err
 	}
 
-	s.client.HSet(redisCtx, collection, key, data)
-
-	return nil
+	return s.client.HSet(redisCtx, collection, key, data).Err()
 }
 
 func (s redisStorage) Read(collection, key string, v any) error {
