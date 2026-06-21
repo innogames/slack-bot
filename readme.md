@@ -189,6 +189,22 @@ pullrequest:
 
 ![Screenshot](./docs/pull-request.png)
 
+**Jira severity reactions:**
+If a [Jira connection](#jira) is configured, the bot can add a reaction based on the priority/severity of the Jira ticket referenced by the pull request. The ticket key is extracted from the **branch name** first (e.g. `bugfix/TEST-123-fix-xyz`) and falls back to the **PR title** (e.g. `TEST-123: fix login`). The mapping from Jira priority to reaction is configurable (defaults to the `jira_*` priority icons):
+<details>
+    <summary>Expand example!</summary>
+
+```yaml
+pullrequest:
+  jira_priority_reactions:
+    Blocker: "jira_blocker"
+    Critical: "jira_critical"
+    Major: "jira_major"
+    Medium: "jira_medium"
+    Minor: "jira_minor"
+```
+</details>
+
 **Extra Features:**
 For Bitbucket, the bot is able to extract the current build status (e.g., from Jenkins/Bamboo etc.) and show failed and running builds (fire reaction) as a reaction (circle arrow reaction). When the build is stable, the build reactions disappear.
 ![Screenshot](./docs/pull-request-build-status.png)

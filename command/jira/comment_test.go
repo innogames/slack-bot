@@ -31,7 +31,7 @@ func TestCommentJira(t *testing.T) {
 		Host:    server.URL,
 		Project: "TEST",
 	}
-	jiraClient, err := getClient(cfg)
+	jiraClient, err := GetClient(cfg)
 	require.NoError(t, err)
 
 	command := bot.Commands{}

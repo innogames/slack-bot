@@ -5,6 +5,7 @@ import (
 	"strings"
 	"text/template"
 
+	gojira "github.com/andygrunwald/go-jira"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
@@ -17,7 +18,7 @@ type gitlabFetcher struct {
 	client *gitlab.Client
 }
 
-func newGitlabCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
+func newGitlabCommand(base bot.BaseCommand, cfg *config.Config, jiraClient *gojira.Client) bot.Command {
 	if cfg.Gitlab.AccessToken == "" && cfg.Gitlab.Host == "" {
 		return nil
 	}
@@ -33,6 +34,7 @@ func newGitlabCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 		cfg.PullRequest,
 		&gitlabFetcher{gitlabClient},
 		"(?s).*" + regexp.QuoteMeta(cfg.Gitlab.Host) + "/(?P<repo>.+/.+)/merge_requests/(?P<number>\\d+).*",
+		jiraClient,
 	}
 }
 
@@ -125,6 +127,7 @@ func (c *gitlabFetcher) convertToPullRequest(rawPullRequest *gitlab.MergeRequest
 		Status:      c.getStatus(rawPullRequest),
 		Author:      c.getAuthor(rawPullRequest),
 		Link:        rawPullRequest.WebURL,
+		Branch:      rawPullRequest.SourceBranch,
 		BuildStatus: c.getPipelineStatus(rawPullRequest),
 	}
 }

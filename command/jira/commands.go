@@ -15,7 +15,7 @@ func GetCommands(cfg *config.Jira, slackClient client.SlackClient) bot.Commands 
 		return commands
 	}
 
-	jira, err := getClient(cfg)
+	jira, err := GetClient(cfg)
 	if err != nil {
 		log.Error(err)
 		return commands

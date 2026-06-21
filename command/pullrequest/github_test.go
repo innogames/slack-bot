@@ -26,7 +26,7 @@ func TestGithub(t *testing.T) {
 	cfg.Github.AccessToken = os.Getenv("BOT_GITHUB_ACCESS_TOKEN")
 
 	commands := bot.Commands{}
-	cmd := newGithubCommand(base, cfg).(command)
+	cmd := newGithubCommand(base, cfg, nil).(command)
 	githubFetcher := cmd.fetcher.(*githubFetcher)
 	commands.AddCommand(cmd)
 
@@ -74,6 +74,7 @@ func TestGithub(t *testing.T) {
 			Name:      "Add weather command",
 			Author:    "pbojan",
 			Link:      "https://api.github.com/repos/innogames/slack-bot/pulls/1",
+			Branch:    "add-weather-command",
 			Status:    prStatusMerged,
 			Approvers: []string{},
 		}

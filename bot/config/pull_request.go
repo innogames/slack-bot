@@ -12,6 +12,11 @@ type PullRequest struct {
 
 	// able to set a custom "approved" reactions to see directly who or which component/department approved a pullrequest
 	CustomApproveReaction map[string]util.Reaction `mapstructure:"custom_approve_reaction"`
+
+	// maps a Jira priority name (Blocker, Critical, …) to a reaction which is added to watched
+	// pull requests, based on the Jira ticket referenced in the branch name or PR title.
+	// Requires a configured Jira connection (see "jira" section).
+	JiraPriorityReactions map[string]util.Reaction `mapstructure:"jira_priority_reactions"`
 }
 
 // Notifications can be defined in the config.yaml to enable notifications for pull request builds.

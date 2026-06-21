@@ -21,7 +21,7 @@ func TestJiraSearch(t *testing.T) {
 		Host:    "https://issues.apache.org/jira/",
 		Project: "ZOOKEEPER",
 	}
-	jiraClient, err := getClient(cfg)
+	jiraClient, err := GetClient(cfg)
 	require.NoError(t, err)
 
 	command := bot.Commands{}
