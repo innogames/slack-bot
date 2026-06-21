@@ -2,6 +2,7 @@ package openai
 
 import (
 	"bytes"
+	"context"
 	"net/http"
 	"time"
 
@@ -30,7 +31,7 @@ var httpClient = http.Client{
 }
 
 func doRequest(cfg Config, apiEndpoint string, data []byte) (*http.Response, error) {
-	req, err := http.NewRequest(http.MethodPost, cfg.APIHost+apiEndpoint, bytes.NewBuffer(data))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, cfg.APIHost+apiEndpoint, bytes.NewBuffer(data))
 	if err != nil {
 		log.WithError(err).Error("OpenAI: Failed to create HTTP request")
 		return nil, err

@@ -30,7 +30,7 @@ func (s *chainStorage) Read(collection, key string, v any) error {
 	}
 
 	err = s.persistent.Read(collection, key, v)
-	if err != nil {
+	if err == nil {
 		// cache persistent data to memory to have faster access as well
 		_ = s.memory.Write(collection, key, v)
 	}

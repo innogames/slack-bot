@@ -25,25 +25,27 @@ var keyRegexp = regexp.MustCompile(`^[\w\-,+@]+$`)
 
 // InitStorage registers a local directory as JSON file Storage
 func InitStorage(path string) error {
-	var err error
-
 	memory := newMemoryStorage()
 	if path == "" {
-		currentStorage = memory
-	} else {
-		// wrap slower file storage with faster memory storage
-		storage, err := newFileStorage(path)
-		if err != nil {
-			return err
-		}
-		currentStorage = NewChainStorage(storage, memory)
+		SetStorage(memory)
+		return nil
 	}
 
-	return err
+	// wrap slower file storage with faster memory storage
+	storage, err := newFileStorage(path)
+	if err != nil {
+		return err
+	}
+	SetStorage(NewChainStorage(storage, memory))
+
+	return nil
 }
 
 // SetStorage provide Storage to persist data for bot usage
 func SetStorage(storage Storage) {
+	globalMu.Lock()
+	defer globalMu.Unlock()
+
 	currentStorage = storage
 }
 
@@ -112,14 +114,12 @@ func validateKey(keys ...string) error {
 }
 
 func getStorage() Storage {
-	if currentStorage != nil {
-		return currentStorage
-	}
-
 	globalMu.Lock()
 	defer globalMu.Unlock()
 
-	currentStorage = newMemoryStorage()
+	if currentStorage == nil {
+		currentStorage = newMemoryStorage()
+	}
 
 	return currentStorage
 }

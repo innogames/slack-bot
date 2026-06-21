@@ -115,7 +115,7 @@ func (c *jiraCommand) sendTicket(ref msg.Ref, issue *jira.Issue, format string) 
 		},
 		{
 			Title: "Priority",
-			Value: c.getField("Priority", issue.Fields.Priority.Name),
+			Value: c.getField("Priority", priorityName(issue.Fields.Priority)),
 			Short: true,
 		},
 		{
@@ -140,7 +140,7 @@ func (c *jiraCommand) sendTicket(ref msg.Ref, issue *jira.Issue, format string) 
 
 	fields = append(fields, slack.AttachmentField{
 		Title: "Status",
-		Value: issue.Fields.Status.Name,
+		Value: statusName(issue.Fields.Status),
 		Short: true,
 	})
 
@@ -216,7 +216,7 @@ func (c *jiraCommand) jqlList(message msg.Message, jql string) {
 			idToIcon(ticket.Fields.Priority),
 			c.getField("Type", ticket.Fields.Type.Name),
 			ticket.Fields.Summary,
-			ticket.Fields.Status.Name,
+			statusName(ticket.Fields.Status),
 			getAssignee(ticket.Fields.Assignee),
 		)
 	}

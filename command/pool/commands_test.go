@@ -216,7 +216,7 @@ func TestPoolCoreOperations(t *testing.T) {
 	t.Run("unlock non-existent resource", func(t *testing.T) {
 		p := createTestPool()
 		err := p.Unlock("user1", "nonexistent")
-		assert.NoError(t, err) // Should not error, just do nothing
+		assert.Equal(t, ErrNoLockedResourceFound, err)
 	})
 
 	t.Run("extend lock by owner", func(t *testing.T) {
@@ -225,12 +225,13 @@ func TestPoolCoreOperations(t *testing.T) {
 		_, err := p.Lock("user2", "testing", "server2")
 		require.NoError(t, err)
 
-		locked := p.GetLocks("")
-		require.Len(t, locked, 1)
-
-		// Manually set lock time for testing
-		locked[0].LockUntil = originalTime
-		p.locks[&locked[0].Resource] = locked[0]
+		// Manually set lock time for testing by mutating the internal lock directly.
+		for _, v := range p.locks {
+			if v != nil && v.Resource.Name == "server2" {
+				v.LockUntil = originalTime
+				break
+			}
+		}
 
 		extended, err := p.ExtendLock("user2", "server2", "1h")
 		require.NoError(t, err)

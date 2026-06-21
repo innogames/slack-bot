@@ -65,7 +65,9 @@ func (b *Bot) startRunnables(ctx *util.ServerContext) {
 
 func (b *Bot) handleSocketModeEvent(event socketmode.Event) {
 	if event.Request != nil && event.Type != socketmode.EventTypeHello {
-		b.slackClient.Socket.Ack(*event.Request)
+		if err := b.slackClient.Socket.Ack(*event.Request); err != nil {
+			log.Warnf("failed to ack socket event: %s", err)
+		}
 	}
 
 	switch event.Type {

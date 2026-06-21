@@ -134,11 +134,6 @@ func (p *pool) ExtendLock(user, resourceName, duration string) (*ResourceLock, e
 		v.LockUntil = v.LockUntil.Add(d)
 		v.WarningSend = false
 
-		p.locks[k] = v
-
-		if err := storage.Delete(storageKey, k.Name); err != nil {
-			log.Error(errors.Wrap(err, "error while storing pool lock entry"))
-		}
 		if err := storage.Write(storageKey, k.Name, v); err != nil {
 			log.Error(errors.Wrap(err, "error while storing pool lock entry"))
 		}
@@ -172,21 +167,24 @@ func (p *pool) Unlock(user, resourceName string) error {
 		if err := storage.Delete(storageKey, k.Name); err != nil {
 			log.Error(errors.Wrap(err, "error while storing pool lock entry"))
 		}
+
+		return nil
 	}
 
-	return nil
+	return ErrNoLockedResourceFound
 }
 
-// GetLocks returns a sorted list of all active locks of a user / all users if userName = ""
-func (p *pool) GetLocks(userName string) []*ResourceLock {
+// GetLocks returns a sorted list of value-copies of all active locks of a user / all users if userName = "".
+// Callers receive snapshots — mutations on the returned structs do not affect pool state.
+func (p *pool) GetLocks(userName string) []ResourceLock {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	var locked []*ResourceLock
+	var locked []ResourceLock
 	byUser := len(userName) > 0
 	for _, v := range p.locks {
 		if v != nil && (!byUser || userName == v.User) {
-			locked = append(locked, v)
+			locked = append(locked, *v)
 		}
 	}
 	sort.Slice(locked, func(i, j int) bool {
@@ -194,6 +192,19 @@ func (p *pool) GetLocks(userName string) []*ResourceLock {
 	})
 
 	return locked
+}
+
+// markWarningSent atomically sets WarningSend=true on the named resource's lock.
+func (p *pool) markWarningSent(resourceName string) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	for k, v := range p.locks {
+		if k.Name == resourceName && v != nil {
+			v.WarningSend = true
+			return
+		}
+	}
 }
 
 // GetFree returns a sorted list of all free / unlocked resources

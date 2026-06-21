@@ -34,7 +34,7 @@ func (c *randomCommand) getRandom(match matcher.Result, message msg.Message) {
 		c.SendMessage(message, "You have to pass more arguments")
 		return
 	}
-	options := strings.Split(optionsString, " ")
+	options := strings.Fields(optionsString)
 
 	randomOption := c.pickRandom(options)
 

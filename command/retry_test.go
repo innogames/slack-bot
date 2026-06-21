@@ -94,6 +94,22 @@ func TestRetry(t *testing.T) {
 		assert.Empty(t, client.InternalMessages)
 	})
 
+	t.Run("RetryMessage with empty history", func(t *testing.T) {
+		message := msg.Message{}
+		message.User = "testUser1"
+		message.Channel = "myChan"
+		message.Text = "<https://foe-workshop.slack.com/archives/D0183HUURA9/p1607971366001000>"
+
+		slackClient.On("GetConversationHistory", &slack.GetConversationHistoryParameters{ChannelID: "D0183HUURA9", Inclusive: true, Latest: "1607971366.001000", Limit: 1}).
+			Once().
+			Return(&slack.GetConversationHistoryResponse{Messages: []slack.Message{}}, nil)
+
+		mocks.AssertError(slackClient, message, fmt.Errorf("can't load original message"))
+		actual := retry.Run(message)
+
+		assert.True(t, actual)
+	})
+
 	t.Run("RetryMessage with error", func(t *testing.T) {
 		message := msg.Message{}
 		message.User = "testUser1"

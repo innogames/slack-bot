@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 	"text/template"
 	"time"
@@ -114,7 +115,8 @@ func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
 	}
 
 	var storageIdentifier string
-	if message.GetThread() != "" {
+	switch {
+	case message.GetThread() != "":
 		// "openai" was triggered within a existing thread. -> fetch the whole thread history as context
 		threadMessages, err := c.GetThreadMessages(message)
 		if err != nil {
@@ -141,7 +143,7 @@ func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
 		if c.cfg.LogTexts {
 			log.Infof("openai thread context: %s", messageHistory)
 		}
-	} else if linkRe.MatchString(cleanText) {
+	case linkRe.MatchString(cleanText):
 		// a link to another thread was posted -> use this messages as context
 		link := linkRe.FindStringSubmatch(cleanText)
 		cleanText = linkRe.ReplaceAllString(cleanText, "")
@@ -168,7 +170,7 @@ func (c *openaiCommand) startConversation(message msg.Ref, text string) bool {
 		}
 
 		storageIdentifier = getIdentifier(message.GetChannel(), message.GetTimestamp())
-	} else {
+	default:
 		// start a new thread with a fresh history
 		storageIdentifier = getIdentifier(message.GetChannel(), message.GetTimestamp())
 	}
@@ -487,10 +489,7 @@ func (c *openaiCommand) getChannelHistory(channel string, count int) ([]slack.Me
 	}
 
 	// Reverse to get chronological order (API returns newest first)
-	for i := range len(allMessages) / 2 {
-		j := len(allMessages) - i - 1
-		allMessages[i], allMessages[j] = allMessages[j], allMessages[i]
-	}
+	slices.Reverse(allMessages)
 
 	return allMessages, nil
 }

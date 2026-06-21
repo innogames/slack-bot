@@ -32,7 +32,14 @@ type fileStorage struct {
 
 func (s *fileStorage) GetKeys(collection string) ([]string, error) {
 	dir := filepath.Join(s.dir, collection)
-	files, _ := os.ReadDir(dir)
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		// a missing collection directory just means there are no keys yet
+		if os.IsNotExist(err) {
+			return []string{}, nil
+		}
+		return nil, err
+	}
 
 	keys := make([]string, 0, len(files))
 

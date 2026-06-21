@@ -29,8 +29,8 @@ func (c *thenCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c *thenCommand) run(match matcher.Result, message msg.Message) {
-	runningCommand, found := runningCommands[message.GetUniqueKey()]
-	if !found {
+	runningCommand := GetRunningCommand(message.GetUniqueKey())
+	if runningCommand == nil {
 		c.ReplyError(
 			message,
 			errors.New("you have to call this command when another long running command is already running"),

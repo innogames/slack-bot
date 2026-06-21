@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"strconv"
 	"testing"
 	"time"
 
@@ -157,8 +158,8 @@ func TestStorageEnhanced(t *testing.T) {
 			go func(index int) {
 				defer func() { done <- true }()
 
-				key := "concurrent_key_" + string(rune(index))
-				value := "concurrent_value_" + string(rune(index))
+				key := "concurrent_key_" + strconv.Itoa(index)
+				value := "concurrent_value_" + strconv.Itoa(index)
 
 				err := storage.Write("test_collection", key, value)
 				assert.NoError(t, err)

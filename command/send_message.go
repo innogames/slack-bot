@@ -24,7 +24,7 @@ func (c *sendMessageCommand) GetMatcher() matcher.Matcher {
 func (c *sendMessageCommand) sendMessage(match matcher.Result, message msg.Message) {
 	text := match.GetString("text")
 	if message.GetUser() != "" {
-		text = fmt.Sprintf("Text from <@%s>: %s", message.User, text)
+		text = fmt.Sprintf("Text from <@%s>: %s", message.GetUser(), text)
 	}
 
 	if match.GetString("type") == "#" {

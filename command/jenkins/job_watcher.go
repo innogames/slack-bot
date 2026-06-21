@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"sync"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
@@ -19,13 +20,14 @@ const (
 // newJobWatcherCommand initialize a new command to watch for any jenkins job
 func newJobWatcherCommand(base jenkinsCommand) bot.Command {
 	return &watcherCommand{
-		base,
-		make(map[string]chan bool),
+		jenkinsCommand: base,
+		stopper:        make(map[string]chan bool),
 	}
 }
 
 type watcherCommand struct {
 	jenkinsCommand
+	mu      sync.Mutex
 	stopper map[string]chan bool
 }
 
@@ -48,7 +50,9 @@ func (c *watcherCommand) run(match matcher.Result, message msg.Message) {
 		stop := make(chan bool, 1)
 		ctx := context.TODO()
 		// todo use context.WithCancel instead of stopper chan
+		c.mu.Lock()
 		c.stopper[decodedJobName+message.GetUser()] = stop
+		c.mu.Unlock()
 		builds, err := client.WatchJob(ctx, c.jenkins, decodedJobName, stop)
 		if err != nil {
 			c.ReplyError(message, err)
@@ -71,7 +75,10 @@ func (c *watcherCommand) run(match matcher.Result, message msg.Message) {
 	}
 
 	if action == actionUnwatch {
-		if stop, ok := c.stopper[decodedJobName+message.User]; ok {
+		c.mu.Lock()
+		stop, ok := c.stopper[decodedJobName+message.User]
+		c.mu.Unlock()
+		if ok {
 			stop <- true
 		}
 

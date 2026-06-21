@@ -40,6 +40,20 @@ func idToIcon(priority *jira.Priority) string {
 	}
 }
 
+func priorityName(p *jira.Priority) string {
+	if p == nil {
+		return ""
+	}
+	return p.Name
+}
+
+func statusName(s *jira.Status) string {
+	if s == nil {
+		return ""
+	}
+	return s.Name
+}
+
 func convertMarkdown(content string) string {
 	return markdownReplacer.Replace(content)
 }

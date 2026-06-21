@@ -153,17 +153,27 @@ func (srp StreamingResponsePayload) String() string {
 	for _, res := range srp.Result {
 		var from string
 		switch {
-		case len(res.Result[0].From) > 0:
+		case len(res.Result) > 0 && len(res.Result[0].From) > 0:
 			from = res.Result[0].From
-		case len(res.Result[1].From) > 0:
+		case len(res.Result) > 1 && len(res.Result[1].From) > 0:
 			from = res.Result[1].From
-		case len(res.Result[2].From) > 0:
+		case len(res.Result) > 2 && len(res.Result[2].From) > 0:
 			from = res.Result[2].From
 		default:
 			from = "???"
 		}
 
-		fmt.Fprintf(&text, "%2d .  %-40s %4d%%  %7.3f %7.3f %7.3f\n", res.Hop, from, 0, res.Result[0].Rtt, res.Result[1].Rtt, res.Result[2].Rtt)
+		var rtt0, rtt1, rtt2 float64
+		if len(res.Result) > 0 {
+			rtt0 = res.Result[0].Rtt
+		}
+		if len(res.Result) > 1 {
+			rtt1 = res.Result[1].Rtt
+		}
+		if len(res.Result) > 2 {
+			rtt2 = res.Result[2].Rtt
+		}
+		fmt.Fprintf(&text, "%2d .  %-40s %4d%%  %7.3f %7.3f %7.3f\n", res.Hop, from, 0, rtt0, rtt1, rtt2)
 	}
 
 	text.WriteString("```\n")

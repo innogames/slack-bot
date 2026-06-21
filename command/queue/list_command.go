@@ -85,8 +85,9 @@ func (c *listCommand) sendList(message msg.Message, options matcher.Result, filt
 	messageTimestamp := c.SendBlockMessage(message, blocks, msgOptions...)
 
 	if options.Has("pin") {
-		err := c.PinMessage(message.Channel, messageTimestamp)
-		c.ReplyError(message, err)
+		if err := c.PinMessage(message.Channel, messageTimestamp); err != nil {
+			c.ReplyError(message, err)
+		}
 	}
 }
 

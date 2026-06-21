@@ -77,7 +77,7 @@ func (c *poolCommands) RunAsync(ctx *util.ServerContext) {
 					),
 				}
 				c.slackClient.SendBlockMessageToUser(lock.User, blocks)
-				lock.WarningSend = true
+				c.pool.markWarningSent(lock.Resource.Name)
 			}
 		}
 
@@ -167,10 +167,6 @@ func (c *poolCommands) extend(match matcher.Result, message msg.Message) {
 	res, err := c.pool.ExtendLock(userName, resourceName, duration)
 	if err != nil {
 		c.slackClient.ReplyError(message, err)
-		return
-	}
-	if res == nil {
-		c.slackClient.ReplyError(message, fmt.Errorf("%s expired already", resourceName))
 		return
 	}
 
