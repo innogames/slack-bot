@@ -122,17 +122,26 @@ func startJob(ctx context.Context, jenkins Client, jobName string, jobParams Par
 	ticker := time.NewTicker(time.Second * 1)
 	defer ticker.Stop()
 
-	// wait until build ios really really running not just queued
-	for range ticker.C {
-		_, err := job.Poll(ctx)
-		if err != nil {
-			log.Errorf("Error polling job: %v", err)
-			continue
-		}
+	maxWait := time.NewTimer(5 * time.Minute)
+	defer maxWait.Stop()
 
-		newBuildID = job.Raw.LastBuild.Number
-		if newBuildID > lastBuildID {
-			break
+	// wait until build is really running, not just queued
+outer:
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-maxWait.C:
+			return nil, fmt.Errorf("timeout waiting for job %s to start after 5 minutes", jobName)
+		case <-ticker.C:
+			if _, err := job.Poll(ctx); err != nil {
+				log.Errorf("Error polling job: %v", err)
+				continue
+			}
+			newBuildID = job.Raw.LastBuild.Number
+			if newBuildID > lastBuildID {
+				break outer
+			}
 		}
 	}
 
