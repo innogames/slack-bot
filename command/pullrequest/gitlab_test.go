@@ -27,7 +27,7 @@ func TestGitlab(t *testing.T) {
 	cfg.Gitlab.AccessToken = "0815"
 
 	commands := bot.Commands{}
-	cmd := newGitlabCommand(base, cfg).(command)
+	cmd := newGitlabCommand(base, cfg, nil).(command)
 	gitlabFetcher := cmd.fetcher.(*gitlabFetcher)
 
 	commands.AddCommand(cmd)

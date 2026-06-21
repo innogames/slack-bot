@@ -18,7 +18,7 @@ func TestWatchJira(t *testing.T) {
 	cfg := &config.Jira{
 		Host: "https://issues.apache.org/jira/",
 	}
-	jiraClient, err := getClient(cfg)
+	jiraClient, err := GetClient(cfg)
 	require.NoError(t, err)
 
 	command := bot.Commands{}

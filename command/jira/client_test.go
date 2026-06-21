@@ -13,7 +13,7 @@ func TestJiraClient(t *testing.T) {
 		cfg := &config.Jira{
 			Host: "https://jira.example.com",
 		}
-		client, err := getClient(cfg)
+		client, err := GetClient(cfg)
 
 		require.NoError(t, err)
 		assert.Equal(t, "jira.example.com", client.GetBaseURL().Host)
@@ -25,7 +25,7 @@ func TestJiraClient(t *testing.T) {
 			Username: "foo",
 			Password: "bar",
 		}
-		client, err := getClient(cfg)
+		client, err := GetClient(cfg)
 
 		require.NoError(t, err)
 		assert.False(t, client.Authentication.Authenticated())
@@ -37,7 +37,7 @@ func TestJiraClient(t *testing.T) {
 			Username:    "foo",
 			AccessToken: "iamsecret",
 		}
-		client, err := getClient(cfg)
+		client, err := GetClient(cfg)
 
 		require.NoError(t, err)
 		assert.False(t, client.Authentication.Authenticated())

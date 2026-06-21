@@ -4,6 +4,7 @@ import (
 	"context"
 	"text/template"
 
+	gojira "github.com/andygrunwald/go-jira"
 	"github.com/google/go-github/github"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -17,7 +18,7 @@ type githubFetcher struct {
 	client *github.Client
 }
 
-func newGithubCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
+func newGithubCommand(base bot.BaseCommand, cfg *config.Config, jiraClient *gojira.Client) bot.Command {
 	var githubClient *github.Client
 	if cfg.Github.AccessToken == "" {
 		githubClient = github.NewClient(client.GetHTTPClient())
@@ -38,6 +39,7 @@ func newGithubCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 		cfg.PullRequest,
 		&githubFetcher{githubClient},
 		"(?s).*https://github.com/(?P<project>.+)/(?P<repo>.+)/pull/(?P<number>\\d+).*",
+		jiraClient,
 	}
 }
 
@@ -94,6 +96,7 @@ func (c *githubFetcher) getPullRequest(match matcher.Result, _ *config.PullReque
 		Status:    c.getStatus(rawPullRequest, inReview),
 		Author:    author,
 		Link:      link,
+		Branch:    rawPullRequest.GetHead().GetRef(),
 		Approvers: approvers,
 	}
 

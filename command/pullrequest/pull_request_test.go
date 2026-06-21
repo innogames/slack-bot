@@ -169,6 +169,7 @@ func initTest(slackClient client.SlackClient) (bot.Commands, *testFetcher) {
 		cfg.PullRequest,
 		fetcher,
 		".*/projects/(?P<project>.+)/repos/(?P<repo>.+)/pull-requests/(?P<number>\\d+).*",
+		nil,
 	}
 	commands.AddCommand(cmd)
 

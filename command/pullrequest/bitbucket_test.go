@@ -25,7 +25,7 @@ func TestBitbucketNotActive(t *testing.T) {
 	cfg := &config.DefaultConfig
 
 	command := bot.Commands{}
-	cmd := newBitbucketCommand(base, cfg)
+	cmd := newBitbucketCommand(base, cfg, nil)
 	command.AddCommand(cmd)
 
 	t.Run("invalid command", func(t *testing.T) {
@@ -58,7 +58,7 @@ func TestBitbucketFakeServer(t *testing.T) {
 	}
 
 	command := bot.Commands{}
-	cmd := newBitbucketCommand(base, &cfg)
+	cmd := newBitbucketCommand(base, &cfg, nil)
 	command.AddCommand(cmd)
 
 	t.Run("Merged PR", func(t *testing.T) {

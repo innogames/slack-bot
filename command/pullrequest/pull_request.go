@@ -4,10 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"regexp"
 	"slices"
 	"text/template"
 	"time"
 
+	gojira "github.com/andygrunwald/go-jira"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
@@ -18,6 +20,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
 )
+
+// jiraTicketRegexp matches a Jira ticket key like "TEST-123" inside a branch name or PR title
+var jiraTicketRegexp = regexp.MustCompile(`[A-Z][A-Z0-9]+-\d+`)
 
 const (
 	minCheckInterval = time.Second * 30
@@ -56,6 +61,10 @@ type command struct {
 	cfg     config.PullRequest
 	fetcher fetcher
 	regexp  string
+
+	// optional Jira client, used to resolve the priority/severity of the referenced ticket.
+	// nil when Jira is not configured.
+	jira *gojira.Client
 }
 
 type pullRequest struct {
@@ -71,6 +80,9 @@ type pullRequest struct {
 
 	// link to the PR
 	Link string
+
+	// source branch of the PR, e.g. "bugfix/TEST-123-fix-xyz" (used to resolve the Jira ticket)
+	Branch string
 
 	// list of usernames which approved the PR
 	Approvers []string
@@ -100,6 +112,10 @@ type pullRequestWatch struct {
 	LastBuildStatus                   buildStatus
 	PullRequestStatus                 prStatus
 	SavedLatestReviewCommentTimestamp int64
+
+	// reaction representing the Jira priority/severity of the PR; resolved once per watcher
+	SeverityReaction util.Reaction
+	severityResolved bool
 }
 
 func (c command) watch(match matcher.Result, message msg.Message) {
@@ -145,7 +161,17 @@ func (c command) watch(match matcher.Result, message msg.Message) {
 		}
 		currentErrorCount = 0
 
+		// resolve the Jira priority once: it's stable for the PR's lifetime
+		if !prw.severityResolved {
+			prw.SeverityReaction = c.getSeverityReaction(prw.PullRequest)
+			prw.severityResolved = true
+		}
+
 		c.setPRReactions(prw.PullRequest, currentReactions, message)
+
+		if prw.SeverityReaction != "" {
+			c.addReaction(currentReactions, prw.SeverityReaction, message)
+		}
 
 		c.notifyBuildStatus(&prw)
 
@@ -216,6 +242,48 @@ func (c command) processBuildStatus(pr pullRequest, currentReactions reactionMap
 	} else {
 		c.removeReaction(currentReactions, c.cfg.Reactions.BuildRunning, message)
 	}
+}
+
+// extractTicketKey returns the Jira ticket key referenced by the PR, preferring the branch
+// name (e.g. "bugfix/TEST-123-fix") over the PR title. Returns "" if none is found.
+func extractTicketKey(pr pullRequest) string {
+	if key := jiraTicketRegexp.FindString(pr.Branch); key != "" {
+		return key
+	}
+
+	return jiraTicketRegexp.FindString(pr.Name)
+}
+
+// getSeverityReaction resolves the configured reaction for the Jira priority of the ticket
+// referenced by the PR. Returns "" when Jira is not configured, no ticket is referenced, the
+// lookup fails, or the priority has no mapped reaction.
+func (c command) getSeverityReaction(pr pullRequest) util.Reaction {
+	if c.jira == nil || len(c.cfg.JiraPriorityReactions) == 0 {
+		return ""
+	}
+
+	ticketKey := extractTicketKey(pr)
+	if ticketKey == "" {
+		return ""
+	}
+
+	issue, _, err := c.jira.Issue.Get(ticketKey, &gojira.GetQueryOptions{Fields: "priority"})
+	if err != nil {
+		log.Warnf("error while loading Jira ticket %s for PR severity: %s", ticketKey, err)
+		return ""
+	}
+
+	if issue.Fields == nil || issue.Fields.Priority == nil {
+		return ""
+	}
+
+	if reaction, ok := c.cfg.JiraPriorityReactions[issue.Fields.Priority.Name]; ok {
+		return reaction
+	}
+
+	log.Infof("no severity reaction mapped for Jira priority: %s", issue.Fields.Priority.Name)
+
+	return ""
 }
 
 // get the current reactions in the given message which got created by this bot user

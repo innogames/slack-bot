@@ -1,6 +1,10 @@
 package config
 
-import "time"
+import (
+	"time"
+
+	"github.com/innogames/slack-bot/v2/bot/util"
+)
 
 // DefaultConfig with some common values
 var DefaultConfig = Config{
@@ -43,6 +47,13 @@ var DefaultConfig = Config{
 			BuildFailed:  "fire",
 			BuildRunning: "arrows_counterclockwise",
 			Error:        "x",
+		},
+		JiraPriorityReactions: map[string]util.Reaction{
+			"Blocker":  "jira_blocker",
+			"Critical": "jira_critical",
+			"Major":    "jira_major",
+			"Medium":   "jira_medium",
+			"Minor":    "jira_minor",
 		},
 	},
 	BranchLookup: VCS{

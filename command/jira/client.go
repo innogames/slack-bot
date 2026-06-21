@@ -8,8 +8,8 @@ import (
 	"github.com/innogames/slack-bot/v2/client"
 )
 
-// getClient creates a jira client based on github.com/andygrunwald/go-jira and passes authentication credentials
-func getClient(cfg *config.Jira) (*jira.Client, error) {
+// GetClient creates a jira client based on github.com/andygrunwald/go-jira and passes authentication credentials
+func GetClient(cfg *config.Jira) (*jira.Client, error) {
 	var httpClient *http.Client
 
 	switch {

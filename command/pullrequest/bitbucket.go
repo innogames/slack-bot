@@ -6,6 +6,7 @@ import (
 	"strings"
 	"text/template"
 
+	gojira "github.com/andygrunwald/go-jira"
 	bitbucket "github.com/gfleury/go-bitbucket-v1"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -23,7 +24,7 @@ var closedPr = pullRequest{
 	Status: prStatusClosed,
 }
 
-func newBitbucketCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
+func newBitbucketCommand(base bot.BaseCommand, cfg *config.Config, jiraClient *gojira.Client) bot.Command {
 	if !cfg.Bitbucket.IsEnabled() {
 		return nil
 	}
@@ -39,6 +40,7 @@ func newBitbucketCommand(base bot.BaseCommand, cfg *config.Config) bot.Command {
 		cfg.PullRequest,
 		&bitbucketFetcher{bitbucketClient},
 		"(?s).*" + regexp.QuoteMeta(cfg.Bitbucket.Host) + "/projects/(?P<project>.+)/repos/(?P<repo>.+)/pull-requests/(?P<number>\\d+).*",
+		jiraClient,
 	}
 }
 
@@ -99,6 +101,7 @@ func (c *bitbucketFetcher) getPullRequest(match matcher.Result, config *config.P
 		BuildStatus:                   c.getBuildStatus(rawPullRequest.FromRef.LatestCommit),
 		Author:                        author,
 		Link:                          link,
+		Branch:                        rawPullRequest.FromRef.DisplayID,
 		Approvers:                     approvers,
 		LatestReviewCommentsTimestamp: latestCommentTimestamp,
 	}
