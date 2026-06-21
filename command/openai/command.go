@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 	"text/template"
 	"time"
@@ -487,10 +488,7 @@ func (c *openaiCommand) getChannelHistory(channel string, count int) ([]slack.Me
 	}
 
 	// Reverse to get chronological order (API returns newest first)
-	for i := range len(allMessages) / 2 {
-		j := len(allMessages) - i - 1
-		allMessages[i], allMessages[j] = allMessages[j], allMessages[i]
-	}
+	slices.Reverse(allMessages)
 
 	return allMessages, nil
 }

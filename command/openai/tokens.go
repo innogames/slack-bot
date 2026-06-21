@@ -20,25 +20,31 @@ var maxTokens = map[string]int{
 var modelDateRe = regexp.MustCompile(`-\d{4}`)
 
 // truncateMessages will truncate the messages to fit into the max tokens limit of the model
-// we always try to keep the last message, so we will truncate the first messages
+// we always try to keep the last message, so we will truncate the first (oldest) messages
 func truncateMessages(model string, inputMessages []ChatMessage) ([]ChatMessage, int, int) {
-	outputMessages := make([]ChatMessage, 0, len(inputMessages))
-
+	maxTokens := getMaxTokensForModel(model)
 	currentTokens := 0
 	truncatedMessages := 0
-	maxTokens := getMaxTokensForModel(model)
-	for _, message := range inputMessages {
-		tokens := estimateTokensForMessage(message.Content)
 
+	// Walk newest→oldest so we always keep the most recent messages (including the current prompt).
+	kept := make([]ChatMessage, 0, len(inputMessages))
+	for i := len(inputMessages) - 1; i >= 0; i-- {
+		message := inputMessages[i]
+		tokens := estimateTokensForMessage(message.Content)
 		if currentTokens+tokens >= maxTokens {
 			truncatedMessages++
 			continue
 		}
 		currentTokens += tokens
-		outputMessages = append(outputMessages, message)
+		kept = append(kept, message)
 	}
 
-	return outputMessages, currentTokens, truncatedMessages
+	// Reverse kept to restore chronological order.
+	for i, j := 0, len(kept)-1; i < j; i, j = i+1, j-1 {
+		kept[i], kept[j] = kept[j], kept[i]
+	}
+
+	return kept, currentTokens, truncatedMessages
 }
 
 func getMaxTokensForModel(model string) int {

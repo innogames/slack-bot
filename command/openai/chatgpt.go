@@ -28,7 +28,9 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan s
 			Messages:        inputMessages,
 		})
 
-		log.Println(string(jsonData))
+		if cfg.LogTexts {
+			log.Println(string(jsonData))
+		}
 
 		resp, err := doRequest(cfg, apiCompletionURL, jsonData)
 		if err != nil {
@@ -66,6 +68,7 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan s
 		} else {
 			// stream: each line contains a delta of the message, so one new token
 			fileScanner := bufio.NewScanner(resp.Body)
+			fileScanner.Buffer(make([]byte, 0, 64*1024), 1<<20)
 			fileScanner.Split(bufio.ScanLines)
 			for fileScanner.Scan() {
 				line := fileScanner.Text()
@@ -86,6 +89,10 @@ func CallChatGPT(cfg Config, inputMessages []ChatMessage, stream bool) (<-chan s
 					// Send content if available, or send empty string for role-only deltas to trigger reaction changes
 					messageUpdates <- deltaContent
 				}
+			}
+			if err := fileScanner.Err(); err != nil {
+				log.Warnf("openai stream scanner error: %s", err)
+				messageUpdates <- fmt.Sprintf("stream error: %s", err)
 			}
 		}
 	}()
