@@ -1,7 +1,8 @@
 package config
 
 import (
-	"sort"
+	"maps"
+	"slices"
 	"time"
 )
 
@@ -51,11 +52,5 @@ type JenkinsJobs map[string]JobConfig
 
 // GetSortedNames get all defined job names, sorted by name
 func (j JenkinsJobs) GetSortedNames() []string {
-	jobNames := make([]string, 0, len(j))
-	for jobName := range j {
-		jobNames = append(jobNames, jobName)
-	}
-	sort.Strings(jobNames)
-
-	return jobNames
+	return slices.Sorted(maps.Keys(j))
 }

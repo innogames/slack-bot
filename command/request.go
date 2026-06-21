@@ -62,7 +62,7 @@ func (c requestCommand) doRequest(match matcher.Result, message msg.Message) {
 		return
 	}
 
-	c.AddReaction("white_check_mark", message)
+	c.AddReaction("✅", message)
 }
 
 func (c requestCommand) GetHelp() []bot.Help {
@@ -71,8 +71,8 @@ func (c requestCommand) GetHelp() []bot.Help {
 			Command:     "request --url=<url> [--method=<method>]",
 			Description: "send a request to the given url",
 			Examples: []string{
-				"request GET https://example.com",
-				"request POST https://jenkins.exmaple.com/webhook?auth=1",
+				"request --url=https://example.com",
+				"request --method=POST --url=https://jenkins.example.com/webhook?auth=1",
 			},
 		},
 	}
