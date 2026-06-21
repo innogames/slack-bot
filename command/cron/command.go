@@ -21,13 +21,20 @@ func NewCronCommand(base bot.BaseCommand, crons []config.Cron) bot.Command {
 	cron := cronLib.New(
 		cronLib.WithLogger(newCronLogger()),
 	)
-	cmd := &command{base, crons, cron}
+	cmd := &command{
+		BaseCommand: base,
+		cfg:         crons,
+		cron:        cron,
+		entryToCfg:  make(map[cronLib.EntryID]config.Cron),
+	}
 
 	for _, cronCommand := range crons {
-		_, err := cron.AddFunc(cronCommand.Schedule, cmd.getCallback(cronCommand))
+		id, err := cron.AddFunc(cronCommand.Schedule, cmd.getCallback(cronCommand))
 		if err != nil {
 			log.Error(err)
+			continue
 		}
+		cmd.entryToCfg[id] = cronCommand
 	}
 
 	return cmd
@@ -35,8 +42,9 @@ func NewCronCommand(base bot.BaseCommand, crons []config.Cron) bot.Command {
 
 type command struct {
 	bot.BaseCommand
-	cfg  []config.Cron
-	cron *cronLib.Cron
+	cfg        []config.Cron
+	cron       *cronLib.Cron
+	entryToCfg map[cronLib.EntryID]config.Cron
 }
 
 // RunAsync provide proper Cron start/stop in a async context
@@ -45,6 +53,7 @@ func (c *command) RunAsync(ctx *util.ServerContext) {
 	log.Infof("Initialized %d crons", len(c.cfg))
 
 	<-ctx.Done()
+	c.cron.Stop()
 }
 
 func (c *command) getCallback(cron config.Cron) func() {
