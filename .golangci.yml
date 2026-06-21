@@ -54,6 +54,7 @@ linters:
           - errcheck
           - perfsprint
           - usestdlibvars
+          - noctx
         path: _test\.go
       - linters:
           - tagalign
@@ -61,6 +62,26 @@ linters:
       - linters:
           - gochecknoinits
         path: plugins/
+      # config structs intentionally hold secrets and are (de)serialized via mapstructure/yaml;
+      # the field *names* matching a secret pattern is by design, not a leak.
+      - linters:
+          - gosec
+        text: G117
+      # musttag on debug/CLI dumps of config structs (mapstructure-tagged, yaml-dumped on purpose)
+      - linters:
+          - musttag
+        path: (bot/config/|command/custom_commmands/|bot/tester/)
+      # bot/tester is a CLI/test mock that prints to the terminal, not a real web server:
+      # gosec taint analysis (XSS/log injection) does not apply.
+      - linters:
+          - gosec
+        path: (bot/tester/|command/clouds/)
+        text: (G705|G706)
+      # pre-existing package names; renaming would churn every importer for no real benefit.
+      - linters:
+          - revive
+        path: (bot/util/|bot/version/|command/custom_commmands/|command/custom_variables/)
+        text: 'var-naming.*package name'
     paths:
       - third_party$
       - builtin$

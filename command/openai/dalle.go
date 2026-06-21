@@ -1,6 +1,7 @@
 package openai
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -49,7 +50,7 @@ func (c *openaiCommand) dalleGenerateImage(match matcher.Result, message msg.Mes
 }
 
 func (c *openaiCommand) sendImageInSlack(image DalleResponseImage, message msg.Message, prompt string) error {
-	req, err := http.NewRequest(http.MethodGet, image.URL, nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, image.URL, nil)
 	if err != nil {
 		return err
 	}
