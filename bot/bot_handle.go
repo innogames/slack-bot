@@ -69,6 +69,14 @@ func (b *Bot) cleanMessage(text string, fromUserContext bool) string {
 	text = strings.Trim(text, "*")
 	text = strings.TrimSpace(text)
 
+	// strip a leading :robot_face: emoji: messages coming from Claude/MCP are prefixed with it,
+	// which would otherwise prevent commands from matching the message
+	if trimmed, ok := strings.CutPrefix(text, ":robot_face:"); ok {
+		text = strings.TrimSpace(trimmed)
+	} else if trimmed, ok := strings.CutPrefix(text, "🤖"); ok {
+		text = strings.TrimSpace(trimmed)
+	}
+
 	// remove links from incoming messages. for internal ones they might be wanted, as they contain valid links with texts
 	if fromUserContext {
 		text = linkRegexp.ReplaceAllString(text, "$1")
