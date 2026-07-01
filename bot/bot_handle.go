@@ -18,7 +18,9 @@ import (
 )
 
 var (
-	linkRegexp     = regexp.MustCompile(`<\S+?\|(.*?)>`)
+	// linkRegexp matches a Slack link with a display label: <url|label>.
+	// Group 1 is the url, group 2 is the label.
+	linkRegexp     = regexp.MustCompile(`<(\S+?)\|(.*?)>`)
 	bareLinkRegexp = regexp.MustCompile(`<(https?://\S+?)>`)
 
 	// clean copy&paste crap from Mac etc
@@ -79,11 +81,29 @@ func (b *Bot) cleanMessage(text string, fromUserContext bool) string {
 
 	// remove links from incoming messages. for internal ones they might be wanted, as they contain valid links with texts
 	if fromUserContext {
-		text = linkRegexp.ReplaceAllString(text, "$1")
+		text = linkRegexp.ReplaceAllStringFunc(text, replaceSlackLink)
 		text = bareLinkRegexp.ReplaceAllString(text, "$1")
 	}
 
 	return text
+}
+
+// replaceSlackLink resolves a Slack link of the form <url|label> to plain text.
+// Normally the human-readable label is kept. But Slack truncates long labels with a
+// horizontal ellipsis ("…"), which would discard the part of the URL that commands
+// (e.g. the pull request watcher) need to match. In that case the full url is kept instead.
+func replaceSlackLink(link string) string {
+	groups := linkRegexp.FindStringSubmatch(link)
+	if groups == nil {
+		return link
+	}
+
+	url, label := groups[1], groups[2]
+	if strings.Contains(label, "…") {
+		return url
+	}
+
+	return label
 }
 
 // ProcessMessage process the incoming message and respond appropriately
