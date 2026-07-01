@@ -98,6 +98,14 @@ func TestIsBotMessage(t *testing.T) {
 		assert.Equal(t, "send message general hello", bot.cleanMessage("send message <#C123|general> hello", true))
 		assert.Equal(t, "notify user <@U123> active", bot.cleanMessage("notify user <@U123> active", true))
 		assert.Equal(t, "<https://test.com> <#C123|general>", bot.cleanMessage("<https://test.com> <#C123|general>", false))
+
+		// strip leading :robot_face: emoji prefixed by Claude/MCP messages
+		assert.Equal(t, "list jenkins nodes", bot.cleanMessage(":robot_face: list jenkins nodes", true))
+		assert.Equal(t, "list jenkins nodes", bot.cleanMessage("🤖 list jenkins nodes", true))
+		assert.Equal(t, "list jenkins nodes", bot.cleanMessage("<@BOT> :robot_face: list jenkins nodes", true))
+		assert.Equal(t, "list jenkins nodes", bot.cleanMessage("*:robot_face: list jenkins nodes*", true))
+		// only a leading emoji is stripped, not one in the middle of the message
+		assert.Equal(t, "reply :robot_face: is cute", bot.cleanMessage("reply :robot_face: is cute", true))
 	})
 }
 
