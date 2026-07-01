@@ -99,6 +99,15 @@ func TestIsBotMessage(t *testing.T) {
 		assert.Equal(t, "notify user <@U123> active", bot.cleanMessage("notify user <@U123> active", true))
 		assert.Equal(t, "<https://test.com> <#C123|general>", bot.cleanMessage("<https://test.com> <#C123|general>", false))
 
+		// when Slack truncates the display label of a link (indicated by the … ellipsis),
+		// keep the full URL instead of the useless truncated label so commands still match.
+		assert.Equal(t,
+			"https://test.com/foo/bar/baz/123/overview",
+			bot.cleanMessage("<https://test.com/foo/bar/baz/123/overview|test.com/foo/…/overview>", true),
+		)
+		// a normal, non-truncated label is still preferred over the URL
+		assert.Equal(t, "TEST", bot.cleanMessage("<https://test.com|TEST>", true))
+
 		// strip leading :robot_face: emoji prefixed by Claude/MCP messages
 		assert.Equal(t, "list jenkins nodes", bot.cleanMessage(":robot_face: list jenkins nodes", true))
 		assert.Equal(t, "list jenkins nodes", bot.cleanMessage("🤖 list jenkins nodes", true))
