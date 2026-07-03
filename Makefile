@@ -5,6 +5,12 @@ all: test build/slack-bot build/cli
 
 FLAGS = -trimpath -ldflags="-s -w -X github.com/innogames/slack-bot/v2/bot/version.Version=$(shell git describe --tags)"
 
+# all packages of all go.work workspace modules: framework + cmd binaries + plugins
+PKGS = github.com/innogames/slack-bot/v2/...
+
+# all workspace modules, e.g. for per-module linting
+MODULE_DIRS = . ./cmd/bot ./cmd/cli ./plugins/aws ./plugins/example ./plugins/ripeatlas
+
 build/slack-bot: dep
 	@mkdir -p build/
 	go build $(FLAGS) -o build/slack-bot cmd/bot/main.go
@@ -26,13 +32,16 @@ run-cli-config:
 clean:
 	rm -rf build/
 
-# download go dependencies into ./vendor/
+# download go dependencies of all workspace modules into ./vendor/
 dep:
-	@go mod vendor
+	@go work vendor
 
 lint:
-	go fix ./...
-	golangci-lint run --fix
+	go fix $(PKGS)
+	@for dir in $(MODULE_DIRS); do \
+		echo "linting $$dir"; \
+		(cd $$dir && golangci-lint run --fix) || exit 1; \
+	done
 
 docker-build:
 	docker build . --force-rm -t brainexe/slack-bot:latest
@@ -41,17 +50,17 @@ docker-push:
 	docker push brainexe/slack-bot:latest
 
 test: dep
-	go test ./...
+	go test $(PKGS)
 
 test-race: dep
-	go test ./... -race
+	go test $(PKGS) -race
 
 test-bench:
-	go test -bench . ./... -benchmem
+	go test -bench . $(PKGS) -benchmem
 
 test-coverage: dep
 	@mkdir -p build
-	go test ./... -coverpkg=./... -cover -coverprofile=./build/cover.out -covermode=atomic
+	go test $(PKGS) -coverpkg=$(PKGS) -cover -coverprofile=./build/cover.out -covermode=atomic
 	go tool cover -html=./build/cover.out -o ./build/cover.html
 	@go tool cover -func ./build/cover.out | grep total | awk '{print "Total Coverage: " $$3 " see ./build/cover.html"}'
 

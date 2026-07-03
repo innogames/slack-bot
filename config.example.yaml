@@ -109,6 +109,18 @@ github:
 #openai:
 #  api_key: a12121
 
+# plugins: compiled-in bot extensions (see docs/plugins.md)
+# Each plugin reads its own config from this section.
+# An explicit "enabled: false" disables a compiled-in plugin entirely.
+#plugins:
+#  aws:
+#    enabled: true
+#    cloud_front:
+#      - id: E1234ABCDEF
+#        name: my-distribution
+#  ripeatlas:
+#    api_key: "your-ripe-atlas-api-key"
+
 logger:
   level: info
   file: ./bot.log

@@ -6,27 +6,41 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/client"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
-// help category to group all Jenkins command
+// help category to group all AWS commands
 var category = bot.Category{
 	Name:        "Cloud-AWS",
 	Description: "Interact with AWS resources: CF && ECS",
 }
 
-// base command to access Slack+Jenkins directly
+// base command to access Slack+AWS directly
 type awsCommand struct {
 	bot.BaseCommand
 	cfg aws.Config
 }
 
-// GetCommands will return a list of available Jenkins commands...if the config is set!
-func GetCommands(cfg config.Aws, base bot.BaseCommand) bot.Commands {
+func init() {
+	bot.RegisterPlugin(bot.Plugin{
+		Name: "aws",
+		Init: getCommands,
+	})
+}
+
+// getCommands will return a list of available AWS commands...if the config is set!
+func getCommands(slackClient client.SlackClient, cfg config.Config) bot.Commands {
 	var commands bot.Commands
 
-	if !cfg.IsEnabled() {
+	var pluginCfg Config
+	if err := cfg.LoadPlugin("aws", &pluginCfg); err != nil {
+		log.Error(errors.Wrap(err, "error while loading aws plugin config"))
+		return commands
+	}
+
+	if !pluginCfg.IsEnabled() {
 		return commands
 	}
 
@@ -38,27 +52,14 @@ func GetCommands(cfg config.Aws, base bot.BaseCommand) bot.Commands {
 	}
 
 	awsBase := awsCommand{
-		base,
+		bot.BaseCommand{SlackClient: slackClient},
 		awsConfig,
 	}
 
-	distributions := setCloudFrontDistributions(cfg)
-
 	commands.AddCommand(
-		newCloudFrontCommands(distributions, awsBase),
+		newCloudFrontCommands(pluginCfg.CloudFront, awsBase),
 		newEcsCommands(awsBase),
 	)
 
 	return commands
-}
-
-func setCloudFrontDistributions(cfg config.Aws) []config.AwsCfDistribution {
-	c := make([]config.AwsCfDistribution, 0, len(cfg.CloudFront))
-	for _, v := range cfg.CloudFront {
-		c = append(c, config.AwsCfDistribution{
-			ID:   v.ID,
-			Name: v.Name,
-		})
-	}
-	return c
 }

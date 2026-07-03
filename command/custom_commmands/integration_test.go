@@ -18,7 +18,7 @@ func TestCustomCommands(t *testing.T) {
 	defer lock.Unlock()
 
 	cfg := &config.Config{}
-	cfg.Set("custom_commands.enabled", true)
+	cfg.Set("custom_commands§enabled", true)
 
 	commands := bot.Commands{}
 	commands.AddCommand(GetCommand(base, cfg))

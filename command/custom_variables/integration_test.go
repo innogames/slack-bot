@@ -15,7 +15,7 @@ func TestCustomCommands(t *testing.T) {
 	base := bot.BaseCommand{SlackClient: slackClient}
 
 	cfg := &config.Config{}
-	cfg.Set("custom_variables.enabled", true)
+	cfg.Set("custom_variables§enabled", true)
 
 	commands := bot.Commands{}
 	variablesCommand := GetCommand(base, cfg).(command)

@@ -1,4 +1,7 @@
 version: "2"
+run:
+  # make path based excludes work when linting the workspace modules (cmd/*, plugins/*)
+  relative-path-mode: cfg
 linters:
   enable:
     - asasalint
@@ -75,7 +78,7 @@ linters:
       # gosec taint analysis (XSS/log injection) does not apply.
       - linters:
           - gosec
-        path: (bot/tester/|command/clouds/)
+        path: (bot/tester/|plugins/aws/)
         text: (G705|G706)
       # pre-existing package names; renaming would churn every importer for no real benefit.
       - linters:
