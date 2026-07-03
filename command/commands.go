@@ -5,7 +5,6 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/innogames/slack-bot/v2/command/admin"
-	"github.com/innogames/slack-bot/v2/command/clouds/aws"
 	"github.com/innogames/slack-bot/v2/command/cron"
 	"github.com/innogames/slack-bot/v2/command/custom_commmands"
 	"github.com/innogames/slack-bot/v2/command/custom_variables"
@@ -17,7 +16,6 @@ import (
 	"github.com/innogames/slack-bot/v2/command/pool"
 	"github.com/innogames/slack-bot/v2/command/pullrequest"
 	"github.com/innogames/slack-bot/v2/command/queue"
-	"github.com/innogames/slack-bot/v2/command/ripeatlas"
 	"github.com/innogames/slack-bot/v2/command/vcs"
 	"github.com/innogames/slack-bot/v2/command/weather"
 )
@@ -69,9 +67,6 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 	// gitlab pipeline/job watcher
 	commands.Merge(gitlabcmd.GetCommands(base, &cfg))
 
-	// aws
-	commands.Merge(aws.GetCommands(cfg.Aws, base))
-
 	// pool
 	commands.Merge(pool.GetCommands(&cfg.Pool, base))
 
@@ -81,8 +76,7 @@ func GetCommands(slackClient client.SlackClient, cfg config.Config) *bot.Command
 	// vcs branch watcher
 	commands.Merge(vcs.GetCommands(base, &cfg))
 
-	// Ripe Atlas
-	commands.Merge(ripeatlas.GetCommands(base, &cfg))
+	// note: aws + ripeatlas moved to the plugin system: see plugins/ and docs/plugins.md
 
 	return commands
 }

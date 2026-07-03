@@ -10,22 +10,21 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudfront"
 	"github.com/aws/aws-sdk-go-v2/service/cloudfront/types"
 	"github.com/innogames/slack-bot/v2/bot"
-	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/slack-go/slack"
 )
 
-// command to trigger/start jenkins jobs
+// command to interact with CloudFront distributions
 type cloudFrontCommand struct {
 	awsCommand
 	service *cloudfront.Client
-	cfg     []config.AwsCfDistribution
+	cfg     []CfDistribution
 }
 
-// NewAwsCommand is a command to interact with aws resources
-func newCloudFrontCommands(cfg []config.AwsCfDistribution, base awsCommand) bot.Command {
+// newCloudFrontCommands is a command to interact with aws CloudFront resources
+func newCloudFrontCommands(cfg []CfDistribution, base awsCommand) bot.Command {
 	svc := cloudfront.NewFromConfig(base.cfg)
 	return &cloudFrontCommand{base, svc, cfg}
 }

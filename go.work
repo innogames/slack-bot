@@ -1,0 +1,10 @@
+go 1.25.0
+
+use (
+	.
+	./cmd/bot
+	./cmd/cli
+	./plugins/aws
+	./plugins/example
+	./plugins/ripeatlas
+)

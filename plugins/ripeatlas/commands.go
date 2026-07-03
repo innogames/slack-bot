@@ -3,6 +3,7 @@ package ripeatlas
 import (
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
+	"github.com/innogames/slack-bot/v2/client"
 )
 
 var category = bot.Category{
@@ -10,14 +11,22 @@ var category = bot.Category{
 	Description: "Run queries against the RIPE Atlas API to debug network issues",
 }
 
-func GetCommands(base bot.BaseCommand, config *config.Config) bot.Commands {
+func init() {
+	bot.RegisterPlugin(bot.Plugin{
+		Name: "ripeatlas",
+		Init: getCommands,
+	})
+}
+
+func getCommands(slackClient client.SlackClient, config config.Config) bot.Commands {
 	var commands bot.Commands
 
-	cfg := loadConfig(config)
+	cfg := loadConfig(&config)
 	if !cfg.IsEnabled() {
 		return commands
 	}
 
+	base := bot.BaseCommand{SlackClient: slackClient}
 	commands.AddCommand(
 		&creditsCommand{base, cfg},
 		&tracerouteCommand{base, cfg},

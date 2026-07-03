@@ -27,7 +27,7 @@ var defaultConfig = Config{
 
 func loadConfig(config *config.Config) Config {
 	cfg := defaultConfig
-	_ = config.LoadCustom("ripeatlas", &cfg)
+	_ = config.LoadPlugin("ripeatlas", &cfg)
 
 	return cfg
 }

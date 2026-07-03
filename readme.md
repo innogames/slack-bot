@@ -664,6 +664,11 @@ jenkins:
 
 jira:
   enabled: false  # Disables all Jira functionality
+
+# Compiled-in plugins can be disabled entirely via the plugins section
+plugins:
+  aws:
+    enabled: false  # Disables the whole aws plugin
 ```
 
 # Development
@@ -672,6 +677,7 @@ jira:
 - `bot/` contains the code classes of the bot: connection to Slack, user management, command matching...
 - `cmd/bot/` entry points aka main.go for the bot and the CLI test tool
 - `command/` real commands implementing the bot.Command interface
+- `plugins/` optional commands which are compiled into the default binary as plugins (see [docs/plugins.md](./docs/plugins.md))
 
 ## Create a new (native) command
 If you need a new command which is not implementable with a "command" command, you have to write Go code.
@@ -682,6 +688,11 @@ If you need a new command which is not implementable with a "command" command, y
 - Restart the bot application
 - It's recommended to fulfill the bot.HelpProvider (your command will show up in `help`)
 - It's also recommended to create an integration test for your command
+
+## Plugins
+Self-contained or optional features (like the aws or ripeatlas commands) can be shipped as compile-time plugins
+instead of being registered in command/commands.go. Plugins can register commands, read their own config
+section, use the storage and run background tasks — see [docs/plugins.md](./docs/plugins.md) for a full guide.
 
 ## CLI tool
 There is a handy CLI application which emulates the Slack application...just chat with your local console without any Slack connection!

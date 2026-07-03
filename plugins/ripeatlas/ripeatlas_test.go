@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/mocks"
@@ -141,11 +140,10 @@ func TestStreamingResponsePayloadString(t *testing.T) {
 
 func TestRipeAtlas(t *testing.T) {
 	slackClient := mocks.NewSlackClient(t)
-	base := bot.BaseCommand{SlackClient: slackClient}
 
 	t.Run("RIPE Atlas is not active", func(t *testing.T) {
 		cfg := &config.Config{}
-		commands := GetCommands(base, cfg)
+		commands := getCommands(slackClient, *cfg)
 		assert.Equal(t, 0, commands.Count())
 	})
 
@@ -153,13 +151,24 @@ func TestRipeAtlas(t *testing.T) {
 		ripeAtlasCfg := defaultConfig
 		ripeAtlasCfg.APIKey = "apikey"
 
+		// legacy top-level "ripeatlas:" config key
 		cfg := &config.Config{}
 		cfg.Set("ripeatlas", ripeAtlasCfg)
-		commands := GetCommands(base, cfg)
+		commands := getCommands(slackClient, *cfg)
 		assert.Equal(t, 2, commands.Count())
 
 		help := commands.GetHelp()
 		assert.Len(t, help, 2)
+	})
+
+	t.Run("RIPE Atlas is active via plugins section", func(t *testing.T) {
+		ripeAtlasCfg := defaultConfig
+		ripeAtlasCfg.APIKey = "apikey"
+
+		cfg := &config.Config{}
+		cfg.Set("plugins§ripeatlas", ripeAtlasCfg)
+		commands := getCommands(slackClient, *cfg)
+		assert.Equal(t, 2, commands.Count())
 	})
 
 	t.Run("RIPE Atlas Credits API wrong key", func(t *testing.T) {
@@ -173,7 +182,7 @@ func TestRipeAtlas(t *testing.T) {
 
 		cfg := &config.Config{}
 		cfg.Set("ripeatlas", ripeAtlasCfg)
-		commands := GetCommands(base, cfg)
+		commands := getCommands(slackClient, *cfg)
 
 		message := msg.Message{}
 		message.Text = "credits"
@@ -198,7 +207,7 @@ func TestRipeAtlas(t *testing.T) {
 
 		cfg := &config.Config{}
 		cfg.Set("ripeatlas", ripeAtlasCfg)
-		commands := GetCommands(base, cfg)
+		commands := getCommands(slackClient, *cfg)
 
 		message := msg.Message{}
 		message.Text = "credits"
@@ -230,7 +239,7 @@ func TestRipeAtlas(t *testing.T) {
 
 		cfg := &config.Config{}
 		cfg.Set("ripeatlas", ripeAtlasCfg)
-		commands := GetCommands(base, cfg)
+		commands := getCommands(slackClient, *cfg)
 
 		message := msg.Message{}
 		message.Text = "traceroute 8.8.8.8"
@@ -259,7 +268,7 @@ func TestRipeAtlas(t *testing.T) {
 
 		cfg := &config.Config{}
 		cfg.Set("ripeatlas", ripeAtlasCfg)
-		commands := GetCommands(base, cfg)
+		commands := getCommands(slackClient, *cfg)
 
 		message := msg.Message{}
 		message.Text = "traceroute 8.8.8.8"

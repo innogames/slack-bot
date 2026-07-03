@@ -27,6 +27,9 @@ type Config struct {
 		AccessToken string
 		Host        string
 	} `mapstructure:"gitlab"`
+	// Deprecated: the aws commands moved to plugins/aws and read their config
+	// via Config.LoadPlugin from the "plugins: aws:" section (the legacy
+	// top-level "aws:" key still works). Field kept for compatibility, unused at runtime.
 	Aws      Aws       `mapstructure:"aws"`
 	Commands []Command `mapstructure:"commands"`
 	Crons    []Cron    `mapstructure:"crons"`
@@ -40,9 +43,6 @@ type Config struct {
 	OpenWeather OpenWeather `mapstructure:"open_weather"`
 	PullRequest PullRequest `mapstructure:"pullrequest"`
 	Timezone    string      `mapstructure:"timezone"`
-
-	// list of slack-bot plugins to load
-	Plugins []string `mapstructure:"plugins"`
 
 	// store whole Viper to get dynamic config values
 	viper *viper.Viper `mapstructure:"-"`
@@ -59,7 +59,8 @@ func (c *Config) LoadCustom(key string, value any) error {
 // Set a dynamic config value...please only set it in tests!
 func (c *Config) Set(key string, value any) {
 	if c.viper == nil {
-		c.viper = viper.New()
+		// use the same key delimiter as the Load() based viper instance
+		c.viper = viper.NewWithOptions(viper.KeyDelimiter(keyDelimiter), viper.KeyPreserveCase())
 	}
 	c.viper.Set(key, value)
 }

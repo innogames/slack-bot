@@ -15,6 +15,10 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/tester"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	log "github.com/sirupsen/logrus"
+
+	// compile all in-repo plugins into the CLI tool, same set as the bot binary
+	_ "github.com/innogames/slack-bot/v2/plugins/aws"
+	_ "github.com/innogames/slack-bot/v2/plugins/ripeatlas"
 )
 
 // starts a interactive shell to communicate with a mocked slack server and execute real commands
