@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
+	"strings"
 	"testing"
 	"time"
 
@@ -73,6 +75,17 @@ func TestBitbucketFakeServer(t *testing.T) {
 		assert.Equal(t, 1, queue.CountCurrentJobs())
 	})
 
+	t.Run("PR link without scheme", func(t *testing.T) {
+		message := msg.Message{}
+		// Slack sometimes posts the link without the "https://"/"http://" prefix
+		message.Text = strings.TrimPrefix(server.URL, "http://") + "/projects/myProject/repos/myRepo/pull-requests/1339/overview"
+
+		slackClient.On("GetReactions", message.GetMessageRef(), slack.NewGetReactionsParameters()).Return(slack.ReactedItem{}, nil)
+
+		actual := command.Run(message)
+		assert.True(t, actual)
+	})
+
 	t.Run("Test help when bitbucket is disabled", func(t *testing.T) {
 		help := command.GetHelp()
 		assert.Len(t, help, 1)
@@ -106,6 +119,33 @@ func TestBitbucketFakeServer(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, fmt.Sprintf("test: %d - %d", prStatusOpen, buildStatusSuccess), res)
+	})
+}
+
+func TestHostPattern(t *testing.T) {
+	pattern := regexp.MustCompile("^" + hostPattern("https://bitbucket.example.com") + "/projects/")
+
+	t.Run("matching hosts", func(t *testing.T) {
+		for _, host := range []string{
+			"https://bitbucket.example.com/projects/",
+			"http://bitbucket.example.com/projects/",
+			"bitbucket.example.com/projects/",
+		} {
+			assert.True(t, pattern.MatchString(host), host)
+		}
+	})
+
+	t.Run("other hosts", func(t *testing.T) {
+		for _, host := range []string{
+			"https://bitbucket-example.com/projects/",
+			"https://other.example.com/projects/",
+		} {
+			assert.False(t, pattern.MatchString(host), host)
+		}
+	})
+
+	t.Run("trailing slash in config", func(t *testing.T) {
+		assert.Equal(t, hostPattern("https://bitbucket.example.com"), hostPattern("https://bitbucket.example.com/"))
 	})
 }
 
