@@ -39,9 +39,20 @@ func newBitbucketCommand(base bot.BaseCommand, cfg *config.Config, jiraClient *g
 		base,
 		cfg.PullRequest,
 		&bitbucketFetcher{bitbucketClient},
-		"(?s).*" + regexp.QuoteMeta(cfg.Bitbucket.Host) + "/projects/(?P<project>.+)/repos/(?P<repo>.+)/pull-requests/(?P<number>\\d+).*",
+		"(?s).*" + hostPattern(cfg.Bitbucket.Host) + "/projects/(?P<project>.+)/repos/(?P<repo>.+)/pull-requests/(?P<number>\\d+).*",
 		jiraClient,
 	}
+}
+
+// hostPattern builds the regexp part matching the given host URL.
+// The scheme is optional, as Slack strips the "https://" prefix from some posted links
+func hostPattern(host string) string {
+	host = strings.TrimSuffix(host, "/")
+	if _, bare, found := strings.Cut(host, "://"); found {
+		host = bare
+	}
+
+	return "(?:https?://)?" + regexp.QuoteMeta(host)
 }
 
 func (c *bitbucketFetcher) getPullRequest(match matcher.Result, config *config.PullRequest) (pullRequest, error) {
