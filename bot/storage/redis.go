@@ -48,5 +48,10 @@ func (s redisStorage) GetKeys(collection string) ([]string, error) {
 }
 
 func (s redisStorage) Delete(collection, key string) error {
+	// an empty key deletes the whole collection (see DeleteCollection)
+	if key == "" {
+		return s.client.Del(redisCtx, collection).Err()
+	}
+
 	return s.client.HDel(redisCtx, collection, key).Err()
 }

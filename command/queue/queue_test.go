@@ -7,6 +7,7 @@ import (
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/bot/storage"
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/client"
 	"github.com/innogames/slack-bot/v2/mocks"
@@ -221,4 +222,41 @@ func TestFallbackQueue(t *testing.T) {
 	assert.Equal(t, expectedMessage, handledEvent)
 
 	runningCommand.Done()
+}
+
+// regression test: a queued message with a thread_ts must not leak into the
+// following messages when replaying the fallback queue after a restart
+func TestFallbackQueueKeepsMessagesSeparate(t *testing.T) {
+	client.InternalMessages = make(chan msg.Message, 4)
+	require.NoError(t, storage.DeleteCollection(storageKey))
+
+	threadMessage := msg.Message{}
+	threadMessage.User = "user1"
+	threadMessage.Channel = "chan1"
+	threadMessage.Timestamp = "1355517523.000001"
+	threadMessage.Thread = "1355517520.000001"
+	threadMessage.Text = "watch pr 1"
+
+	plainMessage := msg.Message{}
+	plainMessage.User = "user2"
+	plainMessage.Channel = "chan2"
+	plainMessage.Timestamp = "1355517524.000001"
+	plainMessage.Text = "watch pr 2"
+
+	// the keys are sorted before replaying: the thread message is handled first
+	require.NoError(t, storage.Write(storageKey, "1-thread-message", threadMessage))
+	require.NoError(t, storage.Write(storageKey, "2-plain-message", plainMessage))
+
+	executeFallbackCommand()
+
+	assert.Equal(t, threadMessage, <-client.InternalMessages)
+
+	handledPlainMessage := <-client.InternalMessages
+	assert.Empty(t, handledPlainMessage.Thread)
+	assert.Equal(t, plainMessage, handledPlainMessage)
+
+	// all queue entries got removed while replaying: a restart must not trigger them again
+	keys, err := storage.GetKeys(storageKey)
+	require.NoError(t, err)
+	assert.Empty(t, keys)
 }

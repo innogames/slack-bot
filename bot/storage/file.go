@@ -113,6 +113,10 @@ func (s *fileStorage) Delete(collection, resource string) error {
 	case fi == nil, err != nil:
 		return fmt.Errorf("unable to find file named %v", path)
 
+	// remove the whole collection directory (empty resource -> DeleteCollection)
+	case fi.IsDir():
+		return os.RemoveAll(dir)
+
 	// remove file
 	case fi.Mode().IsRegular():
 		return os.RemoveAll(dir + ".json")
