@@ -96,8 +96,10 @@ func (c *listCommand) getQueueAsBlocks(message msg.Message, filter filterFunc) (
 	now := time.Now()
 	keys, _ := storage.GetKeys(storageKey)
 
-	var queuedEvent msg.Message
 	for _, key := range keys {
+		// use a fresh message each iteration: json.Unmarshal keeps old values for
+		// fields which are missing in the JSON (like a thread_ts of a previous entry)
+		var queuedEvent msg.Message
 		if err := storage.Read(storageKey, key, &queuedEvent); err != nil {
 			continue
 		}
@@ -168,8 +170,8 @@ func (c *listCommand) GetTemplateFunction() template.FuncMap {
 		"countBackgroundJobsInChannel": func(channel string) int {
 			count := 0
 			keys, _ := storage.GetKeys(storageKey)
-			var queuedEvent msg.Message
 			for _, key := range keys {
+				var queuedEvent msg.Message
 				if err := storage.Read(storageKey, key, &queuedEvent); err != nil {
 					continue
 				}

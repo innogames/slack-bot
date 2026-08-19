@@ -93,6 +93,26 @@ func testStorage(t *testing.T, storage Storage) {
 	require.NoError(t, err)
 	assert.Empty(t, keys)
 
+	// an empty key deletes the whole collection (used by DeleteCollection)
+	err = storage.Write(collection, "test-collection-delete-1", "1")
+	require.NoError(t, err)
+	err = storage.Write(collection, "test-collection-delete-2", "2")
+	require.NoError(t, err)
+	err = storage.Delete(collection, "")
+	require.NoError(t, err)
+	keys, err = storage.GetKeys(collection)
+	require.NoError(t, err)
+	assert.Empty(t, keys)
+
+	// the collection is usable again after deletion
+	err = storage.Write(collection, "test-recreated", "1")
+	require.NoError(t, err)
+	keys, err = storage.GetKeys(collection)
+	require.NoError(t, err)
+	assert.Len(t, keys, 1)
+	err = storage.Delete(collection, "test-recreated")
+	require.NoError(t, err)
+
 	keys, err = GetKeys("../")
 	require.EqualError(t, err, "invalid Storage key: ../")
 	assert.Empty(t, keys)

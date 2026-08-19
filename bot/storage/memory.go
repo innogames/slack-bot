@@ -73,6 +73,12 @@ func (s *memoryStorage) Delete(collection, key string) error {
 	lock := s.locks.GetLock(collection)
 	defer lock.Unlock()
 
+	// an empty key deletes the whole collection (see DeleteCollection)
+	if key == "" {
+		delete(s.storage, collection)
+		return nil
+	}
+
 	delete(s.storage[collection], key)
 
 	return nil

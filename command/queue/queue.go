@@ -1,6 +1,7 @@
 package queue
 
 import (
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -91,17 +92,29 @@ func executeFallbackCommand() {
 
 	log.Infof("[Queue] Booted! I'll trigger %d command now", len(keys))
 
-	var event msg.Message
+	// the keys are prefixed with the message timestamp: sort them to replay the
+	// commands in their original order (not all storages return sorted keys)
+	slices.Sort(keys)
+
 	for _, key := range keys {
-		if err := storage.Read(storageKey, key, &event); err != nil {
+		// use a fresh message each iteration: json.Unmarshal keeps old values for
+		// fields which are missing in the JSON (like a thread_ts of a previous entry)
+		var event msg.Message
+		err := storage.Read(storageKey, key, &event)
+
+		// delete the entry in any case before handling it: the triggered command
+		// will register itself again via AddRunningCommand
+		if deleteErr := storage.Delete(storageKey, key); deleteErr != nil {
+			log.Errorf("[Queue] Unable to delete queue entry %s: %s", key, deleteErr)
+		}
+
+		if err != nil {
 			log.Errorf("[Queue] Not unmarshalable: %s", err)
 			continue
 		}
 
 		client.HandleMessage(event)
 	}
-
-	_ = storage.DeleteCollection(storageKey)
 }
 
 // WaitTillHavingNoQueuedMessage will wait in test context until all background tasks are done.
