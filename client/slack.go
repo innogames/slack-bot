@@ -22,7 +22,7 @@ const messageLimit = 40000
 
 // InternalMessages is internal queue of internal messages
 // @deprecated -> use HandleMessageWithDoneHandler instead
-var InternalMessages = make(chan msg.Message, 100)
+var InternalMessages = make(chan msg.Message, 200)
 
 // HandleMessage will register the given message in the queue...and returns a sync.WaitGroup which can be used to see when the message is handled
 func HandleMessage(message msg.Message) {
@@ -191,17 +191,19 @@ func (s *Slack) SendMessage(ref msg.Ref, text string, options ...slack.MsgOption
 		text = text[:messageLimit] + "..."
 	}
 
-	defaultOptions := []slack.MsgOption{
+	allOptions := make([]slack.MsgOption, 0, 4+len(options))
+	allOptions = append(
+		allOptions,
 		slack.MsgOptionTS(ref.GetThread()), // send in current thread by default
 		slack.MsgOptionAsUser(true),
 		slack.MsgOptionText(text, false),
 		slack.MsgOptionDisableLinkUnfurl(),
-	}
+	)
+	allOptions = append(allOptions, options...)
 
-	options = append(defaultOptions, options...)
 	_, msgTimestamp, err := s.PostMessage(
 		ref.GetChannel(),
-		options...,
+		allOptions...,
 	)
 	if err != nil {
 		truncated := text
@@ -295,11 +297,11 @@ func (s *Slack) getUserConversation(user string) (string, error) {
 
 // SendBlockMessage will send Slack Blocks/Sections to the target
 func (s *Slack) SendBlockMessage(ref msg.Ref, blocks []slack.Block, options ...slack.MsgOption) string {
-	allOptions := []slack.MsgOption{
-		slack.MsgOptionBlocks(blocks...),
-	}
+	allOptions := make([]slack.MsgOption, 0, 1+len(options))
+	allOptions = append(allOptions, slack.MsgOptionBlocks(blocks...))
+	allOptions = append(allOptions, options...)
 
-	return s.SendMessage(ref, "", append(allOptions, options...)...)
+	return s.SendMessage(ref, "", allOptions...)
 }
 
 // GetThreadMessages will send Slack Blocks/Sections to the target

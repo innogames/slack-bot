@@ -21,9 +21,8 @@ func (b *Bot) Run(ctx *util.ServerContext) {
 	// initialize Socket Mode:
 	// https://api.slack.com/apis/connections/socket
 	go func() {
-		if err := b.slackClient.Socket.Run(); err != nil {
-			log.Errorf("Socket run error: %v", err)
-		}
+		// Socket.Run() is blocking and only returns when the connection could not be re-established
+		log.Errorf("Socket run error: %v", b.slackClient.Socket.Run())
 	}()
 
 	// graceful shutdown via sigterm/sigint
