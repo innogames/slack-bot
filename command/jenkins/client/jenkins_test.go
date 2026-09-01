@@ -112,6 +112,76 @@ func TestJenkinsDefaultParameters(t *testing.T) {
 	}, params)
 }
 
+func TestJenkinsNamedParameters(t *testing.T) {
+	jobConfig := config.JobConfig{
+		Parameters: []config.JobParameter{
+			{Name: "NAME"},
+			{Name: "FLAG", Type: "bool"},
+			{Name: "VALUE", Default: "defaultValue"},
+		},
+	}
+
+	// named params can be given out of declaration order
+	params := &Parameters{}
+	err := ParseParameters(jobConfig, "VALUE=testvalue NAME=testname FLAG=TRUE", *params)
+	require.NoError(t, err)
+	assert.Equal(t, &Parameters{
+		"NAME":  "testname",
+		"FLAG":  "true",
+		"VALUE": "testvalue",
+	}, params)
+
+	// unrecognized connector words around named params are ignored
+	params = &Parameters{}
+	err = ParseParameters(jobConfig, "with params NAME=testname FLAG=TRUE", *params)
+	require.NoError(t, err)
+	assert.Equal(t, &Parameters{
+		"NAME":  "testname",
+		"FLAG":  "true",
+		"VALUE": "defaultValue",
+	}, params)
+
+	// quoted empty values fall back to the configured default
+	params = &Parameters{}
+	err = ParseParameters(jobConfig, "NAME=testname FLAG=TRUE VALUE=''", *params)
+	require.NoError(t, err)
+	assert.Equal(t, &Parameters{
+		"NAME":  "testname",
+		"FLAG":  "true",
+		"VALUE": "",
+	}, params)
+
+	// a token whose key isn't a declared parameter name is ignored
+	params = &Parameters{}
+	err = ParseParameters(jobConfig, "NAME=testname FLAG=TRUE UNKNOWN=whatever", *params)
+	require.NoError(t, err)
+	assert.Equal(t, &Parameters{
+		"NAME":  "testname",
+		"FLAG":  "true",
+		"VALUE": "defaultValue",
+	}, params)
+
+	// named and positional params can be mixed: positional tokens after a named one are kept
+	params = &Parameters{}
+	err = ParseParameters(jobConfig, "NAME=testname false testvalue", *params)
+	require.NoError(t, err)
+	assert.Equal(t, &Parameters{
+		"NAME":  "testname",
+		"FLAG":  "false",
+		"VALUE": "testvalue",
+	}, params)
+
+	// single-quoted values may contain spaces
+	params = &Parameters{}
+	err = ParseParameters(jobConfig, "NAME='john doe' FLAG=TRUE", *params)
+	require.NoError(t, err)
+	assert.Equal(t, &Parameters{
+		"NAME":  "john doe",
+		"FLAG":  "true",
+		"VALUE": "defaultValue",
+	}, params)
+}
+
 func TestParseWords(t *testing.T) {
 	actual := parseWords("")
 	assert.Equal(t, []string{}, actual)
