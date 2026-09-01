@@ -56,15 +56,47 @@ var parameterModifier = map[string]ParameterModifier{
 const slackUserParameter = "SLACK_USER"
 
 // ParseParameters parse jenkins parameters, based on a input string
+// input can either be positional ("value1 value2 ...", matched against jobConfig.Parameters in order)
+// or named ("NAME1=value1 NAME2=value2 ..."), which may be given in any order and interspersed
+// with arbitrary connector words (e.g. "with params NAME1=value1 NAME2=value2")
 func ParseParameters(jobConfig config.JobConfig, parameterString string, params Parameters) error {
-	givenParameters := parseWords(parameterString)
+	rawTokens := parseWords(parameterString)
+
+	validNames := make(map[string]bool, len(jobConfig.Parameters))
+	for _, parameterConfig := range jobConfig.Parameters {
+		validNames[parameterConfig.Name] = true
+	}
+
+	namedValues := make(map[string]string)
+	positional := make([]string, 0, len(rawTokens))
+	hasNamedParam := false
+
+	for _, token := range rawTokens {
+		if name, value, ok := splitKeyValue(token); ok && validNames[name] {
+			namedValues[name] = value
+			hasNamedParam = true
+			continue
+		}
+		positional = append(positional, token)
+	}
+
+	givenParameters := positional
+	if hasNamedParam {
+		// unrecognized tokens (e.g. "with", "params") are just connector words
+		givenParameters = nil
+	}
 
 	var err error
-	for index, parameterConfig := range jobConfig.Parameters {
+	posIndex := 0
+	for _, parameterConfig := range jobConfig.Parameters {
 		var value string
-		if len(givenParameters) > index {
-			// parameterName given in string
-			value = givenParameters[index]
+		if namedValue, ok := namedValues[parameterConfig.Name]; ok {
+			// parameterName given as NAME=value and value can be empty
+			value = namedValue
+		} else if posIndex < len(givenParameters) {
+			// parameterName given positionally in string
+			value = givenParameters[posIndex]
+			posIndex++
 		} else if paramValue, ok := params[parameterConfig.Name]; ok && paramValue != "" {
 			// use given names parameterName!
 			value = params[parameterConfig.Name]
@@ -88,6 +120,20 @@ func ParseParameters(jobConfig config.JobConfig, parameterString string, params 
 	}
 
 	return nil
+}
+
+// splitKeyValue splits a "NAME=value" token, stripping surrounding quotes from the value.
+// returns ok=false if the token contains no "=".
+func splitKeyValue(token string) (name, value string, ok bool) {
+	idx := strings.Index(token, "=")
+	if idx <= 0 {
+		return "", "", false
+	}
+
+	name = token[:idx]
+	value = strings.Trim(token[idx+1:], `'"`)
+
+	return name, value, true
 }
 
 // todo cleanup, is there a nice tokenizer in place somewhere?
