@@ -1,7 +1,6 @@
 package vcs
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -56,9 +55,10 @@ const maxListedBranches = 10
 func GetMatchingBranch(input string) (string, error) {
 	var foundBranches []string
 
+	// no branch given: skip the fuzzy search (it would match every branch) and let jenkins handle the empty value
 	input = strings.TrimSpace(input)
 	if input == "" {
-		return "", errors.New("no branch name given")
+		return "", nil
 	}
 
 	loweredInput := strings.ToLower(input)

@@ -73,13 +73,13 @@ func TestGetMatchingBranches(t *testing.T) {
 	}
 
 	t.Run("Empty", func(t *testing.T) {
+		// empty branch is passed through to jenkins instead of fuzzy-matching every branch
 		actual, err := GetMatchingBranch("")
-		require.EqualError(t, err, "no branch name given")
+		require.NoError(t, err)
 		assert.Empty(t, actual)
 
-		// whitespace-only input must not match all branches either
 		actual, err = GetMatchingBranch("   ")
-		require.EqualError(t, err, "no branch name given")
+		require.NoError(t, err)
 		assert.Empty(t, actual)
 	})
 
