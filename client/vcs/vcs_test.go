@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -73,7 +74,12 @@ func TestGetMatchingBranches(t *testing.T) {
 
 	t.Run("Empty", func(t *testing.T) {
 		actual, err := GetMatchingBranch("")
-		require.Error(t, err)
+		require.EqualError(t, err, "no branch name given")
+		assert.Empty(t, actual)
+
+		// whitespace-only input must not match all branches either
+		actual, err = GetMatchingBranch("   ")
+		require.EqualError(t, err, "no branch name given")
 		assert.Empty(t, actual)
 	})
 
@@ -87,6 +93,22 @@ func TestGetMatchingBranches(t *testing.T) {
 		actual, err := GetMatchingBranch("PROJ-1234")
 		require.EqualError(t, err, "multiple branches found: feature/PROJ-1234-do-something, feature/PROJ-1234-do-something-hotfix")
 		assert.Empty(t, actual)
+	})
+
+	t.Run("Not unique with truncated list", func(t *testing.T) {
+		manyBranches := make([]string, 0, 15)
+		for i := range 15 {
+			manyBranches = append(manyBranches, fmt.Sprintf("feature/PROJ-99-variant-%02d", i))
+		}
+		oldBranches := branches
+		branches = manyBranches
+		defer func() { branches = oldBranches }()
+
+		actual, err := GetMatchingBranch("PROJ-99")
+		require.Error(t, err)
+		assert.Empty(t, actual)
+		assert.Contains(t, err.Error(), "(and 5 more)")
+		assert.NotContains(t, err.Error(), "variant-10")
 	})
 
 	t.Run("Test unique branches", func(t *testing.T) {
