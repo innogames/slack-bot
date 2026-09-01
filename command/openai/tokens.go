@@ -2,6 +2,7 @@ package openai
 
 import (
 	"regexp"
+	"slices"
 )
 
 // https://platform.openai.com/docs/models/
@@ -28,8 +29,7 @@ func truncateMessages(model string, inputMessages []ChatMessage) ([]ChatMessage,
 
 	// Walk newest→oldest so we always keep the most recent messages (including the current prompt).
 	kept := make([]ChatMessage, 0, len(inputMessages))
-	for i := len(inputMessages) - 1; i >= 0; i-- {
-		message := inputMessages[i]
+	for _, message := range slices.Backward(inputMessages) {
 		tokens := estimateTokensForMessage(message.Content)
 		if currentTokens+tokens >= maxTokens {
 			truncatedMessages++

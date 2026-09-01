@@ -96,6 +96,7 @@ func ParseParameters(jobConfig config.JobConfig, parameterString string, params 
 	givenParameters := positional
 
 	var err error
+	var missing []string
 	posIndex := 0
 	for _, parameterConfig := range jobConfig.Parameters {
 		var value string
@@ -113,9 +114,8 @@ func ParseParameters(jobConfig config.JobConfig, parameterString string, params 
 			// use default value
 			value = parameterConfig.Default
 		} else {
-			err := fmt.Errorf("sorry, you have to pass %d parameters (%s)", len(jobConfig.Parameters), strings.Join(getNames(jobConfig.Parameters), ", "))
-
-			return err
+			missing = append(missing, parameterConfig.Name)
+			continue
 		}
 
 		if modifier, ok := parameterModifier[parameterConfig.Type]; ok {
@@ -126,6 +126,15 @@ func ParseParameters(jobConfig config.JobConfig, parameterString string, params 
 		}
 
 		params[parameterConfig.Name] = value
+	}
+
+	if len(missing) > 0 {
+		return fmt.Errorf(
+			"sorry, missing %d of %d job parameters: %s",
+			len(missing),
+			len(jobConfig.Parameters),
+			strings.Join(missing, ", "),
+		)
 	}
 
 	return nil
@@ -187,14 +196,4 @@ func parseWords(parameterString string) []string {
 	}
 
 	return parameters
-}
-
-func getNames(list []config.JobParameter) []string {
-	keys := make([]string, len(list))
-
-	for i, parameter := range list {
-		keys[i] = parameter.Name
-	}
-
-	return keys
 }

@@ -48,9 +48,18 @@ func GetBranches() []string {
 	return branches
 }
 
+// maximum number of branch names listed in the "multiple branches found" error
+const maxListedBranches = 10
+
 // GetMatchingBranch does a fuzzy search on all loaded branches. If there are multiple matching branches, it fails.
 func GetMatchingBranch(input string) (string, error) {
 	var foundBranches []string
+
+	// no branch given: skip the fuzzy search (it would match every branch) and let jenkins handle the empty value
+	input = strings.TrimSpace(input)
+	if input == "" {
+		return "", nil
+	}
 
 	loweredInput := strings.ToLower(input)
 	for _, branch := range GetBranches() {
@@ -63,7 +72,13 @@ func GetMatchingBranch(input string) (string, error) {
 	}
 
 	if len(foundBranches) > 1 {
-		return "", fmt.Errorf("multiple branches found: %s", strings.Join(foundBranches, ", "))
+		listed := foundBranches
+		suffix := ""
+		if len(listed) > maxListedBranches {
+			listed = listed[:maxListedBranches]
+			suffix = fmt.Sprintf(" (and %d more)", len(foundBranches)-maxListedBranches)
+		}
+		return "", fmt.Errorf("multiple branches found: %s%s", strings.Join(listed, ", "), suffix)
 	} else if len(foundBranches) == 1 {
 		return foundBranches[0], nil
 	}

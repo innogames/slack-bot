@@ -107,7 +107,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		message.Text = "trigger job backend%2Fgame-backend%2Fxandreas%252FHC-7231"
 
 		// Expect an error about missing parameters since we're not providing PARAM1
-		mocks.AssertError(slackClient, message, "sorry, you have to pass 1 parameters (PARAM1)")
+		mocks.AssertError(slackClient, message, "sorry, missing 1 of 1 job parameters: PARAM1")
 
 		actual := testCommand.Run(message)
 		assert.True(t, actual)
@@ -117,7 +117,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "trigger job TestJob"
 
-		mocks.AssertError(slackClient, message, "sorry, you have to pass 1 parameters (PARAM1)")
+		mocks.AssertError(slackClient, message, "sorry, missing 1 of 1 job parameters: PARAM1")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -126,7 +126,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "start test job"
 
-		mocks.AssertError(slackClient, message, "sorry, you have to pass 1 parameters (PARAM1)")
+		mocks.AssertError(slackClient, message, "sorry, missing 1 of 1 job parameters: PARAM1")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -135,7 +135,7 @@ func TestJenkinsTrigger(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "trigger job Prefix/Test"
 
-		mocks.AssertError(slackClient, message, "sorry, you have to pass 1 parameters (PARAM1)")
+		mocks.AssertError(slackClient, message, "sorry, missing 1 of 1 job parameters: PARAM1")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})

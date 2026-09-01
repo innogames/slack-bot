@@ -52,11 +52,11 @@ func TestJenkinsParameters(t *testing.T) {
 	params := &Parameters{}
 	err := ParseParameters(jobConfig, "", *params)
 	assert.Equal(t, &Parameters{}, params)
-	assert.Equal(t, "sorry, you have to pass 4 parameters (NAME, VALUE, UPPER, LOWER)", err.Error())
+	assert.Equal(t, "sorry, missing 4 of 4 job parameters: NAME, VALUE, UPPER, LOWER", err.Error())
 
 	params = &Parameters{}
 	err = ParseParameters(jobConfig, "test ", *params)
-	assert.Equal(t, "sorry, you have to pass 4 parameters (NAME, VALUE, UPPER, LOWER)", err.Error())
+	assert.Equal(t, "sorry, missing 3 of 4 job parameters: VALUE, UPPER, LOWER", err.Error())
 
 	params = &Parameters{}
 	err = ParseParameters(jobConfig, `testname testvalue "" ""`, *params)
@@ -90,8 +90,9 @@ func TestJenkinsDefaultParameters(t *testing.T) {
 
 	params := &Parameters{}
 	err := ParseParameters(jobConfig, "", *params)
-	assert.Equal(t, &Parameters{}, params)
-	assert.Equal(t, "sorry, you have to pass 3 parameters (NAME, FLAG, VALUE)", err.Error())
+	// VALUE is resolved via its default, so only the parameters without any value are reported
+	assert.Equal(t, &Parameters{"VALUE": "defaultValue"}, params)
+	assert.Equal(t, "sorry, missing 2 of 3 job parameters: NAME, FLAG", err.Error())
 
 	params = &Parameters{}
 	err = ParseParameters(jobConfig, "testname TRUE", *params)
@@ -249,7 +250,7 @@ func TestJenkinsMixedParameters(t *testing.T) {
 		"SUBTYPE": "mySubtype",
 	}
 	err := ParseParameters(jobConfig, "", *params)
-	assert.Equal(t, "sorry, you have to pass 3 parameters (NAME, SUBTYPE, VALUE)", err.Error())
+	assert.Equal(t, "sorry, missing 1 of 3 job parameters: NAME", err.Error())
 
 	params = &Parameters{
 		"SUBTYPE": "mySubtype",
