@@ -160,6 +160,26 @@ func TestJenkinsNamedParameters(t *testing.T) {
 		"FLAG":  "true",
 		"VALUE": "defaultValue",
 	}, params)
+
+	// named and positional params can be mixed: positional tokens after a named one are kept
+	params = &Parameters{}
+	err = ParseParameters(jobConfig, "NAME=testname false testvalue", *params)
+	require.NoError(t, err)
+	assert.Equal(t, &Parameters{
+		"NAME":  "testname",
+		"FLAG":  "false",
+		"VALUE": "testvalue",
+	}, params)
+
+	// single-quoted values may contain spaces
+	params = &Parameters{}
+	err = ParseParameters(jobConfig, "NAME='john doe' FLAG=TRUE", *params)
+	require.NoError(t, err)
+	assert.Equal(t, &Parameters{
+		"NAME":  "john doe",
+		"FLAG":  "true",
+		"VALUE": "defaultValue",
+	}, params)
 }
 
 func TestParseWords(t *testing.T) {

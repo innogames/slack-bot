@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -73,6 +74,10 @@ func ParseParameters(jobConfig config.JobConfig, parameterString string, params 
 
 	for _, token := range rawTokens {
 		if name, value, ok := splitKeyValue(token); ok && validNames[name] {
+			if !hasNamedParam {
+				// tokens before the first named one (e.g. "with", "params") are just connector words
+				positional = positional[:0]
+			}
 			namedValues[name] = value
 			hasNamedParam = true
 			continue
@@ -80,11 +85,15 @@ func ParseParameters(jobConfig config.JobConfig, parameterString string, params 
 		positional = append(positional, token)
 	}
 
-	givenParameters := positional
 	if hasNamedParam {
-		// unrecognized tokens (e.g. "with", "params") are just connector words
-		givenParameters = nil
+		// in named mode, key=value tokens with unknown keys are ignored instead of used positionally
+		positional = slices.DeleteFunc(positional, func(token string) bool {
+			_, _, ok := splitKeyValue(token)
+			return ok
+		})
 	}
+
+	givenParameters := positional
 
 	var err error
 	posIndex := 0
@@ -146,17 +155,19 @@ func parseWords(parameterString string) []string {
 	var c byte
 	param := make([]byte, 0)
 	isQuoted := false
+	var quoteChar byte
 
 	for len(cur) > 0 {
 		c, cur = cur[0], cur[1:]
 		switch {
-		case c == '"':
+		case (c == '"' || c == '\'') && (!isQuoted || c == quoteChar):
 			if isQuoted {
 				isQuoted = false
 				parameters = append(parameters, string(param))
 				param = param[:0]
 			} else {
 				isQuoted = true
+				quoteChar = c
 			}
 		case c == ' ' && !isQuoted:
 			// next param
