@@ -1,9 +1,11 @@
 package gitlab
 
 import (
+	"cmp"
 	"errors"
 	"fmt"
 	"net/url"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -389,11 +391,17 @@ func countDoneJobs(jobs []*gitlab.Job) int {
 	return count
 }
 
-// collectNotableJobs returns running and failed jobs for detailed display
+// notableJobStatusOrder defines which job statuses are shown in detail, and in which order
+var notableJobStatusOrder = map[string]int{
+	"failed":  0,
+	"running": 1,
+}
+
+// collectNotableJobs returns failed and running jobs for detailed display, sorted by status, name and stage
 func collectNotableJobs(jobs []*gitlab.Job) []jobDetail {
 	var details []jobDetail
 	for _, job := range jobs {
-		if job.Status == "running" || job.Status == "failed" {
+		if _, ok := notableJobStatusOrder[job.Status]; ok {
 			details = append(details, jobDetail{
 				name:   job.Name,
 				stage:  job.Stage,
@@ -402,6 +410,15 @@ func collectNotableJobs(jobs []*gitlab.Job) []jobDetail {
 			})
 		}
 	}
+
+	slices.SortFunc(details, func(a, b jobDetail) int {
+		return cmp.Or(
+			cmp.Compare(notableJobStatusOrder[a.status], notableJobStatusOrder[b.status]),
+			cmp.Compare(a.name, b.name),
+			cmp.Compare(a.stage, b.stage),
+		)
+	})
+
 	return details
 }
 

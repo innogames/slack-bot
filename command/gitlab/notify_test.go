@@ -268,14 +268,23 @@ func TestCollectNotableJobs(t *testing.T) {
 		{Name: "test", Stage: "test", Status: "running", WebURL: "https://gitlab.example.com/jobs/2"},
 		{Name: "lint", Stage: "test", Status: "failed", WebURL: "https://gitlab.example.com/jobs/3"},
 		{Name: "deploy", Stage: "deploy", Status: "pending", WebURL: "https://gitlab.example.com/jobs/4"},
+		{Name: "e2e", Stage: "test", Status: "running", WebURL: "https://gitlab.example.com/jobs/5"},
+		{Name: "audit", Stage: "test", Status: "failed", WebURL: "https://gitlab.example.com/jobs/6"},
+		{Name: "e2e", Stage: "build", Status: "running", WebURL: "https://gitlab.example.com/jobs/7"},
 	}
 
 	details := collectNotableJobs(jobs)
-	assert.Len(t, details, 2)
-	assert.Equal(t, "test", details[0].name)
-	assert.Equal(t, "running", details[0].status)
-	assert.Equal(t, "lint", details[1].name)
-	assert.Equal(t, "failed", details[1].status)
+	got := make([]string, 0, len(details))
+	for _, d := range details {
+		got = append(got, d.status+" "+d.name+" "+d.stage)
+	}
+	assert.Equal(t, []string{
+		"failed audit test",
+		"failed lint test",
+		"running e2e build",
+		"running e2e test",
+		"running test test",
+	}, got)
 }
 
 func TestFormatJobDetails(t *testing.T) {
