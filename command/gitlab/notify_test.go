@@ -1,6 +1,10 @@
 package gitlab
 
 import (
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -292,4 +296,37 @@ func TestFormatJobDetailsEmpty(t *testing.T) {
 func TestURLTypeString(t *testing.T) {
 	assert.Equal(t, "pipeline", urlTypePipeline.String())
 	assert.Equal(t, "job", urlTypeJob.String())
+}
+
+func TestRealGitlabAPIListPipelineJobsPagination(t *testing.T) {
+	const totalJobs = 255
+	const perPage = 100
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+		start := (page - 1) * perPage
+		end := min(start+perPage, totalJobs)
+
+		if end < totalJobs {
+			w.Header().Set("X-Next-Page", strconv.Itoa(page+1))
+		}
+		w.Header().Set("Content-Type", "application/json")
+
+		jobs := make([]string, 0, end-start)
+		for i := start; i < end; i++ {
+			jobs = append(jobs, fmt.Sprintf(`{"id":%d,"status":"success"}`, i+1))
+		}
+		fmt.Fprintf(w, "[%s]", strings.Join(jobs, ","))
+	}))
+	defer server.Close()
+
+	client, err := gitlab.NewClient("token", gitlab.WithBaseURL(server.URL))
+	require.NoError(t, err)
+
+	api := &realGitlabAPI{client: client}
+	jobs, err := api.ListPipelineJobs("group/project", 1)
+	require.NoError(t, err)
+	assert.Len(t, jobs, totalJobs)
+	assert.Equal(t, int64(1), jobs[0].ID)
+	assert.Equal(t, int64(totalJobs), jobs[totalJobs-1].ID)
 }

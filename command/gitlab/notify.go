@@ -73,13 +73,26 @@ func (g *realGitlabAPI) GetPipeline(pid any, pipeline int64) (*gitlab.Pipeline, 
 
 func (g *realGitlabAPI) ListPipelineJobs(pid any, pipeline int64) ([]*gitlab.Job, error) {
 	opts := &gitlab.ListJobsOptions{
-		ListOptions: gitlab.ListOptions{PerPage: 100},
+		ListOptions: gitlab.ListOptions{PerPage: 100, Page: 1},
 	}
-	jobs, resp, err := g.client.Jobs.ListPipelineJobs(pid, pipeline, opts)
-	if resp != nil && resp.Body != nil {
-		resp.Body.Close()
+
+	// GitLab returns at most 100 jobs per page, so follow the pagination
+	var allJobs []*gitlab.Job
+	for {
+		jobs, resp, err := g.client.Jobs.ListPipelineJobs(pid, pipeline, opts)
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+		if err != nil {
+			return nil, err
+		}
+		allJobs = append(allJobs, jobs...)
+
+		if resp == nil || resp.NextPage == 0 {
+			return allJobs, nil
+		}
+		opts.Page = resp.NextPage
 	}
-	return jobs, err
 }
 
 func (g *realGitlabAPI) GetJob(pid any, jobID int64) (*gitlab.Job, error) {
