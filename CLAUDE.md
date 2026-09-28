@@ -4,7 +4,7 @@
 
 This is a **Slack Bot** written in **Go** that improves development team workflows with integrations for Jenkins, GitHub, GitLab, and Jira. The bot supports custom commands, macros, cron jobs, and flexible project-specific functionality.
 
-- **Language**: Go (requires Go 1.25+)
+- **Language**: Go (requires Go 1.26+)
 - **Type**: Slack application with Socket Mode support
 - **Size**: ~50+ Go packages across bot/, command/, client/, and cmd/ directories
 - **Architecture**: Modular command-based bot with plugin system
@@ -13,7 +13,7 @@ This is a **Slack Bot** written in **Go** that improves development team workflo
 ## Build and Validation Instructions
 
 ### Prerequisites
-- **Go 1.25 or later**
+- **Go 1.26 or later**
 - **Make** (for build targets)
 - **Docker** (optional, for containerized builds)
 - **golangci-lint** (for linting)
@@ -134,7 +134,7 @@ func (c *poolCommands) RunAsync(ctx *util.ServerContext) {
 
 ### CI/CD Pipeline (`.github/workflows/test.yaml`)
 1. **Multi-platform testing** (Ubuntu, macOS, Windows)
-2. **Multi-version Go testing** (1.24.x, 1.25.x)
+2. **Multi-version Go testing** (1.26.x, 1.27.x)
 3. **Build validation** using `make build/slack-bot`
 4. **Race testing** using `make test-race`
 5. **Coverage** using `make test-coverage`
@@ -199,7 +199,7 @@ The bot includes a flexible storage system (`bot/storage/`) for persisting data:
 5. Verify CI pipeline passes on all platforms
 
 ### Modern Go Syntax Guidelines
-The codebase uses Go 1.24+ and takes advantage of modern Go features for better readability and performance:
+The codebase uses Go 1.26+ and takes advantage of modern Go features for better readability and performance:
 
 - **Use `any` instead of `interface{}`** for better type safety and readability
 - **Leverage `slices` and `maps` packages** from Go 1.21+ for common operations
