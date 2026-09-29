@@ -4,8 +4,7 @@ package config
 
 import (
 	"slices"
-
-	"github.com/spf13/viper"
+	"strings"
 )
 
 // Config contains the full config structure of this bot
@@ -44,24 +43,47 @@ type Config struct {
 	// list of slack-bot plugins to load
 	Plugins []string `mapstructure:"plugins"`
 
-	// store whole Viper to get dynamic config values
-	viper *viper.Viper `mapstructure:"-"`
+	// store whole raw config to get dynamic config values
+	raw map[string]any `mapstructure:"-"`
 }
 
-// LoadCustom does a dynamic config lookup with a given key and unmarshal it into the value
+// LoadCustom does a dynamic config lookup with a given key (nested keys are separated by ".") and unmarshal it into the value
 func (c *Config) LoadCustom(key string, value any) error {
-	if c.viper == nil {
+	var current any = c.raw
+	for part := range strings.SplitSeq(key, ".") {
+		m, ok := current.(map[string]any)
+		if !ok {
+			return nil
+		}
+		if current, ok = m[part]; !ok {
+			return nil
+		}
+	}
+
+	if current == nil {
 		return nil
 	}
-	return c.viper.UnmarshalKey(key, value)
+
+	return decode(current, value)
 }
 
-// Set a dynamic config value...please only set it in tests!
+// Set a dynamic config value (nested keys are separated by ".")...please only set it in tests!
 func (c *Config) Set(key string, value any) {
-	if c.viper == nil {
-		c.viper = viper.New()
+	if c.raw == nil {
+		c.raw = map[string]any{}
 	}
-	c.viper.Set(key, value)
+
+	parts := strings.Split(key, ".")
+	m := c.raw
+	for _, part := range parts[:len(parts)-1] {
+		subMap, ok := m[part].(map[string]any)
+		if !ok {
+			subMap = map[string]any{}
+			m[part] = subMap
+		}
+		m = subMap
+	}
+	m[parts[len(parts)-1]] = value
 }
 
 // Github config, currently just an access token

@@ -4,7 +4,6 @@ import (
 	"path"
 	"testing"
 
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -35,7 +34,7 @@ func TestLoadDirectory(t *testing.T) {
 
 	// invalid directory
 	cfg, err = Load("/sdsdsdds")
-	cfg.viper = nil
+	cfg.raw = nil
 	require.Error(t, err)
 	assert.Equal(t, DefaultConfig, cfg)
 }
@@ -44,15 +43,15 @@ func TestLoadFile(t *testing.T) {
 	// not existing file
 	configPath := path.Join("..", "..", "readme.sdsdsd")
 	cfg, err := Load(configPath)
-	cfg.viper = nil
+	cfg.raw = nil
 	require.Error(t, err)
 	assert.Equal(t, DefaultConfig, cfg)
 
 	// parse invalid file
 	configPath = path.Join("..", "..", "readme.md")
 	cfg, err = Load(configPath)
-	cfg.viper = nil
-	assert.Contains(t, err.Error(), "While parsing config: yaml")
+	cfg.raw = nil
+	assert.Contains(t, err.Error(), "while parsing config "+configPath+": yaml")
 	assert.Equal(t, DefaultConfig, cfg)
 
 	// load example file == okay
@@ -63,7 +62,7 @@ func TestLoadFile(t *testing.T) {
 	assert.Equal(t, "info", cfg.Logger.Level)
 
 	t.Run("loadFile", func(t *testing.T) {
-		err := loadFile(viper.New(), "sdsd.yaml")
+		_, err := loadFile("sdsd.yaml")
 		assert.Contains(t, err.Error(), "open sdsd.yaml: ")
 	})
 }
