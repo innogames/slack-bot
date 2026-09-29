@@ -55,11 +55,11 @@ func (c *commentCommand) addComment(match matcher.Result, message msg.Message) {
 func (c *commentCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "comment jira ticket <ticket> <comment>",
+			Command:     "add comment to ticket <ticket> <comment>",
 			Description: "adds a comment to a jira ticket",
 			Category:    category,
 			Examples: []string{
-				"comment ticket PROJECT-1234 Please check it on test server, I fixed it!",
+				"add comment to ticket PROJECT-1234 Please check it on test server, I fixed it!",
 			},
 		},
 	}

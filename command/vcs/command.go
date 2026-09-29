@@ -56,7 +56,7 @@ func (c *vcsCommand) listBranches(_ matcher.Result, message msg.Message) {
 func (c *vcsCommand) GetHelp() []bot.Help {
 	return []bot.Help{
 		{
-			Command:     "list branch",
+			Command:     "list branches",
 			Description: "List all found VCS branches",
 			Examples: []string{
 				"list branches",

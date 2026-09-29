@@ -86,7 +86,7 @@ github:
 #      {{end}}
 
 # used for the "weather" command to fetch current weather information from https://openweathermap.org/api
-#open_weathermap:
+#open_weather:
 #  apikey: iamtheapifromopenweathermap
 #  location: Hamburg
 
