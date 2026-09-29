@@ -10,9 +10,11 @@ import (
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/msg"
+	"github.com/innogames/slack-bot/v2/client"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
 func spawnRIPEAtlasServer(t *testing.T) *httptest.Server {
@@ -139,17 +141,34 @@ func TestStreamingResponsePayloadString(t *testing.T) {
 	})
 }
 
+// getCommands sets up the plugin with the given config
+func getCommands(slackClient client.SlackClient, ripeAtlasCfg Config) (bot.Commands, error) {
+	cfg := config.Config{
+		Plugins: map[string]config.PluginConfig{
+			"ripeatlas": {
+				Config: map[string]any{
+					"api_key":         ripeAtlasCfg.APIKey,
+					"api_url":         ripeAtlasCfg.APIURL,
+					"stream_url":      ripeAtlasCfg.StreamURL,
+					"update_interval": ripeAtlasCfg.UpdateInterval.String(),
+				},
+			},
+		},
+	}
+
+	return setup(bot.NewPluginContext("ripeatlas", slackClient, cfg))
+}
+
 func TestRipeAtlas(t *testing.T) {
 	// Set a proper timezone, otherwise the test fails on GitHub Actions.
 	// Must happen before any subtest starts HTTP goroutines, which read time.Local.
 	time.Local, _ = time.LoadLocation("Europe/Berlin")
 
 	slackClient := mocks.NewSlackClient(t)
-	base := bot.BaseCommand{SlackClient: slackClient}
 
 	t.Run("RIPE Atlas is not active", func(t *testing.T) {
-		cfg := &config.Config{}
-		commands := GetCommands(base, cfg)
+		commands, err := getCommands(slackClient, defaultConfig)
+		require.EqualError(t, err, `no "api_key" defined in the config`)
 		assert.Equal(t, 0, commands.Count())
 	})
 
@@ -157,9 +176,8 @@ func TestRipeAtlas(t *testing.T) {
 		ripeAtlasCfg := defaultConfig
 		ripeAtlasCfg.APIKey = "apikey"
 
-		cfg := &config.Config{}
-		cfg.Set("ripeatlas", ripeAtlasCfg)
-		commands := GetCommands(base, cfg)
+		commands, err := getCommands(slackClient, ripeAtlasCfg)
+		require.NoError(t, err)
 		assert.Equal(t, 2, commands.Count())
 
 		help := commands.GetHelp()
@@ -175,9 +193,8 @@ func TestRipeAtlas(t *testing.T) {
 		ripeAtlasCfg.APIKey = "nope"
 		ripeAtlasCfg.APIURL = ts.URL
 
-		cfg := &config.Config{}
-		cfg.Set("ripeatlas", ripeAtlasCfg)
-		commands := GetCommands(base, cfg)
+		commands, err := getCommands(slackClient, ripeAtlasCfg)
+		require.NoError(t, err)
 
 		message := msg.Message{}
 		message.Text = "credits"
@@ -200,9 +217,8 @@ func TestRipeAtlas(t *testing.T) {
 		ripeAtlasCfg.APIKey = "apikey"
 		ripeAtlasCfg.APIURL = ts.URL
 
-		cfg := &config.Config{}
-		cfg.Set("ripeatlas", ripeAtlasCfg)
-		commands := GetCommands(base, cfg)
+		commands, err := getCommands(slackClient, ripeAtlasCfg)
+		require.NoError(t, err)
 
 		message := msg.Message{}
 		message.Text = "credits"
@@ -232,9 +248,8 @@ func TestRipeAtlas(t *testing.T) {
 		ripeAtlasCfg.APIURL = ts.URL
 		ripeAtlasCfg.StreamURL = ts.URL
 
-		cfg := &config.Config{}
-		cfg.Set("ripeatlas", ripeAtlasCfg)
-		commands := GetCommands(base, cfg)
+		commands, err := getCommands(slackClient, ripeAtlasCfg)
+		require.NoError(t, err)
 
 		message := msg.Message{}
 		message.Text = "traceroute 8.8.8.8"
@@ -258,9 +273,8 @@ func TestRipeAtlas(t *testing.T) {
 		ripeAtlasCfg.APIURL = ts.URL
 		ripeAtlasCfg.StreamURL = ts.URL
 
-		cfg := &config.Config{}
-		cfg.Set("ripeatlas", ripeAtlasCfg)
-		commands := GetCommands(base, cfg)
+		commands, err := getCommands(slackClient, ripeAtlasCfg)
+		require.NoError(t, err)
 
 		message := msg.Message{}
 		message.Text = "traceroute 8.8.8.8"

@@ -13,9 +13,6 @@ var DefaultConfig = Config{
 		File:  "./bot.log",
 		Level: "info",
 	},
-	OpenWeather: OpenWeather{
-		Units: "metric",
-	},
 	// some default jira fields
 	Jira: Jira{
 		Fields: []JiraField{

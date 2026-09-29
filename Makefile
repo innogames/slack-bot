@@ -1,9 +1,18 @@
 
-.PHONY: clean docker-build test test-coverage test-bench mocks run run-cli dep lint air
+.PHONY: clean docker-build test test-coverage test-bench mocks run run-cli dep lint air build-custom
 
 all: test build/slack-bot build/cli
 
 FLAGS = -trimpath -ldflags="-s -w -X github.com/innogames/slack-bot/v2/bot/version.Version=$(shell git describe --tags)"
+
+# the official plugins in ./plugins/ are own Go modules, see docs/plugins.md
+PLUGIN_DIRS = $(patsubst %/go.mod,%,$(wildcard plugins/*/go.mod))
+
+# executes the given command in each plugin module, e.g. $(call in-plugins,go test ./...)
+define in-plugins
+$(foreach dir,$(PLUGIN_DIRS),cd $(dir) && $(1)
+)
+endef
 
 build/slack-bot: dep
 	@mkdir -p build/
@@ -12,6 +21,18 @@ build/slack-bot: dep
 build/cli: dep
 	@mkdir -p build/
 	go build $(FLAGS) -o build/cli cmd/cli/main.go
+
+build/slack-bot-builder: dep
+	@mkdir -p build/
+	go build $(FLAGS) -o build/slack-bot-builder cmd/slack-bot-builder/main.go
+
+# bot and cli binary including all plugins of ./plugins/
+build/slack-bot-full: dep
+	go run ./cmd/slack-bot-builder -config plugins/all.yaml -core . -output build/slack-bot-full -cli-output build/cli-full
+
+# bot binary including the plugins of the given config, based on the local slack-bot: make build-custom CONFIG=config.yaml
+build-custom: dep
+	go run ./cmd/slack-bot-builder -config $(or $(CONFIG),config.yaml) -core . -output build/slack-bot-custom -cli-output build/cli-custom
 
 run: dep
 	go run -tags pprof $(FLAGS) cmd/bot/*.go
@@ -33,6 +54,7 @@ dep:
 lint:
 	go fix ./...
 	golangci-lint run --fix
+	$(call in-plugins,go fix ./... && golangci-lint run --fix)
 
 docker-build:
 	docker build . --force-rm -t brainexe/slack-bot:latest
@@ -42,9 +64,11 @@ docker-push:
 
 test: dep
 	go test ./...
+	$(call in-plugins,go test ./...)
 
 test-race: dep
 	go test ./... -race
+	$(call in-plugins,go test ./... -race)
 
 test-bench:
 	go test -bench . ./... -benchmem

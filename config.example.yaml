@@ -85,10 +85,21 @@ github:
 #        reply <@devs> There are *{{$prs}}* pull requests open...please take a look! :scream:
 #      {{end}}
 
-# used for the "weather" command to fetch current weather information from https://openweathermap.org/api
-#open_weather:
-#  apikey: iamtheapifromopenweathermap
-#  location: Hamburg
+# plugins which are compiled into the bot binary via the slack-bot-builder, see docs/plugins.md
+# "make build-custom CONFIG=config.yaml" builds build/slack-bot-custom and build/cli-custom including these plugins
+plugins:
+  # reference plugin of this repository, adds the "echo <text>" command
+  example:
+    source: ./plugins/example
+    config:
+      prefix: echo
+#  weather:
+#    source: github.com/innogames/slack-bot/plugins/weather
+#    config:
+#      apikey: ${OPENWEATHER_API_KEY}
+#      location: Hamburg
+#  my_plugin:
+#    source: ./plugins/my_plugin
 
 # optional define a pool of resources which can be locked / unlocked by a user
 #pool:

@@ -13,7 +13,38 @@ import (
 	"github.com/innogames/slack-bot/v2/bot/util"
 	"github.com/innogames/slack-bot/v2/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func TestSetup(t *testing.T) {
+	slackClient := mocks.NewSlackClient(t)
+
+	t.Run("without api key", func(t *testing.T) {
+		commands, err := setup(bot.NewPluginContext("weather", slackClient, config.Config{}))
+		require.EqualError(t, err, `no "apikey" defined in the config`)
+		assert.Equal(t, 0, commands.Count())
+	})
+
+	t.Run("with api key", func(t *testing.T) {
+		cfg := config.Config{
+			Plugins: map[string]config.PluginConfig{
+				"weather": {
+					Config: map[string]any{
+						"apikey":   "12345",
+						"location": "Hamburg",
+					},
+				},
+			},
+		}
+
+		commands, err := setup(bot.NewPluginContext("weather", slackClient, cfg))
+		require.NoError(t, err)
+		assert.Equal(t, 1, commands.Count())
+
+		help := commands.GetHelp()
+		assert.Equal(t, "returns the current weather information for: Hamburg", help[0].Description)
+	})
+}
 
 func TestWeather(t *testing.T) {
 	slackClient := mocks.NewSlackClient(t)
@@ -28,13 +59,13 @@ func TestWeather(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	cfg := config.OpenWeather{}
+	cfg := Config{}
 	cfg.Location = "Hamburg"
 	cfg.Apikey = "12345"
 	cfg.URL = ts.URL
 
 	command := bot.Commands{}
-	command.AddCommand(NewWeatherCommand(base, cfg))
+	command.AddCommand(newWeatherCommand(base, cfg))
 
 	t.Run("Send invalid command", func(t *testing.T) {
 		message := msg.Message{}
@@ -75,14 +106,14 @@ func TestWeather(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "weather"
 
-		cfg := config.OpenWeather{}
+		cfg := Config{}
 		cfg.Location = "Hamburg"
 		cfg.Apikey = "12345"
 
 		mocks.AssertSlackMessage(slackClient, message, "Api call returned an err: 401")
 
 		command := bot.Commands{}
-		command.AddCommand(NewWeatherCommand(base, cfg))
+		command.AddCommand(newWeatherCommand(base, cfg))
 
 		actual := command.Run(message)
 		assert.True(t, actual)

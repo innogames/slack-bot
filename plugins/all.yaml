@@ -1,0 +1,10 @@
+# all plugins of this repository, used by "make build/slack-bot-full"
+plugins:
+  aws:
+    source: ./aws
+  example:
+    source: ./example
+  ripeatlas:
+    source: ./ripeatlas
+  weather:
+    source: ./weather

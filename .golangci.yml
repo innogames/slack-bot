@@ -75,7 +75,7 @@ linters:
       # gosec taint analysis (XSS/log injection) does not apply.
       - linters:
           - gosec
-        path: (bot/tester/|command/clouds/)
+        path: (bot/tester/|plugins/aws/)
         text: (G705|G706)
       # pre-existing package names; renaming would churn every importer for no real benefit.
       - linters:

@@ -3,6 +3,7 @@ package stats
 import (
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -14,6 +15,20 @@ import (
 )
 
 type statRegistry struct{}
+
+var (
+	customCollectors     []prometheus.Collector
+	customCollectorsLock sync.Mutex
+)
+
+// RegisterCollector adds a custom prometheus collector to the "/metrics" endpoint, e.g. to provide metrics of a plugin.
+// It has to be called before the bot is started, e.g. in the Setup function of a plugin.
+func RegisterCollector(collector prometheus.Collector) {
+	customCollectorsLock.Lock()
+	defer customCollectorsLock.Unlock()
+
+	customCollectors = append(customCollectors, collector)
+}
 
 // Describe returns all descriptions of the collector.
 func (c *statRegistry) Describe(_ chan<- *prometheus.Desc) {
@@ -44,6 +59,14 @@ func InitMetrics(cfg config.Config, ctx *util.ServerContext) {
 		&statRegistry{},
 		collectors.NewGoCollector(),
 	)
+
+	customCollectorsLock.Lock()
+	for _, collector := range customCollectors {
+		if err := registry.Register(collector); err != nil {
+			log.Warnf("Failed to register custom prometheus collector: %s", err)
+		}
+	}
+	customCollectorsLock.Unlock()
 
 	ctx.Go(func() {
 		log.Infof("Init prometheus handler on http://%s/metrics", cfg.Metrics.PrometheusListener)

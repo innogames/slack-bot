@@ -1,0 +1,30 @@
+# Minimal config, see config.example.yaml of the slack-bot for all options.
+# The Slack tokens are passed via environment: BOT_SLACK_TOKEN and BOT_SLACK_SOCKET_TOKEN
+slack:
+  token: ""
+  socket_token: ""
+
+allowed_users:
+  - your.slack.name
+
+# plugins which are compiled into the bot binary by "make build", see docs/plugins.md of the slack-bot
+plugins:
+  # own plugin within this repository
+  hello:
+    source: ./plugins/hello
+    config:
+      greeting: "Moin ${USER}!"
+
+  # official plugin as Go module, the version is optional
+  #weather:
+  #  source: github.com/innogames/slack-bot/plugins/weather
+  #  version: v1.0.0
+  #  config:
+  #    apikey: ${OPENWEATHER_API_KEY}
+  #    location: Hamburg
+
+  # plugin in a subdirectory of a (private) git repository
+  #deploy:
+  #  source: git@gitlab.example.com:team/slack-bot-plugins.git
+  #  version: main
+  #  subdir: deploy
