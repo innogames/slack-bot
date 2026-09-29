@@ -140,6 +140,10 @@ func TestStreamingResponsePayloadString(t *testing.T) {
 }
 
 func TestRipeAtlas(t *testing.T) {
+	// Set a proper timezone, otherwise the test fails on GitHub Actions.
+	// Must happen before any subtest starts HTTP goroutines, which read time.Local.
+	time.Local, _ = time.LoadLocation("Europe/Berlin")
+
 	slackClient := mocks.NewSlackClient(t)
 	base := bot.BaseCommand{SlackClient: slackClient}
 
@@ -245,9 +249,6 @@ func TestRipeAtlas(t *testing.T) {
 	})
 
 	t.Run("RIPE Atlas Traceroute API works", func(t *testing.T) {
-		// Set a proper timezone, otherwise the test fails on GitHub Actions
-		time.Local, _ = time.LoadLocation("Europe/Berlin")
-
 		// mock RIPE Atlas API
 		ts := spawnRIPEAtlasServer(t)
 		defer ts.Close()
