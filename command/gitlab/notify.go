@@ -1,9 +1,11 @@
 package gitlab
 
 import (
+	"cmp"
 	"errors"
 	"fmt"
 	"net/url"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -73,13 +75,26 @@ func (g *realGitlabAPI) GetPipeline(pid any, pipeline int64) (*gitlab.Pipeline, 
 
 func (g *realGitlabAPI) ListPipelineJobs(pid any, pipeline int64) ([]*gitlab.Job, error) {
 	opts := &gitlab.ListJobsOptions{
-		ListOptions: gitlab.ListOptions{PerPage: 100},
+		ListOptions: gitlab.ListOptions{PerPage: 100, Page: 1},
 	}
-	jobs, resp, err := g.client.Jobs.ListPipelineJobs(pid, pipeline, opts)
-	if resp != nil && resp.Body != nil {
-		resp.Body.Close()
+
+	// GitLab returns at most 100 jobs per page, so follow the pagination
+	var allJobs []*gitlab.Job
+	for {
+		jobs, resp, err := g.client.Jobs.ListPipelineJobs(pid, pipeline, opts)
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
+		if err != nil {
+			return nil, err
+		}
+		allJobs = append(allJobs, jobs...)
+
+		if resp == nil || resp.NextPage == 0 {
+			return allJobs, nil
+		}
+		opts.Page = resp.NextPage
 	}
-	return jobs, err
 }
 
 func (g *realGitlabAPI) GetJob(pid any, jobID int64) (*gitlab.Job, error) {
@@ -376,11 +391,17 @@ func countDoneJobs(jobs []*gitlab.Job) int {
 	return count
 }
 
-// collectNotableJobs returns running and failed jobs for detailed display
+// notableJobStatusOrder defines which job statuses are shown in detail, and in which order
+var notableJobStatusOrder = map[string]int{
+	"failed":  0,
+	"running": 1,
+}
+
+// collectNotableJobs returns failed and running jobs for detailed display, sorted by status, name and stage
 func collectNotableJobs(jobs []*gitlab.Job) []jobDetail {
 	var details []jobDetail
 	for _, job := range jobs {
-		if job.Status == "running" || job.Status == "failed" {
+		if _, ok := notableJobStatusOrder[job.Status]; ok {
 			details = append(details, jobDetail{
 				name:   job.Name,
 				stage:  job.Stage,
@@ -389,6 +410,15 @@ func collectNotableJobs(jobs []*gitlab.Job) []jobDetail {
 			})
 		}
 	}
+
+	slices.SortFunc(details, func(a, b jobDetail) int {
+		return cmp.Or(
+			cmp.Compare(notableJobStatusOrder[a.status], notableJobStatusOrder[b.status]),
+			cmp.Compare(a.name, b.name),
+			cmp.Compare(a.stage, b.stage),
+		)
+	})
+
 	return details
 }
 

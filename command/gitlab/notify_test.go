@@ -1,6 +1,10 @@
 package gitlab
 
 import (
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -264,14 +268,23 @@ func TestCollectNotableJobs(t *testing.T) {
 		{Name: "test", Stage: "test", Status: "running", WebURL: "https://gitlab.example.com/jobs/2"},
 		{Name: "lint", Stage: "test", Status: "failed", WebURL: "https://gitlab.example.com/jobs/3"},
 		{Name: "deploy", Stage: "deploy", Status: "pending", WebURL: "https://gitlab.example.com/jobs/4"},
+		{Name: "e2e", Stage: "test", Status: "running", WebURL: "https://gitlab.example.com/jobs/5"},
+		{Name: "audit", Stage: "test", Status: "failed", WebURL: "https://gitlab.example.com/jobs/6"},
+		{Name: "e2e", Stage: "build", Status: "running", WebURL: "https://gitlab.example.com/jobs/7"},
 	}
 
 	details := collectNotableJobs(jobs)
-	assert.Len(t, details, 2)
-	assert.Equal(t, "test", details[0].name)
-	assert.Equal(t, "running", details[0].status)
-	assert.Equal(t, "lint", details[1].name)
-	assert.Equal(t, "failed", details[1].status)
+	got := make([]string, 0, len(details))
+	for _, d := range details {
+		got = append(got, d.status+" "+d.name+" "+d.stage)
+	}
+	assert.Equal(t, []string{
+		"failed audit test",
+		"failed lint test",
+		"running e2e build",
+		"running e2e test",
+		"running test test",
+	}, got)
 }
 
 func TestFormatJobDetails(t *testing.T) {
@@ -292,4 +305,37 @@ func TestFormatJobDetailsEmpty(t *testing.T) {
 func TestURLTypeString(t *testing.T) {
 	assert.Equal(t, "pipeline", urlTypePipeline.String())
 	assert.Equal(t, "job", urlTypeJob.String())
+}
+
+func TestRealGitlabAPIListPipelineJobsPagination(t *testing.T) {
+	const totalJobs = 255
+	const perPage = 100
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+		start := (page - 1) * perPage
+		end := min(start+perPage, totalJobs)
+
+		if end < totalJobs {
+			w.Header().Set("X-Next-Page", strconv.Itoa(page+1))
+		}
+		w.Header().Set("Content-Type", "application/json")
+
+		jobs := make([]string, 0, end-start)
+		for i := start; i < end; i++ {
+			jobs = append(jobs, fmt.Sprintf(`{"id":%d,"status":"success"}`, i+1))
+		}
+		fmt.Fprintf(w, "[%s]", strings.Join(jobs, ","))
+	}))
+	defer server.Close()
+
+	client, err := gitlab.NewClient("token", gitlab.WithBaseURL(server.URL))
+	require.NoError(t, err)
+
+	api := &realGitlabAPI{client: client}
+	jobs, err := api.ListPipelineJobs("group/project", 1)
+	require.NoError(t, err)
+	assert.Len(t, jobs, totalJobs)
+	assert.Equal(t, int64(1), jobs[0].ID)
+	assert.Equal(t, int64(totalJobs), jobs[totalJobs-1].ID)
 }
