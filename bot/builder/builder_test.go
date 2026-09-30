@@ -382,6 +382,8 @@ func TestBuildWithCoreVersion(t *testing.T) {
 	coreFiles := map[string]string{
 		"go.mod":         "module github.com/innogames/slack-bot/v2\n\ngo 1.21\n",
 		"bot/app/app.go": "package app\n\n// Run is a fake of the bot\nfunc Run() {}\n",
+		// only compiles when the build tag is passed to "go build"
+		"bot/app/tag.go": "//go:build !fake_tag\n\npackage app\n\nvar _ = missingBuildTag\n",
 	}
 	publishModule(t, proxyDir, CoreModule, "v2.0.0", coreFiles)
 	publishModule(t, proxyDir, CoreModule, "v2.1.0", coreFiles)
@@ -412,6 +414,7 @@ func TestBuildWithCoreVersion(t *testing.T) {
 			ConfigPath: filepath.Join(dir, configFile),
 			Core:       core,
 			Output:     filepath.Join(dir, "slack-bot"),
+			Tags:       "fake_tag",
 			Log:        log,
 		})
 
@@ -422,7 +425,7 @@ func TestBuildWithCoreVersion(t *testing.T) {
 		log, err := build("module.yaml", "latest")
 		require.NoError(t, err, log)
 		assert.Contains(t, log, "[slack-bot-builder] go get github.com/innogames/slack-bot/v2@v2.1.0 example.com/plugin@v1.0.0")
-		assert.Contains(t, log, "-X github.com/innogames/slack-bot/v2/bot/version.Version=v2.1.0")
+		assert.Contains(t, log, "[slack-bot-builder] go build -trimpath -tags=fake_tag -ldflags=-s -w -X github.com/innogames/slack-bot/v2/bot/version.Version=v2.1.0")
 	})
 
 	t.Run("module plugin requires a newer core", func(t *testing.T) {

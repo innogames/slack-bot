@@ -100,7 +100,7 @@ If you want to work on the bot itself:
 ```
 git clone https://github.com/innogames/slack-bot.git
 cd slack-bot
-make run   # or: go run cmd/bot/main.go
+make run   # builds and starts the bot, including the plugins of the config.yaml
 ```
 
 ### With plugins

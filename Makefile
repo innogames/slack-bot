@@ -5,6 +5,10 @@ all: test build/slack-bot build/cli
 
 FLAGS = -trimpath -ldflags="-s -w -X github.com/innogames/slack-bot/v2/bot/version.Version=$(shell git describe --tags)"
 
+# config which is used by "make run", "make run-cli" and "make build-custom", e.g. "make run CONFIG=config/"
+CONFIG ?= config.yaml
+GOEXE := $(shell go env GOEXE)
+
 # the official plugins in ./plugins/ are own Go modules, see docs/plugins.md
 PLUGIN_DIRS = $(patsubst %/go.mod,%,$(wildcard plugins/*/go.mod))
 
@@ -30,16 +34,21 @@ build/slack-bot-builder: dep
 build/slack-bot-full: dep
 	go run ./cmd/slack-bot-builder -config plugins/all.yaml -core . -output build/slack-bot-full -cli-output build/cli-full
 
-# bot binary including the plugins of the given config, based on the local slack-bot: make build-custom CONFIG=config.yaml
+# bot and cli binary including the plugins of the config, based on the local slack-bot
 build-custom: dep
-	go run ./cmd/slack-bot-builder -config $(or $(CONFIG),config.yaml) -core . -output build/slack-bot-custom -cli-output build/cli-custom
+	go run ./cmd/slack-bot-builder -config $(CONFIG) -core . -output build/slack-bot-custom -cli-output build/cli-custom
 
+# builds and starts the bot including the plugins of the config, with the pprof server
 run: dep
-	go run -tags pprof $(FLAGS) cmd/bot/*.go
+	@test -e $(CONFIG) || (echo "please create a config.yaml first. Hint: check the config.example.yaml" && exit 1)
+	go run ./cmd/slack-bot-builder -config $(CONFIG) -core . -workdir build/run -tags pprof -output build/slack-bot-run$(GOEXE)
+	./build/slack-bot-run$(GOEXE) -config $(CONFIG)
 
+# chat with the bot in the terminal, including the plugins of the config
 run-cli: dep
-	@test -f config.yaml || (echo "please create a config.yaml first. Hint: check the config.example.yaml" && exit 1)
-	go run $(FLAGS) cmd/cli/main.go -config config.yaml
+	@test -e $(CONFIG) || (echo "please create a config.yaml first. Hint: check the config.example.yaml" && exit 1)
+	go run ./cmd/slack-bot-builder -config $(CONFIG) -core . -workdir build/run -output build/slack-bot-run$(GOEXE) -cli-output build/cli-run$(GOEXE)
+	./build/cli-run$(GOEXE) -config $(CONFIG)
 
 run-cli-config:
 	go run cmd/cli/main.go -config config.yaml

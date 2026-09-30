@@ -41,6 +41,9 @@ type Options struct {
 	// WorkDir is the directory of the generated Go module. Default: temporary directory, which is removed after the build
 	WorkDir string
 
+	// Tags is a comma separated list of Go build tags, e.g. "pprof"
+	Tags string
+
 	// DryRun only resolves the plugins and prints the generated files, without building the binaries
 	DryRun bool
 
@@ -310,17 +313,13 @@ func (b *builder) build(ctx context.Context, pkg string, output string) error {
 
 	b.logf("Building %s", output)
 
-	return b.run(
-		ctx,
-		b.workDir,
-		"go",
-		"build",
-		"-trimpath",
-		"-ldflags=-s -w -X "+CoreModule+"/bot/version.Version="+b.coreVersion,
-		"-o",
-		output,
-		pkg,
-	)
+	args := []string{"build", "-trimpath"}
+	if b.opts.Tags != "" {
+		args = append(args, "-tags="+b.opts.Tags)
+	}
+	args = append(args, "-ldflags=-s -w -X "+CoreModule+"/bot/version.Version="+b.coreVersion, "-o", output, pkg)
+
+	return b.run(ctx, b.workDir, "go", args...)
 }
 
 func (b *builder) logf(format string, args ...any) {

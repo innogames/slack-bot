@@ -47,8 +47,8 @@ This is a **Slack Bot** written in **Go** that improves development team workflo
 - **Benchmarks**: `make test-bench`
 
 ### Development Commands
-- **Run bot locally**: `make run`
-- **Run CLI tool**: `make run-cli` (requires `config.yaml`)
+- **Run bot locally**: `make run` (builds via slack-bot-builder, incl. the plugins of `config.yaml` and pprof)
+- **Run CLI tool**: `make run-cli` (requires `config.yaml`, incl. its plugins; `CONFIG=...` for another config)
 - **Live reload**: `make run-live-reload` (uses air for hot reloading)
 - **Generate mocks**: `make mocks`
 - **Lint code**: `make lint` (auto-fixes issues)

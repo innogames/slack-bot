@@ -23,6 +23,7 @@ func run() int {
 	flag.StringVar(&opts.CLIOutput, "cli-output", "", "Path of the built CLI binary (bot emulator in the terminal), only built when set")
 	flag.StringVar(&opts.Core, "core", "", "Version (like v2.5.0) or local directory of the slack-bot core. Default: version of this builder")
 	flag.StringVar(&opts.WorkDir, "workdir", "", "Directory of the generated Go module, keep it to reuse the go.sum. Default: temporary directory")
+	flag.StringVar(&opts.Tags, "tags", "", "Comma separated list of Go build tags, e.g. \"pprof\" to enable the pprof server")
 	flag.BoolVar(&opts.DryRun, "dry-run", false, "Only resolve the plugins and print the generated files, without building")
 	flag.BoolVar(&showVersion, "version", false, "Print the slack-bot version of this builder")
 	flag.Parse()

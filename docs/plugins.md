@@ -76,6 +76,7 @@ The builder uses its own version for the slack-bot core, so pin the version for 
 | `-cli-output` | Also build the [CLI tool](../readme.md#cli-tool) with the same plugins, to test them in the terminal                  |
 | `-core`       | Version (like `v2.5.0`) or local directory of the slack-bot core. Default: version of the builder                   |
 | `-workdir`    | Keep the generated Go module in this directory, e.g. to inspect or cache it. Default: temporary directory           |
+| `-tags`       | Comma separated list of Go build tags, e.g. `pprof` to enable the pprof server on `localhost:6968`                   |
 | `-dry-run`    | Only resolve the plugins and print the generated `go.mod` and `main.go`                                             |
 
 The builder generates a small Go module: a `main.go` which imports the core and all plugins, and a `go.mod` which
@@ -273,8 +274,9 @@ To try the plugin in the terminal, build the CLI tool including the plugin:
 ### Developing core and plugin together
 
 Use a local checkout of the slack-bot as core: `slack-bot-builder -core ../slack-bot ...`.
-Within this repository, `make build-custom CONFIG=my-config.yaml` builds the plugins of the given config against
-the local core.
+Within this repository, `make run` and `make run-cli` build and start the bot including the plugins of the
+`config.yaml` against the local core (`make run CONFIG=my-config.yaml` for another config), `make build-custom` only
+builds the binaries.
 
 ## Development of the official plugins
 
