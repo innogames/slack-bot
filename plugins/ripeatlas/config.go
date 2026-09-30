@@ -2,11 +2,9 @@ package ripeatlas
 
 import (
 	"time"
-
-	"github.com/innogames/slack-bot/v2/bot/config"
 )
 
-// Config configuration: API key to do API calls
+// Config of the ripeatlas plugin, defined in "plugins.ripeatlas.config". The API key is needed to do API calls
 type Config struct {
 	APIKey         string        `mapstructure:"api_key"`
 	APIURL         string        `mapstructure:"api_url"`
@@ -23,11 +21,4 @@ var defaultConfig = Config{
 	APIURL:         "https://atlas.ripe.net/api/v2",
 	StreamURL:      "https://atlas-stream.ripe.net/stream/",
 	UpdateInterval: time.Second,
-}
-
-func loadConfig(config *config.Config) Config {
-	cfg := defaultConfig
-	_ = config.LoadCustom("ripeatlas", &cfg)
-
-	return cfg
 }

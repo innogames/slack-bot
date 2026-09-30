@@ -1,6 +1,6 @@
 //go:build pprof
 
-package main
+package app
 
 // build tag to enable pprof server
 //

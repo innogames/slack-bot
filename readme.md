@@ -100,7 +100,14 @@ If you want to work on the bot itself:
 ```
 git clone https://github.com/innogames/slack-bot.git
 cd slack-bot
-make run   # or: go run cmd/bot/main.go
+make run   # builds and starts the bot, including the plugins of the config.yaml
+```
+
+### With plugins
+[Plugins](./docs/plugins.md) are listed in the `plugins` section of the config. The `slack-bot-builder` builds a bot binary including them:
+```
+go run github.com/innogames/slack-bot/v2/cmd/slack-bot-builder@latest -config config.yaml -output ./slack-bot
+./slack-bot -config config.yaml
 ```
 
 ### Command-line flags
@@ -441,32 +448,14 @@ pool:
         - "usb plugs"
 ```
 
-## Weather
-Shows the current weather from [OpenWeatherMap](https://openweathermap.org/).
-
-- `weather`: weather for the configured location
-- `weather in Berlin`
+## Plugins
+Commands with special use cases or heavy dependencies are plugins, which are compiled into the bot on demand,
+see [docs/plugins.md](./docs/plugins.md). Official plugins:
+- `aws`: `aws cf list`, `aws cf clean <distribution> at <path>`, `ecs ls <cluster>` and `ecs restart <cluster> <service>`
+- `ripeatlas`: `credits` and `traceroute <destination>` via [RIPE Atlas](https://atlas.ripe.net/)
+- `weather`: `weather` and `weather in Berlin` via [OpenWeatherMap](https://openweathermap.org/)
 
 ![Screenshot](./docs/weather.png)
-
-```yaml
-open_weather:
-  apikey: "612325WD623562376678"
-  location: "Hamburg, DE"
-  units: "metric"
-```
-
-## AWS
-Enabled with `aws.enabled: true`. Credentials are taken from the usual AWS environment variables and config files.
-- `aws cf list`: lists CloudFront distributions
-- `aws cf clean <distribution> at <path>`: invalidates the CloudFront cache for a path
-- `ecs ls <cluster>`: lists the services in an ECS cluster
-- `ecs restart <cluster> <service>`: restarts an ECS service
-
-## RIPE Atlas
-Enabled with `ripeatlas.api_key`.
-- `credits`: shows your remaining RIPE Atlas credits
-- `traceroute <destination>`: runs a traceroute from RIPE Atlas probes
 
 ## Other commands
 - `random Pizza Pasta`: picks one of the given options at random
@@ -613,7 +602,7 @@ bitbucket:
 Without a branch lookup, branch parameters are passed to Jenkins exactly as typed.
 
 ## Enabling and disabling features
-Most integrations are off until they are configured: Jenkins and Jira (`host`), GitLab, Bitbucket, OpenAI and RIPE Atlas (API key or host), Weather (`open_weather.apikey`), Pool (`pool.resources`) and crons. AWS needs `aws.enabled: true`.
+Most integrations are off until they are configured: Jenkins and Jira (`host`), GitLab, Bitbucket and OpenAI (API key or host), Pool (`pool.resources`) and crons. Plugins are only loaded when they are listed in the `plugins` section, see [docs/plugins.md](./docs/plugins.md).
 
 Custom commands and custom variables are on by default. To turn them off:
 ```yaml
@@ -629,12 +618,14 @@ custom_variables:
 - `bot/`: the bot core: Slack connection, config, user management, command matching, storage
 - `client/`: clients for external services (Slack, Jira, Bitbucket, ...)
 - `command/`: the commands, each implementing the `bot.Command` interface
+- `plugins/`: the official [plugins](./docs/plugins.md), each one is its own Go module
 - `cmd/bot/`: entry point of the bot
 - `cmd/cli/`: entry point of the local CLI tool
-- `examples/`: example setups, e.g. `examples/custom_commands` to build your own bot with extra commands
+- `cmd/slack-bot-builder/`: builds a bot binary including the plugins of a config
+- `examples/`: example setups, e.g. `examples/custom_build` to build your own bot with plugins
 
 ## Writing a new command
-If a [defined command](#defined-commands) isn't enough, you can write the command in Go:
+If a [defined command](#defined-commands) isn't enough, you can write the command in Go. Commands for special use cases, or with additional dependencies, should be a [plugin](./docs/plugins.md#writing-a-plugin) instead:
 1. Add a file in `command/` or one of its subpackages.
 2. Create a struct that implements `bot.Command`. `GetMatcher()` defines which messages the command handles. Most commands need a `client.SlackClient` to reply.
 3. Implement `bot.HelpProvider`, so the command shows up in `help`.

@@ -47,8 +47,8 @@ This is a **Slack Bot** written in **Go** that improves development team workflo
 - **Benchmarks**: `make test-bench`
 
 ### Development Commands
-- **Run bot locally**: `make run`
-- **Run CLI tool**: `make run-cli` (requires `config.yaml`)
+- **Run bot locally**: `make run` (builds via slack-bot-builder, incl. the plugins of `config.yaml` and pprof)
+- **Run CLI tool**: `make run-cli` (requires `config.yaml`, incl. its plugins; `CONFIG=...` for another config)
 - **Live reload**: `make run-live-reload` (uses air for hot reloading)
 - **Generate mocks**: `make mocks`
 - **Lint code**: `make lint` (auto-fixes issues)
@@ -69,7 +69,16 @@ This is a **Slack Bot** written in **Go** that improves development team workflo
 - **`bot/`**: Core bot functionality, configuration, listeners, message handling
 - **`command/`**: All bot commands organized by feature (jenkins/, jira/, games/, etc.)
 - **`client/`**: External service integrations (Slack, Bitbucket, VCS clients)
-- **`cmd/`**: Command-line applications (bot and cli tools)
+- **`cmd/`**: Command-line applications (bot, cli and slack-bot-builder)
+- **`plugins/`**: Official plugins (aws, ripeatlas, weather, example), each one is an **own Go module**
+
+### Plugins
+Commands with heavy dependencies or special use cases are plugins, see `docs/plugins.md`:
+- A plugin registers itself via `bot.RegisterPlugin(bot.Plugin{Name, Setup})` in `init()`; `Setup(ctx *bot.PluginContext)` gets the Slack client and the plugin config (`ctx.LoadConfig`)
+- It's only loaded when listed in the `plugins:` config section (`bot/config/plugin.go`, loading in `bot/plugin.go`)
+- `cmd/slack-bot-builder` (`bot/builder/`) generates a Go module importing the core + all configured plugins (Go module, git repo or local dir) and builds a custom binary
+- Plugin modules use `replace github.com/innogames/slack-bot/v2 => ../..`; `make test`/`make lint` also run in all plugin modules
+- `make build/slack-bot-full` builds the bot with all official plugins (`plugins/all.yaml`)
 
 ### Command and Matcher Structure
 
@@ -159,6 +168,7 @@ func (c *poolCommands) RunAsync(ctx *util.ServerContext) {
 ### Command Development Patterns
 
 #### Creating New Commands
+Commands with new external dependencies or special use cases should be a plugin in `plugins/` instead (see `docs/plugins.md`).
 1. Create new file in appropriate `command/` subdirectory
 2. Implement `bot.Command` interface
 3. Register command in package's main file

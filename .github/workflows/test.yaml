@@ -40,6 +40,8 @@ jobs:
         uses: actions/checkout@v7
       - name: Build binary
         run: make build/slack-bot
+      - name: Build binary with all plugins
+        run: make build/slack-bot-full
       - name: Run tests with race
         run: make test-race
         env:
@@ -51,17 +53,25 @@ jobs:
       - name: Upload Coverage
         uses: codecov/codecov-action@v7
       - name: Build examples
-        run: cd examples/custom_commands && make
+        run: |
+          cd examples/custom_commands && make
+          cd ../custom_build && make build BUILDER="go run ../../cmd/slack-bot-builder -core ../.."
   lint:
     name: Lint
     if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # the core and each plugin module
+        module: [., plugins/aws, plugins/example, plugins/ripeatlas, plugins/weather]
     steps:
       - uses: actions/checkout@v7
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9.3.0
         with:
           only-new-issues: true
+          working-directory: ${{ matrix.module }}
           args: --timeout=3m
   security:
     name: Security
@@ -76,6 +86,21 @@ jobs:
         uses: golang/govulncheck-action@v1
         with:
           repo-checkout: false
+          go-package: ./...
+  security-plugins:
+    name: Security plugins
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        plugin: [aws, example, ripeatlas, weather]
+    steps:
+      - uses: actions/checkout@v7
+      - id: govulncheck
+        uses: golang/govulncheck-action@v1
+        with:
+          repo-checkout: false
+          work-dir: plugins/${{ matrix.plugin }}
           go-package: ./...
   docker:
     name: Build Docker image

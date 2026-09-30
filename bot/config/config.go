@@ -26,7 +26,6 @@ type Config struct {
 		AccessToken string
 		Host        string
 	} `mapstructure:"gitlab"`
-	Aws      Aws       `mapstructure:"aws"`
 	Commands []Command `mapstructure:"commands"`
 	Crons    []Cron    `mapstructure:"crons"`
 	Logger   Logger    `mapstructure:"logger"`
@@ -36,12 +35,11 @@ type Config struct {
 	// Metrics, like Prometheus
 	Metrics Metrics `mapstructure:"metrics"`
 
-	OpenWeather OpenWeather `mapstructure:"open_weather"`
 	PullRequest PullRequest `mapstructure:"pullrequest"`
 	Timezone    string      `mapstructure:"timezone"`
 
-	// list of slack-bot plugins to load
-	Plugins []string `mapstructure:"plugins"`
+	// Plugins which are compiled into the bot binary (via slack-bot-builder), indexed by the plugin name
+	Plugins map[string]PluginConfig `mapstructure:"plugins"`
 
 	// store whole raw config to get dynamic config values
 	raw map[string]any `mapstructure:"-"`
@@ -49,22 +47,34 @@ type Config struct {
 
 // LoadCustom does a dynamic config lookup with a given key (nested keys are separated by ".") and unmarshal it into the value
 func (c *Config) LoadCustom(key string, value any) error {
-	var current any = c.raw
-	for part := range strings.SplitSeq(key, ".") {
-		m, ok := current.(map[string]any)
-		if !ok {
-			return nil
-		}
-		if current, ok = m[part]; !ok {
-			return nil
-		}
-	}
-
-	if current == nil {
+	current, ok := c.lookup(key)
+	if !ok || current == nil {
 		return nil
 	}
 
 	return decode(current, value)
+}
+
+// IsSet checks if the given key (nested keys are separated by ".") is defined in the config
+func (c *Config) IsSet(key string) bool {
+	_, ok := c.lookup(key)
+
+	return ok
+}
+
+func (c *Config) lookup(key string) (any, bool) {
+	var current any = c.raw
+	for part := range strings.SplitSeq(key, ".") {
+		m, ok := current.(map[string]any)
+		if !ok {
+			return nil, false
+		}
+		if current, ok = m[part]; !ok {
+			return nil, false
+		}
+	}
+
+	return current, true
 }
 
 // Set a dynamic config value (nested keys are separated by ".")...please only set it in tests!
@@ -89,14 +99,6 @@ func (c *Config) Set(key string, value any) {
 // Github config, currently just an access token
 type Github struct {
 	AccessToken string `mapstructure:"access_token"`
-}
-
-// OpenWeather is an optional feature to get current weather
-type OpenWeather struct {
-	Apikey   string
-	Location string
-	URL      string
-	Units    string
 }
 
 // Slack contains the credentials and configuration of the Slack client

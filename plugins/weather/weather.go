@@ -1,3 +1,4 @@
+// Package weather is a slack-bot plugin to display the current weather via OpenWeatherMap
 package weather
 
 import (
@@ -9,7 +10,6 @@ import (
 	"time"
 
 	"github.com/innogames/slack-bot/v2/bot"
-	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/matcher"
 	"github.com/innogames/slack-bot/v2/bot/msg"
 	"github.com/innogames/slack-bot/v2/client"
@@ -19,8 +19,39 @@ import (
 
 const defaultAPIURL = "https://api.openweathermap.org/data/2.5/weather"
 
-// NewWeatherCommand is using OpenWeatherMap to display current weather and the forecast
-func NewWeatherCommand(base bot.BaseCommand, cfg config.OpenWeather) bot.Command {
+// Config of the weather plugin, defined in "plugins.weather.config"
+type Config struct {
+	Apikey   string `mapstructure:"apikey"`
+	Location string `mapstructure:"location"`
+	URL      string `mapstructure:"url"`
+	Units    string `mapstructure:"units"`
+}
+
+func init() {
+	bot.RegisterPlugin(bot.Plugin{
+		Name:  "weather",
+		Setup: setup,
+	})
+}
+
+func setup(ctx *bot.PluginContext) (bot.Commands, error) {
+	var commands bot.Commands
+
+	cfg := Config{Units: "metric"}
+	if err := ctx.LoadConfig(&cfg); err != nil {
+		return commands, err
+	}
+	if cfg.Apikey == "" {
+		return commands, errors.New(`no "apikey" defined in the config`)
+	}
+
+	commands.AddCommand(newWeatherCommand(ctx.BaseCommand(), cfg))
+
+	return commands, nil
+}
+
+// newWeatherCommand is using OpenWeatherMap to display current weather and the forecast
+func newWeatherCommand(base bot.BaseCommand, cfg Config) bot.Command {
 	if cfg.URL == "" {
 		cfg.URL = defaultAPIURL
 	}
@@ -30,7 +61,7 @@ func NewWeatherCommand(base bot.BaseCommand, cfg config.OpenWeather) bot.Command
 
 type command struct {
 	bot.BaseCommand
-	cfg config.OpenWeather
+	cfg Config
 }
 
 func (c *command) GetMatcher() matcher.Matcher {

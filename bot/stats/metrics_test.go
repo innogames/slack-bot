@@ -10,6 +10,7 @@ import (
 
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/util"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,6 +28,17 @@ func TestMetrics(t *testing.T) {
 
 	Set("test_value", 500)
 
+	// custom collector, e.g. provided by a plugin
+	gauge := prometheus.NewGauge(prometheus.GaugeOpts{Name: "plugin_test_gauge"})
+	gauge.Set(42)
+	RegisterCollector(gauge)
+
+	// a collector with the same name can't be registered twice: it's skipped with a warning
+	RegisterCollector(prometheus.NewGauge(prometheus.GaugeOpts{Name: "plugin_test_gauge"}))
+	defer func() {
+		customCollectors = nil
+	}()
+
 	InitMetrics(cfg, ctx)
 	time.Sleep(time.Millisecond * 10)
 
@@ -40,6 +52,7 @@ func TestMetrics(t *testing.T) {
 
 	content, _ := io.ReadAll(resp.Body)
 	assert.Contains(t, string(content), "slack_bot_test_value 500")
+	assert.Contains(t, string(content), "plugin_test_gauge 42")
 }
 
 // get a random free port on the host

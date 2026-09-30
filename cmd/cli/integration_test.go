@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gookit/color"
+	"github.com/innogames/slack-bot/v2/bot/cli"
 	"github.com/innogames/slack-bot/v2/bot/config"
 	"github.com/innogames/slack-bot/v2/bot/tester"
 	"github.com/innogames/slack-bot/v2/bot/util"
@@ -34,7 +35,7 @@ func TestAll(t *testing.T) {
 	expectedOutput := &util.MutexBuffer{}
 	expectedOutput.Write([]byte("Type in your command:\n"))
 
-	go startCli(ctx, input, output, cfg)
+	go cli.Start(ctx, input, output, cfg)
 	time.Sleep(time.Millisecond * 100)
 
 	testCommand("reply it works", "it works", input, expectedOutput)
