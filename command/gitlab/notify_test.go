@@ -298,6 +298,27 @@ func TestFormatJobDetails(t *testing.T) {
 	assert.Contains(t, result, ":x: <https://gitlab.example.com/jobs/3|lint> (test)")
 }
 
+func TestFormatJobDetailsTooLong(t *testing.T) {
+	details := make([]jobDetail, 0, 50)
+	for i := range 50 {
+		details = append(details, jobDetail{
+			name:   fmt.Sprintf("upgrade-some-long-job-name-%d-production", i),
+			stage:  "ucs-upgrades-production",
+			status: "running",
+			webURL: fmt.Sprintf("https://gitlab.example.com/group/project/-/jobs/12421%02d", i),
+		})
+	}
+
+	result := formatJobDetails(details)
+	assert.LessOrEqual(t, len(result), maxFieldLength)
+
+	lines := strings.Split(result, "\n")
+	assert.Equal(t, fmt.Sprintf("...and %d more", 50-len(lines)+1), lines[len(lines)-1])
+	for _, line := range lines[:len(lines)-1] {
+		assert.True(t, strings.HasSuffix(line, "> (ucs-upgrades-production)"), "line got cut: %s", line)
+	}
+}
+
 func TestFormatJobDetailsEmpty(t *testing.T) {
 	assert.Empty(t, formatJobDetails(nil))
 }

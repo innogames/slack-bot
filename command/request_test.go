@@ -1,6 +1,8 @@
 package command
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/innogames/slack-bot/v2/bot"
@@ -18,6 +20,12 @@ func TestRequest(t *testing.T) {
 
 	command := bot.Commands{}
 	command.AddCommand(reaction)
+
+	// local test server: "/200" returns 200, everything else 404
+	mux := http.NewServeMux()
+	mux.HandleFunc("/200", func(_ http.ResponseWriter, _ *http.Request) {})
+	server := httptest.NewServer(mux)
+	defer server.Close()
 
 	t.Run("invalid command", func(t *testing.T) {
 		message := msg.Message{}
@@ -60,7 +68,7 @@ func TestRequest(t *testing.T) {
 
 	t.Run("test 200", func(t *testing.T) {
 		message := msg.Message{}
-		message.Text = "request --url=https://mock.httpstatus.io/200"
+		message.Text = "request --url=" + server.URL + "/200"
 
 		mocks.AssertReaction(slackClient, "white_check_mark", message)
 
@@ -70,7 +78,7 @@ func TestRequest(t *testing.T) {
 
 	t.Run("test 404", func(t *testing.T) {
 		message := msg.Message{}
-		message.Text = "request --url=https://mock.httpstatus.io/404"
+		message.Text = "request --url=" + server.URL + "/404"
 
 		mocks.AssertReaction(slackClient, "❌", message)
 		mocks.AssertError(slackClient, message, "request failed with status 404 Not Found")

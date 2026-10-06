@@ -32,6 +32,9 @@ const (
 	colorOther   = "#CCCCCC"
 
 	pollInterval = 15 * time.Second
+
+	// maxFieldLength is Slack's limit for attachment field values, longer values are cut off with "…"
+	maxFieldLength = 2000
 )
 
 type urlType int
@@ -428,7 +431,7 @@ func formatJobDetails(details []jobDetail) string {
 		return ""
 	}
 
-	var lines []string
+	lines := make([]string, 0, len(details))
 	for _, d := range details {
 		icon := ":arrow_forward:"
 		if d.status == "failed" {
@@ -436,7 +439,25 @@ func formatJobDetails(details []jobDetail) string {
 		}
 		lines = append(lines, fmt.Sprintf("%s <%s|%s> (%s)", icon, d.webURL, d.name, d.stage))
 	}
-	return strings.Join(lines, "\n")
+
+	text := strings.Join(lines, "\n")
+	if len(text) <= maxFieldLength {
+		return text
+	}
+
+	// Slack would cut the value at any position (even within a link), so only keep complete lines
+	// and reserve space for the "more" hint (using the total count as upper bound for its length)
+	length := len(fmt.Sprintf("...and %d more", len(lines)))
+	shown := 0
+	for _, line := range lines {
+		length += len(line) + 1
+		if length > maxFieldLength {
+			break
+		}
+		shown++
+	}
+
+	return strings.Join(append(lines[:shown], fmt.Sprintf("...and %d more", len(lines)-shown)), "\n")
 }
 
 // parseGitlabURL extracts the project path, resource type, and ID from a GitLab URL
