@@ -23,7 +23,7 @@ require (
 	gitlab.com/gitlab-org/api/client-go v1.46.0
 	golang.org/x/exp v0.0.0-20261005173118-76772065c9b0
 	golang.org/x/oauth2 v0.37.0
-	golang.org/x/text v0.42.0
+	golang.org/x/text v0.43.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
