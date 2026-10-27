@@ -97,11 +97,7 @@ func TestJiraSearch(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "jira ZOOKEEPER-10000000000"
 
-		mocks.AssertSlackMessage(
-			slackClient,
-			message,
-			"Issue Does Not Exist: request failed. Please analyze the request body for more details. Status code: 404",
-		)
+		mocks.AssertSlackMessageRegexp(slackClient, message, errTicketNotAccessibleRe)
 
 		actual := command.Run(message)
 		assert.True(t, actual)

@@ -36,11 +36,7 @@ func TestWatchJira(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "watch ticket ZOOKEEPER-345600010"
 
-		mocks.AssertSlackMessage(
-			slackClient,
-			message,
-			"Issue Does Not Exist: request failed. Please analyze the request body for more details. Status code: 404",
-		)
+		mocks.AssertSlackMessageRegexp(slackClient, message, errTicketNotAccessibleRe)
 
 		actual := command.Run(message)
 		assert.True(t, actual)
