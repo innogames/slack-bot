@@ -9,7 +9,7 @@ require (
 	github.com/gfleury/go-bitbucket-v1 v0.0.0-20240917142304-df385efaac68
 	github.com/go-viper/mapstructure/v2 v2.5.0
 	github.com/google/go-github v17.0.0+incompatible
-	github.com/gookit/color v1.6.1
+	github.com/gookit/color v1.6.3
 	github.com/hackebrot/turtle v0.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.25.0
