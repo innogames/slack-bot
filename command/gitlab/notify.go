@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"errors"
 	"fmt"
+	"maps"
 	"net/url"
 	"slices"
 	"strconv"
@@ -327,7 +328,7 @@ func buildAttachment(title string, status statusInfo, webURL string) slack.Attac
 
 	if details := formatJobDetails(status.jobDetails); details != "" {
 		attachment.Fields = append(attachment.Fields, slack.AttachmentField{
-			Title: "Running/Failed Jobs",
+			Title: "Failed/Canceled/Running Jobs",
 			Value: details,
 			Short: false,
 		})
@@ -346,7 +347,7 @@ func statusColor(status string) string {
 		return colorSuccess
 	case "failed":
 		return colorFailed
-	case "running", "pending", "created", "waiting_for_resource", "preparing":
+	case "running", "pending", "created", "waiting_for_resource", "preparing", "scheduled", "canceling":
 		return colorRunning
 	default:
 		return colorOther
@@ -365,6 +366,13 @@ func isTerminalStatus(status string) bool {
 	return terminalStatuses[status]
 }
 
+// jobSummaryOrder defines the display order of the job states in the summary.
+// See https://docs.gitlab.com/api/jobs/ for all possible states
+var jobSummaryOrder = []string{
+	"running", "success", "failed", "canceling", "canceled", "pending", "preparing",
+	"waiting_for_resource", "scheduled", "created", "manual", "skipped",
+}
+
 // buildJobSummary counts jobs by status and returns a human-readable summary
 func buildJobSummary(jobs []*gitlab.Job) string {
 	counts := make(map[string]int)
@@ -372,12 +380,17 @@ func buildJobSummary(jobs []*gitlab.Job) string {
 		counts[job.Status]++
 	}
 
-	order := []string{"running", "success", "failed", "pending", "created", "canceled", "skipped", "manual"}
 	var parts []string
-	for _, s := range order {
+	for _, s := range jobSummaryOrder {
 		if n := counts[s]; n > 0 {
 			parts = append(parts, fmt.Sprintf("%d %s", n, s))
+			delete(counts, s)
 		}
+	}
+
+	// unknown states are appended (sorted), so the sum always matches the number of jobs
+	for _, s := range slices.Sorted(maps.Keys(counts)) {
+		parts = append(parts, fmt.Sprintf("%d %s", counts[s], s))
 	}
 
 	return strings.Join(parts, ", ")
@@ -396,11 +409,12 @@ func countDoneJobs(jobs []*gitlab.Job) int {
 
 // notableJobStatusOrder defines which job statuses are shown in detail, and in which order
 var notableJobStatusOrder = map[string]int{
-	"failed":  0,
-	"running": 1,
+	"failed":   0,
+	"canceled": 1,
+	"running":  2,
 }
 
-// collectNotableJobs returns failed and running jobs for detailed display, sorted by status, name and stage
+// collectNotableJobs returns failed, canceled and running jobs for detailed display, sorted by status, name and stage
 func collectNotableJobs(jobs []*gitlab.Job) []jobDetail {
 	var details []jobDetail
 	for _, job := range jobs {
@@ -425,7 +439,7 @@ func collectNotableJobs(jobs []*gitlab.Job) []jobDetail {
 	return details
 }
 
-// formatJobDetails renders running/failed jobs as a Slack mrkdwn list with links
+// formatJobDetails renders running/failed/canceled jobs as a Slack mrkdwn list with links
 func formatJobDetails(details []jobDetail) string {
 	if len(details) == 0 {
 		return ""
@@ -433,9 +447,14 @@ func formatJobDetails(details []jobDetail) string {
 
 	lines := make([]string, 0, len(details))
 	for _, d := range details {
-		icon := ":arrow_forward:"
-		if d.status == "failed" {
+		var icon string
+		switch d.status {
+		case "failed":
 			icon = ":x:"
+		case "canceled":
+			icon = ":no_entry_sign:"
+		default:
+			icon = ":arrow_forward:"
 		}
 		lines = append(lines, fmt.Sprintf("%s <%s|%s> (%s)", icon, d.webURL, d.name, d.stage))
 	}
