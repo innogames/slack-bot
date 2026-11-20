@@ -227,10 +227,17 @@ func TestBuildJobSummary(t *testing.T) {
 		{Status: "success"},
 		{Status: "failed"},
 		{Status: "pending"},
+		{Status: "canceled"},
+		{Status: "waiting_for_resource"},
+		{Status: "preparing"},
+		{Status: "scheduled"},
+		{Status: "canceling"},
+		{Status: "some_future_state"},
 	}
 
 	summary := buildJobSummary(jobs)
-	assert.Equal(t, "2 running, 3 success, 1 failed, 1 pending", summary)
+	assert.Equal(t, "2 running, 3 success, 1 failed, 1 canceling, 1 canceled, 1 pending, 1 preparing, "+
+		"1 waiting_for_resource, 1 scheduled, 1 some_future_state", summary)
 }
 
 func TestBuildJobSummaryEmpty(t *testing.T) {
@@ -247,6 +254,8 @@ func TestIsTerminalStatus(t *testing.T) {
 	assert.False(t, isTerminalStatus("running"))
 	assert.False(t, isTerminalStatus("pending"))
 	assert.False(t, isTerminalStatus("created"))
+	assert.False(t, isTerminalStatus("canceling"))
+	assert.False(t, isTerminalStatus("scheduled"))
 }
 
 func TestCountDoneJobs(t *testing.T) {
@@ -271,6 +280,7 @@ func TestCollectNotableJobs(t *testing.T) {
 		{Name: "e2e", Stage: "test", Status: "running", WebURL: "https://gitlab.example.com/jobs/5"},
 		{Name: "audit", Stage: "test", Status: "failed", WebURL: "https://gitlab.example.com/jobs/6"},
 		{Name: "e2e", Stage: "build", Status: "running", WebURL: "https://gitlab.example.com/jobs/7"},
+		{Name: "smoke", Stage: "test", Status: "canceled", WebURL: "https://gitlab.example.com/jobs/8"},
 	}
 
 	details := collectNotableJobs(jobs)
@@ -281,6 +291,7 @@ func TestCollectNotableJobs(t *testing.T) {
 	assert.Equal(t, []string{
 		"failed audit test",
 		"failed lint test",
+		"canceled smoke test",
 		"running e2e build",
 		"running e2e test",
 		"running test test",
@@ -291,9 +302,11 @@ func TestFormatJobDetails(t *testing.T) {
 	details := []jobDetail{
 		{name: "test", stage: "test", status: "running", webURL: "https://gitlab.example.com/jobs/2"},
 		{name: "lint", stage: "test", status: "failed", webURL: "https://gitlab.example.com/jobs/3"},
+		{name: "smoke", stage: "test", status: "canceled", webURL: "https://gitlab.example.com/jobs/4"},
 	}
 
 	result := formatJobDetails(details)
+	assert.Contains(t, result, ":no_entry_sign: <https://gitlab.example.com/jobs/4|smoke> (test)")
 	assert.Contains(t, result, ":arrow_forward: <https://gitlab.example.com/jobs/2|test> (test)")
 	assert.Contains(t, result, ":x: <https://gitlab.example.com/jobs/3|lint> (test)")
 }
