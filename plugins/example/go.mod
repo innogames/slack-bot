@@ -26,7 +26,7 @@ require (
 	github.com/redis/go-redis/v9 v9.23.0 // indirect
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5 // indirect
 	github.com/sirupsen/logrus v1.10.2 // indirect
-	github.com/slack-go/slack v0.34.0 // indirect
+	github.com/slack-go/slack v0.35.0 // indirect
 	github.com/stretchr/objx v0.8.0 // indirect
 	github.com/texttheater/golang-levenshtein/levenshtein v0.0.0-20200805054039-cae8b0eaed6c // indirect
 	go.uber.org/atomic v1.12.0 // indirect

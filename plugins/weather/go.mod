@@ -5,7 +5,7 @@ go 1.26.0
 require (
 	github.com/innogames/slack-bot/v2 v2.3.18
 	github.com/pkg/errors v0.9.1
-	github.com/slack-go/slack v0.34.0
+	github.com/slack-go/slack v0.35.0
 	github.com/stretchr/testify v1.12.1
 )
 
