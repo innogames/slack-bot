@@ -1,6 +1,9 @@
 package pullrequest
 
 import (
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
 	"testing"
 	"time"
@@ -36,6 +39,24 @@ func TestGithub(t *testing.T) {
 	})
 
 	t.Run("invalid PR", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assert.Equal(t, "/repos/innogames/slack-bot/pulls/40000", r.URL.Path)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			_, _ = w.Write([]byte(`{"message":"Not Found"}`))
+		}))
+		defer server.Close()
+
+		originalClient := githubFetcher.client
+		defer func() {
+			githubFetcher.client = originalClient
+		}()
+
+		githubFetcher.client = github.NewClient(server.Client())
+		var err error
+		githubFetcher.client.BaseURL, err = url.Parse(server.URL + "/")
+		require.NoError(t, err)
+
 		message := msg.Message{}
 		message.Text = "https://github.com/innogames/slack-bot/pull/40000/"
 
