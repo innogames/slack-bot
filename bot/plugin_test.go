@@ -187,6 +187,10 @@ func TestLoadPlugins(t *testing.T) {
 		entries := logHook.AllEntries()
 		messages := make([]string, 0, len(entries))
 		for _, entry := range entries {
+			// goroutines from other tests might log into the global logrus hook at any time
+			if !strings.Contains(entry.Message, "Failed to load plugin") {
+				continue
+			}
 			messages = append(messages, entry.Message)
 		}
 		assert.Equal(t, []string{
