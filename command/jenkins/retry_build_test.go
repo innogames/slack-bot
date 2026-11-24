@@ -53,9 +53,7 @@ func TestJenkinsRetry(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "retry job backend/game-backend/xandreas%2FHC-7231"
 
-		// The decoded job name should be used in the error message
-		decodedJobName := "backend/game-backend/xandreas/HC-7231"
-		mocks.AssertError(slackClient, message, "job *"+decodedJobName+"* is not whitelisted")
+		mocks.AssertError(slackClient, message, "job *backend/game-backend/xandreas%2FHC-7231* is not whitelisted")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -72,7 +70,7 @@ func TestJenkinsRetry(t *testing.T) {
 		message.Text = "retry job backend%2Fgame-backend%2Fxandreas%252FHC-7231"
 
 		ctx := context.TODO()
-		// The decoded job name should be passed to Jenkins
+		// The previous double-encoded command form remains supported.
 		decodedJobName := "backend/game-backend/xandreas%2FHC-7231"
 		jenkinsClient.On("GetJob", ctx, decodedJobName).Return(nil, errors.New("job not found"))
 		mocks.AssertSlackMessage(slackClient, message, "Job *"+decodedJobName+"* does not exist")

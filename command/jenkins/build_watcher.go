@@ -60,34 +60,27 @@ func (c *buildWatcherCommand) watch(match matcher.Result, message msg.Message) {
 		}
 	}
 
-	// URL decode the job name to handle multibranch pipeline names with encoded characters
-	decodedJobName, err := url.QueryUnescape(jobName)
-	if err != nil {
-		// If decoding fails, use the original job name
-		decodedJobName = jobName
-	}
-
 	ctx := context.Background()
-	job, err := c.jenkins.GetJob(ctx, decodedJobName)
+	job, err := c.jenkins.GetJob(ctx, jobName)
 	if err != nil {
-		c.SendMessage(message, fmt.Sprintf("Job *%s* does not exist", decodedJobName))
+		c.SendMessage(message, fmt.Sprintf("Job *%s* does not exist", jobName))
 		return
 	}
 
 	build, err := getBuild(ctx, job, buildNumber)
 	if err != nil {
-		c.SendMessage(message, fmt.Sprintf("Build *%s#%d* does not exist", decodedJobName, buildNumber))
+		c.SendMessage(message, fmt.Sprintf("Build *%s#%d* does not exist", jobName, buildNumber))
 		return
 	}
 
 	if !build.Raw.Building {
-		c.SendMessage(message, fmt.Sprintf("No job for *%s* is running right now", decodedJobName))
+		c.SendMessage(message, fmt.Sprintf("No job for *%s* is running right now", jobName))
 		return
 	}
 
 	text := fmt.Sprintf(
 		"Okay, I'll inform you when the job %s #%s is done",
-		decodedJobName,
+		jobName,
 		build.Info().ID,
 	)
 	attachment := client.GetAttachment(build, text)
@@ -95,7 +88,7 @@ func (c *buildWatcherCommand) watch(match matcher.Result, message msg.Message) {
 
 	runningCommand := queue.AddRunningCommand(
 		message,
-		fmt.Sprintf("inform job %s #%d", decodedJobName, build.GetBuildNumber()),
+		fmt.Sprintf("inform job %s #%d", jobName, build.GetBuildNumber()),
 	)
 
 	c.AddReaction(iconRunning, message)
@@ -122,7 +115,7 @@ func (c *buildWatcherCommand) watch(match matcher.Result, message msg.Message) {
 			"<@%s> *%s*: %s #%s: %s in %s",
 			message.User,
 			build.GetResult(),
-			decodedJobName,
+			jobName,
 			build.Info().ID,
 			build.GetUrl(),
 			util.FormatDuration(duration),

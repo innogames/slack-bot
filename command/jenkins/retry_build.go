@@ -3,7 +3,6 @@ package jenkins
 import (
 	"context"
 	"fmt"
-	"net/url"
 
 	"github.com/innogames/slack-bot/v2/bot"
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -30,31 +29,24 @@ func (c *retryCommand) GetMatcher() matcher.Matcher {
 }
 
 func (c *retryCommand) run(match matcher.Result, message msg.Message) {
-	jobName := match.GetString("job")
+	jobName := resolveJobName(match.GetString("job"), c.jobs)
 
-	// URL decode the job name to handle multibranch pipeline names with encoded characters
-	decodedJobName, err := url.QueryUnescape(jobName)
-	if err != nil {
-		// If decoding fails, use the original job name
-		decodedJobName = jobName
-	}
-
-	if _, ok := c.jobs[decodedJobName]; !ok {
-		c.ReplyError(message, fmt.Errorf("job *%s* is not whitelisted", decodedJobName))
+	if _, ok := c.jobs[jobName]; !ok {
+		c.ReplyError(message, fmt.Errorf("job *%s* is not whitelisted", jobName))
 		return
 	}
 
 	ctx := context.TODO()
-	job, err := c.jenkins.GetJob(ctx, decodedJobName)
+	job, err := c.jenkins.GetJob(ctx, jobName)
 	if err != nil {
-		c.SendMessage(message, fmt.Sprintf("Job *%s* does not exist", decodedJobName))
+		c.SendMessage(message, fmt.Sprintf("Job *%s* does not exist", jobName))
 		return
 	}
 
 	buildNumber := match.GetInt("build")
 	build, err := getBuild(ctx, job, buildNumber)
 	if err != nil {
-		c.ReplyError(message, fmt.Errorf("given build *%s #%d* does not exist: %w", decodedJobName, buildNumber, err))
+		c.ReplyError(message, fmt.Errorf("given build *%s #%d* does not exist: %w", jobName, buildNumber, err))
 		return
 	}
 
@@ -63,7 +55,7 @@ func (c *retryCommand) run(match matcher.Result, message msg.Message) {
 		parameters[param.Name] = fmt.Sprintf("%v", param.Value)
 	}
 
-	err = client.TriggerJenkinsJob(c.jobs[decodedJobName], decodedJobName, parameters, c.SlackClient, c.jenkins, message)
+	err = client.TriggerJenkinsJob(c.jobs[jobName], jobName, parameters, c.SlackClient, c.jenkins, message)
 	if err != nil {
 		c.ReplyError(message, err)
 	}

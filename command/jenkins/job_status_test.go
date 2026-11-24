@@ -50,9 +50,7 @@ func TestJobStatus(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "enable job backend/game-backend/xandreas%2FHC-7231"
 
-		// The decoded job name should be used in the error message
-		decodedJobName := "backend/game-backend/xandreas/HC-7231"
-		mocks.AssertSlackMessage(slackClient, message, "Sorry, job *"+decodedJobName+"* is not whitelisted")
+		mocks.AssertSlackMessage(slackClient, message, "Sorry, job *backend/game-backend/xandreas%2FHC-7231* is not whitelisted")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -69,7 +67,7 @@ func TestJobStatus(t *testing.T) {
 		message.Text = "disable job backend%2Fgame-backend%2Fxandreas%252FHC-7231"
 
 		ctx := context.TODO()
-		// The decoded job name should be passed to Jenkins
+		// The previous double-encoded command form remains supported.
 		decodedJobName := "backend/game-backend/xandreas%2FHC-7231"
 		jenkins.On("GetJob", ctx, decodedJobName).Return(nil, errors.New("job not found"))
 		mocks.AssertError(slackClient, message, "job not found")

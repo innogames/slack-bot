@@ -3,7 +3,6 @@ package jenkins
 import (
 	"context"
 	"fmt"
-	"net/url"
 	"sync"
 
 	"github.com/innogames/slack-bot/v2/bot"
@@ -39,34 +38,27 @@ func (c *watcherCommand) run(match matcher.Result, message msg.Message) {
 	action := match.GetString("action")
 	jobName := match.GetString("job")
 
-	// URL decode the job name to handle multibranch pipeline names with encoded characters
-	decodedJobName, err := url.QueryUnescape(jobName)
-	if err != nil {
-		// If decoding fails, use the original job name
-		decodedJobName = jobName
-	}
-
 	if action == actionWatch {
 		stop := make(chan bool, 1)
 		ctx := context.TODO()
 		// todo use context.WithCancel instead of stopper chan
 		c.mu.Lock()
-		c.stopper[decodedJobName+message.GetUser()] = stop
+		c.stopper[jobName+message.GetUser()] = stop
 		c.mu.Unlock()
-		builds, err := client.WatchJob(ctx, c.jenkins, decodedJobName, stop)
+		builds, err := client.WatchJob(ctx, c.jenkins, jobName, stop)
 		if err != nil {
 			c.ReplyError(message, err)
 			return
 		}
 
-		c.SendMessage(message, fmt.Sprintf("Okay, I'll watch %s\nUnwatch via `unwatch %s`", decodedJobName, decodedJobName))
+		c.SendMessage(message, fmt.Sprintf("Okay, I'll watch %s\nUnwatch via `unwatch %s`", jobName, jobName))
 
 		go func() {
 			for build := range builds {
 				c.SendMessage(message, fmt.Sprintf(
 					"*%s*: %s #%d: %s",
 					build.GetResult(),
-					decodedJobName,
+					jobName,
 					build.GetBuildNumber(),
 					build.GetUrl()),
 				)
@@ -76,13 +68,13 @@ func (c *watcherCommand) run(match matcher.Result, message msg.Message) {
 
 	if action == actionUnwatch {
 		c.mu.Lock()
-		stop, ok := c.stopper[decodedJobName+message.User]
+		stop, ok := c.stopper[jobName+message.User]
 		c.mu.Unlock()
 		if ok {
 			stop <- true
 		}
 
-		c.SendMessage(message, "Okay, you just unwatched "+decodedJobName)
+		c.SendMessage(message, "Okay, you just unwatched "+jobName)
 	}
 }
 
