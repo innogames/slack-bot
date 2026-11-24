@@ -31,6 +31,9 @@ jobs:
   test-extended:
     name: Run race+coverage tests
     runs-on: "ubuntu-latest"
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Install Go
         uses: actions/setup-go@v7
@@ -55,6 +58,7 @@ jobs:
         with:
           files: ./build/cover.out
           fail_ci_if_error: true
+          use_oidc: true
       - name: Build examples
         run: |
           cd examples/custom_commands && make
