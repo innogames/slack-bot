@@ -3,7 +3,6 @@ package jenkins
 import (
 	"context"
 	"fmt"
-	"net/url"
 	"text/template"
 
 	"github.com/bndr/gojenkins"
@@ -33,27 +32,20 @@ func (c *statusCommand) GetMatcher() matcher.Matcher {
 
 func (c *statusCommand) run(match matcher.Result, message msg.Message) {
 	action := match.GetString("action")
-	jobName := match.GetString("job")
-
-	// URL decode the job name to handle multibranch pipeline names with encoded characters
-	decodedJobName, err := url.QueryUnescape(jobName)
-	if err != nil {
-		// If decoding fails, use the original job name
-		decodedJobName = jobName
-	}
+	jobName := resolveJobName(match.GetString("job"), c.jobs)
 
 	ctx := context.TODO()
 
-	if _, ok := c.jobs[decodedJobName]; !ok {
+	if _, ok := c.jobs[jobName]; !ok {
 		text := fmt.Sprintf(
 			"Sorry, job *%s* is not whitelisted",
-			decodedJobName,
+			jobName,
 		)
 		c.SendMessage(message, text)
 		return
 	}
 
-	job, err := c.jenkins.GetJob(ctx, decodedJobName)
+	job, err := c.jenkins.GetJob(ctx, jobName)
 	if err != nil {
 		c.ReplyError(message, err)
 		return
@@ -63,10 +55,10 @@ func (c *statusCommand) run(match matcher.Result, message msg.Message) {
 
 	if action == actionEnable {
 		_, err = job.Enable(ctx)
-		text = fmt.Sprintf("Job *%s* is enabled now", decodedJobName)
+		text = fmt.Sprintf("Job *%s* is enabled now", jobName)
 	} else {
 		_, err = job.Disable(ctx)
-		text = fmt.Sprintf("Job *%s* is disabled now", decodedJobName)
+		text = fmt.Sprintf("Job *%s* is disabled now", jobName)
 	}
 
 	if err != nil {

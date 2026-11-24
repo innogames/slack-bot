@@ -63,10 +63,8 @@ func TestJenkinsTrigger(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "trigger job backend/game-backend/xandreas%2FHC-7231"
 
-		// The decoded job name should be used in the error message
-		decodedJobName := "backend/game-backend/xandreas/HC-7231"
 		expectedJobs := "Prefix/Test* \n - *TestJob* \n - *TestJobWithTrigger* \n - *TestJobWithoutTrigger"
-		mocks.AssertSlackMessage(slackClient, message, "Sorry, job *"+decodedJobName+"* is not startable. Possible jobs: \n - *"+expectedJobs+"*")
+		mocks.AssertSlackMessage(slackClient, message, "Sorry, job *backend/game-backend/xandreas%2FHC-7231* is not startable. Possible jobs: \n - *"+expectedJobs+"*")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -110,6 +108,12 @@ func TestJenkinsTrigger(t *testing.T) {
 		mocks.AssertError(slackClient, message, "sorry, missing 1 of 1 job parameters: PARAM1")
 
 		actual := testCommand.Run(message)
+		assert.True(t, actual)
+
+		// The natural, single-encoded form resolves to the same whitelist entry.
+		message.Text = "trigger job backend/game-backend/xandreas%2FHC-7231"
+		mocks.AssertError(slackClient, message, "sorry, missing 1 of 1 job parameters: PARAM1")
+		actual = testCommand.Run(message)
 		assert.True(t, actual)
 	})
 

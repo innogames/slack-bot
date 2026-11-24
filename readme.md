@@ -512,6 +512,19 @@ jenkins:
 ```
 Start it with `trigger job CleanupJob` or `start job CleanupJob`.
 
+For multibranch pipelines, configure each branch or pull-request child job separately. Use `/` between nested jobs, without Jenkins's literal `/job/` URL segments, and keep slashes within a branch name URL-encoded as `%2F`:
+```yaml
+jenkins:
+  jobs:
+    deployer/main:
+    deployer/PR-123:
+    deployer/feature%2Ffoo:
+      parameters:
+        - name: foo
+          default: bar
+```
+For example, `trigger job deployer/feature%2Ffoo` starts the `feature/foo` branch child of `deployer`.
+
 A job with two parameters:
 ```yaml
 jenkins:

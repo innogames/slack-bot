@@ -2,7 +2,6 @@ package jenkins
 
 import (
 	"fmt"
-	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -64,16 +63,9 @@ func (c *triggerCommand) GetMatcher() matcher.Matcher {
 
 // e.g. triggered by "trigger job DeployBranch master de3"
 func (c *triggerCommand) genericCall(match matcher.Result, message msg.Message) {
-	jobName := match.GetString("job")
+	jobName := resolveJobName(match.GetString("job"), c.cfg)
 
-	// URL decode the job name to handle multibranch pipeline names with encoded characters
-	decodedJobName, err := url.QueryUnescape(jobName)
-	if err != nil {
-		// If decoding fails, use the original job name
-		decodedJobName = jobName
-	}
-
-	if _, ok := c.jobs[decodedJobName]; !ok {
+	if _, ok := c.jobs[jobName]; !ok {
 		if len(c.jobs) == 0 {
 			c.SendMessage(message, "no job defined in config: jenkins.jobs")
 			return
@@ -81,24 +73,24 @@ func (c *triggerCommand) genericCall(match matcher.Result, message msg.Message) 
 
 		text := fmt.Sprintf(
 			"Sorry, job *%s* is not startable. Possible jobs: \n - *%s*",
-			decodedJobName,
+			jobName,
 			strings.Join(c.cfg.GetSortedNames(), "* \n - *"),
 		)
 		c.SendMessage(message, text)
 		return
 	}
 
-	jobConfig := c.jobs[decodedJobName]
+	jobConfig := c.jobs[jobName]
 	parameterString := strings.TrimSpace(match.GetString("parameters"))
 
 	finalParameters := make(jenkinsClient.Parameters)
-	err = jenkinsClient.ParseParameters(jobConfig.config, parameterString, finalParameters)
+	err := jenkinsClient.ParseParameters(jobConfig.config, parameterString, finalParameters)
 	if err != nil {
 		c.ReplyError(message, err)
 		return
 	}
 
-	c.triggerOrRequestApproval(decodedJobName, jobConfig.config, finalParameters, message)
+	c.triggerOrRequestApproval(jobName, jobConfig.config, finalParameters, message)
 }
 
 // check trigger defined in Jenkins.Jobs.*.Trigger

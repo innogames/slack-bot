@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 	"net/http"
-	"net/url"
 	"strings"
 
 	"github.com/bndr/gojenkins"
@@ -44,27 +43,25 @@ func createJenkinsClient(ctx context.Context, httpClient *http.Client, cfg confi
 }
 
 func (c *jenkinsClientImpl) GetJob(ctx context.Context, id string) (*gojenkins.Job, error) {
-	// First decode any URL-encoded characters in the job ID
-	decodedID := id
-	if strings.Contains(id, "%") {
-		if decoded, err := url.QueryUnescape(id); err == nil {
-			decodedID = decoded
-		}
-	}
-
-	// split jobs id by "/" to be able to access inner job
-	jobs := strings.Split(decodedID, "/")
+	// Slashes separate nested jobs. Individual job names stay URL-encoded so an
+	// encoded slash in a multibranch branch name is not mistaken for a separator.
+	jobs := strings.Split(id, "/")
 
 	jobsCount := len(jobs)
 	if jobsCount > 1 {
 		return c.client.GetJob(ctx, jobs[jobsCount-1], jobs[:jobsCount-1]...)
 	}
 
-	return c.client.GetJob(ctx, decodedID)
+	return c.client.GetJob(ctx, id)
 }
 
 func (c *jenkinsClientImpl) BuildJob(ctx context.Context, name string, params map[string]string) (int64, error) {
-	return c.client.BuildJob(ctx, name, params)
+	job, err := c.GetJob(ctx, name)
+	if err != nil {
+		return 0, err
+	}
+
+	return job.InvokeSimple(ctx, params)
 }
 
 func (c *jenkinsClientImpl) GetAllNodes(ctx context.Context) ([]*gojenkins.Node, error) {

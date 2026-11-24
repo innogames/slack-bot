@@ -34,9 +34,7 @@ func TestJenkinsWatcher(t *testing.T) {
 		message.Text = "watch backend/game-backend/xandreas%2FHC-7231"
 
 		ctx := context.TODO()
-		// The decoded job name should be passed to Jenkins
-		decodedJobName := "backend/game-backend/xandreas/HC-7231"
-		jenkinsClient.On("GetJob", ctx, decodedJobName).Return(nil, fmt.Errorf("404"))
+		jenkinsClient.On("GetJob", ctx, "backend/game-backend/xandreas%2FHC-7231").Return(nil, fmt.Errorf("404"))
 		mocks.AssertError(slackClient, message, "404")
 
 		actual := command.Run(message)
@@ -57,9 +55,7 @@ func TestJenkinsWatcher(t *testing.T) {
 		message := msg.Message{}
 		message.Text = "unwatch backend/game-backend/xandreas%2FHC-7231"
 
-		// The decoded job name should be used in the response
-		decodedJobName := "backend/game-backend/xandreas/HC-7231"
-		mocks.AssertSlackMessage(slackClient, message, "Okay, you just unwatched "+decodedJobName)
+		mocks.AssertSlackMessage(slackClient, message, "Okay, you just unwatched backend/game-backend/xandreas%2FHC-7231")
 
 		actual := command.Run(message)
 		assert.True(t, actual)

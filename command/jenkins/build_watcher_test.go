@@ -44,10 +44,8 @@ func TestBuildWatcher(t *testing.T) {
 		message.Text = "notify build backend/game-backend/xandreas%2FHC-7231"
 
 		ctx := context.Background()
-		// The decoded job name should be passed to Jenkins
-		decodedJobName := "backend/game-backend/xandreas/HC-7231"
-		jenkinsClient.On("GetJob", ctx, decodedJobName).Return(nil, errors.New(""))
-		mocks.AssertSlackMessage(slackClient, message, "Job *backend/game-backend/xandreas/HC-7231* does not exist")
+		jenkinsClient.On("GetJob", ctx, "backend/game-backend/xandreas%2FHC-7231").Return(nil, errors.New(""))
+		mocks.AssertSlackMessage(slackClient, message, "Job *backend/game-backend/xandreas%2FHC-7231* does not exist")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -57,10 +55,8 @@ func TestBuildWatcher(t *testing.T) {
 		message.Text = "notify build backend/game-backend/xandreas%252FHC-7231"
 
 		ctx := context.Background()
-		// The decoded job name should be passed to Jenkins (%252F becomes %2F, then /)
-		decodedJobName := "backend/game-backend/xandreas%2FHC-7231"
-		jenkinsClient.On("GetJob", ctx, decodedJobName).Return(nil, errors.New(""))
-		mocks.AssertSlackMessage(slackClient, message, "Job *backend/game-backend/xandreas%2FHC-7231* does not exist")
+		jenkinsClient.On("GetJob", ctx, "backend/game-backend/xandreas%252FHC-7231").Return(nil, errors.New(""))
+		mocks.AssertSlackMessage(slackClient, message, "Job *backend/game-backend/xandreas%252FHC-7231* does not exist")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -70,10 +66,8 @@ func TestBuildWatcher(t *testing.T) {
 		message.Text = "notify build backend/game-backend/feature%2Fbranch%2Btest"
 
 		ctx := context.Background()
-		// The decoded job name should handle multiple URL-encoded characters
-		decodedJobName := "backend/game-backend/feature/branch+test"
-		jenkinsClient.On("GetJob", ctx, decodedJobName).Return(nil, errors.New(""))
-		mocks.AssertSlackMessage(slackClient, message, "Job *backend/game-backend/feature/branch+test* does not exist")
+		jenkinsClient.On("GetJob", ctx, "backend/game-backend/feature%2Fbranch%2Btest").Return(nil, errors.New(""))
+		mocks.AssertSlackMessage(slackClient, message, "Job *backend/game-backend/feature%2Fbranch%2Btest* does not exist")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
@@ -110,9 +104,8 @@ func TestBuildWatcher(t *testing.T) {
 		message.Text = "inform job https://jenkins.example.com/job/Pipeline/job/feature%2Fbranch/456/"
 
 		ctx := context.Background()
-		// URL-encoded %2F gets decoded to /
-		jenkinsClient.On("GetJob", ctx, "Pipeline/feature/branch").Return(nil, errors.New(""))
-		mocks.AssertSlackMessage(slackClient, message, "Job *Pipeline/feature/branch* does not exist")
+		jenkinsClient.On("GetJob", ctx, "Pipeline/feature%2Fbranch").Return(nil, errors.New(""))
+		mocks.AssertSlackMessage(slackClient, message, "Job *Pipeline/feature%2Fbranch* does not exist")
 		actual := command.Run(message)
 		assert.True(t, actual)
 	})
