@@ -31,6 +31,9 @@ jobs:
   test-extended:
     name: Run race+coverage tests
     runs-on: "ubuntu-latest"
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Install Go
         uses: actions/setup-go@v7
@@ -52,6 +55,10 @@ jobs:
           BOT_GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload Coverage
         uses: codecov/codecov-action@v7
+        with:
+          files: ./build/cover.out
+          fail_ci_if_error: true
+          use_oidc: true
       - name: Build examples
         run: |
           cd examples/custom_commands && make

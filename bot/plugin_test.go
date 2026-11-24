@@ -2,6 +2,7 @@ package bot
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	"github.com/innogames/slack-bot/v2/bot/config"
@@ -203,9 +204,19 @@ func TestLoadPlugins(t *testing.T) {
 		cfg.Set("aws.enabled", true)
 		loadPlugins(slackClient, cfg)
 
-		require.NotNil(t, logHook.LastEntry())
-		assert.Equal(t, logrus.WarnLevel, logHook.LastEntry().Level)
-		assert.Contains(t, logHook.LastEntry().Message, `The "aws" config section is not used anymore: the commands moved into the "aws" plugin`)
+		// don't rely on LastEntry() here: goroutines from other tests might log into
+		// the global logrus hook at any time
+		var warning *logrus.Entry
+		for _, entry := range logHook.AllEntries() {
+			if strings.Contains(entry.Message, `The "aws" config section is not used anymore`) {
+				warning = entry
+				break
+			}
+		}
+
+		require.NotNil(t, warning)
+		assert.Equal(t, logrus.WarnLevel, warning.Level)
+		assert.Contains(t, warning.Message, `The "aws" config section is not used anymore: the commands moved into the "aws" plugin`)
 	})
 
 	t.Run("register plugins", func(t *testing.T) {
