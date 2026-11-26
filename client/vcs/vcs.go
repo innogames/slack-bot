@@ -21,17 +21,13 @@ type BranchFetcher interface {
 
 // InitBranchWatcher will load the current branches each X from the configured VCS -> e.g. used for branch lookup for Jenkins parameters
 func InitBranchWatcher(cfg *config.Config, ctx *util.ServerContext) {
-	var err error
 	fetcher := createBranchFetcher(cfg)
 
 	ticker := time.NewTicker(cfg.BranchLookup.UpdateInterval)
 	defer ticker.Stop()
 
 	for {
-		branches, err = fetcher.LoadBranches()
-		if err != nil {
-			log.Error(err)
-		}
+		refreshBranches(fetcher)
 
 		select {
 		case <-ticker.C:
@@ -41,6 +37,18 @@ func InitBranchWatcher(cfg *config.Config, ctx *util.ServerContext) {
 			return
 		}
 	}
+}
+
+// refreshBranches updates the cached branch list. If the VCS is not reachable, the already known branches are kept:
+// with an empty list, the branch lookup would pass any (partial) branch name unresolved to e.g. Jenkins
+func refreshBranches(fetcher BranchFetcher) {
+	loadedBranches, err := fetcher.LoadBranches()
+	if err != nil {
+		log.Errorf("Failed to load branches, keeping the %d known ones: %s", len(branches), err)
+		return
+	}
+
+	branches = loadedBranches
 }
 
 // GetBranches returns a list of currently known branches
