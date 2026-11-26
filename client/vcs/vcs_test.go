@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -60,6 +61,41 @@ func TestInitBranchWatcher(t *testing.T) {
 		fetcher := createBranchFetcher(cfg)
 
 		assert.IsType(t, &bitbucket{}, fetcher)
+	})
+}
+
+type testFetcher struct {
+	branches []string
+	err      error
+}
+
+func (f testFetcher) LoadBranches() ([]string, error) {
+	return f.branches, f.err
+}
+
+func TestRefreshBranches(t *testing.T) {
+	oldBranches := branches
+	defer func() { branches = oldBranches }()
+
+	t.Run("Successful refresh replaces the branches", func(t *testing.T) {
+		branches = []string{"master"}
+
+		refreshBranches(testFetcher{branches: []string{"master", "release/3.12.23"}})
+
+		assert.Equal(t, []string{"master", "release/3.12.23"}, GetBranches())
+	})
+
+	t.Run("Failed refresh keeps the known branches", func(t *testing.T) {
+		branches = []string{"master", "feature/PROJ-1234-do-something"}
+
+		refreshBranches(testFetcher{err: errors.New("connection refused")})
+
+		assert.Equal(t, []string{"master", "feature/PROJ-1234-do-something"}, GetBranches())
+
+		// the lookup still resolves partial names instead of passing them through
+		actual, err := GetMatchingBranch("PROJ-1234")
+		require.NoError(t, err)
+		assert.Equal(t, "feature/PROJ-1234-do-something", actual)
 	})
 }
 
